@@ -38,6 +38,10 @@ model User {
   posts         Post[]
   documents     Document[]
 
+  // Communication relations
+  contactReplies ContactMessage[] @relation("RepliedBy")
+  problemResolutions ProblemReport[] @relation("ResolvedBy")
+
   @@index([email])
   @@index([role])
   @@map("user")
@@ -234,4 +238,75 @@ model GalleryImage {
 
   @@index([galleryId, sortOrder])
   @@map("gallery_images")
+}
+
+// ============================================================================
+// COMMUNICATION TABLES
+// ============================================================================
+
+model ContactMessage {
+  id        String    @id @default(uuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  status    String    @default("new") // 'new', 'read', 'replied', 'archived'
+  repliedAt DateTime? @map("replied_at")
+  repliedBy String?   @map("replied_by")
+  ipAddress String?   @map("ip_address")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  replier User? @relation("RepliedBy", fields: [repliedBy], references: [id])
+
+  @@index([status, createdAt(sort: Desc)])
+  @@map("contact_messages")
+}
+
+model ProblemReport {
+  id              String    @id @default(uuid())
+  reporterName    String?   @map("reporter_name")
+  reporterEmail   String?   @map("reporter_email")
+  reporterPhone   String?   @map("reporter_phone")
+  problemType     String    @map("problem_type") // 'cesta', 'rasvjeta', 'otpad', 'komunalno', 'ostalo'
+  location        String
+  description     String
+  images          Json?     // [{url, caption}] R2 URLs
+  status          String    @default("new") // 'new', 'in_progress', 'resolved', 'rejected'
+  resolutionNotes String?   @map("resolution_notes")
+  resolvedAt      DateTime? @map("resolved_at")
+  resolvedBy      String?   @map("resolved_by")
+  ipAddress       String?   @map("ip_address")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  resolver User? @relation("ResolvedBy", fields: [resolvedBy], references: [id])
+
+  @@index([status, createdAt(sort: Desc)])
+  @@map("problem_reports")
+}
+
+model NewsletterSubscriber {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  confirmed         Boolean   @default(false)
+  confirmationToken String?   @map("confirmation_token")
+  confirmedAt       DateTime? @map("confirmed_at")
+  unsubscribedAt    DateTime? @map("unsubscribed_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  @@index([confirmed])
+  @@map("newsletter_subscribers")
+}
+
+model NewsletterSend {
+  id             String   @id @default(uuid())
+  subject        String
+  contentHtml    String   @map("content_html")
+  contentText    String   @map("content_text")
+  sentAt         DateTime @default(now()) @map("sent_at")
+  recipientCount Int?     @map("recipient_count")
+  postsIncluded  Json?    @map("posts_included") // [{id, title}]
+  eventsIncluded Json?    @map("events_included") // [{id, title}]
+  isManual       Boolean  @default(false) @map("is_manual")
+
+  @@map("newsletter_sends")
 }
