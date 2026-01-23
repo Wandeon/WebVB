@@ -191,20 +191,40 @@ If timeline pressure mounts:
 
 ## Payments
 
-### Payment Schedule
+### Development Payment (€5,250 total)
 
-| Milestone | Percentage | Amount | Trigger |
-|-----------|------------|--------|---------|
-| Contract Signed | 30% | €1,575 | Signed agreement |
-| Design Approved | 30% | €1,575 | Phase 1-2 approval |
-| Pre-Launch | 30% | €1,575 | Phase 8 approval |
-| Launch + 14 days | 10% | €525 | Site live, stable |
+6 equal monthly payments:
 
-### Payment Terms
+| Payment | Amount | Trigger |
+|---------|--------|---------|
+| Month 1 | €875 | Order confirmation |
+| Month 2 | €875 | 30 days after start |
+| Month 3 | €875 | 60 days after start |
+| Month 4 | €875 | 90 days after start |
+| Month 5 | €875 | 120 days after start |
+| Month 6 | €875 | 150 days after start |
 
-- Invoice sent at milestone completion
-- Payment due within 14 days
-- Work may pause if payment overdue > 30 days
+### Post-Launch Support & Hosting
+
+| Period | Monthly Fee | Includes |
+|--------|-------------|----------|
+| Months 1-12 (after launch) | €0 | Included in project price |
+| Month 13+ | €60/month | LLM hosting, VPS, support, maintenance |
+
+### What's Included in €60/month (after month 12)
+
+- VPS hosting (Netcup)
+- Ollama Cloud LLM costs
+- Bug fixes and minor updates
+- Security patches
+- Backup monitoring
+- Email support (response within 48h)
+
+### Not Included in Monthly Fee
+
+- New features → Quoted separately
+- Major redesigns → Quoted separately
+- Training new staff → €50/hour
 
 ---
 
@@ -244,31 +264,42 @@ If timeline pressure mounts:
 
 ## Post-Launch Support
 
-### Warranty Period (Included)
+### First 12 Months (Included in Project Price)
 
-| Duration | Coverage |
-|----------|----------|
-| 30 days post-launch | Bug fixes (errors, broken features) |
-| Not covered | New features, content changes, training |
+| Coverage | Details |
+|----------|---------|
+| Bug fixes | Errors, broken features |
+| Security patches | Critical updates |
+| Minor adjustments | Small tweaks, text changes |
+| Email support | Response within 48 hours |
+| Hosting | VPS + LLM costs covered |
 
-### After Warranty
+### After Month 12 (€60/month subscription)
+
+Subscription includes everything above, plus:
+- Ongoing LLM/AI hosting costs
+- VPS maintenance
+- Backup monitoring
+- Priority support
+
+### Not Included (Any Time)
 
 | Service | Rate |
 |---------|------|
-| Bug fixes | €50/hour |
-| New features | €50/hour (quoted per feature) |
-| Emergency support | €75/hour |
-| Monthly retainer (optional) | €200/month for 5 hours |
+| New features | Quoted per feature |
+| Major redesigns | Quoted separately |
+| Training new staff | €50/hour |
+| Emergency same-day support | €75/hour |
 
-### Support Process (Post-Warranty)
+### Support Process
 
 ```
 1. Client reports issue via email
-2. Developer acknowledges within 24 hours
-3. Developer provides estimate (hours/cost)
-4. Client approves
+2. Developer acknowledges within 24-48 hours
+3. If included in support: Fixed
+4. If not included: Estimate provided, client approves
 5. Work completed
-6. Invoice sent
+6. Invoice sent (if applicable)
 ```
 
 ---
