@@ -14,7 +14,9 @@
 | [SECURITY.md](docs/SECURITY.md) | Authentication, VPS hardening, compliance, env variables |
 | [DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) | Design tokens, components, animations, responsive behavior |
 | [OPERATIONS.md](docs/OPERATIONS.md) | Testing, performance, monitoring, development process |
-| [ROADMAP.md](ROADMAP.md) | 8-phase implementation plan (AI features last) |
+| [MIGRATION.md](docs/MIGRATION.md) | WordPress export, content mapping, migration scripts, redirects |
+| [ROADMAP.md](ROADMAP.md) | 9-phase implementation plan (AI features last) |
+| [HUMAN-TODO.md](HUMAN-TODO.md) | Manual tasks requiring human action (accounts, credentials, decisions) |
 | [CLAUDE.md](CLAUDE.md) | AI assistant instructions |
 | [AGENTS.md](AGENTS.md) | Agent definitions and Definition of Done |
 
