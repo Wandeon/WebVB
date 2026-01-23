@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** Not Started
-**Overall Progress:** 0/71 sprints
+**Active Sprint:** 0.2 - Database Schema
+**Overall Progress:** 1/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 0.1 execution review in `docs/audits/PHASE-0.1-EXECUTION-REVIEW.md`
 
@@ -76,12 +76,12 @@
 ---
 
 ## Phase 0: Foundation
-**Status:** Not Started | **Progress:** 0/6 | **Track:** A
+**Status:** In Progress | **Progress:** 1/6 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 0.1 ⬜ | Project scaffold | No | - | `pnpm build` succeeds for both apps |
-| 0.2 ⬜ | Database schema | 🔀 | 0.1 | `pnpm db:push` creates all tables |
+| 0.1 ✅ | Project scaffold | No | - | `pnpm build` succeeds for both apps |
+| 0.2 🔄 | Database schema | 🔀 | 0.1 | `pnpm db:push` creates all tables |
 | 0.3 ⬜ | Better Auth setup | 🔀 | 0.1 | Login/logout works, session persists |
 | 0.4 ⬜ | UI foundation | 🔀 | 0.1 | Button + Input + Card render correctly |
 | 0.5 ⬜ | CI/CD pipeline | 🔀 | 0.1 | PR triggers lint + type-check + test |
