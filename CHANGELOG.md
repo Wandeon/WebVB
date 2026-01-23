@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 - No unreleased changes.
 
+## Sprint 0.3 - Better Auth Setup (Completed)
+- Better Auth library installed and configured
+- Prisma adapter with PostgreSQL database
+- Email/password authentication enabled
+- Google OAuth provider configured (requires credentials in .env)
+- Session management with 7-day expiration and cookie caching
+- Session provider component for React context
+- Protected route wrapper with role-based access control
+- Login page with Croatian labels
+- Logout functionality on dashboard
+- Path alias (@/*) configured for clean imports
+- Gate: Login with email/password, session persists on refresh
+
 ## Sprint 0.2 - Database Schema (Completed)
 - Complete Prisma schema with 19 database tables
 - Better Auth tables: User, Session, Account, Verification, Passkey, TwoFactor
