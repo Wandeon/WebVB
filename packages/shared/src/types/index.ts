@@ -1,15 +1,35 @@
 // Common types used across apps
+// These mirror the Prisma schema for use in frontend code
 
 export type UserRole = 'super_admin' | 'admin' | 'staff';
 
 export interface User {
   id: string;
-  email: string;
   name: string;
+  email: string;
+  emailVerified: boolean;
+  image: string | null;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type PostCategory =
+  | 'aktualnosti'
+  | 'gospodarstvo'
+  | 'sport'
+  | 'komunalno'
+  | 'kultura'
+  | 'obrazovanje'
+  | 'ostalo';
+
+export type ProblemType = 'cesta' | 'rasvjeta' | 'otpad' | 'komunalno' | 'ostalo';
+
+export type ContactStatus = 'new' | 'read' | 'replied' | 'archived';
+
+export type ProblemStatus = 'new' | 'in_progress' | 'resolved' | 'rejected';
+
+export type AiQueueStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -28,4 +48,9 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     total: number;
     totalPages: number;
   };
+}
+
+export interface ImageData {
+  url: string;
+  caption?: string;
 }
