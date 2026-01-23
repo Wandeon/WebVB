@@ -23,24 +23,29 @@
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  CLOUDFLARE (CDN + Security)                                    │
-│  ├── DDoS Protection                                            │
-│  ├── WAF (Web Application Firewall)                             │
-│  ├── SSL Termination                                            │
-│  ├── Caching (static assets, HTML pages)                        │
-│  ├── Analytics                                                  │
-│  └── Workers (API edge functions if needed)                     │
+│  CLOUDFLARE                                                     │
+│  ├── Pages (public site)    ├── R2 (images, backups)           │
+│  ├── CDN + WAF + DDoS       ├── Analytics                       │
+│  └── DNS                    └── SSL                             │
 └───────────────┬─────────────────────────────┬───────────────────┘
                 │                             │
                 ▼                             ▼
 ┌───────────────────────────┐   ┌─────────────────────────────────┐
-│  SITEGROUND (Static)      │   │  NETCUP VPS 1000 G12            │
-│  ├── Public website       │   │  ├── Admin Panel (Next.js SSR)  │
+│  CLOUDFLARE PAGES         │   │  NETCUP VPS 1000 G12            │
+│  ├── Public website       │   │  ├── Admin Panel (Next.js 16)   │
 │  │   (static HTML/CSS/JS) │   │  ├── PostgreSQL + pgvector      │
-│  └── Image assets         │   │  ├── Ollama (embeddings)        │
-│                           │   │  └── Backup jobs                │
+│  └── Git-based deploy     │   │  ├── Ollama (embeddings)        │
+│                           │   │  └── Better Auth                │
 │  velikibukovec.hr         │   │  admin.velikibukovec.hr         │
 └───────────────────────────┘   └─────────────────────────────────┘
+                                              │
+                ┌─────────────────────────────┼─────────────────┐
+                ▼                             ▼                 ▼
+       ┌──────────────┐              ┌──────────────┐   ┌──────────────┐
+       │ Ollama Cloud │              │  Cloudflare  │   │  Siteground  │
+       │ Llama 3.1 70B│              │      R2      │   │   (Email)    │
+       │  (Pro plan)  │              │   (Images)   │   │              │
+       └──────────────┘              └──────────────┘   └──────────────┘
 ```
 
 ### Architecture Principles
@@ -48,9 +53,10 @@
 | Principle | Implementation |
 |-----------|----------------|
 | Security first | All internal services localhost-only, Tailscale VPN |
-| Static where possible | Public site pre-rendered, cached at edge |
+| Static where possible | Public site pre-rendered, deployed to Cloudflare Pages |
 | Simple over clever | REST API, PostgreSQL, no microservices |
 | Mobile first | Design for 375px first, then scale up |
+| Export-safe | Public app has no runtime Route Handlers, all params resolvable at build |
 
 ---
 
@@ -60,12 +66,13 @@
 
 | Service | Provider | Purpose | Cost |
 |---------|----------|---------|------|
-| CDN & Security | Cloudflare (Free) | Caching, DDoS, WAF, Analytics | Free |
-| Public Site | Siteground | Static HTML hosting | Already paid |
-| Admin + API | Netcup VPS 1000 G12 | Next.js SSR, PostgreSQL | ~€8/mo |
-| LLM API | Ollama Cloud | Content generation (Llama 3.1 70B) | €20/mo |
-| Backups | Cloudflare R2 | Database + file backups | ~€5-10/mo |
-| **Total** | | | **~€33-38/mo** |
+| Public Site | Cloudflare Pages | Static HTML hosting, Git deploy | Free |
+| CDN & Security | Cloudflare | DDoS, WAF, Analytics, DNS | Free |
+| Images & Backups | Cloudflare R2 | Zero-egress storage | ~€5-15/mo |
+| Admin + API | Netcup VPS 1000 G12 | Next.js 16 SSR, PostgreSQL | ~€8/mo |
+| LLM API | Ollama Cloud (Pro) | Content generation (Llama 3.1 70B) | ~€20-30/mo |
+| Email | Siteground | Email hosting, backup static | Already paid |
+| **Total** | | | **~€33-53/mo** |
 
 ### VPS Specifications (Netcup VPS 1000 G12)
 
@@ -73,26 +80,35 @@
 - RAM: 8 GB
 - Storage: 256 GB NVMe SSD
 - Bandwidth: Unmetered
-- OS: Ubuntu 22.04 LTS
+- OS: Ubuntu 24.04 LTS
 
 ### Storage Strategy
 
 ```
-┌─────────────────────────────────────────────────┐
-│  FILE STORAGE                                   │
-│  Phase 1: VPS local (256GB NVMe available)      │
-│  Phase 2: Migrate to Cloudflare R2 (if needed)  │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  IMAGE STORAGE (Cloudflare R2)                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  Upload Flow:                                                   │
+│  1. User uploads image in admin                                 │
+│  2. Sharp processes on VPS (resize, WebP, strip metadata)       │
+│  3. Variants uploaded to R2 (thumbnail, medium, large)          │
+│  4. Public site loads from R2 via Cloudflare CDN                │
+│                                                                 │
+│  Bucket: velikibukovec-images                                   │
+│  Public access: Yes (via custom domain or r2.dev)               │
+└─────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────┐
-│  BACKUP STRATEGY                                │
-│  Frequency: Daily (automated cron)              │
-│  Retention: 3 months (90 days)                  │
-│  Storage: Cloudflare R2                         │
-│  Contents:                                      │
-│    • PostgreSQL database dump                   │
-│    • Uploaded files (documents, images)         │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  BACKUP STRATEGY                                                │
+├─────────────────────────────────────────────────────────────────┤
+│  Frequency: Daily (automated cron)                              │
+│  Retention: 3 months (90 days)                                  │
+│  Storage: Cloudflare R2                                         │
+│  Bucket: velikibukovec-backups                                  │
+│  Contents:                                                      │
+│    • PostgreSQL database dump (encrypted)                       │
+│    • Uploaded documents (PDFs)                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -101,12 +117,13 @@
 
 | Domain | Purpose | Hosting |
 |--------|---------|---------|
-| `velikibukovec.hr` | Public website | Siteground + Cloudflare |
-| `admin.velikibukovec.hr` | Admin panel | VPS + Cloudflare |
+| `velikibukovec.hr` | Public website | Cloudflare Pages |
+| `admin.velikibukovec.hr` | Admin panel | VPS + Cloudflare proxy |
+| `images.velikibukovec.hr` | Image CDN (optional) | Cloudflare R2 custom domain |
 
 ### Why Subdomain for Admin
 
-- Separate deployment (VPS vs Siteground)
+- Separate deployment (VPS vs Cloudflare Pages)
 - Different caching rules
 - Better security isolation
 - Cleaner separation of concerns
@@ -115,27 +132,63 @@
 
 - Both domains proxied through Cloudflare
 - Cloudflare provides free SSL (edge certificates)
-- Origin connection: Cloudflare → Siteground/VPS (flexible or full mode)
+- Origin connection: Cloudflare → VPS (Full Strict mode)
 - No manual cert management needed
 
 ---
 
 ## Deployment Strategy
 
-### Publish Flow
+### Public Site (Cloudflare Pages)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  PUBLISH FLOW (instant-feeling for user)                        │
+│  CLOUDFLARE PAGES DEPLOY                                        │
+├─────────────────────────────────────────────────────────────────┤
+│  Trigger: Push to main branch OR manual from admin              │
+│                                                                 │
+│  1. GitHub webhook triggers Cloudflare Pages build              │
+│  2. Next.js 16 static export runs                               │
+│  3. Output deployed to Cloudflare edge (300+ locations)         │
+│  4. Automatic cache invalidation                                │
+│  5. Preview URLs for PRs                                        │
+│                                                                 │
+│  Build time: ~1-3 minutes depending on content volume           │
+│  Rollback: Instant via Cloudflare dashboard                     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Admin Panel (VPS)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  VPS DEPLOY (GitHub Actions)                                    │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Push to main triggers GitHub Actions                        │
+│  2. Build and test in CI                                        │
+│  3. SSH to VPS via Tailscale                                    │
+│  4. Pull latest code, run migrations                            │
+│  5. Restart PM2 process                                         │
+│  6. Health check                                                │
+│                                                                 │
+│  Zero-downtime: PM2 cluster mode with graceful reload           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Content Publish Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  PUBLISH FLOW                                                   │
 ├─────────────────────────────────────────────────────────────────┤
 │  1. User clicks "Publish" in admin                              │
 │  2. Content saved to database                                   │
-│  3. Build triggered (only changed/new pages)                    │
-│  4. Changed files synced to Siteground (SFTP)                   │
-│  5. Cloudflare cache purged for affected URLs                   │
-│  6. Success notification to user                                │
+│  3. Trigger Cloudflare Pages rebuild via API                    │
+│  4. Build runs (~1-3 minutes)                                   │
+│  5. Success notification to user                                │
 │                                                                 │
-│  Target: < 30 seconds from click to live                        │
+│  Note: User can continue working while build runs               │
+│  Status shown in admin dashboard                                │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -143,13 +196,17 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  ROLLBACK PROTECTION (Coolify-style)                            │
+│  ROLLBACK PROTECTION                                            │
 ├─────────────────────────────────────────────────────────────────┤
-│  • Keep last 5 successful builds                                │
-│  • If build fails → don't deploy, notify admin                  │
-│  • If deploy fails → auto-rollback to previous build            │
-│  • Health check after deploy (verify site responds)             │
-│  • Manual rollback available in admin UI                        │
+│  Cloudflare Pages:                                              │
+│  • Automatic rollback to previous deploy if build fails         │
+│  • Keep all deploy history (instant rollback in dashboard)      │
+│  • Preview deploys for testing before production                │
+│                                                                 │
+│  VPS Admin:                                                     │
+│  • Git-based rollback (revert commit)                           │
+│  • Database migrations are forward-only                         │
+│  • Health check after deploy                                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -166,9 +223,8 @@ On Merge to Main:
   → All above +
   → E2E tests (Playwright)
   → Build production
-  → Deploy to VPS (admin)
-  → Deploy to Siteground (public)
-  → Purge Cloudflare cache
+  → Deploy admin to VPS (SSH via Tailscale)
+  → Trigger Cloudflare Pages rebuild
   → Health check
   → Notify on failure
 ```
@@ -184,7 +240,7 @@ velikibukovec/
 │
 ├── apps/
 │   │
-│   ├── web/                          # Public website (Next.js static)
+│   ├── web/                          # Public website (Next.js 16 static)
 │   │   ├── app/                      # Next.js App Router
 │   │   │   ├── (public)/             # Public routes group
 │   │   │   │   ├── vijesti/          # News pages
@@ -201,13 +257,14 @@ velikibukovec/
 │   │   │   ├── sections/
 │   │   │   └── features/
 │   │   ├── lib/
+│   │   │   └── r2-loader.ts          # Custom image loader for R2
 │   │   ├── hooks/
 │   │   ├── public/
-│   │   ├── next.config.js
-│   │   ├── tailwind.config.js
+│   │   ├── next.config.ts            # Static export config
+│   │   ├── tailwind.config.ts
 │   │   └── package.json
 │   │
-│   └── admin/                        # Admin panel (Next.js SSR)
+│   └── admin/                        # Admin panel (Next.js 16 SSR)
 │       ├── app/
 │       │   ├── (auth)/               # Auth routes (no sidebar)
 │       │   │   ├── login/
@@ -231,6 +288,8 @@ velikibukovec/
 │       │   ├── layouts/
 │       │   └── features/
 │       ├── lib/
+│       │   ├── auth.ts               # Better Auth config
+│       │   └── r2.ts                 # R2 upload utilities
 │       ├── hooks/
 │       └── package.json
 │
@@ -263,7 +322,7 @@ velikibukovec/
 │       │   ├── animations/
 │       │   ├── hooks/
 │       │   └── index.ts
-│       ├── tailwind.config.js
+│       ├── tailwind.config.ts
 │       └── package.json
 │
 ├── tooling/                          # Shared tooling configs
@@ -280,16 +339,16 @@ velikibukovec/
 │   └── OPERATIONS.md
 │
 ├── scripts/                          # Build & deploy scripts
-│   ├── deploy-web.sh
 │   ├── deploy-admin.sh
 │   ├── backup-db.sh
+│   ├── upload-to-r2.ts
 │   └── seed-db.ts
 │
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml
-│       ├── deploy-web.yml
-│       └── deploy-admin.yml
+│       ├── deploy-admin.yml
+│       └── trigger-pages-build.yml
 │
 ├── CLAUDE.md                         # Claude Code instructions
 ├── AGENTS.md                         # Agent definitions
@@ -300,6 +359,26 @@ velikibukovec/
 ├── package.json
 ├── pnpm-workspace.yaml
 └── .gitignore
+```
+
+### Static Export Constraint
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  STATIC EXPORT RULES (apps/web)                                 │
+├─────────────────────────────────────────────────────────────────┤
+│  The public site MUST be export-safe:                           │
+│                                                                 │
+│  ✓ All dynamic params resolvable from DB at build time          │
+│  ✓ generateStaticParams() for all dynamic routes                │
+│  ✓ No runtime Route Handlers in public app                      │
+│  ✓ No server-only imports in page components                    │
+│  ✓ Custom R2 image loader (not default next/image optimizer)    │
+│                                                                 │
+│  next.config.ts:                                                │
+│    output: 'export'                                             │
+│    images: { loader: 'custom', loaderFile: './lib/r2-loader' }  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Naming Conventions
@@ -314,7 +393,7 @@ velikibukovec/
 | CSS classes | kebab-case (Tailwind) | `bg-primary-500`, `text-lg` |
 | Database tables | snake_case | `posts`, `gallery_images` |
 | API routes | kebab-case | `/api/posts`, `/api/ai/generate` |
-| Env variables | SCREAMING_SNAKE | `DATABASE_URL`, `OLLAMA_API_KEY` |
+| Env variables | SCREAMING_SNAKE | `DATABASE_URL`, `R2_ACCESS_KEY` |
 
 ### Import Order (enforced by ESLint)
 
@@ -351,38 +430,40 @@ import './styles.css';
 
 | Category | Technology | Notes |
 |----------|------------|-------|
-| Framework | Next.js 14 (App Router) | Both public (static) and admin (SSR) |
+| Framework | Next.js 16 (App Router) | LTS, Turbopack default, React 19.2 |
 | Language | TypeScript (strict) | No `any` types |
 | Database | PostgreSQL + pgvector | Vector search for chatbot |
 | ORM | Prisma | Type-safe database access |
-| Styling | Tailwind CSS | Utility-first |
+| Styling | Tailwind CSS v4 | Utility-first |
 | Components | shadcn/ui | Customizable primitives |
 | Animations | Framer Motion | Smooth, performant |
 
-### Authentication
+### Authentication (Better Auth)
 
 | Component | Technology |
 |-----------|------------|
-| Framework | NextAuth.js |
-| OAuth | Google provider |
-| Passkeys | @simplewebauthn/server |
-| 2FA | otplib (TOTP) |
-| Password | bcrypt/argon2 |
+| Framework | Better Auth |
+| OAuth | Google provider (built-in) |
+| Passkeys | WebAuthn (built-in plugin) |
+| 2FA | TOTP (built-in plugin) |
+| Rate Limiting | Built-in plugin |
+| Audit Logging | Built-in plugin |
 
 ### AI & Search
 
 | Component | Technology |
 |-----------|------------|
-| LLM | Llama 3.1 70B (Ollama Cloud) |
+| LLM | Llama 3.1 70B (Ollama Cloud Pro) |
 | Embeddings | nomic-embed-text (local Ollama) |
 | Vector DB | pgvector (PostgreSQL extension) |
 | Search | Hybrid (PostgreSQL FTS + semantic) |
+| Fallback | Queue + retry on rate limit |
 
 ### State Management
 
 | Type | Technology |
 |------|------------|
-| Server state | React Query (TanStack Query) |
+| Server state | TanStack Query v5 |
 | UI state | React Context |
 | Forms | React Hook Form + Zod |
 
@@ -390,9 +471,11 @@ import './styles.css';
 
 | Component | Technology |
 |-----------|------------|
-| CDN | Cloudflare |
-| Hosting (public) | Siteground |
-| Hosting (admin) | Netcup VPS |
-| CI/CD | GitHub Actions |
+| Public hosting | Cloudflare Pages |
+| Admin hosting | Netcup VPS |
+| Images | Cloudflare R2 |
 | Backups | Cloudflare R2 |
+| Email | Siteground |
+| CDN | Cloudflare |
+| CI/CD | GitHub Actions |
 | Monitoring | Sentry, UptimeRobot |

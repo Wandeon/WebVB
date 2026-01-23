@@ -2,6 +2,7 @@
 
 > Track progress and upcoming work for the Veliki Bukovec project.
 > Update this file as tasks are completed.
+> **Note:** AI features (generation, chatbot) moved to final phases per project decision.
 
 ## Current Status
 
@@ -12,99 +13,91 @@
 ---
 
 ## Phase 0: Foundation
-**Status:** Not Started | **Progress:** 0/5
+**Status:** Not Started | **Progress:** 0/6
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Project setup (Turborepo, configs, CI/CD) | ⬜ Pending | |
-| Database schema implementation (Prisma) | ⬜ Pending | |
-| Authentication system (NextAuth) | ⬜ Pending | |
+| Project setup (Turborepo, pnpm, configs) | ⬜ Pending | Next.js 16, TypeScript strict |
+| CI/CD pipeline (GitHub Actions) | ⬜ Pending | Lint, type check, test, deploy |
+| Database schema implementation (Prisma) | ⬜ Pending | PostgreSQL + pgvector |
+| Authentication system (Better Auth) | ⬜ Pending | Email, Google OAuth, Passkeys, 2FA |
 | Shared UI components (shadcn/ui setup) | ⬜ Pending | |
-| Design tokens & Tailwind config | ⬜ Pending | |
+| Design tokens & Tailwind v4 config | ⬜ Pending | |
 
 **Deliverable:** Empty but working apps with auth
 
 ---
 
 ## Phase 1: Admin Core
-**Status:** Not Started | **Progress:** 0/7
+**Status:** Not Started | **Progress:** 0/10
 
 | Task | Status | Notes |
 |------|--------|-------|
 | Admin layout (sidebar, header, responsive) | ⬜ Pending | |
-| Dashboard page (stats, recent activity) | ⬜ Pending | |
+| Dashboard page (Cloudflare Analytics) | ⬜ Pending | Stats, recent activity |
 | Posts CRUD (list, create, edit, delete) | ⬜ Pending | |
 | Rich text editor (TipTap) integration | ⬜ Pending | |
-| Image upload system | ⬜ Pending | |
-| Documents management | ⬜ Pending | |
+| Image upload to Cloudflare R2 | ⬜ Pending | Sharp processing, variants |
+| Documents management | ⬜ Pending | PDF upload to R2 |
 | Static pages management | ⬜ Pending | |
+| Events calendar management | ⬜ Pending | |
+| Gallery management | ⬜ Pending | Album-based with reordering |
+| Settings page (profile, site basics) | ⬜ Pending | |
 
-**Deliverable:** Functional admin without AI
+**Deliverable:** Functional admin panel (no AI)
 
 ---
 
-## Phase 2: AI Integration
-**Status:** Not Started | **Progress:** 0/6
+## Phase 2: Public Website
+**Status:** Not Started | **Progress:** 0/11
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Ollama Cloud connection | ⬜ Pending | |
-| AI content generation pipeline | ⬜ Pending | |
-| Google Search integration for context | ⬜ Pending | |
-| Multi-step review flow | ⬜ Pending | |
-| Facebook preview & posting | ⬜ Pending | |
-| Image handling in AI flow | ⬜ Pending | |
+| Homepage with all sections | ⬜ Pending | Hero, news, events, quick links |
+| News listing & detail pages | ⬜ Pending | Pagination, categories |
+| Documents section with categories | ⬜ Pending | Filterable by year |
+| Events calendar view | ⬜ Pending | Monthly calendar |
+| Gallery with lightbox | ⬜ Pending | Album-based |
+| All static pages | ⬜ Pending | Organization, landmarks, info |
+| Contact page with forms | ⬜ Pending | Contact + problem reports |
+| Premium search (Stripe-like) | ⬜ Pending | Cmd+K, instant results |
+| Newsletter signup widget | ⬜ Pending | Double opt-in |
+| Responsive design & animations | ⬜ Pending | Mobile-first |
+| SEO implementation | ⬜ Pending | Meta, OG, JSON-LD, sitemap |
 
-**Deliverable:** AI-powered post creation
+**Deliverable:** Complete public website (static export)
 
 ---
 
-## Phase 3: Public Website
+## Phase 3: Deployment & Infrastructure
 **Status:** Not Started | **Progress:** 0/9
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Homepage with all sections | ⬜ Pending | |
-| News listing & detail pages | ⬜ Pending | |
-| Documents section with categories | ⬜ Pending | |
-| Events calendar | ⬜ Pending | |
-| Gallery with lightbox | ⬜ Pending | |
-| All static pages (organization, info, etc.) | ⬜ Pending | |
-| Contact page with forms | ⬜ Pending | |
-| Responsive design & animations | ⬜ Pending | |
-| SEO implementation | ⬜ Pending | |
-
-**Deliverable:** Complete public website
-
----
-
-## Phase 4: Deployment & Build System
-**Status:** Not Started | **Progress:** 0/8
-
-| Task | Status | Notes |
-|------|--------|-------|
-| VPS setup (Netcup) | ⬜ Pending | |
-| PostgreSQL + Ollama installation | ⬜ Pending | |
-| Admin deployment to VPS | ⬜ Pending | |
-| Static site build pipeline | ⬜ Pending | |
-| Siteground deployment (SFTP) | ⬜ Pending | |
-| Cloudflare configuration | ⬜ Pending | |
-| Instant publish system with rollback | ⬜ Pending | |
-| Backup automation (R2) | ⬜ Pending | |
+| VPS setup (Netcup) | ⬜ Pending | Ubuntu 24.04, hardening |
+| PostgreSQL + pgvector installation | ⬜ Pending | |
+| Ollama local (embeddings) installation | ⬜ Pending | nomic-embed-text |
+| Tailscale VPN setup | ⬜ Pending | SSH access only via VPN |
+| Admin deployment to VPS (PM2) | ⬜ Pending | |
+| Cloudflare Pages setup | ⬜ Pending | Git-based deploy |
+| Cloudflare R2 buckets | ⬜ Pending | Images + backups |
+| Cloudflare DNS + WAF | ⬜ Pending | |
+| Backup automation | ⬜ Pending | Daily to R2 |
 
 **Deliverable:** Live, deployable system
 
 ---
 
-## Phase 5: Content Migration
-**Status:** Not Started | **Progress:** 0/6
+## Phase 4: Content Migration
+**Status:** Not Started | **Progress:** 0/7
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Export content from current WordPress | ⬜ Pending | |
-| Content mapping to new structure | ⬜ Pending | |
+| Export content from WordPress | ⬜ Pending | Posts, pages, documents |
+| Content mapping to new structure | ⬜ Pending | Categories, slugs |
 | Automated migration scripts | ⬜ Pending | |
-| Image migration & optimization | ⬜ Pending | |
+| Image migration to R2 | ⬜ Pending | With optimization |
+| Email migration to Siteground | ⬜ Pending | Existing accounts |
 | Content review & cleanup | ⬜ Pending | |
 | Redirect setup (old URLs → new) | ⬜ Pending | |
 
@@ -112,36 +105,69 @@
 
 ---
 
-## Phase 6: Chatbot & Polish
-**Status:** Not Started | **Progress:** 0/8
+## Phase 5: Communication Features
+**Status:** Not Started | **Progress:** 0/6
 
 | Task | Status | Notes |
 |------|--------|-------|
-| RAG system setup (pgvector) | ⬜ Pending | |
-| Document processing pipeline | ⬜ Pending | |
-| Chatbot UI widget | ⬜ Pending | |
-| Chatbot testing & training | ⬜ Pending | |
-| Performance optimization | ⬜ Pending | |
-| Accessibility audit (WCAG AA) | ⬜ Pending | |
-| Security audit (NIS2) | ⬜ Pending | |
-| Final animations & polish | ⬜ Pending | |
+| Contact form backend | ⬜ Pending | Status workflow |
+| Problem reports backend | ⬜ Pending | Tracking, images, resolution |
+| Newsletter system | ⬜ Pending | Weekly automated + manual |
+| Email templates | ⬜ Pending | Croatian, branded |
+| Admin notification system | ⬜ Pending | New messages, reports |
+| User management interface | ⬜ Pending | Admin/Staff CRUD |
 
-**Deliverable:** Complete chatbot
+**Deliverable:** Full communication features
 
 ---
 
-## Phase 7: Testing & Launch
+## Phase 6: AI Integration
 **Status:** Not Started | **Progress:** 0/7
 
 | Task | Status | Notes |
 |------|--------|-------|
-| End-to-end testing | ⬜ Pending | |
-| User acceptance testing with client | ⬜ Pending | |
-| Staff training | ⬜ Pending | |
+| Ollama Cloud connection | ⬜ Pending | Llama 3.1 70B Pro plan |
+| AI queue system | ⬜ Pending | Queue + retry on rate limit |
+| AI content generation pipeline | ⬜ Pending | 5-step review flow |
+| Google Search integration | ⬜ Pending | Context gathering |
+| Multi-step human review flow | ⬜ Pending | Never auto-publish |
+| Facebook preview & posting | ⬜ Pending | |
+| Image handling in AI flow | ⬜ Pending | |
+
+**Deliverable:** AI-powered post creation
+
+---
+
+## Phase 7: Chatbot & Polish
+**Status:** Not Started | **Progress:** 0/8
+
+| Task | Status | Notes |
+|------|--------|-------|
+| RAG system setup | ⬜ Pending | pgvector embeddings |
+| Document processing pipeline | ⬜ Pending | Chunk + embed PDFs |
+| Chatbot UI widget | ⬜ Pending | Floating button |
+| Chatbot testing & training | ⬜ Pending | |
+| Performance optimization | ⬜ Pending | Lighthouse > 90 |
+| Accessibility audit (WCAG AA) | ⬜ Pending | |
+| Security audit (NIS2) | ⬜ Pending | |
+| Final animations & polish | ⬜ Pending | |
+
+**Deliverable:** Complete chatbot + polished product
+
+---
+
+## Phase 8: Testing & Launch
+**Status:** Not Started | **Progress:** 0/7
+
+| Task | Status | Notes |
+|------|--------|-------|
+| End-to-end testing (Playwright) | ⬜ Pending | Critical flows |
+| User acceptance testing | ⬜ Pending | With client |
+| Staff training | ⬜ Pending | Admin usage |
 | Documentation finalization | ⬜ Pending | |
-| DNS switch | ⬜ Pending | |
+| DNS switch | ⬜ Pending | Go live |
 | Launch! | ⬜ Pending | |
-| Post-launch monitoring | ⬜ Pending | |
+| Post-launch monitoring | ⬜ Pending | Sentry, UptimeRobot |
 
 **Deliverable:** LIVE WEBSITE
 
@@ -159,16 +185,35 @@
 
 ---
 
+## Phase Summary
+
+| Phase | Focus | Key Tech |
+|-------|-------|----------|
+| 0 | Foundation | Next.js 16, Better Auth, Prisma |
+| 1 | Admin Core | TipTap, R2 uploads, CRUD |
+| 2 | Public Website | Static export, Search, Newsletter |
+| 3 | Deployment | VPS, Cloudflare Pages, R2 |
+| 4 | Migration | WordPress → New system |
+| 5 | Communication | Contact, Problems, Newsletter |
+| 6 | AI Integration | Ollama Cloud, Generation flow |
+| 7 | Chatbot & Polish | RAG, Accessibility, Security |
+| 8 | Testing & Launch | E2E, Training, Go Live |
+
+---
+
 ## Change Log
 
 | Date | Phase | Change |
 |------|-------|--------|
 | 2026-01-23 | - | Initial roadmap created |
+| 2026-01-23 | - | Tech stack audit: Next.js 16, Better Auth, Cloudflare Pages |
+| 2026-01-23 | - | Reorganized: AI features moved to Phase 6-7 (last) |
 
 ---
 
 ## Notes
 
 - Each phase should be completed before moving to the next
+- AI features intentionally placed last per project decision
 - Blockers should be escalated immediately
 - Update this file daily during active development

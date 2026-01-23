@@ -99,11 +99,21 @@
 
 | Component | Technology |
 |-----------|------------|
-| Auth Framework | NextAuth.js |
-| Passkeys/WebAuthn | @simplewebauthn/server |
-| OAuth | Google provider |
-| Password Hashing | bcrypt/argon2 |
-| 2FA | otplib (TOTP) |
+| Auth Framework | Better Auth |
+| Passkeys/WebAuthn | Better Auth Passkey Plugin |
+| OAuth | Better Auth Google Provider |
+| Password Hashing | Better Auth (bcrypt) |
+| 2FA | Better Auth TOTP Plugin |
+| Rate Limiting | Better Auth Rate Limit Plugin |
+| Audit Logging | Better Auth Audit Plugin |
+
+### Why Better Auth (not NextAuth)
+
+- NextAuth v5 never reached stable release
+- Main NextAuth contributor left January 2025
+- Better Auth: TypeScript-first, MIT licensed, framework-agnostic
+- Built-in plugins for MFA, rate limiting, audit logging
+- Full database control with automatic schema generation
 
 ---
 
@@ -416,7 +426,7 @@ export function validateEnv() {
 | Requirement | How We Comply |
 |-------------|---------------|
 | **Secure Architecture** | Headless/static = no server-side execution on public site, minimal attack surface |
-| **Access Control** | Role-based auth (Super Admin, Admin, Staff), NextAuth.js with secure sessions |
+| **Access Control** | Role-based auth (Super Admin, Admin, Staff), Better Auth with secure sessions |
 | **Encryption in Transit** | TLS everywhere via Cloudflare (HTTPS enforced) |
 | **Encryption at Rest** | PostgreSQL encryption, Netcup disk encryption |
 | **Backup & Recovery** | Daily backups to R2, 3-month retention, tested restore procedure |

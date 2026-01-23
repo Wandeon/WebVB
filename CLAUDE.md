@@ -7,7 +7,7 @@
 
 **Project:** Veliki Bukovec Municipality Website
 **Type:** Full-stack web application (public site + admin panel)
-**Stack:** Next.js, TypeScript, PostgreSQL, Tailwind CSS, shadcn/ui
+**Stack:** Next.js 16, TypeScript, PostgreSQL, Better Auth, Tailwind CSS v4, shadcn/ui
 **Purpose:** Digital transformation for Croatian municipality - showcase project
 
 ## Critical Rules
@@ -96,6 +96,12 @@ These phrases are BANNED. If you catch yourself thinking them, STOP:
 │  Component files: MAX 300 lines                                 │
 │  Utility files: MAX 200 lines                                   │
 │  Test files: MAX 500 lines                                      │
+│                                                                 │
+│  EXCEPTION: Orchestrator components                             │
+│  Components that coordinate multiple subcomponents (e.g.,       │
+│  PostEditor, SearchModal, AIGenerationFlow) may exceed 300      │
+│  lines if the complexity is inherent to their coordination      │
+│  role. Document why in a comment at the top of the file.        │
 │                                                                 │
 │  If a file grows beyond limits:                                 │
 │  1. STOP and refactor                                           │
@@ -350,10 +356,12 @@ POST   /api/posts/:id/publish → Custom action
 ### AI Content Generation
 When implementing AI features:
 1. Always use multi-step pipeline (generate → review → human edit)
-2. Use Ollama Cloud for LLM (Llama 3.1 70B)
-3. Use local Ollama on VPS for embeddings
+2. Use Ollama Cloud for LLM (Llama 3.1 70B Pro/Max plan)
+3. Use local Ollama on VPS for embeddings (nomic-embed-text)
 4. Google Search for context gathering
-5. Never auto-publish without human approval
+5. Queue all AI requests via ai_queue table (handles rate limits)
+6. Retry on rate limit (up to 3 attempts, 30s backoff)
+7. Never auto-publish without human approval
 
 ### Mobile-First
 - Design for 375px first

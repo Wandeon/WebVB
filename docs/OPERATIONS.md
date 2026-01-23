@@ -239,91 +239,20 @@ Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `style`, `perf`
 
 ## Development Roadmap
 
-### Phase Overview
+> See [ROADMAP.md](/ROADMAP.md) for the full, detailed roadmap with task tracking.
 
-| Phase | Focus | Deliverable |
-|-------|-------|-------------|
-| 0 | Foundation | Working apps with auth |
-| 1 | Admin Core | Functional admin without AI |
-| 2 | AI Integration | AI-powered post creation |
-| 3 | Public Website | Complete public site |
-| 4 | Deployment | Live, deployable system |
-| 5 | Content Migration | All content migrated |
-| 6 | Chatbot & Polish | Complete chatbot |
-| 7 | Testing & Launch | LIVE WEBSITE |
+### Phase Overview (9 Phases)
 
-### Phase Details
+| Phase | Focus | Key Tech |
+|-------|-------|----------|
+| 0 | Foundation | Next.js 16, Better Auth, Prisma |
+| 1 | Admin Core | TipTap, R2 uploads, CRUD |
+| 2 | Public Website | Static export, Search, Newsletter widget |
+| 3 | Deployment | VPS, Cloudflare Pages, R2 |
+| 4 | Content Migration | WordPress → New system |
+| 5 | Communication | Contact, Problems, Newsletter |
+| 6 | AI Integration | Ollama Cloud, Generation flow |
+| 7 | Chatbot & Polish | RAG, Accessibility, Security |
+| 8 | Testing & Launch | E2E, Training, Go Live |
 
-**Phase 0: Foundation**
-- Project setup (Turborepo, configs, CI/CD)
-- Database schema implementation (Prisma)
-- Authentication system (NextAuth)
-- Shared UI components (shadcn/ui setup)
-- Design tokens & Tailwind config
-
-**Phase 1: Admin Core**
-- Admin layout (sidebar, header, responsive)
-- Dashboard page (stats, recent activity)
-- Posts CRUD (list, create, edit, delete)
-- Rich text editor (TipTap) integration
-- Image upload system
-- Documents management
-- Events calendar
-
-**Phase 2: AI Integration**
-- Ollama Cloud connection
-- AI content generation pipeline
-- Google Search integration for context
-- Multi-step review flow
-- Facebook preview & posting
-- Image handling in AI flow
-
-**Phase 3: Public Website**
-- Homepage with all sections
-- News listing & detail pages
-- Documents section with categories
-- Events calendar display
-- Gallery with lightbox
-- All static pages
-- Contact page with forms
-- Premium search experience
-- Responsive design & animations
-- SEO implementation
-
-**Phase 4: Deployment & Build System**
-- VPS setup (Netcup)
-- PostgreSQL + Ollama installation
-- Admin deployment to VPS
-- Static site build pipeline
-- Siteground deployment (SFTP)
-- Cloudflare configuration
-- Instant publish system with rollback
-- Backup automation (R2)
-
-**Phase 5: Content Migration**
-- Export content from current WordPress
-- Content mapping to new structure
-- Automated migration scripts
-- Image migration & optimization
-- Content review & cleanup
-- Redirect setup (old URLs → new)
-
-**Phase 6: Chatbot & Polish**
-- RAG system setup (pgvector)
-- Document processing pipeline
-- Chatbot UI widget
-- Chatbot testing & training
-- Newsletter system
-- Performance optimization
-- Accessibility audit (WCAG AA)
-- Security audit (NIS2)
-- Final animations & polish
-
-**Phase 7: Testing & Launch**
-- End-to-end testing
-- User acceptance testing with client
-- Staff training
-- Documentation finalization
-- DNS switch
-- Launch!
-- Post-launch monitoring
+**Note:** AI features (Phase 6-7) intentionally placed last per project decision.

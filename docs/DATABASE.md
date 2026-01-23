@@ -26,11 +26,13 @@
 │  Gallery       - Photo albums                                   │
 │  GalleryImage  - Individual photos in albums                    │
 │                                                                 │
-│  AUTH & USERS                                                   │
-│  User          - Admin users (Super Admin, Admin, Staff)        │
-│  UserSession   - Active login sessions                          │
-│  UserPasskey   - WebAuthn/passkey credentials                   │
-│  UserTOTP      - 2FA secrets                                    │
+│  AUTH (Better Auth - standard tables)                           │
+│  user          - Admin users with role extension                │
+│  session       - Active login sessions                          │
+│  account       - OAuth provider accounts (Google)               │
+│  verification  - Email/password reset tokens                    │
+│  passkey       - WebAuthn credentials (plugin)                  │
+│  twoFactor     - TOTP 2FA secrets (plugin)                      │
 │                                                                 │
 │  COMMUNICATION                                                  │
 │  ContactMessage    - Contact form submissions                   │
@@ -39,126 +41,164 @@
 │  NewsletterSend    - Sent newsletter tracking                   │
 │                                                                 │
 │  SYSTEM                                                         │
-│  AuditLog      - Who did what, when (security)                  │
+│  AuditLog      - Who did what, when (via Better Auth plugin)    │
 │  Embedding     - Vector embeddings for RAG chatbot              │
 │  SearchIndex   - Denormalized search data                       │
 │  Setting       - Site configuration key-value pairs             │
+│  AiQueue       - Queued AI generation requests                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-**Total Tables:** 19
 
 ---
 
 ## Database Schema
 
 **Database:** PostgreSQL with pgvector extension
+**Auth:** Better Auth (standard schema + plugins)
 
-### Users & Auth
+### Better Auth Tables (Standard)
 
 ```sql
--- Users
-users (
-  id UUID PRIMARY KEY,
-  email VARCHAR UNIQUE NOT NULL,
-  password_hash VARCHAR NOT NULL,
-  name VARCHAR NOT NULL,
-  role ENUM('super_admin', 'admin', 'staff') NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP
+-- Users (Better Auth standard + custom role field)
+user (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  emailVerified BOOLEAN DEFAULT FALSE,
+  image TEXT,
+  createdAt TIMESTAMP DEFAULT NOW(),
+  updatedAt TIMESTAMP,
+  -- Custom extension fields
+  role TEXT DEFAULT 'staff',              -- 'super_admin', 'admin', 'staff'
+  CONSTRAINT valid_role CHECK (role IN ('super_admin', 'admin', 'staff'))
 )
 
--- User Sessions (for session management)
-user_sessions (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  token_hash VARCHAR UNIQUE NOT NULL,
-  device_info VARCHAR,            -- Browser, OS info
-  ip_address VARCHAR,
-  last_active TIMESTAMP DEFAULT NOW(),
-  expires_at TIMESTAMP NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+-- Sessions (Better Auth standard)
+session (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  token TEXT UNIQUE NOT NULL,
+  expiresAt TIMESTAMP NOT NULL,
+  ipAddress TEXT,
+  userAgent TEXT,
+  createdAt TIMESTAMP DEFAULT NOW(),
+  updatedAt TIMESTAMP
 )
 
--- Passkeys (WebAuthn credentials)
-user_passkeys (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  credential_id VARCHAR UNIQUE NOT NULL,
-  public_key BYTEA NOT NULL,
-  counter INTEGER DEFAULT 0,
-  device_type VARCHAR,            -- 'platform' or 'cross-platform'
-  name VARCHAR,                   -- User-friendly name "MacBook Touch ID"
-  last_used TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW()
+-- OAuth Accounts (Better Auth standard)
+account (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  accountId TEXT NOT NULL,
+  providerId TEXT NOT NULL,               -- 'google', 'credential'
+  accessToken TEXT,
+  refreshToken TEXT,
+  accessTokenExpiresAt TIMESTAMP,
+  refreshTokenExpiresAt TIMESTAMP,
+  scope TEXT,
+  idToken TEXT,
+  password TEXT,                          -- For credential provider (hashed)
+  createdAt TIMESTAMP DEFAULT NOW(),
+  updatedAt TIMESTAMP
 )
 
--- TOTP 2FA Secrets
-user_totp (
-  id UUID PRIMARY KEY,
-  user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-  secret_encrypted VARCHAR NOT NULL,
-  enabled BOOLEAN DEFAULT FALSE,
-  backup_codes JSONB,             -- Encrypted backup codes
-  created_at TIMESTAMP DEFAULT NOW()
+-- Verification Tokens (Better Auth standard)
+verification (
+  id TEXT PRIMARY KEY,
+  identifier TEXT NOT NULL,               -- email or other identifier
+  value TEXT NOT NULL,                    -- token value
+  expiresAt TIMESTAMP NOT NULL,
+  createdAt TIMESTAMP DEFAULT NOW(),
+  updatedAt TIMESTAMP
 )
 ```
 
-### Content
+### Better Auth Plugin Tables
+
+```sql
+-- Passkeys (WebAuthn plugin)
+passkey (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  name TEXT,                              -- User-friendly name "MacBook Touch ID"
+  publicKey TEXT NOT NULL,
+  credentialID TEXT UNIQUE NOT NULL,
+  counter INTEGER DEFAULT 0,
+  deviceType TEXT,                        -- 'platform' or 'cross-platform'
+  backedUp BOOLEAN DEFAULT FALSE,
+  transports TEXT,                        -- JSON array of transports
+  createdAt TIMESTAMP DEFAULT NOW()
+)
+
+-- Two-Factor Auth (TOTP plugin)
+twoFactor (
+  id TEXT PRIMARY KEY,
+  userId TEXT UNIQUE NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  secret TEXT NOT NULL,                   -- Encrypted TOTP secret
+  backupCodes TEXT,                       -- Encrypted backup codes (JSON)
+  createdAt TIMESTAMP DEFAULT NOW()
+)
+```
+
+### Content Tables
 
 ```sql
 -- News/Posts
 posts (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR NOT NULL,
   slug VARCHAR UNIQUE NOT NULL,
-  content TEXT NOT NULL,           -- Rich text (TipTap JSON or HTML)
-  excerpt TEXT,                    -- Short summary
-  featured_image VARCHAR,          -- URL
-  images JSONB,                    -- Additional images [{url, caption}]
-  category ENUM('aktualnosti', 'gospodarstvo', 'sport',
-                'komunalno', 'kultura', 'obrazovanje', 'ostalo'),
+  content TEXT NOT NULL,                  -- Rich text (TipTap JSON)
+  excerpt TEXT,                           -- Short summary
+  featured_image VARCHAR,                 -- R2 URL
+  images JSONB,                           -- Additional images [{url, caption}]
+  category VARCHAR NOT NULL DEFAULT 'aktualnosti',
   is_featured BOOLEAN DEFAULT FALSE,
-  facebook_post_id VARCHAR,        -- If posted to FB
-  author_id UUID REFERENCES users(id),
+  facebook_post_id VARCHAR,               -- If posted to FB
+  author_id TEXT REFERENCES user(id),
   published_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP
+  updated_at TIMESTAMP,
+  CONSTRAINT valid_category CHECK (category IN (
+    'aktualnosti', 'gospodarstvo', 'sport',
+    'komunalno', 'kultura', 'obrazovanje', 'ostalo'
+  ))
 )
 
 -- Documents
 documents (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR NOT NULL,
-  file_url VARCHAR NOT NULL,
+  file_url VARCHAR NOT NULL,              -- R2 URL
   file_size INTEGER,
-  category VARCHAR NOT NULL,       -- 'sjednice', 'izbori', 'planovi', etc.
+  category VARCHAR NOT NULL,              -- 'sjednice', 'izbori', 'planovi', etc.
   subcategory VARCHAR,
   year INTEGER,
-  uploaded_by UUID REFERENCES users(id),
+  uploaded_by TEXT REFERENCES user(id),
   created_at TIMESTAMP DEFAULT NOW()
 )
 
 -- Events
 events (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR NOT NULL,
   description TEXT,
   event_date DATE NOT NULL,
   event_time TIME,
+  end_date DATE,                          -- For multi-day events
   location VARCHAR,
-  poster_image VARCHAR,
+  poster_image VARCHAR,                   -- R2 URL
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP
 )
 
 -- Static Pages
 pages (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR NOT NULL,
   slug VARCHAR UNIQUE NOT NULL,
   content TEXT NOT NULL,
-  parent_id UUID REFERENCES pages(id),  -- For hierarchy
+  parent_id UUID REFERENCES pages(id),    -- For hierarchy
   menu_order INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP
@@ -166,63 +206,68 @@ pages (
 
 -- Galleries
 galleries (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR NOT NULL,
   slug VARCHAR UNIQUE NOT NULL,
   event_date DATE,
   description TEXT,
+  cover_image VARCHAR,                    -- R2 URL
   created_at TIMESTAMP DEFAULT NOW()
 )
 
+-- Gallery Images
 gallery_images (
-  id UUID PRIMARY KEY,
-  gallery_id UUID REFERENCES galleries(id) ON DELETE CASCADE,
-  image_url VARCHAR NOT NULL,
-  thumbnail_url VARCHAR,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  gallery_id UUID NOT NULL REFERENCES galleries(id) ON DELETE CASCADE,
+  image_url VARCHAR NOT NULL,             -- R2 URL (large)
+  thumbnail_url VARCHAR,                  -- R2 URL (thumbnail)
   caption VARCHAR,
   sort_order INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW()
 )
 ```
 
-### Communication
+### Communication Tables
 
 ```sql
 -- Contact Form Messages
 contact_messages (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR NOT NULL,
   email VARCHAR NOT NULL,
   subject VARCHAR,
   message TEXT NOT NULL,
-  status ENUM('new', 'read', 'replied', 'archived') DEFAULT 'new',
+  status VARCHAR DEFAULT 'new',
   replied_at TIMESTAMP,
-  replied_by UUID REFERENCES users(id),
+  replied_by TEXT REFERENCES user(id),
   ip_address VARCHAR,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT valid_status CHECK (status IN ('new', 'read', 'replied', 'archived'))
 )
 
 -- Problem Reports
 problem_reports (
-  id UUID PRIMARY KEY,
-  reporter_name VARCHAR,           -- Optional (can be anonymous)
-  reporter_email VARCHAR,          -- Optional
-  reporter_phone VARCHAR,          -- Optional
-  problem_type VARCHAR NOT NULL,   -- 'cesta', 'rasvjeta', 'otpad', 'ostalo'
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  reporter_name VARCHAR,                  -- Optional (can be anonymous)
+  reporter_email VARCHAR,                 -- Optional (for follow-up if provided)
+  reporter_phone VARCHAR,                 -- Optional
+  problem_type VARCHAR NOT NULL,
   location VARCHAR NOT NULL,
   description TEXT NOT NULL,
-  images JSONB,                    -- [{url, caption}]
-  status ENUM('new', 'in_progress', 'resolved', 'rejected') DEFAULT 'new',
+  images JSONB,                           -- [{url, caption}] R2 URLs
+  status VARCHAR DEFAULT 'new',
   resolution_notes TEXT,
   resolved_at TIMESTAMP,
-  resolved_by UUID REFERENCES users(id),
+  resolved_by TEXT REFERENCES user(id),
   ip_address VARCHAR,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT valid_type CHECK (problem_type IN ('cesta', 'rasvjeta', 'otpad', 'komunalno', 'ostalo')),
+  CONSTRAINT valid_status CHECK (status IN ('new', 'in_progress', 'resolved', 'rejected'))
 )
 
 -- Newsletter Subscribers
 newsletter_subscribers (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email VARCHAR UNIQUE NOT NULL,
   confirmed BOOLEAN DEFAULT FALSE,
   confirmation_token VARCHAR,
@@ -233,44 +278,21 @@ newsletter_subscribers (
 
 -- Newsletter Sends (tracking)
 newsletter_sends (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subject VARCHAR NOT NULL,
   content_html TEXT NOT NULL,
   content_text TEXT NOT NULL,
   sent_at TIMESTAMP DEFAULT NOW(),
   recipient_count INTEGER,
-  posts_included JSONB,           -- [{id, title}]
-  events_included JSONB,          -- [{id, title}]
-  is_manual BOOLEAN DEFAULT FALSE -- vs automated weekly
+  posts_included JSONB,                   -- [{id, title}]
+  events_included JSONB,                  -- [{id, title}]
+  is_manual BOOLEAN DEFAULT FALSE         -- vs automated weekly
 )
 ```
 
-### System
+### System Tables
 
 ```sql
--- Audit Log (Security)
-audit_logs (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id),
-  action VARCHAR NOT NULL,         -- 'create', 'update', 'delete', 'login'
-  entity_type VARCHAR NOT NULL,    -- 'post', 'document', etc.
-  entity_id UUID,
-  details JSONB,                   -- Additional context
-  ip_address VARCHAR,
-  created_at TIMESTAMP DEFAULT NOW()
-)
-
--- RAG Embeddings (for Chatbot)
-embeddings (
-  id UUID PRIMARY KEY,
-  source_type VARCHAR NOT NULL,    -- 'document', 'page', 'post'
-  source_id UUID NOT NULL,
-  chunk_index INTEGER NOT NULL,
-  chunk_text TEXT NOT NULL,
-  embedding VECTOR(384),           -- pgvector, size depends on model
-  created_at TIMESTAMP DEFAULT NOW()
-)
-
 -- Site Settings
 settings (
   key VARCHAR PRIMARY KEY,
@@ -278,38 +300,69 @@ settings (
   updated_at TIMESTAMP DEFAULT NOW()
 )
 
+-- RAG Embeddings (for Chatbot)
+embeddings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  source_type VARCHAR NOT NULL,           -- 'document', 'page', 'post'
+  source_id UUID NOT NULL,
+  chunk_index INTEGER NOT NULL,
+  chunk_text TEXT NOT NULL,
+  embedding VECTOR(768),                  -- pgvector, nomic-embed-text size
+  created_at TIMESTAMP DEFAULT NOW()
+)
+
 -- Search Index (denormalized for fast search)
 search_index (
-  id UUID PRIMARY KEY,
-  source_type VARCHAR NOT NULL,   -- 'post', 'document', 'page', 'event'
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  source_type VARCHAR NOT NULL,           -- 'post', 'document', 'page', 'event'
   source_id UUID NOT NULL,
   title VARCHAR NOT NULL,
-  content_text TEXT NOT NULL,     -- Plain text for full-text search
+  content_text TEXT NOT NULL,             -- Plain text for full-text search
   category VARCHAR,
   url VARCHAR NOT NULL,
   published_at TIMESTAMP,
-  search_vector TSVECTOR,         -- PostgreSQL full-text search
-  embedding VECTOR(384),          -- Semantic search
+  search_vector TSVECTOR,                 -- PostgreSQL full-text search
+  embedding VECTOR(768),                  -- Semantic search
   updated_at TIMESTAMP DEFAULT NOW()
+)
+
+-- AI Generation Queue
+ai_queue (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT REFERENCES user(id),
+  request_type VARCHAR NOT NULL,          -- 'post_generation', 'chat'
+  input_data JSONB NOT NULL,              -- Request payload
+  status VARCHAR DEFAULT 'pending',
+  result JSONB,                           -- Response when complete
+  error_message TEXT,
+  attempts INTEGER DEFAULT 0,
+  max_attempts INTEGER DEFAULT 3,
+  created_at TIMESTAMP DEFAULT NOW(),
+  processed_at TIMESTAMP,
+  CONSTRAINT valid_status CHECK (status IN ('pending', 'processing', 'completed', 'failed'))
 )
 ```
 
 ### Indexes
 
 ```sql
+-- Indexes (Better Auth)
+CREATE INDEX idx_session_user ON session(userId);
+CREATE INDEX idx_session_token ON session(token);
+CREATE INDEX idx_account_user ON account(userId);
+CREATE INDEX idx_passkey_user ON passkey(userId);
+CREATE INDEX idx_passkey_credential ON passkey(credentialID);
+
 -- Indexes (Content)
 CREATE INDEX idx_posts_published ON posts(published_at DESC) WHERE published_at IS NOT NULL;
 CREATE INDEX idx_posts_category ON posts(category);
 CREATE INDEX idx_posts_featured ON posts(is_featured) WHERE is_featured = TRUE;
+CREATE INDEX idx_posts_author ON posts(author_id);
 CREATE INDEX idx_documents_category ON documents(category, year DESC);
 CREATE INDEX idx_events_date ON events(event_date);
 CREATE INDEX idx_galleries_date ON galleries(event_date DESC);
-
--- Indexes (Auth)
-CREATE INDEX idx_sessions_user ON user_sessions(user_id);
-CREATE INDEX idx_sessions_expires ON user_sessions(expires_at);
-CREATE INDEX idx_passkeys_user ON user_passkeys(user_id);
-CREATE INDEX idx_passkeys_credential ON user_passkeys(credential_id);
+CREATE INDEX idx_gallery_images_gallery ON gallery_images(gallery_id, sort_order);
+CREATE INDEX idx_pages_parent ON pages(parent_id);
 
 -- Indexes (Communication)
 CREATE INDEX idx_contact_status ON contact_messages(status, created_at DESC);
@@ -317,14 +370,13 @@ CREATE INDEX idx_problems_status ON problem_reports(status, created_at DESC);
 CREATE INDEX idx_newsletter_confirmed ON newsletter_subscribers(confirmed) WHERE confirmed = TRUE;
 
 -- Indexes (System)
-CREATE INDEX idx_audit_logs_user ON audit_logs(user_id, created_at DESC);
-CREATE INDEX idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
 CREATE INDEX idx_embeddings_source ON embeddings(source_type, source_id);
+CREATE INDEX idx_ai_queue_status ON ai_queue(status, created_at);
 
 -- Indexes (Search)
 CREATE INDEX idx_search_source ON search_index(source_type, source_id);
 CREATE INDEX idx_search_fulltext ON search_index USING GIN(search_vector);
-CREATE INDEX idx_search_embedding ON search_index USING ivfflat(embedding vector_cosine_ops);
+CREATE INDEX idx_search_embedding ON search_index USING hnsw(embedding vector_cosine_ops);
 ```
 
 ---
@@ -332,28 +384,35 @@ CREATE INDEX idx_search_embedding ON search_index USING ivfflat(embedding vector
 ## API Design
 
 **Style:** REST (simple, sufficient for this project)
+**Auth:** Better Auth handles `/api/auth/*` routes automatically
 
-### Authentication
+### Authentication (Better Auth - auto-generated)
 
 ```
-POST   /api/auth/login              - Email/password login
-POST   /api/auth/logout             - Logout (invalidate session)
-GET    /api/auth/me                 - Get current user
-POST   /api/auth/google             - Google OAuth callback
-POST   /api/auth/passkey/register   - Register new passkey
-POST   /api/auth/passkey/login      - Login with passkey
-POST   /api/auth/password/reset     - Request password reset
-POST   /api/auth/password/confirm   - Confirm password reset
-POST   /api/auth/2fa/setup          - Setup TOTP 2FA
-POST   /api/auth/2fa/verify         - Verify TOTP code
-DELETE /api/auth/2fa                - Disable 2FA
+POST   /api/auth/sign-up              - Email/password registration
+POST   /api/auth/sign-in/email        - Email/password login
+POST   /api/auth/sign-in/social       - OAuth login (Google)
+POST   /api/auth/sign-out             - Logout
+GET    /api/auth/session              - Get current session
+POST   /api/auth/forget-password      - Request password reset
+POST   /api/auth/reset-password       - Reset password with token
+POST   /api/auth/verify-email         - Verify email address
+
+-- Passkey Plugin
+POST   /api/auth/passkey/register     - Register new passkey
+POST   /api/auth/passkey/authenticate - Login with passkey
+
+-- Two-Factor Plugin
+POST   /api/auth/two-factor/enable    - Enable 2FA
+POST   /api/auth/two-factor/disable   - Disable 2FA
+POST   /api/auth/two-factor/verify    - Verify TOTP code
 ```
 
 ### User Management (Admin/Super Admin)
 
 ```
 GET    /api/users                   - List users
-POST   /api/users                   - Create user
+POST   /api/users                   - Create user (invite)
 PUT    /api/users/:id               - Update user
 DELETE /api/users/:id               - Delete user (super admin only)
 GET    /api/users/:id/sessions      - View user sessions
@@ -369,21 +428,22 @@ POST   /api/posts              - Create
 PUT    /api/posts/:id          - Update
 DELETE /api/posts/:id          - Delete (admin only)
 POST   /api/posts/:id/publish  - Publish (triggers build + FB post)
-POST   /api/posts/generate     - AI generate from notes/images
 ```
 
 ### Documents
 
 ```
 GET    /api/documents          - List (filterable by category, year)
-POST   /api/documents          - Upload
-DELETE /api/documents/:id      - Delete
+POST   /api/documents          - Upload to R2
+PUT    /api/documents/:id      - Update metadata
+DELETE /api/documents/:id      - Delete from R2
 ```
 
 ### Events
 
 ```
 GET    /api/events             - List (with calendar view support)
+GET    /api/events/:id         - Get single
 POST   /api/events             - Create
 PUT    /api/events/:id         - Update
 DELETE /api/events/:id         - Delete
@@ -393,21 +453,31 @@ DELETE /api/events/:id         - Delete
 
 ```
 GET    /api/galleries          - List albums
+GET    /api/galleries/:slug    - Get album with images
 POST   /api/galleries          - Create album
 PUT    /api/galleries/:id      - Update album
-DELETE /api/galleries/:id      - Delete album
-POST   /api/galleries/:id/images - Upload images
+DELETE /api/galleries/:id      - Delete album + images from R2
+POST   /api/galleries/:id/images - Upload images to R2
 PUT    /api/galleries/:id/reorder - Reorder images
-DELETE /api/galleries/:id/images/:imgId - Delete image
+DELETE /api/galleries/:id/images/:imgId - Delete image from R2
 ```
 
 ### Pages
 
 ```
 GET    /api/pages              - List (with hierarchy)
+GET    /api/pages/:slug        - Get single
 POST   /api/pages              - Create
 PUT    /api/pages/:id          - Update
 DELETE /api/pages/:id          - Delete
+```
+
+### Settings
+
+```
+GET    /api/settings           - Get all settings
+GET    /api/settings/:key      - Get single setting
+PUT    /api/settings/:key      - Update setting
 ```
 
 ### Contact & Problem Reports
@@ -416,15 +486,18 @@ DELETE /api/pages/:id          - Delete
 GET    /api/contact            - List contact messages (admin)
 PUT    /api/contact/:id        - Update status
 DELETE /api/contact/:id        - Archive/delete message
+
 GET    /api/problems           - List problem reports (admin)
+GET    /api/problems/:id       - Get single with images
 PUT    /api/problems/:id       - Update status, add notes
+DELETE /api/problems/:id       - Delete report
 ```
 
 ### Public (No Auth Required)
 
 ```
 POST   /api/public/contact     - Submit contact form
-POST   /api/public/problem     - Submit problem report
+POST   /api/public/problem     - Submit problem report + images
 POST   /api/public/newsletter/subscribe   - Subscribe to newsletter
 GET    /api/public/newsletter/confirm/:token - Confirm email
 GET    /api/public/newsletter/unsubscribe/:token - Unsubscribe
@@ -437,27 +510,30 @@ GET    /api/newsletter/subscribers - List subscribers
 DELETE /api/newsletter/subscribers/:id - Remove subscriber
 POST   /api/newsletter/send    - Send manual newsletter
 GET    /api/newsletter/sends   - List sent newsletters
+POST   /api/newsletter/preview - Preview newsletter content
 ```
 
 ### Search
 
 ```
 GET    /api/search             - Hybrid search (keyword + semantic)
-GET    /api/search/suggest     - Search suggestions
+GET    /api/search/suggest     - Search suggestions (autocomplete)
 ```
 
 ### AI
 
 ```
-POST   /api/ai/generate        - Generate content from input
-POST   /api/ai/chat            - Chatbot query
+POST   /api/ai/generate        - Queue content generation
+GET    /api/ai/generate/:id    - Check generation status
+POST   /api/ai/chat            - Chatbot query (RAG)
 ```
 
 ### Build & Deploy
 
 ```
-POST   /api/build/trigger      - Trigger site rebuild
+POST   /api/build/trigger      - Trigger Cloudflare Pages rebuild
 GET    /api/build/status       - Check build status
+GET    /api/build/history      - List recent builds
 ```
 
 ### Analytics
@@ -466,6 +542,14 @@ GET    /api/build/status       - Check build status
 GET    /api/analytics/summary  - Dashboard stats from Cloudflare
 GET    /api/analytics/visitors - Visitor data
 GET    /api/analytics/pages    - Top pages
+```
+
+### Upload (R2)
+
+```
+POST   /api/upload/image       - Upload image to R2 (returns URL)
+POST   /api/upload/document    - Upload document to R2
+DELETE /api/upload/:key        - Delete file from R2
 ```
 
 ---
@@ -517,4 +601,5 @@ GET    /api/analytics/pages    - Top pages
 | `NOT_FOUND` | 404 | Resource not found |
 | `CONFLICT` | 409 | Resource already exists |
 | `RATE_LIMITED` | 429 | Too many requests |
+| `AI_QUEUE_FULL` | 429 | AI generation queue full |
 | `SERVER_ERROR` | 500 | Internal server error |

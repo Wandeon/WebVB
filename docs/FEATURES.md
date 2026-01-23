@@ -9,8 +9,9 @@
 2. [Admin Panel](#admin-panel)
 3. [Search Experience](#search-experience)
 4. [Newsletter System](#newsletter-system)
-5. [AI Features](#ai-features)
-6. [External Integrations](#external-integrations)
+5. [Image Storage](#image-storage)
+6. [AI Features](#ai-features)
+7. [External Integrations](#external-integrations)
 
 ---
 
@@ -434,7 +435,170 @@ NASLOVNICA (Homepage)
 
 ---
 
+## Image Storage
+
+### Cloudflare R2 Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  IMAGE UPLOAD & STORAGE FLOW                                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Admin Upload                                                   │
+│  ┌─────────┐    ┌─────────────────┐    ┌─────────────────┐     │
+│  │ Browser │ -> │ Admin API (VPS) │ -> │ Sharp Process   │     │
+│  │ (file)  │    │ Receives upload │    │ on VPS          │     │
+│  └─────────┘    └─────────────────┘    └─────────────────┘     │
+│                                              │                  │
+│                                              ▼                  │
+│                                    ┌─────────────────────────┐ │
+│                                    │ Cloudflare R2 Bucket    │ │
+│                                    │ /images/                │ │
+│                                    │   ├── original/         │ │
+│                                    │   ├── thumb/ (150px)    │ │
+│                                    │   ├── medium/ (600px)   │ │
+│                                    │   └── large/ (1200px)   │ │
+│                                    └─────────────────────────┘ │
+│                                              │                  │
+│  Public Site                                 ▼                  │
+│  ┌─────────────────┐    ┌─────────────────────────┐            │
+│  │ Cloudflare CDN  │ <- │ R2 Public URL           │            │
+│  │ (edge cache)    │    │ r2.velikibukovec.hr/*   │            │
+│  └─────────────────┘    └─────────────────────────┘            │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Image Processing Pipeline
+
+```typescript
+// On upload to admin:
+1. Receive file from browser (max 10MB)
+2. Validate: JPEG, PNG, WebP, GIF only
+3. Sharp processing on VPS:
+   - Strip EXIF/metadata (privacy)
+   - Convert to WebP (smaller files)
+   - Generate variants:
+     • thumb:  150px wide (lists, previews)
+     • medium: 600px wide (content)
+     • large:  1200px wide (gallery, hero)
+     • original: preserved for download
+4. Upload all variants to R2
+5. Store R2 URLs in database
+```
+
+### Database Image References
+
+```sql
+-- Images table stores all variants
+image (
+  id UUID,
+  original_filename VARCHAR,
+  mime_type VARCHAR,
+  size_bytes INTEGER,
+  r2_key_original VARCHAR,  -- images/original/uuid.webp
+  r2_key_thumb VARCHAR,     -- images/thumb/uuid.webp
+  r2_key_medium VARCHAR,    -- images/medium/uuid.webp
+  r2_key_large VARCHAR,     -- images/large/uuid.webp
+  alt_text VARCHAR,
+  created_at TIMESTAMP
+)
+
+-- Posts reference images via junction table
+post_image (
+  post_id UUID,
+  image_id UUID,
+  position INTEGER,  -- for ordering
+  is_featured BOOLEAN DEFAULT false
+)
+```
+
+### Public Site Image Loading
+
+```typescript
+// Custom R2 image loader for Next.js static export
+// (default next/image optimizer not available in static export)
+
+const r2Loader = ({ src, width }) => {
+  // Map requested width to R2 variant
+  if (width <= 150) return `${R2_URL}/thumb/${src}`;
+  if (width <= 600) return `${R2_URL}/medium/${src}`;
+  return `${R2_URL}/large/${src}`;
+};
+
+// Usage in components
+<Image
+  loader={r2Loader}
+  src="abc123.webp"
+  width={600}
+  height={400}
+  alt="Description"
+/>
+```
+
+### R2 Bucket Structure
+
+```
+velikibukovec-media/
+├── images/
+│   ├── original/
+│   │   └── {uuid}.webp
+│   ├── thumb/
+│   │   └── {uuid}.webp
+│   ├── medium/
+│   │   └── {uuid}.webp
+│   └── large/
+│       └── {uuid}.webp
+├── documents/
+│   └── {uuid}.pdf
+└── gallery/
+    ├── {album-slug}/
+    │   └── {uuid}.webp
+    └── ...
+```
+
+### Cost Structure
+
+| Usage | Cost |
+|-------|------|
+| Storage | $0.015/GB/month |
+| Class A ops (writes) | $4.50/million |
+| Class B ops (reads) | $0.36/million |
+| Egress | **FREE** (zero egress fees) |
+
+Estimated monthly: ~€2-5 for municipality-scale usage.
+
+---
+
 ## AI Features
+
+### LLM Provider & Queue System
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  OLLAMA CLOUD INTEGRATION                                       │
+├─────────────────────────────────────────────────────────────────┤
+│  Provider: Ollama Cloud (Pro/Max plan)                          │
+│  Model: Llama 3.1 70B                                           │
+│  Local embeddings: Ollama on VPS (nomic-embed-text)             │
+│                                                                 │
+│  RATE LIMIT HANDLING: Queue + Retry                             │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │  1. User initiates AI generation                          │ │
+│  │  2. Request added to ai_queue table (status: pending)     │ │
+│  │  3. Worker picks up request                               │ │
+│  │  4. If rate limited → back off, retry later (max 3)       │ │
+│  │  5. If success → store result, notify user                │ │
+│  │  6. User sees: "Your content is being generated..."       │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                                                                 │
+│  Queue Status UI:                                               │
+│  • Pending: "Generating your content..." (spinner)              │
+│  • Processing: "AI is writing..." (progress indicator)          │
+│  • Completed: Content appears in editor for review              │
+│  • Failed: "Generation failed. Try again?" (retry button)       │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Content Generation Pipeline
 
@@ -445,6 +609,8 @@ NASLOVNICA (Homepage)
 │  │ 📷 Photo(s)   │  │ ✏️ Short notes/tips              │         │
 │  │ 1 or more    │  │ (can use phone dictation)       │         │
 │  └──────────────┘  └─────────────────────────────────┘         │
+│                                                                 │
+│  → Request queued in ai_queue table                             │
 └─────────────────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -454,6 +620,8 @@ NASLOVNICA (Homepage)
 │  → Finds relevant recent news                                   │
 │  → Understands current context                                  │
 │  → Avoids outdated information                                  │
+│                                                                 │
+│  → If rate limited: retry in 30s (up to 3 attempts)             │
 └─────────────────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -463,6 +631,8 @@ NASLOVNICA (Homepage)
 │  → Proper structure (title, intro, body, conclusion)            │
 │  → Uses municipality voice/tone                                 │
 │  → Includes relevant local context                              │
+│                                                                 │
+│  → If rate limited: retry in 30s (up to 3 attempts)             │
 └─────────────────────────────────────────────────────────────────┘
                           │
                           ▼
