@@ -2,10 +2,11 @@
 
 import { APP_NAME } from '@repo/shared';
 import { Button } from '@repo/ui';
+import { useRouter } from 'next/navigation';
+
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { useAuth } from '@/components/providers/session-provider';
 import { signOut } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ function DashboardContent() {
     <main style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1>{APP_NAME} - Admin</h1>
-        <Button variant="secondary" onClick={handleLogout}>
+        <Button variant="secondary" onClick={() => void handleLogout()}>
           Odjava
         </Button>
       </div>

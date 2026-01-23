@@ -1,6 +1,7 @@
+import { SessionProvider } from '@/components/providers/session-provider';
+
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { SessionProvider } from '@/components/providers/session-provider';
 
 import './globals.css';
 

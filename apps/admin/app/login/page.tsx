@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { signIn } from '@/lib/auth-client';
 import { Button } from '@repo/ui';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+import { signIn } from '@/lib/auth-client';
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -82,7 +84,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleEmailLogin}>
+        <form onSubmit={(e) => void handleEmailLogin(e)}>
           <div style={{ marginBottom: '1rem' }}>
             <label htmlFor="email" style={{ display: 'block', marginBottom: '0.25rem' }}>
               Email
@@ -145,7 +147,7 @@ export default function LoginPage() {
         <Button
           type="button"
           variant="secondary"
-          onClick={handleGoogleLogin}
+          onClick={() => void handleGoogleLogin()}
           disabled={isLoading}
           style={{ width: '100%' }}
         >
