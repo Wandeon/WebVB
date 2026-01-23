@@ -34,6 +34,10 @@ model User {
   passkeys      Passkey[]
   twoFactor     TwoFactor?
 
+  // Content relations
+  posts         Post[]
+  documents     Document[]
+
   @@index([email])
   @@index([role])
   @@map("user")
@@ -121,4 +125,113 @@ model TwoFactor {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("two_factor")
+}
+
+// ============================================================================
+// CONTENT TABLES
+// ============================================================================
+
+model Post {
+  id             String    @id @default(uuid())
+  title          String
+  slug           String    @unique
+  content        String    // Rich text (TipTap JSON)
+  excerpt        String?   // Short summary
+  featuredImage  String?   @map("featured_image") // R2 URL
+  images         Json?     // Additional images [{url, caption}]
+  category       String    @default("aktualnosti")
+  isFeatured     Boolean   @default(false) @map("is_featured")
+  facebookPostId String?   @map("facebook_post_id")
+  authorId       String?   @map("author_id")
+  publishedAt    DateTime? @map("published_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  author User? @relation(fields: [authorId], references: [id])
+
+  @@index([publishedAt(sort: Desc)])
+  @@index([category])
+  @@index([isFeatured])
+  @@index([authorId])
+  @@map("posts")
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  title       String
+  fileUrl     String   @map("file_url") // R2 URL
+  fileSize    Int?     @map("file_size")
+  category    String   // 'sjednice', 'izbori', 'planovi', etc.
+  subcategory String?
+  year        Int?
+  uploadedBy  String?  @map("uploaded_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  uploader User? @relation(fields: [uploadedBy], references: [id])
+
+  @@index([category, year(sort: Desc)])
+  @@map("documents")
+}
+
+model Event {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  eventDate   DateTime  @map("event_date") @db.Date
+  eventTime   DateTime? @map("event_time") @db.Time()
+  endDate     DateTime? @map("end_date") @db.Date
+  location    String?
+  posterImage String?   @map("poster_image") // R2 URL
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([eventDate])
+  @@map("events")
+}
+
+model Page {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  content   String
+  parentId  String?  @map("parent_id")
+  menuOrder Int      @default(0) @map("menu_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  parent   Page?  @relation("PageHierarchy", fields: [parentId], references: [id])
+  children Page[] @relation("PageHierarchy")
+
+  @@index([parentId])
+  @@map("pages")
+}
+
+model Gallery {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  eventDate   DateTime? @map("event_date") @db.Date
+  description String?
+  coverImage  String?   @map("cover_image") // R2 URL
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  images GalleryImage[]
+
+  @@index([eventDate(sort: Desc)])
+  @@map("galleries")
+}
+
+model GalleryImage {
+  id           String   @id @default(uuid())
+  galleryId    String   @map("gallery_id")
+  imageUrl     String   @map("image_url") // R2 URL (large)
+  thumbnailUrl String?  @map("thumbnail_url") // R2 URL (thumbnail)
+  caption      String?
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([galleryId, sortOrder])
+  @@map("gallery_images")
 }
