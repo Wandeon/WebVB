@@ -17,6 +17,7 @@
 | [MIGRATION.md](docs/MIGRATION.md) | WordPress export, content mapping, migration scripts, redirects |
 | [ROADMAP.md](ROADMAP.md) | 9-phase implementation plan (AI features last) |
 | [HUMAN-TODO.md](HUMAN-TODO.md) | Manual tasks requiring human action (accounts, credentials, decisions) |
+| [PROJECT-GOVERNANCE.md](PROJECT-GOVERNANCE.md) | Communication, approvals, change control, payments, support |
 | [CLAUDE.md](CLAUDE.md) | AI assistant instructions |
 | [AGENTS.md](AGENTS.md) | Agent definitions and Definition of Done |
 
