@@ -59,6 +59,36 @@
 
 ---
 
+#### Topic 3: VPS Provider & AI Services
+
+**Discussed:**
+- VPS provider selection
+- AI service for chatbot and content generation
+
+**Decided:**
+- VPS: Netcup (German provider)
+- AI: Ollama Cloud at €20/month
+
+**Why:**
+- Netcup: Good price/performance ratio, EU-based (GDPR friendly for Croatian municipality), reliable
+- Ollama Cloud:
+  - Predictable monthly cost (€20 flat)
+  - No need to self-host GPU infrastructure
+  - Access to open-source models (Llama, Mistral, etc.)
+  - API-based = simpler integration via Cloudflare Workers
+  - Can switch models without infrastructure changes
+
+**Cost structure so far:**
+| Service | Monthly Cost |
+|---------|--------------|
+| Siteground | Already paid |
+| Cloudflare | Free tier |
+| Netcup VPS | TBD (depends on tier) |
+| Ollama Cloud | €20 |
+| **Total recurring** | ~€20 + VPS |
+
+---
+
 ## Current Architecture
 
 ```
@@ -68,26 +98,28 @@
 │  │   Workers   │       │        CDN          │  │
 │  │   (APIs)    │       │   (Static site)     │  │
 │  │   /api/*    │       │   /* → Siteground   │  │
-│  └─────────────┘       └─────────────────────┘  │
-└─────────────────────────────────────────────────┘
-                         │
-              ┌──────────┴──────────┐
-              ▼                     ▼
-      ┌───────────────┐     ┌───────────────┐
-      │     VPS       │     │  AI Services  │
-      │  (WordPress   │     │  (OpenAI/     │
-      │   Headless)   │     │   Anthropic)  │
-      └───────────────┘     └───────────────┘
+│  └──────┬──────┘       └─────────────────────┘  │
+└─────────│───────────────────────────────────────┘
+          │
+          ├──────────────────┬────────────────────┐
+          ▼                  ▼                    ▼
+  ┌───────────────┐  ┌───────────────┐   ┌──────────────┐
+  │  Netcup VPS   │  │ Ollama Cloud  │   │  Siteground  │
+  │  (WordPress   │  │   (€20/mo)    │   │   (Origin)   │
+  │   Headless)   │  │  LLM APIs     │   │ Static files │
+  └───────────────┘  └───────────────┘   └──────────────┘
 ```
 
 ---
 
 ## Open Questions
-- [ ] VPS budget and specs?
-- [ ] Which AI provider for chatbot/content generation?
-- [ ] Self-hosted AI or API-based?
+- [x] VPS budget and specs? → Netcup VPS
+- [x] Which AI provider for chatbot/content generation? → Ollama Cloud
+- [x] Self-hosted AI or API-based? → API-based (Ollama Cloud)
 - [ ] CI/CD pipeline setup (GitHub Actions → Siteground)
 - [ ] WordPress rebuild trigger webhook
+- [ ] Which Netcup VPS tier for WordPress?
+- [ ] Ollama Cloud model selection (Llama 3, Mistral, etc.)?
 
 ---
 
@@ -98,8 +130,8 @@
 | Hosting (static) | Siteground + Cloudflare CDN | Decided |
 | APIs | Cloudflare Workers | Decided |
 | CMS | WordPress (headless) | From proposal |
-| CMS Hosting | Small VPS | Decided |
-| AI Services | TBD | Open |
+| CMS Hosting | Netcup VPS | Decided |
+| AI Services | Ollama Cloud (€20/month) | Decided |
 | Email | @velikibukovec.hr | From proposal |
 
 ---
