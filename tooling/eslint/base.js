@@ -31,5 +31,13 @@ module.exports = {
       },
     ],
   },
-  ignorePatterns: ["dist", ".next", "node_modules", "*.config.js", "*.config.ts"],
+  ignorePatterns: [
+    "dist",
+    ".next",
+    "out",
+    "node_modules",
+    "*.config.js",
+    "*.config.ts",
+    ".eslintrc.js",
+  ],
 };

@@ -9,6 +9,7 @@
 **Active Sprint:** Not Started
 **Overall Progress:** 0/71 sprints
 **Target Launch:** TBD
+**Latest Audit:** Phase 0.1 execution review in `docs/audits/PHASE-0.1-EXECUTION-REVIEW.md`
 
 ---
 
@@ -622,4 +623,3 @@ Gate: https://velikibukovec.hr shows new site
 |------|--------|
 | 2026-01-23 | Initial roadmap created |
 | 2026-01-23 | Restructured for AI agent sprints with gates |
-
