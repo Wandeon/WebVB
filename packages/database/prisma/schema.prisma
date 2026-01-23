@@ -1,20 +1,124 @@
-// This is a placeholder - full schema will be created in Sprint 0.2
-// See docs/DATABASE.md for complete schema
+// Prisma Schema for Veliki Bukovec
+// See docs/DATABASE.md for full documentation
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector, pg_trgm]
 }
 
-// Placeholder model to allow initial setup
+// ============================================================================
+// BETTER AUTH TABLES (Standard Schema)
+// ============================================================================
+
 model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Custom extension field
+  role          String    @default("staff") // 'super_admin', 'admin', 'staff'
+
+  // Relations
+  sessions      Session[]
+  accounts      Account[]
+  passkeys      Passkey[]
+  twoFactor     TwoFactor?
+
+  @@index([email])
+  @@index([role])
+  @@map("user")
+}
+
+model Session {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String    // 'google', 'credential'
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?   // For credential provider (hashed)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String   // email or other identifier
+  value      String   // token value
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// ============================================================================
+// BETTER AUTH PLUGIN TABLES
+// ============================================================================
+
+model Passkey {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String?  // User-friendly name "MacBook Touch ID"
+  publicKey    String
+  credentialID String   @unique
+  counter      Int      @default(0)
+  deviceType   String?  // 'platform' or 'cross-platform'
+  backedUp     Boolean  @default(false)
+  transports   String?  // JSON array of transports
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([credentialID])
+  @@map("passkey")
+}
+
+model TwoFactor {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  secret      String   // Encrypted TOTP secret
+  backupCodes String?  // Encrypted backup codes (JSON)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("two_factor")
 }
