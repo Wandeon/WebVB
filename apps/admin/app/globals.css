@@ -1,0 +1,12 @@
+/* Base styles - Tailwind will be added in Sprint 0.4 */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}
