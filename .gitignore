@@ -1,1 +1,44 @@
-*.pdf
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.next
+dist
+out
+build
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Turbo
+.turbo
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Misc
+*.tsbuildinfo
