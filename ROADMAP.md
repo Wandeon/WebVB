@@ -9,7 +9,7 @@
 **Active Sprint:** 1.4 - TipTap editor
 **Overall Progress:** 8/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Sprint 1.2 review in `docs/audits/SPRINT-1.2-REVIEW.md`
+**Latest Audit:** Sprint 1.3 review in `docs/audits/SPRINT-1.3-REVIEW.md`
 
 ---
 

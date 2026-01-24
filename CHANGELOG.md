@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- Nothing yet
+- Documented Sprint 1.3 audit review findings.
 
 ## Sprint 1.3 - Posts List + CRUD (Completed)
 - UI Primitives: Table, Dialog, Select, Badge, Textarea, Toast, Toaster components
