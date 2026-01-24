@@ -9,6 +9,7 @@
     "./library": "./library.mjs"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@typescript-eslint/eslint-plugin": "^8.32.0",
     "@typescript-eslint/parser": "^8.32.0",
     "eslint": "^9.28.0",
