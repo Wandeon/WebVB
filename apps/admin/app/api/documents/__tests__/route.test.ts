@@ -87,8 +87,11 @@ const mockedLoggerError = vi.mocked(documentsLogger.error);
 const mockedLoggerInfo = vi.mocked(documentsLogger.info);
 
 // Helper to create a mock NextRequest
-function createMockNextRequest(url: string, options?: RequestInit): NextRequest {
-  return new NextRequest(url, options);
+function createMockNextRequest(
+  url: string,
+  init?: { method?: string; headers?: Record<string, string>; body?: string }
+): NextRequest {
+  return new NextRequest(url, init);
 }
 
 // Mock document data
@@ -103,7 +106,6 @@ const mockDocument: DocumentWithUploader = {
   uploadedBy: null,
   uploader: null,
   createdAt: new Date('2024-01-15T10:00:00Z'),
-  updatedAt: new Date('2024-01-15T10:00:00Z'),
 };
 
 const mockPaginatedResult: FindAllDocumentsResult = {

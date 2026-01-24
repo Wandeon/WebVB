@@ -5,11 +5,34 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 - Documented Sprint 1.3 audit review findings.
 
+## Sprint 1.6 - Documents Management (Completed)
+
+### Added
+- Document management system with PDF upload to Cloudflare R2
+- Document categories: sjednice, proracun, planovi, javna_nabava, izbori, obrasci, odluke_nacelnika, strateski_dokumenti, zakoni_i_propisi, ostalo
+- Document constants and types in @repo/shared (DOCUMENT_CATEGORIES, DOCUMENT_MAX_SIZE_BYTES, DocumentCategory)
+- Zod validation schemas in @repo/shared (documentSchema, createDocumentSchema, updateDocumentSchema, documentQuerySchema)
+- Documents repository in @repo/database with CRUD operations
+- PDF signature validation (%PDF- header check) and MIME type validation
+- DocumentUpload component with drag-drop support
+- Documents DataTable with filtering by category/year, search, and pagination
+- Upload, Edit, and Delete dialogs with Croatian labels
+- Admin documents page at /documents with full CRUD interface
+- AlertDialog primitive added to @repo/ui
+- API route tests for documents endpoints
+- Gate: Upload PDF, see it in list, edit metadata, delete it
+
+## Sprint 1.5 - Image Upload (Completed)
+
 ### Added
 - Image upload component with drag-drop support in @repo/ui
 - Image upload API with Sharp processing (thumb 150px, medium 800px, large 1920px variants)
 - Cloudflare R2 integration for image storage
 - Featured image field in post form
+
+## Sprint 1.4 - TipTap Editor (Completed)
+
+### Added
 - TipTap rich text editor component in @repo/ui package
 - Rich text editing in post form with toolbar (bold, italic, underline, links, headings, lists, blockquote)
 - HTML content validation that strips tags before checking for empty content
