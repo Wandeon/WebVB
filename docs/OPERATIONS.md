@@ -160,6 +160,42 @@ logger.info({ action: 'post_created' }, 'User created post');
 
 ---
 
+## Backup & Restore
+
+### Database Backups (R2)
+
+Use the repo script to perform a manual backup or validate the cron job on the VPS:
+
+```bash
+export DATABASE_URL="postgresql://user:password@localhost:5432/velikibukovec"
+export CLOUDFLARE_ACCOUNT_ID="your-account-id"
+export CLOUDFLARE_R2_ACCESS_KEY_ID="your-access-key"
+export CLOUDFLARE_R2_SECRET_ACCESS_KEY="your-secret-key"
+export CLOUDFLARE_R2_BUCKET_NAME="velikibukovec-backups"
+export RETENTION_DAYS="90" # Optional override (default: 90)
+
+./scripts/backup-db.sh
+```
+
+### Database Restore (R2)
+
+Restores require explicit confirmation and can target the latest backup or a specific key:
+
+```bash
+export DATABASE_URL="postgresql://user:password@localhost:5432/velikibukovec"
+export CLOUDFLARE_ACCOUNT_ID="your-account-id"
+export CLOUDFLARE_R2_ACCESS_KEY_ID="your-access-key"
+export CLOUDFLARE_R2_SECRET_ACCESS_KEY="your-secret-key"
+export CLOUDFLARE_R2_BUCKET_NAME="velikibukovec-backups"
+
+export CONFIRM_RESTORE=YES
+export RESTORE_KEY="velikibukovec_2026-01-24_03-00-00.sql.gz" # Optional
+
+./scripts/restore-db.sh
+```
+
+---
+
 ## SEO
 
 ### Implementation

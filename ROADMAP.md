@@ -9,7 +9,7 @@
 **Active Sprint:** 1.7 - Static pages CRUD
 **Overall Progress:** 21/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Sprint 1.5-1.6 review in `docs/audits/SPRINT-1.5-1.6-REVIEW.md`
+**Latest Audit:** Phase 4 deployment audit in `docs/audits/PHASE-4-DEPLOYMENT-AUDIT.md`
 
 ---
 
