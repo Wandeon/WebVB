@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { adminNavigation, type NavItem, type NavSection } from '@/config/navigation';
 
-function NavItemComponent({ item, collapsed }: { item: NavItem; collapsed?: boolean }) {
+function NavItemComponent({ item, collapsed }: { item: NavItem; collapsed?: boolean | undefined }) {
   const pathname = usePathname();
   const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
   const Icon = item.icon;

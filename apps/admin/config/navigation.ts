@@ -8,13 +8,16 @@ import {
   MessageSquare,
   Settings,
   Users,
-  type LucideIcon,
 } from 'lucide-react';
+
+import type { ComponentType, SVGProps } from 'react';
+
+export type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { className?: string }>;
 
 export interface NavItem {
   title: string;
   href: string;
-  icon: LucideIcon;
+  icon: IconComponent;
   badge?: number;
 }
 
@@ -23,13 +26,16 @@ export interface NavSection {
   items: NavItem[];
 }
 
+// Helper to cast icons to our compatible type
+const icon = <T extends IconComponent>(Icon: T): IconComponent => Icon;
+
 export const adminNavigation: NavSection[] = [
   {
     items: [
       {
         title: 'Nadzorna ploča',
         href: '/',
-        icon: LayoutDashboard,
+        icon: icon(LayoutDashboard),
       },
     ],
   },
@@ -39,27 +45,27 @@ export const adminNavigation: NavSection[] = [
       {
         title: 'Objave',
         href: '/posts',
-        icon: FileText,
+        icon: icon(FileText),
       },
       {
         title: 'Dokumenti',
         href: '/documents',
-        icon: FileText,
+        icon: icon(FileText),
       },
       {
         title: 'Događanja',
         href: '/events',
-        icon: CalendarDays,
+        icon: icon(CalendarDays),
       },
       {
         title: 'Galerija',
         href: '/galleries',
-        icon: Image,
+        icon: icon(Image),
       },
       {
         title: 'Stranice',
         href: '/pages',
-        icon: Home,
+        icon: icon(Home),
       },
     ],
   },
@@ -69,12 +75,12 @@ export const adminNavigation: NavSection[] = [
       {
         title: 'Poruke',
         href: '/messages',
-        icon: Inbox,
+        icon: icon(Inbox),
       },
       {
         title: 'Prijave problema',
         href: '/reports',
-        icon: MessageSquare,
+        icon: icon(MessageSquare),
       },
     ],
   },
@@ -84,12 +90,12 @@ export const adminNavigation: NavSection[] = [
       {
         title: 'Korisnici',
         href: '/users',
-        icon: Users,
+        icon: icon(Users),
       },
       {
         title: 'Postavke',
         href: '/settings',
-        icon: Settings,
+        icon: icon(Settings),
       },
     ],
   },
