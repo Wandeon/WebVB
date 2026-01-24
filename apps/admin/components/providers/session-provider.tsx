@@ -1,5 +1,6 @@
 'use client';
 
+import { USER_ROLES, type UserRole } from '@repo/shared';
 import { createContext, useContext, type ReactNode } from 'react';
 
 import { useSession } from '@/lib/auth-client';
@@ -11,7 +12,7 @@ interface SessionUser {
   name: string;
   emailVerified: boolean;
   image?: string | null | undefined;
-  role?: string | null | undefined;
+  role?: UserRole | null | undefined;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,7 +51,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const value: SessionContextValue = {
     session: session ?? null,
-    user: user ? { ...user, role: (user.role as string) ?? 'staff' } : null,
+    user: user ? { ...user, role: user.role ?? USER_ROLES.STAFF } : null,
     isLoading: isPending,
     isAuthenticated: !!session,
   };

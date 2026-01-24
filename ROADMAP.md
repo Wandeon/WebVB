@@ -9,7 +9,7 @@
 **Active Sprint:** 0.5 - CI/CD Pipeline
 **Overall Progress:** 4/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Phase 0.1 execution review in `docs/audits/PHASE-0.1-EXECUTION-REVIEW.md`
+**Latest Audit:** Sprint 0.3 review in `docs/audits/SPRINT-0.3-REVIEW.md`
 
 ---
 
