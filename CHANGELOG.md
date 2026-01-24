@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- CI/CD pipeline configured with GitHub Actions
 - Documented Phase 0.2 execution review and compliance gaps.
 - Added shared environment validation utilities with tests and public URL defaults.
 - Updated auth and database layers to use validated env helpers and shared role constants.
