@@ -1,0 +1,98 @@
+'use client';
+
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  toast,
+} from '@repo/ui';
+import { useState } from 'react';
+
+interface DeleteDialogProps {
+  postId: string;
+  postTitle: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+}
+
+export function DeleteDialog({
+  postId,
+  postTitle,
+  open,
+  onOpenChange,
+  onSuccess,
+}: DeleteDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(errorData.error ?? 'Brisanje nije uspjelo');
+      }
+
+      toast({
+        title: 'Uspjeh',
+        description: 'Objava je uspjesno obrisana.',
+        variant: 'success',
+      });
+
+      onOpenChange(false);
+      onSuccess();
+    } catch (error) {
+      toast({
+        title: 'Greska',
+        description:
+          error instanceof Error ? error.message : 'Doslo je do greske',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Brisanje objave</DialogTitle>
+          <DialogDescription>
+            Jeste li sigurni da zelite obrisati objavu &quot;{postTitle}&quot;?
+            Ova radnja se ne moze ponistiti.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isDeleting}
+          >
+            Odustani
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            onClick={() => void handleDelete()}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Brisanje...' : 'Obrisi'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

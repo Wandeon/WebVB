@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 1.3 - Posts list + CRUD
-**Overall Progress:** 7/71 sprints
+**Active Sprint:** 1.4 - TipTap editor
+**Overall Progress:** 8/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Sprint 1.2 review in `docs/audits/SPRINT-1.2-REVIEW.md`
 
@@ -176,13 +176,13 @@ Gate: pnpm test:e2e (basic auth flow)
 ---
 
 ## Phase 1: Admin Core
-**Status:** In Progress | **Progress:** 2/12 | **Track:** A
+**Status:** In Progress | **Progress:** 3/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
 | 1.1 ✅ | Admin layout shell | No | Phase 0 | Sidebar + header render, mobile menu works |
 | 1.2 ✅ | Dashboard page | 🔀 | 1.1 | Stats cards + charts display (mock data OK) |
-| 1.3 ⬜ | Posts list + CRUD | 🔀 | 1.1 | Create, read, update, delete posts works |
+| 1.3 ✅ | Posts list + CRUD | 🔀 | 1.1 | Create, read, update, delete posts works |
 | 1.4 ⬜ | TipTap editor | 🔗 | 1.3 | Rich text editing in post form |
 | 1.5 ⬜ | Image upload (R2) | 🔀 | 1.1 | Upload image, get R2 URL, display |
 | 1.6 ⬜ | Documents management | 🔀 | 1.5 | Upload PDF, categorize, list, delete |
@@ -628,3 +628,6 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-24 | Sprint 0.5 completed: CI/CD with GitHub Actions (lint, type-check, test, build) |
 | 2026-01-24 | Sprint 0.4 completed: UI foundation with Tailwind v4 and shadcn/ui components |
 | 2026-01-24 | Sprint 0.6 completed: Integration verification with Playwright E2E tests |
+| 2026-01-24 | Sprint 1.1 completed: Admin layout shell with sidebar, header, mobile menu |
+| 2026-01-24 | Sprint 1.2 completed: Dashboard page with stats cards, charts, and activity feed |
+| 2026-01-24 | Sprint 1.3 completed: Posts list + CRUD with DataTable, filtering, pagination |

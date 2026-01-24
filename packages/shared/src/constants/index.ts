@@ -10,25 +10,8 @@ export const USER_ROLES = {
   STAFF: 'staff',
 } as const;
 
-export const POST_CATEGORIES = [
-  'aktualnosti',
-  'gospodarstvo',
-  'sport',
-  'komunalno',
-  'kultura',
-  'obrazovanje',
-  'ostalo',
-] as const;
-
-export const POST_CATEGORY_LABELS: Record<string, string> = {
-  aktualnosti: 'Aktualnosti',
-  gospodarstvo: 'Gospodarstvo',
-  sport: 'Sport',
-  komunalno: 'Komunalno',
-  kultura: 'Kultura',
-  obrazovanje: 'Obrazovanje',
-  ostalo: 'Ostalo',
-};
+// Re-export post categories from dedicated file
+export { POST_CATEGORIES, POST_CATEGORY_OPTIONS, type PostCategory } from './categories';
 
 export const PROBLEM_TYPES = [
   'cesta',
