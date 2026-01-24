@@ -128,7 +128,7 @@ module.exports = {
     name: "vb-admin",
     cwd: "/home/deploy/apps/admin-repo/apps/admin",
     script: "node_modules/.bin/next",
-    args: "start -p 3001",
+    args: "start -H 127.0.0.1 -p 3001",
     instances: 1,
     autorestart: true,
     watch: false,

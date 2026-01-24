@@ -182,7 +182,7 @@ build:
 |---------|-------|
 | Framework preset | Next.js (Static HTML Export) |
 | Build command | `pnpm build --filter @repo/web` |
-| Build output directory | `apps/web/.next` |
+| Build output directory | `apps/web/out` |
 | Root directory | `/` (repository root) |
 
 ### Environment Variables
@@ -191,6 +191,40 @@ build:
 |----------|-------|---------|
 | `NODE_VERSION` | `20` | Node.js version for build |
 | `PNPM_VERSION` | `9` | pnpm version for package management |
+
+---
+
+## Deployment Workflows (Optional)
+
+The repository includes opt-in GitHub Actions workflows for deploying the admin app and manually triggering Cloudflare Pages builds. These workflows are **disabled by default** unless the required secrets are configured.
+
+### Admin Deploy (VPS)
+
+Workflow: `.github/workflows/deploy-admin.yml`
+
+**Required secrets:**
+- `VPS_SSH_HOST` (Tailscale IP, e.g. `100.x.x.x`)
+- `VPS_SSH_USER` (e.g. `deploy`)
+- `VPS_SSH_KEY` (private key for SSH)
+- `TAILSCALE_AUTHKEY` (ephemeral auth key for GitHub Actions)
+
+**Optional secrets:**
+- `VPS_SSH_PORT` (defaults to `22`)
+- `VPS_APP_DIR` (defaults to `/home/deploy/apps/admin-repo`)
+- `VPS_PM2_APP_NAME` (defaults to `vb-admin`)
+
+The workflow runs `scripts/deploy-admin.sh` on the VPS, which performs a pull, installs dependencies, runs migrations, builds the admin app, and reloads PM2.
+
+### Cloudflare Pages Build Trigger
+
+Workflow: `.github/workflows/trigger-pages-build.yml`
+
+**Required secrets:**
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_PAGES_PROJECT`
+
+This triggers a new Pages deployment via the Cloudflare API (useful for manual rebuilds or admin-driven publish hooks).
 
 ### Preview Deployments
 

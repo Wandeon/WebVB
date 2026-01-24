@@ -312,10 +312,10 @@ ports=80,443/tcp
 DATABASE_URL="postgresql://user:password@localhost:5432/velikibukovec"
 
 # ============================================
-# AUTHENTICATION
+# AUTHENTICATION (Better Auth)
 # ============================================
-NEXTAUTH_URL="https://admin.velikibukovec.hr"
-NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+BETTER_AUTH_URL="https://admin.velikibukovec.hr"
+BETTER_AUTH_SECRET="generate-with-openssl-rand-base64-32"
 
 # ============================================
 # AI SERVICES
@@ -352,10 +352,11 @@ CLOUDFLARE_ANALYTICS_TOKEN="your-analytics-token"
 # ============================================
 # STORAGE (R2)
 # ============================================
-R2_ACCOUNT_ID="your-account-id"
-R2_ACCESS_KEY_ID="your-access-key"
-R2_SECRET_ACCESS_KEY="your-secret-key"
-R2_BUCKET_NAME="velikibukovec-backups"
+CLOUDFLARE_ACCOUNT_ID="your-account-id"
+CLOUDFLARE_R2_ACCESS_KEY_ID="your-access-key"
+CLOUDFLARE_R2_SECRET_ACCESS_KEY="your-secret-key"
+CLOUDFLARE_R2_BUCKET_NAME="velikibukovec-backups"
+CLOUDFLARE_R2_PUBLIC_URL="https://pub-xxx.r2.dev"
 
 # ============================================
 # SITEGROUND DEPLOYMENT
@@ -369,6 +370,7 @@ SITEGROUND_DEPLOY_PATH="/home/user/public_html"
 # SENTRY (Error Tracking)
 # ============================================
 SENTRY_DSN="https://xxx@sentry.io/xxx"
+NEXT_PUBLIC_SENTRY_DSN="https://xxx@sentry.io/xxx"
 
 # ============================================
 # APP CONFIG
