@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- Documented Sprint 1.3 audit review findings.
+- Documented Sprint 1.5-1.6 audit review findings.
 - Added deployment audit report and hardened deployment documentation.
 - Added admin deploy, backup, and restore scripts with R2 support.
 - Aligned backup script retention default with 90-day policy.

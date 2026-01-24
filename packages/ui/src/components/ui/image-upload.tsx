@@ -4,10 +4,24 @@ import { useCallback, useRef, useState } from 'react';
 
 import { cn } from '../../lib/utils';
 
+interface ImageVariants {
+  id: string;
+  thumb: string;
+  medium: string;
+  large: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: ImageVariants;
+  error?: { message: string };
+}
+
 export interface ImageUploadProps {
   value: string | null;
-  onChange: (url: string) => void;
-  onRemove: () => void;
+  onChange: (url: string, imageId?: string) => void;
+  onRemove: (imageId?: string) => void;
+  imageId?: string | undefined;
   disabled?: boolean;
   className?: string;
 }
@@ -19,6 +33,7 @@ export function ImageUpload({
   value,
   onChange,
   onRemove,
+  imageId,
   disabled = false,
   className,
 }: ImageUploadProps) {
@@ -57,12 +72,14 @@ export function ImageUpload({
           body: formData,
         });
 
-        if (!response.ok) {
-          throw new Error('Prijenos nije uspio');
+        const result = (await response.json()) as ApiResponse;
+
+        if (!result.success || !result.data) {
+          setError(result.error?.message ?? 'Prijenos nije uspio');
+          return;
         }
 
-        const data = (await response.json()) as { url: string };
-        onChange(data.url);
+        onChange(result.data.large, result.data.id);
       } catch {
         setError('Greška pri prijenosu slike. Pokušajte ponovno.');
       } finally {
@@ -124,12 +141,22 @@ export function ImageUpload({
   }, [disabled, isLoading]);
 
   const handleRemove = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       e.stopPropagation();
       setError(null);
-      onRemove();
+
+      // Delete from R2 if we have an image ID
+      if (imageId) {
+        try {
+          await fetch(`/api/upload?id=${imageId}`, { method: 'DELETE' });
+        } catch {
+          // Best-effort deletion, don't block UI
+        }
+      }
+
+      onRemove(imageId);
     },
-    [onRemove]
+    [onRemove, imageId]
   );
 
   const handleKeyDown = useCallback(
@@ -153,7 +180,7 @@ export function ImageUpload({
         />
         <button
           type="button"
-          onClick={handleRemove}
+          onClick={(e) => void handleRemove(e)}
           disabled={disabled}
           aria-label="Ukloni sliku"
           className={cn(

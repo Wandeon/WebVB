@@ -88,7 +88,7 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
     }
 
     if (!uploadedFile) {
-      setError('Molimo ucitajte PDF datoteku');
+      setError('Molimo učitajte PDF datoteku');
       return;
     }
 
@@ -116,14 +116,14 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
       };
 
       if (!result.success) {
-        setError(result.error?.message ?? 'Greska pri spremanju dokumenta');
+        setError(result.error?.message ?? 'Greška pri spremanju dokumenta');
         return;
       }
 
       handleOpenChange(false);
       onSuccess();
     } catch {
-      setError('Greska pri spremanju dokumenta');
+      setError('Greška pri spremanju dokumenta');
     } finally {
       setIsSubmitting(false);
     }

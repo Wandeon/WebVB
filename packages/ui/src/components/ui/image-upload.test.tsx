@@ -1,7 +1,11 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ImageUpload } from './image-upload';
+
+// Mock fetch for the delete call
+const mockFetch = vi.fn();
+vi.stubGlobal('fetch', mockFetch);
 
 describe('ImageUpload', () => {
   const defaultProps = {
@@ -9,6 +13,10 @@ describe('ImageUpload', () => {
     onChange: vi.fn(),
     onRemove: vi.fn(),
   };
+
+  beforeEach(() => {
+    mockFetch.mockClear();
+  });
 
   it('renders drop zone when no value', () => {
     render(<ImageUpload {...defaultProps} />);
@@ -39,7 +47,7 @@ describe('ImageUpload', () => {
     expect(removeButton).toBeInTheDocument();
   });
 
-  it('calls onRemove when remove clicked', () => {
+  it('calls onRemove when remove clicked', async () => {
     const handleRemove = vi.fn();
     render(
       <ImageUpload
@@ -52,7 +60,32 @@ describe('ImageUpload', () => {
     const removeButton = screen.getByRole('button', { name: 'Ukloni sliku' });
     fireEvent.click(removeButton);
 
-    expect(handleRemove).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(handleRemove).toHaveBeenCalledTimes(1);
+      expect(handleRemove).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  it('calls delete API and onRemove with imageId when remove clicked with imageId', async () => {
+    const handleRemove = vi.fn();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ success: true })));
+
+    render(
+      <ImageUpload
+        {...defaultProps}
+        value="https://example.com/uploads/test-id/large.webp"
+        imageId="test-id"
+        onRemove={handleRemove}
+      />
+    );
+
+    const removeButton = screen.getByRole('button', { name: 'Ukloni sliku' });
+    fireEvent.click(removeButton);
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith('/api/upload?id=test-id', { method: 'DELETE' });
+      expect(handleRemove).toHaveBeenCalledWith('test-id');
+    });
   });
 
   it('shows file type hint', () => {

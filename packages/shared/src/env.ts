@@ -31,11 +31,20 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
 });
 
+const adminR2EnvSchema = z.object({
+  CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
+  CLOUDFLARE_R2_ACCESS_KEY_ID: z.string().min(1),
+  CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().min(1),
+  CLOUDFLARE_R2_BUCKET_NAME: z.string().min(1),
+  CLOUDFLARE_R2_PUBLIC_URL: z.string().url(),
+});
+
 // Types inferred from schemas - no manual interface duplication
 export type NodeEnv = 'development' | 'test' | 'production';
 export type BaseEnv = z.infer<typeof baseEnvSchema>;
 export type AdminAuthEnv = z.infer<typeof adminAuthEnvSchema>;
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
+export type AdminR2Env = z.infer<typeof adminR2EnvSchema>;
 
 // Validated env getters - Zod parse returns the inferred type
 export function getBaseEnv(): BaseEnv {
@@ -48,4 +57,8 @@ export function getAdminAuthEnv(): AdminAuthEnv {
 
 export function getPublicEnv(): PublicEnv {
   return publicEnvSchema.parse(process.env);
+}
+
+export function getAdminR2Env(): AdminR2Env {
+  return adminR2EnvSchema.parse(process.env);
 }
