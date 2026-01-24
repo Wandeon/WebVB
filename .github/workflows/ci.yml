@@ -13,16 +13,20 @@ concurrency:
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  # Placeholders for build-time validation (not runtime secrets)
+  DATABASE_URL: "postgresql://localhost:5432/placeholder"
+  BETTER_AUTH_SECRET: "build-time-placeholder-secret-32chars"
+  BETTER_AUTH_URL: "http://localhost:3001"
 
 jobs:
+  # =============================================================================
+  # PR CHECKS - Always runs on GitHub-hosted runners (safe for untrusted code)
+  # =============================================================================
   ci:
     name: Lint, Type Check, Test
     runs-on: ubuntu-latest
-    env:
-      # Prisma needs DATABASE_URL for schema parsing during generate
-      DATABASE_URL: "postgresql://localhost:5432/placeholder"
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup pnpm
@@ -33,6 +37,23 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+
+      # Cache Turborepo local cache
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
+
+      # Cache Prisma client
+      - name: Cache Prisma
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.prisma
+          key: prisma-${{ runner.os }}-${{ hashFiles('packages/database/prisma/schema.prisma') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -40,26 +61,29 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
-      - name: Run lint
+      - name: Lint
         run: pnpm lint
 
-      - name: Run type-check
+      - name: Type Check
         run: pnpm type-check
 
-      - name: Run tests
+      - name: Test
         run: pnpm test
 
+  # =============================================================================
+  # BUILD - Runs on main merge only
+  # Currently: GitHub-hosted (ubuntu-latest)
+  # Future:    Self-hosted when VPS runner is ready (change to: [self-hosted, vb-prod])
+  # =============================================================================
   build:
     name: Build
-    runs-on: ubuntu-latest
     needs: ci
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    env:
-      DATABASE_URL: "postgresql://localhost:5432/placeholder"
-      BETTER_AUTH_SECRET: "build-time-placeholder-secret-32chars"
-      BETTER_AUTH_URL: "http://localhost:3001"
+    # SECURITY: This job only runs on trusted code (merged to main)
+    # When self-hosted runner is ready, change to: runs-on: [self-hosted, vb-prod]
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup pnpm
@@ -70,6 +94,35 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+
+      # Cache Turborepo local cache
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
+
+      # Cache Prisma client
+      - name: Cache Prisma
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.prisma
+          key: prisma-${{ runner.os }}-${{ hashFiles('packages/database/prisma/schema.prisma') }}
+
+      # Cache Next.js build output
+      - name: Cache Next.js
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/.next/cache
+            apps/admin/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('apps/**/*.ts', 'apps/**/*.tsx') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            nextjs-${{ runner.os }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
