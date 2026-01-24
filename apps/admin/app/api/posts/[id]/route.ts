@@ -59,8 +59,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
-    const { title, content, excerpt, category, isFeatured, publishedAt } =
-      validationResult.data;
+    const {
+      title,
+      content,
+      excerpt,
+      category,
+      isFeatured,
+      publishedAt,
+      featuredImage,
+    } = validationResult.data;
 
     // Prepare update data
     const updateData: Parameters<typeof postsRepository.update>[1] = {};
@@ -87,6 +94,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (category !== undefined) updateData.category = category;
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
     if (publishedAt !== undefined) updateData.publishedAt = publishedAt;
+    if (featuredImage !== undefined) updateData.featuredImage = featuredImage;
 
     // Update post
     const post = await postsRepository.update(id, updateData);

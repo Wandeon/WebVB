@@ -41,6 +41,7 @@ export interface CreatePostData {
   isFeatured: boolean;
   publishedAt?: Date | null;
   authorId?: string | null;
+  featuredImage?: string | null;
 }
 
 export interface UpdatePostData {
@@ -51,6 +52,7 @@ export interface UpdatePostData {
   category?: string;
   isFeatured?: boolean;
   publishedAt?: Date | null;
+  featuredImage?: string | null;
 }
 
 const authorSelect = {
@@ -164,6 +166,7 @@ export const postsRepository = {
         isFeatured: data.isFeatured,
         publishedAt: data.publishedAt ?? null,
         authorId: data.authorId ?? null,
+        featuredImage: data.featuredImage ?? null,
       },
       include: { author: { select: authorSelect } },
     });
