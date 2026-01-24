@@ -136,6 +136,41 @@ describe('postSchema', () => {
     }
   });
 
+  describe('featuredImage', () => {
+    it('accepts valid URL', () => {
+      const result = postSchema.safeParse({
+        title: 'Test naslov',
+        content: '<p>Content</p>',
+        category: 'aktualnosti',
+        isFeatured: false,
+        featuredImage: 'https://example.com/image.webp',
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('accepts null', () => {
+      const result = postSchema.safeParse({
+        title: 'Test naslov',
+        content: '<p>Content</p>',
+        category: 'aktualnosti',
+        isFeatured: false,
+        featuredImage: null,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects invalid URL', () => {
+      const result = postSchema.safeParse({
+        title: 'Test naslov',
+        content: '<p>Content</p>',
+        category: 'aktualnosti',
+        isFeatured: false,
+        featuredImage: 'not-a-url',
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
   describe('content with HTML', () => {
     it('accepts valid HTML content', () => {
       const result = postSchema.safeParse({
