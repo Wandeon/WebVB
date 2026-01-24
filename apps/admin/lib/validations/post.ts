@@ -1,4 +1,8 @@
+import { POST_CATEGORIES } from '@repo/shared';
 import { z } from 'zod';
+
+// Derive category enum from shared constants (single source of truth)
+const categoryKeys = Object.keys(POST_CATEGORIES) as [keyof typeof POST_CATEGORIES, ...Array<keyof typeof POST_CATEGORIES>];
 
 export const postSchema = z.object({
   title: z
@@ -7,15 +11,7 @@ export const postSchema = z.object({
     .max(200, 'Naslov moze imati najvise 200 znakova'),
   content: z.string().min(1, 'Sadrzaj je obavezan'),
   excerpt: z.string().max(500, 'Sazetak moze imati najvise 500 znakova').optional(),
-  category: z.enum([
-    'aktualnosti',
-    'gospodarstvo',
-    'sport',
-    'komunalno',
-    'kultura',
-    'obrazovanje',
-    'ostalo',
-  ]),
+  category: z.enum(categoryKeys),
   isFeatured: z.boolean().default(false),
   publishedAt: z.date().nullable().optional(),
 });
