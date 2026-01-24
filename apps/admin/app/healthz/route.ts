@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import packageJson from '../../../package.json';
+import packageJson from '../../package.json';
 
 const commitSha = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.CF_PAGES_COMMIT_SHA ?? 'local';
 

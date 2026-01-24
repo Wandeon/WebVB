@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 - Sprint 0.6: Added Playwright E2E tests for auth flow (login, protected routes, logout)
 - Migrated to ESLint 9 with flat config (eslint.config.mjs)
 - Aligned eslint-config-next@16.1.4 with Next.js 16.1.4
-- Added /healthz endpoint to admin app
+- Added /healthz endpoint to admin app with service and commit metadata
 
 ## Sprint 0.6 - Integration Verification (Completed)
 - Playwright E2E testing configured
