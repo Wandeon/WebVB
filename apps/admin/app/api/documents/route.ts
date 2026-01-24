@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       category,
       subcategory: subcategory ?? null,
       year: year ?? null,
-      uploadedBy: null, // TODO: get from session when auth is added
+      uploadedBy: null, // Auth: get from session when implemented
     });
 
     documentsLogger.info(
