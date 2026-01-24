@@ -1,7 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
-import { POST_CATEGORIES, POST_CATEGORY_OPTIONS, type PostCategory } from '@repo/shared';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { POST_CATEGORY_OPTIONS, type PostCategory } from '@repo/shared';
 import {
   Button,
   Card,
@@ -19,30 +25,10 @@ import {
   TipTapEditor,
   toast,
 } from '@repo/ui';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
-// Form-specific schema - all fields are explicitly required or optional
-const categoryKeys = Object.keys(POST_CATEGORIES) as [
-  keyof typeof POST_CATEGORIES,
-  ...Array<keyof typeof POST_CATEGORIES>,
-];
+import { postSchema } from '@/lib/validations/post';
 
-const postFormSchema = z.object({
-  title: z
-    .string()
-    .min(3, 'Naslov mora imati najmanje 3 znaka')
-    .max(200, 'Naslov može imati najviše 200 znakova'),
-  content: z.string().min(1, 'Sadržaj je obavezan'),
-  excerpt: z.string().max(500, 'Sažetak može imati najviše 500 znakova').optional(),
-  category: z.enum(categoryKeys),
-  isFeatured: z.boolean(),
-  publishedAt: z.date().nullable().optional(),
-});
-
-type PostFormValues = z.infer<typeof postFormSchema>;
+type PostFormValues = z.infer<typeof postSchema>;
 
 interface PostFormData {
   id?: string;
@@ -70,7 +56,7 @@ export function PostForm({ initialData }: PostFormProps) {
     watch,
     formState: { errors },
   } = useForm<PostFormValues>({
-    resolver: zodResolver(postFormSchema),
+    resolver: zodResolver(postSchema),
     defaultValues: {
       title: initialData?.title ?? '',
       content: initialData?.content ?? '',
