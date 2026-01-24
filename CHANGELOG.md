@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 - Documented Sprint 1.3 audit review findings.
 
+### Added
+- TipTap rich text editor component in @repo/ui package
+- Rich text editing in post form with toolbar (bold, italic, underline, links, headings, lists, blockquote)
+- HTML content validation that strips tags before checking for empty content
+
 ## Sprint 1.3 - Posts List + CRUD (Completed)
 - UI Primitives: Table, Dialog, Select, Badge, Textarea, Toast, Toaster components
 - Zod validation schemas for posts with Croatian error messages

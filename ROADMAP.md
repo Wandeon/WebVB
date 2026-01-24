@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 1.4 - TipTap editor
-**Overall Progress:** 8/71 sprints
+**Active Sprint:** 1.5 - Image upload (R2)
+**Overall Progress:** 9/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Sprint 1.3 review in `docs/audits/SPRINT-1.3-REVIEW.md`
 
@@ -176,14 +176,14 @@ Gate: pnpm test:e2e (basic auth flow)
 ---
 
 ## Phase 1: Admin Core
-**Status:** In Progress | **Progress:** 3/12 | **Track:** A
+**Status:** In Progress | **Progress:** 4/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
 | 1.1 ✅ | Admin layout shell | No | Phase 0 | Sidebar + header render, mobile menu works |
 | 1.2 ✅ | Dashboard page | 🔀 | 1.1 | Stats cards + charts display (mock data OK) |
 | 1.3 ✅ | Posts list + CRUD | 🔀 | 1.1 | Create, read, update, delete posts works |
-| 1.4 ⬜ | TipTap editor | 🔗 | 1.3 | Rich text editing in post form |
+| 1.4 ✅ | TipTap editor | 🔗 | 1.3 | Rich text editing in post form |
 | 1.5 ⬜ | Image upload (R2) | 🔀 | 1.1 | Upload image, get R2 URL, display |
 | 1.6 ⬜ | Documents management | 🔀 | 1.5 | Upload PDF, categorize, list, delete |
 | 1.7 ⬜ | Static pages CRUD | 🔀 | 1.4 | Create/edit static pages with TipTap |
