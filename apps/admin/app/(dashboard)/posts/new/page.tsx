@@ -1,5 +1,3 @@
-import { Toaster } from '@repo/ui';
-
 import { Breadcrumbs } from '@/components/layout';
 import { PostForm } from '@/components/posts';
 
@@ -20,7 +18,6 @@ export default function NewPostPage() {
       </div>
 
       <PostForm />
-      <Toaster />
     </div>
   );
 }

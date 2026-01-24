@@ -1,6 +1,5 @@
 import { db } from '@repo/database';
 import { type PostCategory } from '@repo/shared';
-import { Toaster } from '@repo/ui';
 import { notFound } from 'next/navigation';
 
 import { Breadcrumbs } from '@/components/layout';
@@ -56,7 +55,6 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
           publishedAt: post.publishedAt,
         }}
       />
-      <Toaster />
     </div>
   );
 }
