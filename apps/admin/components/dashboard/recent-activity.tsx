@@ -33,7 +33,7 @@ export function RecentActivity() {
             return (
               <div key={activity.id} className="flex items-start gap-3">
                 <div className={`rounded-lg p-2 ${colorClass}`}>
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" aria-hidden="true" focusable="false" />
                 </div>
                 <div className="flex-1 space-y-1">
                   <p className="text-sm">

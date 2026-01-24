@@ -9,11 +9,11 @@ export function CategoryChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sadrzaj po kategoriji</CardTitle>
+        <CardTitle>Sadržaj po kategoriji</CardTitle>
         <CardDescription>Broj objava po kategoriji</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[300px]" role="img" aria-label="Sadržaj po kategoriji">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mockContentByCategory} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200" horizontal={false} />

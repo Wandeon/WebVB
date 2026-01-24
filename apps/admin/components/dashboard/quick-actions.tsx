@@ -36,7 +36,7 @@ export function QuickActions() {
             const Icon = action.icon;
             return (
               <Link key={action.href} href={action.href} className={buttonVariants({ variant: action.variant })}>
-                <Icon className="mr-2 h-4 w-4" />
+                <Icon className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" />
                 {action.label}
               </Link>
             );
