@@ -70,8 +70,15 @@ export async function POST(request: NextRequest) {
       return apiError(ErrorCodes.VALIDATION_ERROR, errorMessage, 400);
     }
 
-    const { title, content, excerpt, category, isFeatured, publishedAt } =
-      validationResult.data;
+    const {
+      title,
+      content,
+      excerpt,
+      category,
+      isFeatured,
+      publishedAt,
+      featuredImage,
+    } = validationResult.data;
 
     // Generate unique slug
     let slug = generateSlug(title);
@@ -92,6 +99,7 @@ export async function POST(request: NextRequest) {
       category,
       isFeatured,
       publishedAt: publishedAt ?? null,
+      featuredImage: featuredImage ?? null,
     });
 
     postsLogger.info({ postId: post.id, slug }, 'Objava uspješno stvorena');
