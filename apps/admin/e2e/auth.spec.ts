@@ -51,4 +51,21 @@ test.describe('Authentication Flow', () => {
     expect(session?.userId).toBe(testUserId);
     expect(new Date(session!.expiresAt).getTime()).toBeGreaterThan(Date.now());
   });
+
+  test('protected route redirects to login when not authenticated', async ({
+    page,
+  }) => {
+    // Try to access dashboard directly without login
+    await page.goto('/');
+
+    // Should redirect to login page
+    await page.waitForURL('/login');
+
+    // Verify we're on login page
+    expect(page.url()).toContain('/login');
+
+    // Login form should be visible
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
+  });
 });
