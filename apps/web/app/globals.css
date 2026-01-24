@@ -1,12 +1,17 @@
-/* Base styles - Tailwind will be added in Sprint 0.4 */
+@import 'tailwindcss';
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
 
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-white text-neutral-900 antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
 }
