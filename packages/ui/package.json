@@ -7,7 +7,11 @@
   "exports": {
     ".": "./src/index.ts",
     "./primitives": "./src/primitives/index.ts",
-    "./animations": "./src/animations/index.ts"
+    "./animations": "./src/animations/index.ts",
+    "./tailwind.config": {
+      "types": "./tailwind.config.ts",
+      "default": "./tailwind.config.ts"
+    }
   },
   "scripts": {
     "type-check": "tsc --noEmit",
