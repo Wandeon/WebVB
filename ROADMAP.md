@@ -2,12 +2,12 @@
 
 > AI-agent optimized roadmap with clear gates and parallel tracks.
 > Each sprint is independently completable with defined acceptance criteria.
-> Last updated: 2026-01-23
+> Last updated: 2026-01-24
 
 ## Current Status
 
-**Active Sprint:** 0.6 - Integration Verification
-**Overall Progress:** 5/71 sprints
+**Active Sprint:** 1.1 - Admin Layout Shell
+**Overall Progress:** 6/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Sprint 0.5 review in `docs/audits/SPRINT-0.5-REVIEW.md`
 
@@ -76,7 +76,7 @@
 ---
 
 ## Phase 0: Foundation
-**Status:** In Progress | **Progress:** 5/6 | **Track:** A
+**Status:** Completed | **Progress:** 6/6 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -85,7 +85,7 @@
 | 0.3 ✅ | Better Auth setup | 🔀 | 0.1 | Login/logout works, session persists |
 | 0.4 ✅ | UI foundation | 🔀 | 0.1 | Button + Input + Card render correctly |
 | 0.5 ✅ | CI/CD pipeline | 🔀 | 0.1 | PR triggers lint + type-check + test |
-| 0.6 ⬜ | Integration verify | 🔗 | 0.2-0.5 | Full auth flow with DB works |
+| 0.6 ✅ | Integration verify | 🔗 | 0.2-0.5 | Full auth flow with DB works |
 
 ### Sprint 0.1: Project Scaffold
 ```
@@ -626,3 +626,5 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-23 | Sprint 0.2 completed: Database schema with 19 tables |
 | 2026-01-24 | Sprint 0.3 completed: Better Auth with email/password and Google OAuth |
 | 2026-01-24 | Sprint 0.5 completed: CI/CD with GitHub Actions (lint, type-check, test, build) |
+| 2026-01-24 | Sprint 0.4 completed: UI foundation with Tailwind v4 and shadcn/ui components |
+| 2026-01-24 | Sprint 0.6 completed: Integration verification with Playwright E2E tests |
