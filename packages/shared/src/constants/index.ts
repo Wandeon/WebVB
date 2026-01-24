@@ -33,14 +33,14 @@ export const CONTACT_STATUSES = ['new', 'read', 'replied', 'archived'] as const;
 
 export const PROBLEM_STATUSES = ['new', 'in_progress', 'resolved', 'rejected'] as const;
 
-export const DOCUMENT_CATEGORIES = [
-  'sjednice',
-  'izbori',
-  'planovi',
-  'proracun',
-  'natjecaji',
-  'ostalo',
-] as const;
+// Re-export document constants from dedicated file
+export {
+  DOCUMENT_CATEGORIES,
+  DOCUMENT_CATEGORY_OPTIONS,
+  DOCUMENT_MAX_SIZE_BYTES,
+  DOCUMENT_MAX_SIZE_MB,
+  type DocumentCategory,
+} from './documents';
 
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
