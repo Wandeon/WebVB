@@ -12,7 +12,7 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src/",
+    "lint": "eslint src/",
     "test": "vitest run",
     "clean": "rm -rf dist node_modules"
   },

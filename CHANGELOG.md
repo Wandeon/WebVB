@@ -9,6 +9,9 @@ All notable changes to this project will be documented in this file.
 - Audited Sprint 0.4 UI foundation: aligned animation presets and localized UI demo text.
 - Audited Sprint 0.5 CI pipeline: added guardrails for TODO/FIXME, console.log, and `any` types.
 - Sprint 0.6: Added Playwright E2E tests for auth flow (login, protected routes, logout)
+- Migrated to ESLint 9 with flat config (eslint.config.mjs)
+- Aligned eslint-config-next@16.1.4 with Next.js 16.1.4
+- Added /healthz endpoint to admin app
 
 ## Sprint 0.6 - Integration Verification (Completed)
 - Playwright E2E testing configured
