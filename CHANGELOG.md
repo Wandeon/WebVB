@@ -86,6 +86,50 @@ All notable changes to this project will be documented in this file.
 - Aligned eslint-config-next@16.1.4 with Next.js 16.1.4
 - Added /healthz endpoint to admin app with service and commit metadata
 
+## Sprint 3.5 - Cloudflare R2 (Completed)
+- R2 bucket `velikibukovec-media` created in weur region
+- CORS configured for production and localhost origins
+- R2 credentials stored securely on VPS
+- Gate: Bucket exists, CORS rules configured
+
+## Sprint 3.4 - Ollama Local (Completed)
+- Ollama 0.15.0 installed (CPU-only mode)
+- Bound to 127.0.0.1:11434 only (not exposed publicly)
+- nomic-embed-text model pulled (274 MB)
+- Embedding endpoint returns 768-dimensional vectors
+- No UFW changes required
+- Gate: Embedding request returns vector
+
+## Sprint 3.3 - PostgreSQL Setup (Completed)
+- PostgreSQL 17.7 installed on Debian 13
+- Bound to 127.0.0.1 only (localhost)
+- pgvector 0.8.0 extension installed
+- pg_trgm extension for full-text search
+- Database `velikibukovec` created with dedicated user
+- pg_hba.conf configured for local + scram-sha-256
+- Remote access via SSH tunnel only
+- Gate: DB created, pgvector installed, no public exposure
+
+## Sprint 3.2 - VPS Hardening (Completed)
+- Root SSH login disabled
+- Password authentication disabled (key only)
+- UFW firewall enabled:
+  - SSH allowed from Tailscale network (100.64.0.0/10) only
+  - 80/443 temporarily open (until Cloudflare proxy confirmed)
+- fail2ban installed with sshd jail (24h ban, 3 retries)
+- unattended-upgrades configured for security updates
+- Cloudflare IP updater script prepared for Sprint 3.6
+- Gate: Security checklist passes
+
+## Sprint 3.1 - VPS Provisioning (Completed)
+- Netcup VPS provisioned (Debian 13 trixie)
+- Public IP: 159.195.61.215
+- Non-root user `deploy` created with sudo access
+- Tailscale installed and authenticated
+- Tailscale IP: 100.120.125.83
+- SSH key authentication configured
+- Gate: ssh deploy@100.120.125.83 works
+
 ## Sprint 0.6 - Integration Verification (Completed)
 - Playwright E2E testing configured
 - Auth flow tests: login creates session, protected routes redirect, logout clears session

@@ -25,8 +25,8 @@
 │  DEVELOPMENT ENVIRONMENTS:                                      │
 │  ├── Local:     localhost:3000 (web), localhost:3001 (admin)   │
 │  ├── Staging:   vb-staging.pages.dev (Cloudflare Pages preview)│
-│  ├── Admin:     100.x.x.x:3001 (VPS via Tailscale)             │
-│  └── Database:  VPS PostgreSQL (test data)                      │
+│  ├── Admin:     100.120.125.83:3001 (VPS via Tailscale)        │
+│  └── Database:  VPS PostgreSQL 17 (velikibukovec)               │
 │                                                                 │
 │  LAUNCH DAY ONLY:                                               │
 │  └── Switch DNS to point to new infrastructure                  │
@@ -313,15 +313,15 @@ Gate: Facebook debugger shows correct preview, Google Rich Results test passes
 ---
 
 ## Phase 3: Infrastructure
-**Status:** Not Started | **Progress:** 0/9 | **Track:** B (parallel with Track A)
+**Status:** In Progress | **Progress:** 5/9 | **Track:** B (parallel with Track A)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 3.1 ⬜ | VPS provisioning | No | Phase 0 | SSH access via Tailscale works |
-| 3.2 ⬜ | VPS hardening | 🔗 | 3.1 | UFW enabled, root disabled, fail2ban |
-| 3.3 ⬜ | PostgreSQL setup | 🔗 | 3.2 | DB created, pgvector installed |
-| 3.4 ⬜ | Ollama local | 🔗 | 3.2 | nomic-embed-text responds |
-| 3.5 ⬜ | Cloudflare R2 | 🔀 | - | Bucket created, CORS configured |
+| 3.1 ✅ | VPS provisioning | No | Phase 0 | SSH access via Tailscale works |
+| 3.2 ✅ | VPS hardening | 🔗 | 3.1 | UFW enabled, root disabled, fail2ban |
+| 3.3 ✅ | PostgreSQL setup | 🔗 | 3.2 | DB created, pgvector installed |
+| 3.4 ✅ | Ollama local | 🔗 | 3.2 | nomic-embed-text responds |
+| 3.5 ✅ | Cloudflare R2 | 🔀 | - | Bucket created, CORS configured |
 | 3.6 ⬜ | Cloudflare Pages | 🔀 | - | Preview deploys working |
 | 3.7 ⬜ | Admin deployment | 🔗 | 3.3 | PM2 serves admin on VPS |
 | 3.8 ⬜ | Backup automation | 🔗 | 3.3, 3.5 | Daily DB backup to R2 |
@@ -634,3 +634,8 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-24 | Sprint 1.4 completed: TipTap editor integration with HTML content |
 | 2026-01-24 | Sprint 1.5 completed: Image upload to R2 with Sharp processing |
 | 2026-01-24 | Sprint 1.6 completed: Documents management with PDF upload, validation, CRUD |
+| 2026-01-24 | Sprint 3.1 completed: VPS provisioned (Debian 13), Tailscale configured |
+| 2026-01-24 | Sprint 3.2 completed: UFW, SSH hardening, fail2ban, unattended-upgrades |
+| 2026-01-24 | Sprint 3.3 completed: PostgreSQL 17 + pgvector 0.8.0, localhost only |
+| 2026-01-24 | Sprint 3.4 completed: Ollama 0.15.0 + nomic-embed-text (768-dim vectors) |
+| 2026-01-24 | Sprint 3.5 completed: R2 bucket velikibukovec-media created, CORS configured |
