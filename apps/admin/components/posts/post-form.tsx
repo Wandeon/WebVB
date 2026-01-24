@@ -33,9 +33,9 @@ const postFormSchema = z.object({
   title: z
     .string()
     .min(3, 'Naslov mora imati najmanje 3 znaka')
-    .max(200, 'Naslov moze imati najvise 200 znakova'),
-  content: z.string().min(1, 'Sadrzaj je obavezan'),
-  excerpt: z.string().max(500, 'Sazetak moze imati najvise 500 znakova').optional(),
+    .max(200, 'Naslov može imati najviše 200 znakova'),
+  content: z.string().min(1, 'Sadržaj je obavezan'),
+  excerpt: z.string().max(500, 'Sažetak može imati najviše 500 znakova').optional(),
   category: z.enum(categoryKeys),
   isFeatured: z.boolean(),
   publishedAt: z.date().nullable().optional(),
@@ -107,17 +107,18 @@ export function PostForm({ initialData }: PostFormProps) {
 
       if (!response.ok) {
         const errorData = (await response.json().catch(() => ({}))) as {
-          error?: string;
+          success: false;
+          error?: { message?: string };
         };
-        throw new Error(errorData.error ?? 'Doslo je do greske');
+        throw new Error(errorData.error?.message ?? 'Došlo je do greške');
       }
 
       toast({
         title: 'Uspjeh',
         description: isEditing
-          ? 'Objava je uspjesno azurirana.'
+          ? 'Objava je uspješno ažurirana.'
           : publish
-            ? 'Objava je uspjesno objavljena.'
+            ? 'Objava je uspješno objavljena.'
             : 'Objava je spremljena kao skica.',
         variant: 'success',
       });
@@ -126,9 +127,9 @@ export function PostForm({ initialData }: PostFormProps) {
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -149,7 +150,7 @@ export function PostForm({ initialData }: PostFormProps) {
       <div className="space-y-6 lg:col-span-2">
         <Card>
           <CardHeader>
-            <CardTitle>Sadrzaj</CardTitle>
+            <CardTitle>Sadržaj</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Title */}
@@ -170,10 +171,10 @@ export function PostForm({ initialData }: PostFormProps) {
 
             {/* Excerpt */}
             <div className="space-y-2">
-              <Label htmlFor="excerpt">Sazetak</Label>
+              <Label htmlFor="excerpt">Sažetak</Label>
               <Textarea
                 id="excerpt"
-                placeholder="Kratki sazetak objave (opcionalno)"
+                placeholder="Kratki sažetak objave (opcionalno)"
                 rows={3}
                 error={Boolean(errors.excerpt)}
                 {...register('excerpt')}
@@ -186,11 +187,11 @@ export function PostForm({ initialData }: PostFormProps) {
             {/* Content - Placeholder for TipTap */}
             <div className="space-y-2">
               <Label htmlFor="content" required>
-                Sadrzaj
+                Sadržaj
               </Label>
               <Textarea
                 id="content"
-                placeholder="Unesite sadrzaj objave... (TipTap editor ce biti implementiran)"
+                placeholder="Unesite sadržaj objave... (TipTap editor će biti implementiran)"
                 rows={12}
                 error={Boolean(errors.content)}
                 {...register('content')}

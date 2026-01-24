@@ -8,9 +8,9 @@ export const postSchema = z.object({
   title: z
     .string()
     .min(3, 'Naslov mora imati najmanje 3 znaka')
-    .max(200, 'Naslov moze imati najvise 200 znakova'),
-  content: z.string().min(1, 'Sadrzaj je obavezan'),
-  excerpt: z.string().max(500, 'Sazetak moze imati najvise 500 znakova').optional(),
+    .max(200, 'Naslov može imati najviše 200 znakova'),
+  content: z.string().min(1, 'Sadržaj je obavezan'),
+  excerpt: z.string().max(500, 'Sažetak može imati najviše 500 znakova').optional(),
   category: z.enum(categoryKeys),
   isFeatured: z.boolean().default(false),
   publishedAt: z.date().nullable().optional(),

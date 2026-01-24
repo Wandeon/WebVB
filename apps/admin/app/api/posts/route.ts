@@ -1,10 +1,10 @@
-import { db } from '@repo/database';
-import { NextResponse } from 'next/server';
+import { postsRepository } from '@repo/database';
 
+import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { postsLogger } from '@/lib/logger';
 import { generateSlug } from '@/lib/utils/slug';
 import { createPostSchema, postQuerySchema } from '@/lib/validations/post';
 
-import type { Prisma } from '@repo/database';
 import type { NextRequest } from 'next/server';
 
 // GET /api/posts - List posts with filtering, pagination, sorting
@@ -24,74 +24,33 @@ export async function GET(request: NextRequest) {
     });
 
     if (!queryResult.success) {
-      return NextResponse.json(
-        { error: 'Nevaljani parametri upita' },
-        { status: 400 }
+      return apiError(
+        ErrorCodes.VALIDATION_ERROR,
+        'Nevaljani parametri upita',
+        400
       );
     }
 
     const { page, limit, search, category, status, sortBy, sortOrder } =
       queryResult.data;
 
-    // Build where clause
-    const where: Prisma.PostWhereInput = {};
-
-    // Search filter
-    if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { content: { contains: search, mode: 'insensitive' } },
-        { excerpt: { contains: search, mode: 'insensitive' } },
-      ];
-    }
-
-    // Category filter
-    if (category) {
-      where.category = category;
-    }
-
-    // Status filter
-    if (status === 'published') {
-      where.publishedAt = { not: null };
-    } else if (status === 'draft') {
-      where.publishedAt = null;
-    }
-
-    // Get total count
-    const total = await db.post.count({ where });
-
-    // Get posts with pagination and sorting
-    const posts = await db.post.findMany({
-      where,
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-      },
-      orderBy: { [sortBy]: sortOrder },
-      skip: (page - 1) * limit,
-      take: limit,
+    const result = await postsRepository.findAll({
+      page,
+      limit,
+      search,
+      category,
+      status,
+      sortBy,
+      sortOrder,
     });
 
-    return NextResponse.json({
-      posts,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
+    return apiSuccess(result);
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    return NextResponse.json(
-      { error: 'Greska prilikom dohvacanja objava' },
-      { status: 500 }
+    postsLogger.error({ error }, 'Greška prilikom dohvaćanja objava');
+    return apiError(
+      ErrorCodes.INTERNAL_ERROR,
+      'Greška prilikom dohvaćanja objava',
+      500
     );
   }
 }
@@ -108,7 +67,7 @@ export async function POST(request: NextRequest) {
       const issues = validationResult.error.issues;
       const firstIssue = issues[0];
       const errorMessage = firstIssue?.message ?? 'Nevaljani podaci';
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return apiError(ErrorCodes.VALIDATION_ERROR, errorMessage, 400);
     }
 
     const { title, content, excerpt, category, isFeatured, publishedAt } =
@@ -119,41 +78,31 @@ export async function POST(request: NextRequest) {
     let slugSuffix = 1;
 
     // Check for existing slug and make it unique
-    while (await db.post.findUnique({ where: { slug } })) {
+    while (await postsRepository.slugExists(slug)) {
       slug = `${generateSlug(title)}-${slugSuffix}`;
       slugSuffix++;
     }
 
     // Create post
-    const post = await db.post.create({
-      data: {
-        title,
-        slug,
-        content,
-        excerpt: excerpt ?? null,
-        category,
-        isFeatured,
-        publishedAt: publishedAt ?? null,
-        // authorId would be set from session in a real implementation
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-      },
+    const post = await postsRepository.create({
+      title,
+      slug,
+      content,
+      excerpt: excerpt ?? null,
+      category,
+      isFeatured,
+      publishedAt: publishedAt ?? null,
     });
 
-    return NextResponse.json(post, { status: 201 });
+    postsLogger.info({ postId: post.id, slug }, 'Objava uspješno stvorena');
+
+    return apiSuccess(post, 201);
   } catch (error) {
-    console.error('Error creating post:', error);
-    return NextResponse.json(
-      { error: 'Greska prilikom stvaranja objave' },
-      { status: 500 }
+    postsLogger.error({ error }, 'Greška prilikom stvaranja objave');
+    return apiError(
+      ErrorCodes.INTERNAL_ERROR,
+      'Greška prilikom stvaranja objave',
+      500
     );
   }
 }

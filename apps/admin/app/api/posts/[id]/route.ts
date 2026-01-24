@@ -1,6 +1,7 @@
-import { db } from '@repo/database';
-import { NextResponse } from 'next/server';
+import { postsRepository } from '@repo/database';
 
+import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { postsLogger } from '@/lib/logger';
 import { generateSlug } from '@/lib/utils/slug';
 import { updatePostSchema } from '@/lib/validations/post';
 
@@ -15,33 +16,19 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    const post = await db.post.findUnique({
-      where: { id },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-      },
-    });
+    const post = await postsRepository.findById(id);
 
     if (!post) {
-      return NextResponse.json(
-        { error: 'Objava nije pronadena' },
-        { status: 404 }
-      );
+      return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
-    return NextResponse.json(post);
+    return apiSuccess(post);
   } catch (error) {
-    console.error('Error fetching post:', error);
-    return NextResponse.json(
-      { error: 'Greska prilikom dohvacanja objave' },
-      { status: 500 }
+    postsLogger.error({ error }, 'Greška prilikom dohvaćanja objave');
+    return apiError(
+      ErrorCodes.INTERNAL_ERROR,
+      'Greška prilikom dohvaćanja objave',
+      500
     );
   }
 }
@@ -62,24 +49,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       const issues = validationResult.error.issues;
       const firstIssue = issues[0];
       const errorMessage = firstIssue?.message ?? 'Nevaljani podaci';
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return apiError(ErrorCodes.VALIDATION_ERROR, errorMessage, 400);
     }
 
     // Check if post exists
-    const existingPost = await db.post.findUnique({ where: { id } });
+    const existingPost = await postsRepository.findById(id);
 
     if (!existingPost) {
-      return NextResponse.json(
-        { error: 'Objava nije pronadena' },
-        { status: 404 }
-      );
+      return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
     const { title, content, excerpt, category, isFeatured, publishedAt } =
       validationResult.data;
 
     // Prepare update data
-    const updateData: Parameters<typeof db.post.update>[0]['data'] = {};
+    const updateData: Parameters<typeof postsRepository.update>[1] = {};
 
     if (title !== undefined) {
       updateData.title = title;
@@ -90,11 +74,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         let slugSuffix = 1;
 
         // Check for existing slug (excluding current post) and make it unique
-        while (
-          await db.post.findFirst({
-            where: { slug, id: { not: id } },
-          })
-        ) {
+        while (await postsRepository.slugExists(slug, id)) {
           slug = `${generateSlug(title)}-${slugSuffix}`;
           slugSuffix++;
         }
@@ -109,27 +89,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (publishedAt !== undefined) updateData.publishedAt = publishedAt;
 
     // Update post
-    const post = await db.post.update({
-      where: { id },
-      data: updateData,
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-      },
-    });
+    const post = await postsRepository.update(id, updateData);
 
-    return NextResponse.json(post);
+    postsLogger.info({ postId: id }, 'Objava uspješno ažurirana');
+
+    return apiSuccess(post);
   } catch (error) {
-    console.error('Error updating post:', error);
-    return NextResponse.json(
-      { error: 'Greska prilikom azuriranja objave' },
-      { status: 500 }
+    postsLogger.error({ error }, 'Greška prilikom ažuriranja objave');
+    return apiError(
+      ErrorCodes.INTERNAL_ERROR,
+      'Greška prilikom ažuriranja objave',
+      500
     );
   }
 }
@@ -140,24 +110,24 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
 
     // Check if post exists
-    const existingPost = await db.post.findUnique({ where: { id } });
+    const exists = await postsRepository.exists(id);
 
-    if (!existingPost) {
-      return NextResponse.json(
-        { error: 'Objava nije pronadena' },
-        { status: 404 }
-      );
+    if (!exists) {
+      return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
     // Delete post
-    await db.post.delete({ where: { id } });
+    await postsRepository.delete(id);
 
-    return NextResponse.json({ success: true });
+    postsLogger.info({ postId: id }, 'Objava uspješno obrisana');
+
+    return apiSuccess({ deleted: true });
   } catch (error) {
-    console.error('Error deleting post:', error);
-    return NextResponse.json(
-      { error: 'Greska prilikom brisanja objave' },
-      { status: 500 }
+    postsLogger.error({ error }, 'Greška prilikom brisanja objave');
+    return apiError(
+      ErrorCodes.INTERNAL_ERROR,
+      'Greška prilikom brisanja objave',
+      500
     );
   }
 }
