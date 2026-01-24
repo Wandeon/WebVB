@@ -62,14 +62,14 @@ export function DeleteDialog({ document, open, onOpenChange, onSuccess }: Delete
       };
 
       if (!result.success) {
-        setError(result.error?.message ?? 'Greska pri brisanju dokumenta');
+        setError(result.error?.message ?? 'Greška pri brisanju dokumenta');
         return;
       }
 
       handleOpenChange(false);
       onSuccess();
     } catch {
-      setError('Greska pri brisanju dokumenta');
+      setError('Greška pri brisanju dokumenta');
     } finally {
       setIsDeleting(false);
     }

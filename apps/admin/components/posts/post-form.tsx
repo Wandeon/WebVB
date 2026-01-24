@@ -46,9 +46,19 @@ interface PostFormProps {
   initialData?: PostFormData;
 }
 
+// Extract image ID from URL pattern: .../uploads/{id}/large.webp
+function extractImageId(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  const match = url.match(/\/uploads\/([^/]+)\/(?:thumb|medium|large)\.webp/);
+  return match?.[1];
+}
+
 export function PostForm({ initialData }: PostFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageId, setImageId] = useState<string | undefined>(
+    extractImageId(initialData?.featuredImage)
+  );
   const isEditing = Boolean(initialData?.id);
 
   const {
@@ -197,8 +207,15 @@ export function PostForm({ initialData }: PostFormProps) {
               <Label htmlFor="featuredImage">Naslovna slika</Label>
               <ImageUpload
                 value={watch('featuredImage') ?? null}
-                onChange={(url) => setValue('featuredImage', url)}
-                onRemove={() => setValue('featuredImage', null)}
+                imageId={imageId}
+                onChange={(url, newImageId) => {
+                  setValue('featuredImage', url);
+                  setImageId(newImageId);
+                }}
+                onRemove={() => {
+                  setValue('featuredImage', null);
+                  setImageId(undefined);
+                }}
                 disabled={isSubmitting}
               />
             </div>

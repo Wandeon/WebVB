@@ -96,14 +96,14 @@ export function EditDialog({ document, open, onOpenChange, onSuccess }: EditDial
       };
 
       if (!result.success) {
-        setError(result.error?.message ?? 'Greska pri azuriranju dokumenta');
+        setError(result.error?.message ?? 'Greška pri ažuriranju dokumenta');
         return;
       }
 
       handleOpenChange(false);
       onSuccess();
     } catch {
-      setError('Greska pri azuriranju dokumenta');
+      setError('Greška pri ažuriranju dokumenta');
     } finally {
       setIsSubmitting(false);
     }
@@ -176,7 +176,7 @@ export function EditDialog({ document, open, onOpenChange, onSuccess }: EditDial
           </div>
 
           <p className="text-sm text-neutral-500 italic">
-            Za zamjenu PDF-a obrisite dokument i ucitajte novi.
+            Za zamjenu PDF-a obrišite dokument i učitajte novi.
           </p>
 
           {error && <p className="text-sm text-error">{error}</p>}

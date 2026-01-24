@@ -136,8 +136,8 @@ export default function DocumentsPage() {
       setPageCount(response_data.data.pagination.totalPages);
     } catch {
       toast({
-        title: 'Greska',
-        description: 'Doslo je do greske prilikom ucitavanja dokumenata.',
+        title: 'Greška',
+        description: 'Došlo je do greške prilikom učitavanja dokumenata.',
         variant: 'destructive',
       });
     } finally {
