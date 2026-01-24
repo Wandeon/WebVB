@@ -3,7 +3,8 @@
 import * as React from 'react';
 
 const TOAST_LIMIT = 5;
-const TOAST_REMOVE_DELAY = 1000000;
+// Delay before removing dismissed toast from DOM (allows exit animation)
+const TOAST_REMOVE_DELAY = 5000;
 
 type ToastActionElement = React.ReactElement<{
   altText: string;
@@ -175,7 +176,7 @@ function useToast() {
         listeners.splice(index, 1);
       }
     };
-  }, [state]);
+  }, []);
 
   return {
     ...state,
