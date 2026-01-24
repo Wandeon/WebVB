@@ -8,6 +8,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  ImageUpload,
   Input,
   Label,
   Select,
@@ -37,6 +38,7 @@ interface PostFormData {
   excerpt?: string;
   category: PostCategory;
   isFeatured: boolean;
+  featuredImage?: string | null;
   publishedAt?: Date | null;
 }
 
@@ -63,6 +65,7 @@ export function PostForm({ initialData }: PostFormProps) {
       excerpt: initialData?.excerpt ?? '',
       category: initialData?.category ?? 'aktualnosti',
       isFeatured: initialData?.isFeatured ?? false,
+      featuredImage: initialData?.featuredImage ?? null,
       publishedAt: initialData?.publishedAt ?? null,
     },
   });
@@ -187,6 +190,17 @@ export function PostForm({ initialData }: PostFormProps) {
               {errors.content && (
                 <p className="text-sm text-error">{errors.content.message}</p>
               )}
+            </div>
+
+            {/* Featured Image */}
+            <div className="space-y-2">
+              <Label htmlFor="featuredImage">Naslovna slika</Label>
+              <ImageUpload
+                value={watch('featuredImage') ?? null}
+                onChange={(url) => setValue('featuredImage', url)}
+                onRemove={() => setValue('featuredImage', null)}
+                disabled={isSubmitting}
+              />
             </div>
           </CardContent>
         </Card>
