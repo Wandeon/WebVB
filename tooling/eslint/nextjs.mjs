@@ -1,12 +1,10 @@
-import { FlatCompat } from '@eslint/eslintrc';
+import nextConfig from 'eslint-config-next';
 import baseConfig from './base.mjs';
-
-const compat = new FlatCompat();
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   ...baseConfig,
-  ...compat.extends('next/core-web-vitals'),
+  ...nextConfig,
   {
     rules: {
       '@next/next/no-html-link-for-pages': 'off',
