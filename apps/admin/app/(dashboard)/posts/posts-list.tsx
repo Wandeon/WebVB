@@ -23,8 +23,11 @@ interface PaginationData {
 }
 
 interface PostsApiResponse {
-  posts: Post[];
-  pagination: PaginationData;
+  success: true;
+  data: {
+    posts: Post[];
+    pagination: PaginationData;
+  };
 }
 
 export function PostsList() {
@@ -122,14 +125,13 @@ export function PostsList() {
         throw new Error('Failed to fetch posts');
       }
 
-      const data = (await response.json()) as PostsApiResponse;
-      setPosts(data.posts);
-      setPageCount(data.pagination.totalPages);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
+      const response_data = (await response.json()) as PostsApiResponse;
+      setPosts(response_data.data.posts);
+      setPageCount(response_data.data.pagination.totalPages);
+    } catch {
       toast({
-        title: 'Greska',
-        description: 'Doslo je do greske prilikom ucitavanja objava.',
+        title: 'Greška',
+        description: 'Došlo je do greške prilikom učitavanja objava.',
         variant: 'destructive',
       });
     } finally {

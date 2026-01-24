@@ -39,14 +39,15 @@ export function DeleteDialog({
 
       if (!response.ok) {
         const errorData = (await response.json().catch(() => ({}))) as {
-          error?: string;
+          success: false;
+          error?: { message?: string };
         };
-        throw new Error(errorData.error ?? 'Brisanje nije uspjelo');
+        throw new Error(errorData.error?.message ?? 'Brisanje nije uspjelo');
       }
 
       toast({
         title: 'Uspjeh',
-        description: 'Objava je uspjesno obrisana.',
+        description: 'Objava je uspješno obrisana.',
         variant: 'success',
       });
 
@@ -54,9 +55,9 @@ export function DeleteDialog({
       onSuccess();
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -70,8 +71,8 @@ export function DeleteDialog({
         <DialogHeader>
           <DialogTitle>Brisanje objave</DialogTitle>
           <DialogDescription>
-            Jeste li sigurni da zelite obrisati objavu &quot;{postTitle}&quot;?
-            Ova radnja se ne moze ponistiti.
+            Jeste li sigurni da želite obrisati objavu &quot;{postTitle}&quot;?
+            Ova radnja se ne može poništiti.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -89,7 +90,7 @@ export function DeleteDialog({
             onClick={() => void handleDelete()}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Brisanje...' : 'Obrisi'}
+            {isDeleting ? 'Brisanje...' : 'Obriši'}
           </Button>
         </DialogFooter>
       </DialogContent>

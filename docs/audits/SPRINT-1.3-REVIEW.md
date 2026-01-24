@@ -12,4 +12,27 @@
 5. Sprint 1.3 lacks automated tests covering posts CRUD flows (API validation, list filters, pagination, and delete confirmation).
 
 ## Fixes Applied
-- None in this audit (documentation only).
+1. **Repository pattern**: Created `packages/database/src/repositories/posts.ts` with `postsRepository` exposing `findAll`, `findById`, `findBySlug`, `slugExists`, `create`, `update`, `delete`, and `exists` methods. Updated API routes to use repository instead of direct `db` queries.
+
+2. **Standard response envelope**: Created `apps/admin/lib/api-response.ts` with `apiSuccess()` and `apiError()` helpers returning `{ success: true, data }` or `{ success: false, error: { code, message } }` format. Updated all API routes and client-side code to use the new format.
+
+3. **Croatian diacritics**: Fixed all user-facing strings:
+   - "Greska" → "Greška"
+   - "pronadena" → "pronađena"
+   - "dohvacanja" → "dohvaćanja"
+   - "azuriranja" → "ažuriranja"
+   - "Doslo" → "Došlo"
+   - "uspjesno" → "uspješno"
+   - "Sadrzaj" → "Sadržaj"
+   - "Sazetak" → "Sažetak"
+   - "moze" → "može"
+   - "zelite" → "želite"
+   - "ponistiti" → "poništiti"
+   - "Obrisi" → "Obriši"
+
+4. **Structured logging**: Added `pino` and `pino-pretty` dependencies. Created `apps/admin/lib/logger.ts` with domain-specific child loggers (`postsLogger`). Replaced all `console.error` calls with structured `postsLogger.error()` and added info-level logging for successful operations.
+
+5. **Automated tests**: Added vitest to admin app with 37 new tests:
+   - `lib/validations/post.test.ts`: 18 tests for Zod schemas (validation rules, Croatian error messages, category enum, query params)
+   - `lib/api-response.test.ts`: 9 tests for response envelope helpers (success, error, status codes, details)
+   - `lib/utils/slug.test.ts`: 10 tests for slug generation (diacritics, special characters, edge cases)
