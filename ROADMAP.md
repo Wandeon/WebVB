@@ -9,7 +9,7 @@
 **Active Sprint:** 1.2 - Dashboard page
 **Overall Progress:** 6/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Sprint 0.5 review in `docs/audits/SPRINT-0.5-REVIEW.md`
+**Latest Audit:** Sprint 1.1 review in `docs/audits/SPRINT-1.1-REVIEW.md`
 
 ---
 

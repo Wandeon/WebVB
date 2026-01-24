@@ -15,6 +15,7 @@ function NavItemComponent({ item, onClose }: { item: NavItem; onClose: () => voi
     <Link
       href={item.href}
       onClick={onClose}
+      aria-current={isActive ? 'page' : undefined}
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium transition-colors',
         isActive
@@ -70,7 +71,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-6 overflow-y-auto p-4">
+        <nav className="flex-1 space-y-6 overflow-y-auto p-4" aria-label="Glavna navigacija">
           {adminNavigation.map((section, index) => (
             <NavSectionComponent key={index} section={section} onClose={handleClose} />
           ))}

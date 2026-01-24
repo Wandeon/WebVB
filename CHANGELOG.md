@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 - Sprint 1.1: Admin layout shell with sidebar, header, mobile menu, breadcrumbs
+- Audited Sprint 1.1 admin layout: improved navigation accessibility labeling and active state semantics, localized sheet close label, and added e2e coverage for active nav states.
 - Documented Phase 0.2 execution review and compliance gaps.
 - Added shared environment validation utilities with tests and public URL defaults.
 - Updated auth and database layers to use validated env helpers and shared role constants.
