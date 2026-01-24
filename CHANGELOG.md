@@ -3,11 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- CI/CD pipeline configured with GitHub Actions
 - Documented Phase 0.2 execution review and compliance gaps.
 - Added shared environment validation utilities with tests and public URL defaults.
 - Updated auth and database layers to use validated env helpers and shared role constants.
 - Audited Sprint 0.4 UI foundation: aligned animation presets and localized UI demo text.
+
+## Sprint 0.5 - CI/CD Pipeline (Completed)
+- GitHub Actions workflow for lint, type-check, test on PRs
+- Build job on merge to main
+- Prisma client generation in CI
+- Concurrency control to cancel duplicate runs
+- CI/CD documentation in docs/CI-CD.md
+- Gate: PR triggers lint + type-check + test; merge triggers build
 
 ## Sprint 0.4 - UI Foundation (Completed)
 - Tailwind CSS v4 configured with design tokens from DESIGN-SYSTEM.md
