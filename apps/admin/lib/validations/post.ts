@@ -9,7 +9,17 @@ export const postSchema = z.object({
     .string()
     .min(3, 'Naslov mora imati najmanje 3 znaka')
     .max(200, 'Naslov može imati najviše 200 znakova'),
-  content: z.string().min(1, 'Sadržaj je obavezan'),
+  content: z
+    .string()
+    .min(1, 'Sadržaj je obavezan')
+    .refine(
+      (val) => {
+        // Strip HTML tags and check if there's actual content
+        const textContent = val.replace(/<[^>]*>/g, '').trim();
+        return textContent.length > 0;
+      },
+      { message: 'Sadržaj je obavezan' }
+    ),
   excerpt: z.string().max(500, 'Sažetak može imati najviše 500 znakova').optional(),
   category: z.enum(categoryKeys),
   isFeatured: z.boolean().default(false),

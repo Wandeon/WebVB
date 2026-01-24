@@ -135,6 +135,38 @@ describe('postSchema', () => {
       );
     }
   });
+
+  describe('content with HTML', () => {
+    it('accepts valid HTML content', () => {
+      const result = postSchema.safeParse({
+        title: 'Test naslov',
+        content: '<p>Valid content</p>',
+        category: 'aktualnosti',
+        isFeatured: false,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects empty paragraph tags', () => {
+      const result = postSchema.safeParse({
+        title: 'Test naslov',
+        content: '<p></p>',
+        category: 'aktualnosti',
+        isFeatured: false,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects whitespace-only HTML', () => {
+      const result = postSchema.safeParse({
+        title: 'Test naslov',
+        content: '<p>   </p>',
+        category: 'aktualnosti',
+        isFeatured: false,
+      });
+      expect(result.success).toBe(false);
+    });
+  });
 });
 
 describe('createPostSchema', () => {
