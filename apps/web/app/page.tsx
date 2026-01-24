@@ -24,40 +24,40 @@ export default function HomePage() {
           </p>
         </header>
 
-        {/* Button Variants */}
+        {/* Varijante gumba */}
         <Card>
           <CardHeader>
-            <CardTitle>Button Variants</CardTitle>
-            <CardDescription>All available button styles</CardDescription>
+            <CardTitle>Varijante gumba</CardTitle>
+            <CardDescription>Dostupni stilovi gumba</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-4">
-            <Button variant="primary">Primary</Button>
-            <Button variant="secondary">Secondary</Button>
-            <Button variant="outline">Outline</Button>
-            <Button variant="ghost">Ghost</Button>
-            <Button variant="danger">Danger</Button>
-            <Button variant="link">Link</Button>
+            <Button variant="primary">Primarni</Button>
+            <Button variant="secondary">Sekundarni</Button>
+            <Button variant="outline">Obrub</Button>
+            <Button variant="ghost">Prozirni</Button>
+            <Button variant="danger">Opasnost</Button>
+            <Button variant="link">Poveznica</Button>
           </CardContent>
         </Card>
 
-        {/* Button Sizes */}
+        {/* Veličine gumba */}
         <Card>
           <CardHeader>
-            <CardTitle>Button Sizes</CardTitle>
-            <CardDescription>Small, medium, and large sizes</CardDescription>
+            <CardTitle>Veličine gumba</CardTitle>
+            <CardDescription>Mala, srednja i velika veličina</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap items-center gap-4">
-            <Button size="sm">Small</Button>
-            <Button size="md">Medium</Button>
-            <Button size="lg">Large</Button>
+            <Button size="sm">Mali</Button>
+            <Button size="md">Srednji</Button>
+            <Button size="lg">Veliki</Button>
           </CardContent>
         </Card>
 
-        {/* Form Elements */}
+        {/* Elementi obrasca */}
         <Card>
           <CardHeader>
-            <CardTitle>Form Elements</CardTitle>
-            <CardDescription>Input and label components</CardDescription>
+            <CardTitle>Elementi obrasca</CardTitle>
+            <CardDescription>Komponente za unos i oznake</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -67,34 +67,34 @@ export default function HomePage() {
               <Input id="email" type="email" placeholder="ime@primjer.hr" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="error-input">Input with error</Label>
-              <Input id="error-input" error placeholder="Invalid input" />
+              <Label htmlFor="error-input">Unos s greškom</Label>
+              <Input id="error-input" error placeholder="Neispravan unos" />
             </div>
           </CardContent>
         </Card>
 
-        {/* Typography Demo */}
+        {/* Tipografija */}
         <Card>
           <CardHeader>
-            <CardTitle>Typography</CardTitle>
-            <CardDescription>Font families and sizes</CardDescription>
+            <CardTitle>Tipografija</CardTitle>
+            <CardDescription>Obitelji fontova i veličine</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="font-display text-2xl font-bold">
-              Plus Jakarta Sans (Display)
+              Plus Jakarta Sans (naslovni font)
             </p>
             <p className="font-sans text-base">
-              Inter (Body text) - Lorem ipsum dolor sit amet, consectetur
+              Inter (tekst sadržaja) - Lorem ipsum dolor sit amet, consectetur
               adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
             </p>
           </CardContent>
         </Card>
 
-        {/* Color Palette */}
+        {/* Paleta boja */}
         <Card>
           <CardHeader>
-            <CardTitle>Color Palette</CardTitle>
-            <CardDescription>Brand and semantic colors</CardDescription>
+            <CardTitle>Paleta boja</CardTitle>
+            <CardDescription>Brend i semantičke boje</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-5 gap-2">

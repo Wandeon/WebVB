@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Documented Phase 0.2 execution review and compliance gaps.
 - Added shared environment validation utilities with tests and public URL defaults.
 - Updated auth and database layers to use validated env helpers and shared role constants.
+- Audited Sprint 0.4 UI foundation: aligned animation presets and localized UI demo text.
 
 ## Sprint 0.4 - UI Foundation (Completed)
 - Tailwind CSS v4 configured with design tokens from DESIGN-SYSTEM.md
