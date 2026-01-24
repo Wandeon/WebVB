@@ -10,7 +10,6 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL ?? '',
   secret: process.env.BETTER_AUTH_SECRET ?? '',
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- prismaAdapter expects PrismaClient; db is PrismaClient.
   database: prismaAdapter(db, {
     provider: 'postgresql',
   }),
