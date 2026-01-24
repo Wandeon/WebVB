@@ -68,4 +68,27 @@ test.describe('Authentication Flow', () => {
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
   });
+
+  test('logout clears session from database', async ({ page }) => {
+    // First, login
+    await page.goto('/login');
+    await page.fill('input[type="email"]', TEST_USER.email);
+    await page.fill('input[type="password"]', TEST_USER.password);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('/');
+
+    // Verify session exists
+    let session = await getSessionByUserId(testUserId);
+    expect(session).not.toBeNull();
+
+    // Click logout button
+    await page.click('button:has-text("Odjava")');
+
+    // Wait for redirect to login
+    await page.waitForURL('/login');
+
+    // Verify session was cleared from database
+    session = await getSessionByUserId(testUserId);
+    expect(session).toBeNull();
+  });
 });
