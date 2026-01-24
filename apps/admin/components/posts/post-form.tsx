@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
+  TipTapEditor,
   toast,
 } from '@repo/ui';
 import { useRouter } from 'next/navigation';
@@ -184,17 +185,18 @@ export function PostForm({ initialData }: PostFormProps) {
               )}
             </div>
 
-            {/* Content - Placeholder for TipTap */}
+            {/* Content - TipTap Editor */}
             <div className="space-y-2">
               <Label htmlFor="content" required>
                 Sadržaj
               </Label>
-              <Textarea
-                id="content"
-                placeholder="Unesite sadržaj objave... (TipTap editor će biti implementiran)"
-                rows={12}
+              <TipTapEditor
+                value={watch('content')}
+                onChange={(html) =>
+                  setValue('content', html, { shouldValidate: true })
+                }
+                placeholder="Unesite sadržaj objave..."
                 error={Boolean(errors.content)}
-                {...register('content')}
               />
               {errors.content && (
                 <p className="text-sm text-error">{errors.content.message}</p>
