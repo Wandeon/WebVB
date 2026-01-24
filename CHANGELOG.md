@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 - Updated auth and database layers to use validated env helpers and shared role constants.
 - Audited Sprint 0.4 UI foundation: aligned animation presets and localized UI demo text.
 - Audited Sprint 0.5 CI pipeline: added guardrails for TODO/FIXME, console.log, and `any` types.
+- Sprint 0.6: Added Playwright E2E tests for auth flow (login, protected routes, logout)
+
+## Sprint 0.6 - Integration Verification (Completed)
+- Playwright E2E testing configured
+- Auth flow tests: login creates session, protected routes redirect, logout clears session
+- Gate: pnpm test:e2e passes all tests
 
 ## Sprint 0.5 - CI/CD Pipeline (Completed)
 - GitHub Actions workflow for lint, type-check, test on PRs

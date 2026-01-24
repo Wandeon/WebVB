@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**Active Sprint:** 0.6 - Integration Verification
+**Active Sprint:** 1.1 - Admin Layout Shell
 **Overall Progress:** 5/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Sprint 0.5 review in `docs/audits/SPRINT-0.5-REVIEW.md`
@@ -76,7 +76,7 @@
 ---
 
 ## Phase 0: Foundation
-**Status:** In Progress | **Progress:** 5/6 | **Track:** A
+**Status:** Completed | **Progress:** 6/6 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -85,7 +85,7 @@
 | 0.3 ✅ | Better Auth setup | 🔀 | 0.1 | Login/logout works, session persists |
 | 0.4 ✅ | UI foundation | 🔀 | 0.1 | Button + Input + Card render correctly |
 | 0.5 ✅ | CI/CD pipeline | 🔀 | 0.1 | PR triggers lint + type-check + test |
-| 0.6 ⬜ | Integration verify | 🔗 | 0.2-0.5 | Full auth flow with DB works |
+| 0.6 ✅ | Integration verify | 🔗 | 0.2-0.5 | Full auth flow with DB works |
 
 ### Sprint 0.1: Project Scaffold
 ```
