@@ -20,11 +20,13 @@ This document describes the continuous integration and deployment setup for the 
 **On Pull Request to main:**
 - Runs lint, type-check, and test jobs
 - Validates code quality before merge
+- Blocks TODO/FIXME comments, console.log, and `any` types in changed TypeScript files
 - Uses concurrency groups to cancel outdated runs
 - **Always runs on GitHub-hosted runners** (safe for untrusted code)
 
 **On Push to main:**
 - Runs the same CI checks (lint, type-check, test)
+- Applies the same guardrails against TODO/FIXME comments, console.log, and `any` types in changed TypeScript files
 - If CI passes, runs the build job
 - Build job only executes on push events to main
 - **Can run on self-hosted runner** (trusted code only)
