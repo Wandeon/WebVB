@@ -61,8 +61,8 @@ function DashboardContent() {
         {/* Info Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Sprint 0.4 - UI Foundation</CardTitle>
-            <CardDescription>Tailwind CSS v4 + shadcn/ui components</CardDescription>
+            <CardTitle>Sprint 0.4 - Temelji UI-ja</CardTitle>
+            <CardDescription>Tailwind CSS v4 + shadcn/ui komponente</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-neutral-600">
@@ -70,13 +70,22 @@ function DashboardContent() {
             </p>
             <div className="mt-4 flex gap-2">
               <Button variant="primary" size="sm">
-                Primary
+                Primarni
               </Button>
               <Button variant="secondary" size="sm">
-                Secondary
+                Sekundarni
               </Button>
               <Button variant="outline" size="sm">
-                Outline
+                Obrub
+              </Button>
+              <Button variant="ghost" size="sm">
+                Prozirni
+              </Button>
+              <Button variant="danger" size="sm">
+                Opasnost
+              </Button>
+              <Button variant="link" size="sm">
+                Poveznica
               </Button>
             </div>
           </CardContent>
