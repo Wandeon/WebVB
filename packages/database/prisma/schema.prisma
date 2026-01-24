@@ -44,6 +44,7 @@ model User {
 
   // System relations
   aiRequests    AiQueue[]
+  auditLogs     AuditLog[]
 
   @@index([email])
   @@index([role])
@@ -373,4 +374,23 @@ model AiQueue {
 
   @@index([status, createdAt])
   @@map("ai_queue")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String   // 'create', 'update', 'delete', 'login', 'logout'
+  entityType String?  @map("entity_type") // 'post', 'document', 'user', etc.
+  entityId   String?  @map("entity_id")
+  changes    Json?    // {before: {...}, after: {...}}
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_log")
 }
