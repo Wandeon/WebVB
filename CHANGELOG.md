@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- Documented Sprint 1.3 audit review findings.
+- Documented Sprint 1.5-1.6 audit review findings.
 
 ## Sprint 1.6 - Documents Management (Completed)
 
