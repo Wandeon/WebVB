@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 - Documented Sprint 1.3 audit review findings.
 
 ### Added
+- Image upload component with drag-drop support in @repo/ui
+- Image upload API with Sharp processing (thumb 150px, medium 800px, large 1920px variants)
+- Cloudflare R2 integration for image storage
+- Featured image field in post form
 - TipTap rich text editor component in @repo/ui package
 - Rich text editing in post form with toolbar (bold, italic, underline, links, headings, lists, blockquote)
 - HTML content validation that strips tags before checking for empty content
