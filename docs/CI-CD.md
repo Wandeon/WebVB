@@ -127,3 +127,19 @@ Local builds benefit from Turborepo's local cache by default. To connect to remo
 npx turbo login
 npx turbo link
 ```
+
+---
+
+## Branch Protection (Recommended)
+
+After CI is working, enable branch protection on `main`:
+
+1. Go to GitHub repo > Settings > Branches
+2. Add rule for `main`:
+   - [x] Require a pull request before merging
+   - [x] Require status checks to pass before merging
+     - Select: `Lint, Type Check, Test`
+   - [x] Require branches to be up to date before merging
+   - [x] Do not allow bypassing the above settings
+
+This ensures all code merged to main passes CI checks.
