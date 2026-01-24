@@ -10,3 +10,4 @@ export {
   CardFooter,
 } from './card';
 export { Separator } from './separator';
+export { Avatar, AvatarImage, AvatarFallback } from './avatar';
