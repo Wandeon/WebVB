@@ -14,14 +14,9 @@ export interface User {
   updatedAt: Date;
 }
 
-export type PostCategory =
-  | 'aktualnosti'
-  | 'gospodarstvo'
-  | 'sport'
-  | 'komunalno'
-  | 'kultura'
-  | 'obrazovanje'
-  | 'ostalo';
+// PostCategory is now exported from constants/categories.ts
+// Re-export it here for backwards compatibility
+export type { PostCategory } from '../constants/categories';
 
 export type ProblemType = 'cesta' | 'rasvjeta' | 'otpad' | 'komunalno' | 'ostalo';
 
