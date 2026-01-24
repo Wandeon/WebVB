@@ -2,6 +2,8 @@
 
 export const APP_NAME = 'Veliki Bukovec';
 
+export const ADMIN_APP_URL_DEFAULT = 'http://localhost:3001';
+
 export const USER_ROLES = {
   SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',

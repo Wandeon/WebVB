@@ -18,7 +18,8 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@prisma/client": "^6.2.0"
+    "@prisma/client": "^6.2.0",
+    "@repo/shared": "workspace:*"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

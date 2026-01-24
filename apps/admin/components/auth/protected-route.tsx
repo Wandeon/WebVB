@@ -1,13 +1,20 @@
 'use client';
 
+import { USER_ROLES, type UserRole } from '@repo/shared';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { useAuth } from '@/components/providers/session-provider';
 
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+  [USER_ROLES.SUPER_ADMIN]: 3,
+  [USER_ROLES.ADMIN]: 2,
+  [USER_ROLES.STAFF]: 1,
+};
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'super_admin' | 'admin' | 'staff';
+  requiredRole?: UserRole;
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
@@ -22,9 +29,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && requiredRole && user) {
-      const roleHierarchy = { super_admin: 3, admin: 2, staff: 1 };
-      const userLevel = roleHierarchy[user.role as keyof typeof roleHierarchy] || 0;
-      const requiredLevel = roleHierarchy[requiredRole] || 0;
+      const userLevel = ROLE_HIERARCHY[user.role as UserRole] ?? 0;
+      const requiredLevel = ROLE_HIERARCHY[requiredRole] ?? 0;
 
       if (userLevel < requiredLevel) {
         router.push('/unauthorized');
@@ -35,7 +41,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <p>Ucitavanje...</p>
+        <p>Učitavanje...</p>
       </div>
     );
   }

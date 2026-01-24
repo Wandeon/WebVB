@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- No unreleased changes.
+- Added shared environment validation utilities with tests and public URL defaults.
+- Updated auth and database layers to use validated env helpers and shared role constants.
 
 ## Sprint 0.3 - Better Auth Setup (Completed)
 - Better Auth library installed and configured
