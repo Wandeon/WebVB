@@ -6,10 +6,10 @@
 
 ## Current Status
 
-**Active Sprint:** 0.3 - Better Auth Setup
-**Overall Progress:** 2/71 sprints
+**Active Sprint:** 0.5 - CI/CD Pipeline
+**Overall Progress:** 4/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Phase 0.1 execution review in `docs/audits/PHASE-0.1-EXECUTION-REVIEW.md`
+**Latest Audit:** Sprint 0.3 review in `docs/audits/SPRINT-0.3-REVIEW.md`
 
 ---
 
@@ -76,14 +76,14 @@
 ---
 
 ## Phase 0: Foundation
-**Status:** In Progress | **Progress:** 2/6 | **Track:** A
+**Status:** In Progress | **Progress:** 4/6 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
 | 0.1 ✅ | Project scaffold | No | - | `pnpm build` succeeds for both apps |
 | 0.2 ✅ | Database schema | 🔀 | 0.1 | `pnpm db:push` creates all tables |
-| 0.3 ⬜ | Better Auth setup | 🔀 | 0.1 | Login/logout works, session persists |
-| 0.4 ⬜ | UI foundation | 🔀 | 0.1 | Button + Input + Card render correctly |
+| 0.3 ✅ | Better Auth setup | 🔀 | 0.1 | Login/logout works, session persists |
+| 0.4 ✅ | UI foundation | 🔀 | 0.1 | Button + Input + Card render correctly |
 | 0.5 ⬜ | CI/CD pipeline | 🔀 | 0.1 | PR triggers lint + type-check + test |
 | 0.6 ⬜ | Integration verify | 🔗 | 0.2-0.5 | Full auth flow with DB works |
 
@@ -624,3 +624,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-23 | Initial roadmap created |
 | 2026-01-23 | Restructured for AI agent sprints with gates |
 | 2026-01-23 | Sprint 0.2 completed: Database schema with 19 tables |
+| 2026-01-24 | Sprint 0.3 completed: Better Auth with email/password and Google OAuth |

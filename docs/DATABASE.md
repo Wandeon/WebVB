@@ -56,6 +56,8 @@
 **Database:** PostgreSQL with pgvector extension
 **Auth:** Better Auth (standard schema + plugins)
 
+> **Note on constraints:** The CHECK constraints shown in SQL examples below (e.g., `valid_role`, `valid_status`, `valid_category`) document the allowed values but are validated at the application layer, not the database layer. Prisma doesn't support CHECK constraints natively, so validation happens in the API routes and service layer. This approach provides better error messages and consistent validation across the stack.
+
 ### Better Auth Tables (Standard)
 
 ```sql
