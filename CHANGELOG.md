@@ -86,6 +86,39 @@ All notable changes to this project will be documented in this file.
 - Aligned eslint-config-next@16.1.4 with Next.js 16.1.4
 - Added /healthz endpoint to admin app with service and commit metadata
 
+## Sprint 3.9 - Monitoring Setup (Completed)
+- Sentry SDK (@sentry/nextjs) installed in admin app
+- Client, server, and edge configs created
+- Placeholder SENTRY_DSN added to VPS environment
+- Manual: Create Sentry project, fill DSN, redeploy
+- UptimeRobot: Monitor https://velikibukovec-web.pages.dev
+- Gate: Sentry integration ready, UptimeRobot pending setup
+
+## Sprint 3.8 - Backup Automation (Completed)
+- Backup script at /home/deploy/scripts/backup-db.sh
+- Uses rclone for reliable R2 uploads (Cloudflare recommended)
+- Compresses with gzip, uploads to R2 backups/ prefix
+- 30-day retention for local and R2 backups
+- Cron job: Daily at 3am (/etc/cron.d/vb-backup)
+- Gate: Cron exists, backups verified in R2
+
+## Sprint 3.7 - Admin Deployment (Completed)
+- Node.js 20.20.0, PM2 6.0.14, pnpm 10.28.1 installed
+- Repository cloned to /home/deploy/apps/admin-repo
+- Production .env with DB, R2, auth, and Ollama config
+- PM2 ecosystem.config.js with logging and memory limits
+- PM2 startup service enabled (pm2-deploy.service)
+- Health endpoint: /api/healthz returns {"ok":true}
+- Gate: Admin app live at http://100.120.125.83:3001
+
+## Sprint 3.6 - Cloudflare Pages (Completed)
+- Static export configured (apps/web/next.config.ts)
+- Pages project created via API: velikibukovec-web
+- Deployed using wrangler direct upload
+- Production URL: https://velikibukovec-web.pages.dev
+- Cloudflare API credentials stored on VPS
+- Gate: Pages site live, returns "Općina Veliki Bukovec"
+
 ## Sprint 3.5 - Cloudflare R2 (Completed)
 - R2 bucket `velikibukovec-media` created in weur region
 - CORS configured for production and localhost origins

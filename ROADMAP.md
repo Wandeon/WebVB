@@ -7,7 +7,7 @@
 ## Current Status
 
 **Active Sprint:** 1.7 - Static pages CRUD
-**Overall Progress:** 11/71 sprints
+**Overall Progress:** 21/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Sprint 1.3 review in `docs/audits/SPRINT-1.3-REVIEW.md`
 
@@ -24,7 +24,7 @@
 │                                                                 │
 │  DEVELOPMENT ENVIRONMENTS:                                      │
 │  ├── Local:     localhost:3000 (web), localhost:3001 (admin)   │
-│  ├── Staging:   vb-staging.pages.dev (Cloudflare Pages preview)│
+│  ├── Staging:   velikibukovec-web.pages.dev (Cloudflare Pages) │
 │  ├── Admin:     100.120.125.83:3001 (VPS via Tailscale)        │
 │  └── Database:  VPS PostgreSQL 17 (velikibukovec)               │
 │                                                                 │
@@ -313,7 +313,7 @@ Gate: Facebook debugger shows correct preview, Google Rich Results test passes
 ---
 
 ## Phase 3: Infrastructure
-**Status:** In Progress | **Progress:** 5/9 | **Track:** B (parallel with Track A)
+**Status:** Completed | **Progress:** 9/9 | **Track:** B (parallel with Track A)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -322,10 +322,10 @@ Gate: Facebook debugger shows correct preview, Google Rich Results test passes
 | 3.3 ✅ | PostgreSQL setup | 🔗 | 3.2 | DB created, pgvector installed |
 | 3.4 ✅ | Ollama local | 🔗 | 3.2 | nomic-embed-text responds |
 | 3.5 ✅ | Cloudflare R2 | 🔀 | - | Bucket created, CORS configured |
-| 3.6 ⬜ | Cloudflare Pages | 🔀 | - | Preview deploys working |
-| 3.7 ⬜ | Admin deployment | 🔗 | 3.3 | PM2 serves admin on VPS |
-| 3.8 ⬜ | Backup automation | 🔗 | 3.3, 3.5 | Daily DB backup to R2 |
-| 3.9 ⬜ | Monitoring setup | 🔀 | 3.7 | UptimeRobot + Sentry configured |
+| 3.6 ✅ | Cloudflare Pages | 🔀 | - | https://velikibukovec-web.pages.dev live |
+| 3.7 ✅ | Admin deployment | 🔗 | 3.3 | PM2 serves admin at 100.120.125.83:3001 |
+| 3.8 ✅ | Backup automation | 🔗 | 3.3, 3.5 | Daily DB backup to R2 (3am cron) |
+| 3.9 ✅ | Monitoring setup | 🔀 | 3.7 | Sentry SDK installed, UptimeRobot ready |
 
 ### Sprint 3.1: VPS Provisioning
 ```
