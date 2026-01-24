@@ -34,7 +34,7 @@ export function CategoryChart() {
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                 }}
                 labelStyle={{ fontWeight: 600 }}
-                formatter={(value: number) => [`${value} objava`, 'Broj']}
+                formatter={(value) => [`${value} objava`, 'Broj']}
               />
               <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                 {mockContentByCategory.map((entry, index) => (

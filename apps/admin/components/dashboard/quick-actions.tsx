@@ -1,5 +1,5 @@
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui';
-import { FileText, FolderOpen, Inbox, Plus } from 'lucide-react';
+import { buttonVariants, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui';
+import { FolderOpen, Inbox, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 const actions = [
@@ -7,7 +7,7 @@ const actions = [
     label: 'Nova objava',
     href: '/posts/new',
     icon: Plus,
-    variant: 'default' as const,
+    variant: 'primary' as const,
   },
   {
     label: 'Dodaj dokument',
@@ -35,12 +35,10 @@ export function QuickActions() {
           {actions.map((action) => {
             const Icon = action.icon;
             return (
-              <Button key={action.href} variant={action.variant} asChild>
-                <Link href={action.href}>
-                  <Icon className="mr-2 h-4 w-4" />
-                  {action.label}
-                </Link>
-              </Button>
+              <Link key={action.href} href={action.href} className={buttonVariants({ variant: action.variant })}>
+                <Icon className="mr-2 h-4 w-4" />
+                {action.label}
+              </Link>
             );
           })}
         </div>

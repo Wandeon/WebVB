@@ -1,6 +1,5 @@
 import { Eye, FileText, FolderOpen, Inbox } from 'lucide-react';
 
-import { Breadcrumbs } from '@/components/layout';
 import {
   CategoryChart,
   QuickActions,
@@ -9,6 +8,7 @@ import {
   TopPages,
   VisitorsChart,
 } from '@/components/dashboard';
+import { Breadcrumbs } from '@/components/layout';
 import { mockDashboardStats } from '@/lib/mock-data';
 
 export default function DashboardPage() {
