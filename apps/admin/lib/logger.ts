@@ -17,3 +17,4 @@ export const logger = pino({
 // Create child loggers for specific domains
 export const postsLogger = logger.child({ module: 'posts' });
 export const authLogger = logger.child({ module: 'auth' });
+export const documentsLogger = logger.child({ module: 'documents' });

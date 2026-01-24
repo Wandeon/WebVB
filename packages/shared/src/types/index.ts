@@ -49,3 +49,25 @@ export interface ImageData {
   url: string;
   caption?: string;
 }
+
+export type { DocumentCategory } from '../constants/documents';
+
+export interface Document {
+  id: string;
+  title: string;
+  fileUrl: string;
+  fileSize: number | null;
+  category: string;
+  subcategory: string | null;
+  year: number | null;
+  uploadedBy: string | null;
+  createdAt: Date;
+}
+
+export interface DocumentWithUploader extends Document {
+  uploader: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+}

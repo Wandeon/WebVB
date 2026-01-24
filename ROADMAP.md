@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 1.6 - Documents management
-**Overall Progress:** 10/71 sprints
+**Active Sprint:** 1.7 - Static pages CRUD
+**Overall Progress:** 11/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Sprint 1.3 review in `docs/audits/SPRINT-1.3-REVIEW.md`
 
@@ -176,7 +176,7 @@ Gate: pnpm test:e2e (basic auth flow)
 ---
 
 ## Phase 1: Admin Core
-**Status:** In Progress | **Progress:** 5/12 | **Track:** A
+**Status:** In Progress | **Progress:** 6/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -185,7 +185,7 @@ Gate: pnpm test:e2e (basic auth flow)
 | 1.3 ✅ | Posts list + CRUD | 🔀 | 1.1 | Create, read, update, delete posts works |
 | 1.4 ✅ | TipTap editor | 🔗 | 1.3 | Rich text editing in post form |
 | 1.5 ✅ | Image upload (R2) | 🔀 | 1.1 | Upload image, get R2 URL, display |
-| 1.6 ⬜ | Documents management | 🔀 | 1.5 | Upload PDF, categorize, list, delete |
+| 1.6 ✅ | Documents management | 🔀 | 1.5 | Upload PDF, categorize, list, delete |
 | 1.7 ⬜ | Static pages CRUD | 🔀 | 1.4 | Create/edit static pages with TipTap |
 | 1.8 ⬜ | Events calendar | 🔀 | 1.1 | CRUD events, calendar view |
 | 1.9 ⬜ | Gallery management | 🔗 | 1.5 | Albums, bulk upload, reorder |
@@ -631,3 +631,6 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-24 | Sprint 1.1 completed: Admin layout shell with sidebar, header, mobile menu |
 | 2026-01-24 | Sprint 1.2 completed: Dashboard page with stats cards, charts, and activity feed |
 | 2026-01-24 | Sprint 1.3 completed: Posts list + CRUD with DataTable, filtering, pagination |
+| 2026-01-24 | Sprint 1.4 completed: TipTap editor integration with HTML content |
+| 2026-01-24 | Sprint 1.5 completed: Image upload to R2 with Sharp processing |
+| 2026-01-24 | Sprint 1.6 completed: Documents management with PDF upload, validation, CRUD |
