@@ -12,6 +12,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@repo/database": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/ui": "workspace:*",
@@ -22,6 +23,7 @@
     "next": "^16.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.71.1",
     "recharts": "^3.7.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.6"
