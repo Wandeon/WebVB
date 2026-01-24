@@ -3,7 +3,22 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- Sprint 1.1: Admin layout shell with sidebar, header, mobile menu, breadcrumbs
+
+## Sprint 1.2 - Dashboard Page (Completed)
+- StatsCard component with title, value, icon, and trend indicator
+- VisitorsChart (area chart) showing 7-day visitor data using Recharts
+- CategoryChart (horizontal bar chart) showing content distribution by category
+- RecentActivity component displaying activity feed with icons and timestamps
+- QuickActions component with navigation buttons for common tasks
+- TopPages component showing most viewed pages
+- Mock data utilities for dashboard statistics
+- cn utility function (clsx + tailwind-merge)
+- Installed Recharts ^3.7.0 for data visualization
+- Full dashboard page integration with all components
+- Gate: Stats cards + charts display with mock data
+
+## Sprint 1.1 - Admin Layout Shell (Completed)
+- Admin layout shell with sidebar, header, mobile menu, breadcrumbs
 - Audited Sprint 1.1 admin layout: improved navigation accessibility labeling and active state semantics, localized sheet close label, and added e2e coverage for active nav states.
 - Documented Phase 0.2 execution review and compliance gaps.
 - Added shared environment validation utilities with tests and public URL defaults.
