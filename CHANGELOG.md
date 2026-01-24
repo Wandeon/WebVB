@@ -3,9 +3,28 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- Audited Sprint 1.2 dashboard: added accessible chart labels, hid decorative icons from assistive tech, fixed Croatian diacritics, and added e2e coverage for chart labels.
+- Nothing yet
+
+## Sprint 1.3 - Posts List + CRUD (Completed)
+- UI Primitives: Table, Dialog, Select, Badge, Textarea, Toast, Toaster components
+- Zod validation schemas for posts with Croatian error messages
+- POST_CATEGORIES constant in @repo/shared for single source of truth
+- API routes: GET/POST /api/posts with filtering, pagination, sorting
+- API routes: GET/PUT/DELETE /api/posts/[id] with slug regeneration
+- Slug generation utility with Croatian diacritic handling
+- DataTable components with TanStack React Table
+- Data table toolbar with search and category/status filters
+- Data table pagination with page size selection
+- PostForm component with react-hook-form and zodResolver
+- Delete confirmation dialog
+- Posts list page with URL state management
+- Create post page (/posts/new)
+- Edit post page (/posts/[id])
+- Toaster added to dashboard layout
+- Gate: Create post, edit it, find in list, delete it
 
 ## Sprint 1.2 - Dashboard Page (Completed)
+- Audited Sprint 1.2 dashboard: added accessible chart labels, hid decorative icons from assistive tech, fixed Croatian diacritics, and added e2e coverage for chart labels.
 - StatsCard component with title, value, icon, and trend indicator
 - VisitorsChart (area chart) showing 7-day visitor data using Recharts
 - CategoryChart (horizontal bar chart) showing content distribution by category
