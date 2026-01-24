@@ -22,7 +22,7 @@ export const postSchema = z.object({
     ),
   excerpt: z.string().max(500, 'Sažetak može imati najviše 500 znakova').optional(),
   category: z.enum(categoryKeys),
-  isFeatured: z.boolean().default(false),
+  isFeatured: z.boolean(),
   publishedAt: z.date().nullable().optional(),
 });
 
