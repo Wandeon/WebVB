@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from '@repo/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
 import { type LucideIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -26,10 +26,10 @@ export function StatsCard({
   return (
     <Card className={cn('relative overflow-hidden', className)}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <p className="text-sm font-medium text-neutral-500">{title}</p>
+        <CardTitle className="text-sm font-medium text-neutral-500">{title}</CardTitle>
         {Icon && (
           <div className="rounded-lg bg-primary-100 p-2">
-            <Icon className="h-4 w-4 text-primary-600" />
+            <Icon className="h-4 w-4 text-primary-600" aria-hidden="true" focusable="false" />
           </div>
         )}
       </CardHeader>

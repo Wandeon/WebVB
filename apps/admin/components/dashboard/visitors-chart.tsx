@@ -21,7 +21,7 @@ export function VisitorsChart() {
         <CardDescription>Zadnjih 7 dana</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[300px]" role="img" aria-label="Posjetitelji u zadnjih 7 dana">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={mockVisitorData}>
               <defs>

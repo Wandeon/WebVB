@@ -9,7 +9,7 @@
 **Active Sprint:** 1.3 - Posts list + CRUD
 **Overall Progress:** 7/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Sprint 1.1 review in `docs/audits/SPRINT-1.1-REVIEW.md`
+**Latest Audit:** Sprint 1.2 review in `docs/audits/SPRINT-1.2-REVIEW.md`
 
 ---
 

@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- Audited Sprint 1.2 dashboard: added accessible chart labels, hid decorative icons from assistive tech, fixed Croatian diacritics, and added e2e coverage for chart labels.
 
 ## Sprint 1.2 - Dashboard Page (Completed)
 - StatsCard component with title, value, icon, and trend indicator
