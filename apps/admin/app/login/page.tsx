@@ -1,11 +1,10 @@
 'use client';
 
-import { Button } from '@repo/ui';
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from '@repo/ui';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { signIn } from '@/lib/auth-client';
-
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,107 +52,68 @@ export default function LoginPage() {
   };
 
   return (
-    <main style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      padding: '2rem',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '400px',
-        padding: '2rem',
-        border: '1px solid #e5e7eb',
-        borderRadius: '8px',
-      }}>
-        <h1 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-          Prijava u administraciju
-        </h1>
+    <main className="flex min-h-screen items-center justify-center bg-neutral-50 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle>Prijava u administraciju</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {error && (
+            <div className="rounded-md bg-red-50 p-3 text-sm text-error">
+              {error}
+            </div>
+          )}
 
-        {error && (
-          <div style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            backgroundColor: '#fee2e2',
-            color: '#991b1b',
-            borderRadius: '4px',
-          }}>
-            {error}
-          </div>
-        )}
+          <form onSubmit={(e) => void handleEmailLogin(e)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="ime@primjer.hr"
+              />
+            </div>
 
-        <form onSubmit={(e) => void handleEmailLogin(e)}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="email" style={{ display: 'block', marginBottom: '0.25rem' }}>
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '4px',
-              }}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Lozinka</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
+            </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label htmlFor="password" style={{ display: 'block', marginBottom: '0.25rem' }}>
-              Lozinka
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '4px',
-              }}
-            />
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Prijava...' : 'Prijavi se'}
+            </Button>
+          </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-neutral-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-2 text-neutral-500">ili</span>
+            </div>
           </div>
 
           <Button
-            type="submit"
-            variant="primary"
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => void handleGoogleLogin()}
             disabled={isLoading}
-            style={{ width: '100%', marginBottom: '1rem' }}
           >
-            {isLoading ? 'Prijava...' : 'Prijavi se'}
+            Prijavi se s Google računom
           </Button>
-        </form>
-
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          margin: '1rem 0',
-          gap: '0.5rem',
-        }}>
-          <hr style={{ flex: 1 }} />
-          <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>ili</span>
-          <hr style={{ flex: 1 }} />
-        </div>
-
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => void handleGoogleLogin()}
-          disabled={isLoading}
-          style={{ width: '100%' }}
-        >
-          Prijavi se s Google računom
-        </Button>
-      </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }

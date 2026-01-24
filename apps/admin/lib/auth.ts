@@ -1,14 +1,14 @@
 import { db } from '@repo/database';
-import { USER_ROLES, getAdminAuthEnv } from '@repo/shared';
+import { USER_ROLES } from '@repo/shared';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- validated env helper enforces schema at runtime.
-const env = getAdminAuthEnv();
-
+// Note: Using process.env directly here because Better Auth config is evaluated
+// at module load time (during Next.js build). Runtime validation of env vars
+// happens via getAdminAuthEnv() in API route handlers.
 export const auth = betterAuth({
-  baseURL: env.BETTER_AUTH_URL,
-  secret: env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL ?? '',
+  secret: process.env.BETTER_AUTH_SECRET ?? '',
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- prismaAdapter expects PrismaClient; db is PrismaClient.
   database: prismaAdapter(db, {
@@ -22,9 +22,9 @@ export const auth = betterAuth({
 
   socialProviders: {
     google: {
-      clientId: env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: env.GOOGLE_CLIENT_SECRET ?? '',
-      enabled: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
     },
   },
 

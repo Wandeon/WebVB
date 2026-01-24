@@ -6,6 +6,23 @@ All notable changes to this project will be documented in this file.
 - Added shared environment validation utilities with tests and public URL defaults.
 - Updated auth and database layers to use validated env helpers and shared role constants.
 
+## Sprint 0.4 - UI Foundation (Completed)
+- Tailwind CSS v4 configured with design tokens from DESIGN-SYSTEM.md
+- PostCSS configured in all packages
+- Inter and Plus Jakarta Sans fonts loaded via next/font
+- Button component with CVA variants (primary, secondary, outline, ghost, danger, link)
+- Input component with error state
+- Label component with required indicator
+- Card component with subcomponents (Header, Title, Description, Content, Footer)
+- cn() utility for className merging
+- Both apps updated to use Tailwind styling
+- Gate: Button with all variants renders correctly in both apps
+
+## PR #2 Audit Fixes (Completed)
+- Added AuditLog model to Prisma schema for tracking user actions
+- Replaced console.log with process.stdout.write in seed.ts
+- Documented constraint validation design choice in DATABASE.md (app-layer validation)
+
 ## Sprint 0.3 - Better Auth Setup (Completed)
 - Better Auth library installed and configured
 - Prisma adapter with PostgreSQL database

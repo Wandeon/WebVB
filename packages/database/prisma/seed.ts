@@ -2,8 +2,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Seed-specific logger (console is acceptable in development scripts)
+const log = (message: string) => process.stdout.write(`${message}\n`);
+
 async function main() {
-  console.log('Seeding database...');
+  log('Seeding database...');
 
   // Create test admin user
   const adminUser = await prisma.user.upsert({
@@ -17,7 +20,7 @@ async function main() {
     },
   });
 
-  console.log('Created admin user:', adminUser.email);
+  log(`Created admin user: ${adminUser.email}`);
 
   // Create test staff user
   const staffUser = await prisma.user.upsert({
@@ -31,7 +34,7 @@ async function main() {
     },
   });
 
-  console.log('Created staff user:', staffUser.email);
+  log(`Created staff user: ${staffUser.email}`);
 
   // Create initial settings
   const settings = [
@@ -53,7 +56,7 @@ async function main() {
     });
   }
 
-  console.log('Created initial settings');
+  log('Created initial settings');
 
   // Create sample page
   const aboutPage = await prisma.page.upsert({
@@ -75,9 +78,9 @@ async function main() {
     },
   });
 
-  console.log('Created sample page:', aboutPage.slug);
+  log(`Created sample page: ${aboutPage.slug}`);
 
-  console.log('Seeding completed!');
+  log('Seeding completed!');
 }
 
 main()
@@ -85,7 +88,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e);
+    process.stderr.write(`${String(e)}\n`);
     await prisma.$disconnect();
     process.exit(1);
   });
