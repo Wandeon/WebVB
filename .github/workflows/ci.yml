@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -39,6 +41,42 @@ jobs:
 
       - name: Generate Prisma client
         run: pnpm db:generate
+
+      - name: Check for TODO or FIXME in changed files
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep -E '\.(ts|tsx)$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No TypeScript files changed."
+            exit 0
+          fi
+          if echo "$CHANGED" | xargs -r grep -l "TODO\|FIXME" 2>/dev/null; then
+            echo "❌ Found TODO/FIXME comments in changed files"
+            exit 1
+          fi
+
+      - name: Check for console.log in changed files
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep -E '\.(ts|tsx)$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No TypeScript files changed."
+            exit 0
+          fi
+          if echo "$CHANGED" | xargs -r grep -l "console\\.log" 2>/dev/null; then
+            echo "❌ Found console.log in changed files"
+            exit 1
+          fi
+
+      - name: Check for any types in changed files
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep -E '\.(ts|tsx)$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No TypeScript files changed."
+            exit 0
+          fi
+          if echo "$CHANGED" | xargs -r grep -l ": any\\|as any" 2>/dev/null; then
+            echo "❌ Found 'any' type in changed files"
+            exit 1
+          fi
 
       - name: Run lint
         run: pnpm lint

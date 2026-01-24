@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Added shared environment validation utilities with tests and public URL defaults.
 - Updated auth and database layers to use validated env helpers and shared role constants.
 - Audited Sprint 0.4 UI foundation: aligned animation presets and localized UI demo text.
+- Audited Sprint 0.5 CI pipeline: added guardrails for TODO/FIXME, console.log, and `any` types.
 
 ## Sprint 0.5 - CI/CD Pipeline (Completed)
 - GitHub Actions workflow for lint, type-check, test on PRs

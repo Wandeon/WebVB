@@ -9,7 +9,7 @@
 **Active Sprint:** 0.6 - Integration Verification
 **Overall Progress:** 5/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Sprint 0.4 review in `docs/audits/SPRINT-0.4-REVIEW.md`
+**Latest Audit:** Sprint 0.5 review in `docs/audits/SPRINT-0.5-REVIEW.md`
 
 ---
 
