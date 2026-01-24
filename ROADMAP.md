@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**Active Sprint:** 1.1 - Admin Layout Shell
+**Active Sprint:** 1.2 - Dashboard page
 **Overall Progress:** 6/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Sprint 0.5 review in `docs/audits/SPRINT-0.5-REVIEW.md`
@@ -180,7 +180,7 @@ Gate: pnpm test:e2e (basic auth flow)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 1.1 ⬜ | Admin layout shell | No | Phase 0 | Sidebar + header render, mobile menu works |
+| 1.1 ✅ | Admin layout shell | No | Phase 0 | Sidebar + header render, mobile menu works |
 | 1.2 ⬜ | Dashboard page | 🔀 | 1.1 | Stats cards + charts display (mock data OK) |
 | 1.3 ⬜ | Posts list + CRUD | 🔀 | 1.1 | Create, read, update, delete posts works |
 | 1.4 ⬜ | TipTap editor | 🔗 | 1.3 | Rich text editing in post form |
