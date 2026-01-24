@@ -150,7 +150,7 @@ posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR NOT NULL,
   slug VARCHAR UNIQUE NOT NULL,
-  content TEXT NOT NULL,                  -- Rich text (TipTap JSON)
+  content TEXT NOT NULL,                  -- Rich text (TipTap HTML)
   excerpt TEXT,                           -- Short summary
   featured_image VARCHAR,                 -- R2 URL
   images JSONB,                           -- Additional images [{url, caption}]

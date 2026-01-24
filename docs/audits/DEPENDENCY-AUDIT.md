@@ -449,10 +449,10 @@ The architecture is well-designed with sensible choices, but has concentration r
 | **Lock-in level** | **MEDIUM** |
 
 **Risk factors:**
-- Content stored as TipTap JSON (proprietary format)
-- Can be converted to HTML for portability
+- Content stored as TipTap HTML output (portable)
+- No proprietary content format to migrate
 
-**Migration difficulty if needed:** MEDIUM (content format conversion needed)
+**Migration difficulty if needed:** LOW (HTML stored)
 **Alternatives:** Slate, Lexical (Meta), Quill, ProseMirror (TipTap's base)
 
 ---
@@ -787,7 +787,7 @@ Actions:
 **Priority: MEDIUM**
 
 Actions:
-- [ ] Implement TipTap JSON to HTML converter
+- [ ] Ensure content export returns stored HTML output
 - [ ] Create content export API (all posts, pages, documents metadata)
 - [ ] Test full site export quarterly
 

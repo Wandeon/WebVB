@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
 - Rich text editing in post form with toolbar (bold, italic, underline, links, headings, lists, blockquote)
 - HTML content validation that strips tags before checking for empty content
 
+### Fixed
+- Aligned post form validation with shared HTML-aware content rules.
+- Corrected documentation to reflect HTML storage for TipTap content.
+
 ## Sprint 1.3 - Posts List + CRUD (Completed)
 - UI Primitives: Table, Dialog, Select, Badge, Textarea, Toast, Toaster components
 - Zod validation schemas for posts with Croatian error messages
