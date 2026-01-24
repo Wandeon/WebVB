@@ -14,7 +14,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "type-check": "tsc --noEmit",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src/",
+    "lint": "eslint src/",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
