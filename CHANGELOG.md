@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 - Documented Sprint 1.5-1.6 audit review findings.
+
+## Sprint 1.12 - Admin Integration Tests (Completed)
+
+### Added
+- Shared login helper for E2E tests (`e2e/helpers/auth.ts`)
+- Database helpers for entity CRUD assertions (`e2e/helpers/db.ts`)
+- Posts E2E test (create, edit, delete flow with TipTap editor)
+- Pages E2E test (create, edit, delete flow)
+- Events E2E test (create, edit, delete flow with date picker)
+- Galleries E2E test (create, edit, delete flow)
+- Settings E2E test (profile update, sessions list)
+- Users E2E test (create, edit, deactivate flow)
+- Gate: All CRUD operations have end-to-end Playwright tests
 - Added deployment audit report and hardened deployment documentation.
 - Added admin deploy, backup, and restore scripts with R2 support.
 - Aligned backup script retention default with 90-day policy.
