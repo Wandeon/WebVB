@@ -2,11 +2,11 @@
 
 > AI-agent optimized roadmap with clear gates and parallel tracks.
 > Each sprint is independently completable with defined acceptance criteria.
-> Last updated: 2026-01-24
+> Last updated: 2026-01-25
 
 ## Current Status
 
-**Active Sprint:** 1.11 - User management
+**Active Sprint:** 2.1 - Public Layout + Nav
 **Overall Progress:** 21/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 4 deployment audit in `docs/audits/PHASE-4-DEPLOYMENT-AUDIT.md`
@@ -176,7 +176,7 @@ Gate: pnpm test:e2e (basic auth flow)
 ---
 
 ## Phase 1: Admin Core
-**Status:** In Progress | **Progress:** 10/12 | **Track:** A
+**Status:** In Progress | **Progress:** 11/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -190,10 +190,11 @@ Gate: pnpm test:e2e (basic auth flow)
 | 1.8 ✅ | Events calendar | 🔀 | 1.1 | CRUD events, calendar view |
 | 1.9 ✅ | Gallery management | 🔗 | 1.5 | Albums, bulk upload, reorder |
 | 1.10 ✅ | Settings page | 🔀 | 1.1 | Profile, password, 2FA, sessions |
-| 1.11 ⬜ | User management | 🔀 | 1.10 | CRUD users (admin only) |
+| 1.11 ✅ | User management | 🔀 | 1.10 | CRUD users (admin only) |
 | 1.12 ⬜ | Admin integration test | 🔗 | 1.1-1.11 | All CRUD operations work end-to-end |
 
 Recent updates:
+- Sprint 1.11 completed: User management with CRUD, role-based permissions, soft-delete deactivation, and login blocking for inactive users.
 - Sprint 1.10 completed: Settings page with profile, password change, 2FA setup, and sessions management.
 - Sprint 1.9 completed: Gallery management with bulk image upload, drag-drop reorder, R2 integration.
 - Sprint 1.7 audit fixes: corrected Croatian diacritics and zero-state pagination copy in pages admin UI.
@@ -246,6 +247,26 @@ Acceptance Criteria:
 Gate: Upload image, see thumbnail, delete it
 ```
 
+### Sprint 1.11: User Management
+```
+Acceptance Criteria:
+□ Users list page with DataTable
+□ Search + filter by role (admin/editor) + status (active/inactive)
+□ Pagination
+□ Create user form (email, name, password, role)
+□ Edit user (update profile, change role)
+□ Deactivate/activate user
+□ Delete user (confirmation modal, cannot delete self)
+□ Password reset trigger (sends reset email)
+□ API routes: GET/POST/PUT/DELETE /api/users
+□ Zod validation on client and server
+□ Only admin role can access user management
+□ Toast notifications on success/error
+□ Loading states
+
+Gate: Create user, assign role, user can login, edit user, deactivate user
+```
+
 **Phase 1 Deliverable:** Functional admin panel (no AI features)
 
 ---
@@ -266,7 +287,21 @@ Gate: Upload image, see thumbnail, delete it
 | 2.9 ⬜ | Contact + forms | 🔀 | 2.1 | Contact form, problem report |
 | 2.10 ⬜ | Search (basic) | 🔗 | 2.3-2.8 | Full-text search, results page |
 | 2.11 ⬜ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
-| 2.12 ⬜ | Static export verify | 🔗 | 2.1-2.11 | `next build && next export` works |
+
+### Sprint 2.1: Public Layout + Nav
+```
+Acceptance Criteria:
+□ Root layout with local font loading (Inter + Plus Jakarta Sans)
+□ Header component with logo and mobile-responsive navigation
+□ Mega-menu or dropdowns for deep hierarchy (as defined in FEATURES.md)
+□ Footer component with quick links, contacts, working hours
+□ Mobile drawer navigation (Hamburger menu)
+□ SEO basics in layout (metadata base template)
+□ Accessibility (skip-to-content, aria-labels)
+□ Active state styling for navigation items
+
+Gate: Mobile menu works, footer matches design, no layout shifts
+```
 
 ### Sprint 2.2: Homepage
 ```
@@ -281,6 +316,107 @@ Acceptance Criteria:
 □ Static generation (getStaticProps)
 
 Gate: Homepage loads with real data from DB, Lighthouse > 80
+```
+
+### Sprint 2.3: News Listing
+```
+Acceptance Criteria:
+□ /vijesti page content
+□ Featured post hero card
+□ Grid of standard post cards
+□ Category filter pills (Općinske aktualnosti, Sport, etc.)
+□ Pagination (12 items per page)
+□ Search/Filter persistence in URL
+□ Loading states / skeletons
+□ Empty state handling
+
+Gate: Can browse news, filter by category, and paginate
+```
+
+### Sprint 2.4: News Detail Page
+```
+Acceptance Criteria:
+□ /vijesti/[slug] page
+□ Hero image with date and category
+□ Typography-optimized article content breadth
+□ Social share buttons (Facebook, Copy Link)
+□ Related posts sidebar (3 items)
+□ Image gallery within content (lightbox support)
+□ Back to news link
+□ Metadata generation for SEO
+
+Gate: Open article, layout looks professional, OG tags correct
+```
+
+### Sprint 2.5: Documents Section
+```
+Acceptance Criteria:
+□ /dokumenti page
+□ Sidebar navigation for categories (Sjednice, Proračun, etc.)
+□ Year filter dropdown
+□ Document list items (icon + name + date + download button)
+□ Grouping by sub-categories where applicable
+□ Search within documents (client-side filter of current list)
+□ Mobile view: Accordion for categories
+
+Gate: Find "Proračun 2026", download PDF works
+```
+
+### Sprint 2.6: Events Calendar
+```
+Acceptance Criteria:
+□ /dogadanja page
+□ Calendar view (Month) and List view toggle
+□ Event cards with date badge (Day/Month)
+□ Event detail modal or page
+□ "Add to Calendar" button (Google/Outlook/ICS)
+□ Upcoming vs Past events tabs
+□ Location map integration (static map image or link)
+
+Gate: Switch months, click event, see details
+```
+
+### Sprint 2.7: Gallery Pages
+```
+Acceptance Criteria:
+□ /galerija page (Albums grid)
+□ Album cover with specific styling
+□ /galerija/[slug] page (Photos grid)
+□ Masonry or justified grid layout for photos
+□ Lightbox with prev/next navigation
+□ Touch swipe support for lightbox
+□ Lazy loading for images
+
+Gate: Open album, swipe through photos in lightbox
+```
+
+### Sprint 2.8: Static Pages
+```
+Acceptance Criteria:
+□ Dynamic route catch-all or specific pages for menu structure
+□ Sidebar navigation for current section (e.g., Organization)
+□ Hero section with title
+□ Rich text content rendering (prose)
+□ Embed support (maps, YouTube)
+□ "Last updated" date display
+□ Contact info box for specific departments if applicable
+
+Gate: Navigate "Općinska uprava" section, sidebar highlights correctly
+```
+
+### Sprint 2.9: Contact + Forms
+```
+Acceptance Criteria:
+□ /kontakt page with main contact info
+□ Map display (Leaflet or similar, no API key preferred if possible)
+□ Contact form (Name, Email, Message)
+□ Working hours display
+□ "Prijava problema" dedicated page/form with Photo upload
+□ Form validation (Zod)
+□ Success/Error states
+□ Rate limiting on submission
+
+Gate: Submit contact form, receive success message
 ```
 
 ### Sprint 2.10: Search (Basic)
@@ -314,6 +450,21 @@ Acceptance Criteria:
 
 Gate: Facebook debugger shows correct preview, Google Rich Results test passes
 ```
+
+### Sprint 2.12: Static Export Verify
+```
+Acceptance Criteria:
+□ `next build` produces optimized build
+□ `next export` (or output: export in next.config) creates /out folder
+□ All dynamic routes (news, galleries) are correctly generated
+□ Images are properly optimized (or using R2 loader workaround)
+□ 404.html is generated custom page
+□ No hydration errors on client-side navigation
+□ Performance score > 90 on all pages
+
+Gate: `pnpm build` succeeds and produces working static site
+```
+
 
 **Phase 2 Deliverable:** Complete public website (static export ready)
 
@@ -647,3 +798,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-24 | Sprint 3.3 completed: PostgreSQL 17 + pgvector 0.8.0, localhost only |
 | 2026-01-24 | Sprint 3.4 completed: Ollama 0.15.0 + nomic-embed-text (768-dim vectors) |
 | 2026-01-24 | Sprint 3.5 completed: R2 bucket velikibukovec-media created, CORS configured |
+| 2026-01-25 | Sprint 1.11 completed: User management with CRUD, soft-delete, role-based permissions |

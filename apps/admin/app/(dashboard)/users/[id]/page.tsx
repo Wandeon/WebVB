@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Card, CardContent, toast } from '@repo/ui';
-import { type UserRole } from '@repo/shared';
+import { USER_ROLES, type UserRole } from '@repo/shared';
 
 import { useSession } from '@/lib/auth-client';
 import { isAdmin } from '@/lib/permissions';
@@ -19,6 +19,13 @@ interface UserData {
   role: UserRole;
   active: boolean;
 }
+
+type SessionUser = {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+};
 
 export default function EditUserPage() {
   const params = useParams();
@@ -100,7 +107,10 @@ export default function EditUserPage() {
     }
   };
 
-  if (!session?.user || !isAdmin(session.user.role as string)) {
+  const sessionUser = session?.user as SessionUser | undefined;
+  const userRole = (sessionUser?.role ?? USER_ROLES.STAFF) as UserRole;
+
+  if (!sessionUser || !isAdmin(userRole)) {
     return null;
   }
 
@@ -122,7 +132,7 @@ export default function EditUserPage() {
     <div className="mx-auto max-w-2xl">
       <UserForm
         user={user}
-        actorRole={session.user.role as UserRole}
+        actorRole={userRole}
         onSubmit={handleSubmit}
         isLoading={isSaving}
       />

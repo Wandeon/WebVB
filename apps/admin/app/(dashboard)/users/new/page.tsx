@@ -4,13 +4,20 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { toast } from '@repo/ui';
-import { type UserRole } from '@repo/shared';
+import { USER_ROLES, type UserRole } from '@repo/shared';
 
 import { useSession } from '@/lib/auth-client';
 import { isAdmin } from '@/lib/permissions';
 import { type CreateUserInput } from '@/lib/validations/user';
 
 import { UserForm } from '@/components/users/user-form';
+
+type SessionUser = {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+};
 
 export default function NewUserPage() {
   const router = useRouter();
@@ -54,14 +61,17 @@ export default function NewUserPage() {
     }
   };
 
-  if (!session?.user || !isAdmin(session.user.role as string)) {
+  const user = session?.user as SessionUser | undefined;
+  const userRole = (user?.role ?? USER_ROLES.STAFF) as UserRole;
+
+  if (!user || !isAdmin(userRole)) {
     return null;
   }
 
   return (
     <div className="mx-auto max-w-2xl">
       <UserForm
-        actorRole={session.user.role as UserRole}
+        actorRole={userRole}
         onSubmit={handleSubmit}
         isLoading={isLoading}
       />

@@ -28,18 +28,28 @@ import {
   type UpdateUserInput,
 } from '@/lib/validations/user';
 
-interface UserFormProps {
-  user?: {
+interface BaseUserFormProps {
+  actorRole: UserRole;
+  isLoading?: boolean;
+}
+
+interface CreateUserFormProps extends BaseUserFormProps {
+  user?: undefined;
+  onSubmit: (data: CreateUserInput) => Promise<void>;
+}
+
+interface EditUserFormProps extends BaseUserFormProps {
+  user: {
     id: string;
     name: string;
     email: string;
     role: UserRole;
     active: boolean;
   };
-  actorRole: UserRole;
-  onSubmit: (data: CreateUserInput | UpdateUserInput) => Promise<void>;
-  isLoading?: boolean;
+  onSubmit: (data: UpdateUserInput) => Promise<void>;
 }
+
+type UserFormProps = CreateUserFormProps | EditUserFormProps;
 
 export function UserForm({
   user,
@@ -78,6 +88,11 @@ export function UserForm({
     assignableRoles.includes(option.value as UserRole)
   );
 
+  const handleFormSubmit = async (data: CreateUserInput | UpdateUserInput) => {
+    // Type assertion is safe here because the form validation ensures correct shape
+    await onSubmit(data as CreateUserInput & UpdateUserInput);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -90,7 +105,7 @@ export function UserForm({
       </CardHeader>
       <CardContent>
         <form
-          onSubmit={(e) => void handleSubmit(onSubmit)(e)}
+          onSubmit={(e) => void handleSubmit(handleFormSubmit)(e)}
           className="space-y-6"
         >
           <div className="space-y-2">
@@ -141,12 +156,12 @@ export function UserForm({
           <div className="space-y-2">
             <Label htmlFor="role">Uloga</Label>
             <Select
-              value={selectedRole}
+              value={selectedRole ?? ''}
               onValueChange={(value) =>
                 setValue('role', value as UserRole, { shouldValidate: true })
               }
             >
-              <SelectTrigger id="role" error={Boolean(errors.role)}>
+              <SelectTrigger id="role" className={errors.role ? 'border-error' : ''}>
                 <SelectValue placeholder="Odaberite ulogu" />
               </SelectTrigger>
               <SelectContent>

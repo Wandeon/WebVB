@@ -6,7 +6,7 @@ export const createUserSchema = z.object({
   email: z.string().email('Neispravan format email adrese'),
   password: z.string().min(8, 'Lozinka mora imati najmanje 8 znakova'),
   role: z.enum([USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.STAFF], {
-    errorMap: () => ({ message: 'Odaberite ulogu' }),
+    message: 'Odaberite ulogu',
   }),
 });
 
