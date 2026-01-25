@@ -18,4 +18,5 @@ export * from './components/article-hero';
 export * from './components/article-content';
 export * from './components/share-buttons';
 export * from './components/related-posts';
+export * from './components/document-card';
 export * from './lib/utils';
