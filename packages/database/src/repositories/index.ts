@@ -24,3 +24,11 @@ export {
   type CreatePageData,
   type UpdatePageData,
 } from './pages';
+
+export {
+  eventsRepository,
+  type FindAllEventsOptions,
+  type FindAllEventsResult,
+  type CreateEventData,
+  type UpdateEventData,
+} from './events';

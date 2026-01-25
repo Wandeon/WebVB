@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**Active Sprint:** 1.8 - Events calendar
+**Active Sprint:** 1.9 - Gallery management
 **Overall Progress:** 21/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 4 deployment audit in `docs/audits/PHASE-4-DEPLOYMENT-AUDIT.md`
@@ -176,7 +176,7 @@ Gate: pnpm test:e2e (basic auth flow)
 ---
 
 ## Phase 1: Admin Core
-**Status:** In Progress | **Progress:** 7/12 | **Track:** A
+**Status:** In Progress | **Progress:** 8/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -187,7 +187,7 @@ Gate: pnpm test:e2e (basic auth flow)
 | 1.5 ✅ | Image upload (R2) | 🔀 | 1.1 | Upload image, get R2 URL, display |
 | 1.6 ✅ | Documents management | 🔀 | 1.5 | Upload PDF, categorize, list, delete |
 | 1.7 ✅ | Static pages CRUD | 🔀 | 1.4 | Create/edit static pages with TipTap |
-| 1.8 ⬜ | Events calendar | 🔀 | 1.1 | CRUD events, calendar view |
+| 1.8 ✅ | Events calendar | 🔀 | 1.1 | CRUD events, calendar view |
 | 1.9 ⬜ | Gallery management | 🔗 | 1.5 | Albums, bulk upload, reorder |
 | 1.10 ⬜ | Settings page | 🔀 | 1.1 | Profile, password, 2FA, sessions |
 | 1.11 ⬜ | User management | 🔀 | 1.10 | CRUD users (admin only) |

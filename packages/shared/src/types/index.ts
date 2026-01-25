@@ -73,3 +73,5 @@ export interface DocumentWithUploader extends Document {
 }
 
 export type { Page, PageWithChildren } from './page';
+
+export type { Event } from './event';

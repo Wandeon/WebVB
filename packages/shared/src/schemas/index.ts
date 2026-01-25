@@ -17,3 +17,13 @@ export {
   type UpdatePageInput,
   type PageQueryInput,
 } from './page';
+
+export {
+  eventSchema,
+  createEventSchema,
+  updateEventSchema,
+  eventQuerySchema,
+  type CreateEventInput,
+  type UpdateEventInput,
+  type EventQueryInput,
+} from './event';
