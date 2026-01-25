@@ -1,6 +1,5 @@
-import { z } from 'zod';
-
 import { USER_ROLES } from '@repo/shared';
+import { z } from 'zod';
 
 export const createUserSchema = z.object({
   name: z.string().min(2, 'Ime mora imati najmanje 2 znaka'),
