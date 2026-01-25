@@ -10,6 +10,20 @@ All notable changes to this project will be documented in this file.
 - Added optional deployment workflows for VPS and Cloudflare Pages rebuilds.
 - Expanded environment template to cover Cloudflare, SiteGround, and Sentry client vars.
 
+## Sprint 1.8 - Events Calendar (Completed)
+
+### Added
+- Events repository in @repo/database with date filtering and upcoming filter
+- Event types and Zod schemas in @repo/shared
+- Events API routes (GET, POST, PUT, DELETE) with R2 poster cleanup
+- Events list page with DataTable and date range filters
+- EventForm component with TipTap editor and poster upload
+- PosterUpload component for drag-drop image uploads
+- Create/edit event routes with Breadcrumbs
+- Events link in admin sidebar navigation (CalendarDays icon)
+- API route tests for events endpoints
+- Gate: Create event with poster, filter by date, edit, delete (poster cleaned from R2)
+
 ## Sprint 1.7 - Static Pages CRUD (Completed)
 
 ### Added
