@@ -27,3 +27,17 @@ export {
   type UpdateEventInput,
   type EventQueryInput,
 } from './event';
+
+export {
+  gallerySchema,
+  createGallerySchema,
+  updateGallerySchema,
+  galleryQuerySchema,
+  reorderImagesSchema,
+  addGalleryImagesSchema,
+  type CreateGalleryInput,
+  type UpdateGalleryInput,
+  type GalleryQueryInput,
+  type ReorderImagesInput,
+  type AddGalleryImagesInput,
+} from './gallery';
