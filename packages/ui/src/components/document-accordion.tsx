@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 
+import { cn } from '../lib/utils';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '../primitives/accordion';
-import { cn } from '../lib/utils';
 
 export interface DocumentAccordionProps {
   categories: { value: string; label: string }[];

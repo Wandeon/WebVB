@@ -1,6 +1,3 @@
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-
 import { documentsRepository } from '@repo/database';
 import { DOCUMENT_CATEGORY_OPTIONS } from '@repo/shared';
 import {
@@ -8,6 +5,8 @@ import {
   DocumentSidebar,
   FadeIn,
 } from '@repo/ui';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 import { DocumentsClient } from './documents-client';
 
@@ -121,7 +120,6 @@ export default async function DocumentsPage({
               documents={documents}
               years={years}
               pagination={pagination}
-              category={category}
             />
           </div>
         </div>

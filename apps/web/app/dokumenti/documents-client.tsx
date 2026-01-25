@@ -1,8 +1,5 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
-import type { DocumentWithUploader } from '@repo/database';
 import {
   DocumentCard,
   DocumentSearch,
@@ -10,6 +7,9 @@ import {
   Pagination,
   YearFilter,
 } from '@repo/ui';
+import { useMemo, useState } from 'react';
+
+import type { DocumentWithUploader } from '@repo/database';
 
 interface DocumentsClientProps {
   documents: DocumentWithUploader[];
@@ -20,14 +20,12 @@ interface DocumentsClientProps {
     total: number;
     totalPages: number;
   };
-  category: string | undefined;
 }
 
 export function DocumentsClient({
   documents,
   years,
   pagination,
-  category,
 }: DocumentsClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -38,13 +36,6 @@ export function DocumentsClient({
       doc.title.toLowerCase().includes(query)
     );
   }, [documents, searchQuery]);
-
-  const buildPageUrl = (page: number) => {
-    const params = new URLSearchParams();
-    if (category) params.set('kategorija', category);
-    params.set('stranica', page.toString());
-    return `/dokumenti?${params.toString()}`;
-  };
 
   return (
     <>
@@ -93,7 +84,7 @@ export function DocumentsClient({
           <Pagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
-            buildPageUrl={buildPageUrl}
+            baseUrl="/dokumenti"
           />
         </div>
       )}

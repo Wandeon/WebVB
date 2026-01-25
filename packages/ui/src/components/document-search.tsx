@@ -3,9 +3,9 @@
 import { Search, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
-import { Input } from '../primitives/input';
-import { Button } from '../primitives/button';
 import { cn } from '../lib/utils';
+import { Button } from '../primitives/button';
+import { Input } from '../primitives/input';
 
 export interface DocumentSearchProps {
   onSearch: (query: string) => void;
