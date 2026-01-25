@@ -34,6 +34,24 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const { imageIds } = validationResult.data;
 
+    const uniqueIds = new Set(imageIds);
+
+    if (uniqueIds.size !== imageIds.length) {
+      return apiError(
+        ErrorCodes.VALIDATION_ERROR,
+        'Redoslijed sadrži duplicirane slike',
+        400
+      );
+    }
+
+    if (imageIds.length !== gallery.images.length) {
+      return apiError(
+        ErrorCodes.VALIDATION_ERROR,
+        'Redoslijed mora sadržavati sve slike galerije',
+        400
+      );
+    }
+
     // Validate all image IDs belong to this gallery
     const galleryImageIds = new Set(gallery.images.map((img) => img.id));
     const invalidIds = imageIds.filter((imgId) => !galleryImageIds.has(imgId));

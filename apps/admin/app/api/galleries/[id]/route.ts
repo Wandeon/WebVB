@@ -140,22 +140,36 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     // Delete from DB first (cascades to images)
     const deletedGallery = await galleriesRepository.delete(id);
 
+    const deletedKeys = new Set<string>();
+    const deleteR2Key = async (
+      r2Key: string,
+      meta: Record<string, unknown>,
+      successMessage: string,
+      errorMessage: string
+    ) => {
+      if (deletedKeys.has(r2Key)) {
+        return;
+      }
+      deletedKeys.add(r2Key);
+
+      try {
+        await deleteFromR2(r2Key);
+        galleriesLogger.info({ ...meta, r2Key }, successMessage);
+      } catch (r2Error) {
+        galleriesLogger.error({ ...meta, r2Key, error: r2Error }, errorMessage);
+      }
+    };
+
     // Best-effort R2 deletion for cover image
     if (existingGallery.coverImage) {
       const r2Key = getR2KeyFromUrl(existingGallery.coverImage);
       if (r2Key) {
-        try {
-          await deleteFromR2(r2Key);
-          galleriesLogger.info(
-            { galleryId: id, r2Key },
-            'Naslovna slika obrisana iz R2'
-          );
-        } catch (r2Error) {
-          galleriesLogger.error(
-            { galleryId: id, r2Key, error: r2Error },
-            'Nije uspjelo brisanje naslovne slike iz R2 (DB zapis već obrisan)'
-          );
-        }
+        await deleteR2Key(
+          r2Key,
+          { galleryId: id },
+          'Naslovna slika obrisana iz R2',
+          'Nije uspjelo brisanje naslovne slike iz R2 (DB zapis već obrisan)'
+        );
       }
     }
 
@@ -164,36 +178,24 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       // Delete main image
       const imageR2Key = getR2KeyFromUrl(image.imageUrl);
       if (imageR2Key) {
-        try {
-          await deleteFromR2(imageR2Key);
-          galleriesLogger.info(
-            { galleryId: id, imageId: image.id, r2Key: imageR2Key },
-            'Slika galerije obrisana iz R2'
-          );
-        } catch (r2Error) {
-          galleriesLogger.error(
-            { galleryId: id, imageId: image.id, r2Key: imageR2Key, error: r2Error },
-            'Nije uspjelo brisanje slike galerije iz R2'
-          );
-        }
+        await deleteR2Key(
+          imageR2Key,
+          { galleryId: id, imageId: image.id },
+          'Slika galerije obrisana iz R2',
+          'Nije uspjelo brisanje slike galerije iz R2'
+        );
       }
 
       // Delete thumbnail if exists
       if (image.thumbnailUrl) {
         const thumbnailR2Key = getR2KeyFromUrl(image.thumbnailUrl);
         if (thumbnailR2Key) {
-          try {
-            await deleteFromR2(thumbnailR2Key);
-            galleriesLogger.info(
-              { galleryId: id, imageId: image.id, r2Key: thumbnailR2Key },
-              'Sličica galerije obrisana iz R2'
-            );
-          } catch (r2Error) {
-            galleriesLogger.error(
-              { galleryId: id, imageId: image.id, r2Key: thumbnailR2Key, error: r2Error },
-              'Nije uspjelo brisanje sličice galerije iz R2'
-            );
-          }
+          await deleteR2Key(
+            thumbnailR2Key,
+            { galleryId: id, imageId: image.id },
+            'Sličica galerije obrisana iz R2',
+            'Nije uspjelo brisanje sličice galerije iz R2'
+          );
         }
       }
     }

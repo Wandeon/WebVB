@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 - Fixed Croatian diacritics and zero-state pagination messaging in pages admin UI.
 - Fixed events list API response to return events payload consistently and aligned client expectations.
 - Ensured event poster cleanup removes all R2 image variants when posters are replaced or events deleted.
+- Tightened gallery reorder validation and added test coverage for reorder endpoint.
+- Prevented duplicate R2 deletions when removing galleries with shared cover images.
 
 ## Sprint 1.10 - Settings Page (Completed)
 
