@@ -32,3 +32,14 @@ export {
   type CreateEventData,
   type UpdateEventData,
 } from './events';
+
+export {
+  galleriesRepository,
+  type GalleryWithImages,
+  type GalleryWithCount,
+  type FindAllGalleriesOptions,
+  type FindAllGalleriesResult,
+  type CreateGalleryData,
+  type UpdateGalleryData,
+  type AddImageData,
+} from './galleries';
