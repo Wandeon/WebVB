@@ -1,4 +1,9 @@
-import { eventsRepository, postsRepository } from '@repo/database';
+import {
+  eventsRepository,
+  postsRepository,
+  type Event,
+  type PostWithAuthor,
+} from '@repo/database';
 import {
   EventCard,
   FadeIn,
@@ -68,7 +73,7 @@ export default async function HomePage() {
           </FadeIn>
           {latestPosts.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {latestPosts.map((post, index) => (
+              {latestPosts.map((post: PostWithAuthor, index: number) => (
                 <FadeIn key={post.id} delay={index * 0.1}>
                   <PostCard
                     title={post.title}
@@ -106,7 +111,7 @@ export default async function HomePage() {
               </FadeIn>
               {upcomingEvents.length > 0 ? (
                 <div className="space-y-4">
-                  {upcomingEvents.map((event, index) => (
+                  {upcomingEvents.map((event: Event, index: number) => (
                     <FadeIn key={event.id} delay={index * 0.1} direction="left">
                       <EventCard
                         id={event.id}

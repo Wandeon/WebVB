@@ -51,7 +51,7 @@ export function NewsletterSignup({ onSubmit, className }: NewsletterSignupProps)
       {status === 'success' ? (
         <p className="mt-4 text-sm font-medium text-green-600">{message}</p>
       ) : (
-        <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
+        <form onSubmit={(e) => void handleSubmit(e)} className="mt-4 flex gap-2">
           <Input
             type="email"
             placeholder="Vaša email adresa"

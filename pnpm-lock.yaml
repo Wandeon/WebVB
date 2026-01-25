@@ -141,12 +141,18 @@ importers:
 
   apps/web:
     dependencies:
+      '@repo/database':
+        specifier: workspace:^
+        version: link:../../packages/database
       '@repo/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      lucide-react:
+        specifier: ^0.563.0
+        version: 0.563.0(react@19.2.3)
       next:
         specifier: ^16.1.4
         version: 16.1.4(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
