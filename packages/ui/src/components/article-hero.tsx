@@ -34,7 +34,7 @@ export function ArticleHero({
       {featuredImage && (
         <img
           src={featuredImage}
-          alt=""
+          alt={`Fotografija uz vijest: ${title}`}
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}
@@ -43,7 +43,9 @@ export function ArticleHero({
         <div className="container mx-auto">
           <div className="mb-4 flex items-center gap-3">
             <Badge variant="secondary">{categoryLabel}</Badge>
-            <span className="text-sm text-white/80">{formattedDate}</span>
+            <time className="text-sm text-white/80" dateTime={publishedAt.toISOString()}>
+              {formattedDate}
+            </time>
           </div>
           <h1 className="font-display text-3xl font-bold text-white md:text-4xl lg:text-5xl">
             {title}
