@@ -72,15 +72,15 @@ export async function deleteEventByTitle(title: string) {
 }
 
 // Galleries
-export async function getGalleryByTitle(title: string) {
+export async function getGalleryByName(name: string) {
   return prisma.gallery.findFirst({
-    where: { title },
+    where: { name },
   });
 }
 
-export async function deleteGalleryByTitle(title: string) {
+export async function deleteGalleryByName(name: string) {
   return prisma.gallery.deleteMany({
-    where: { title },
+    where: { name },
   });
 }
 
