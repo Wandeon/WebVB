@@ -2,7 +2,7 @@ import { eventsRepository } from '@repo/database';
 
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { eventsLogger } from '@/lib/logger';
-import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
+import { deleteImageVariantsFromUrl } from '@/lib/r2';
 import { updateEventSchema } from '@/lib/validations/event';
 
 import type { NextRequest } from 'next/server';
@@ -92,20 +92,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (posterImage !== undefined) {
       // Clean up old poster from R2 if being replaced
       if (existingEvent.posterImage && existingEvent.posterImage !== posterImage) {
-        const oldR2Key = getR2KeyFromUrl(existingEvent.posterImage);
-        if (oldR2Key) {
-          try {
-            await deleteFromR2(oldR2Key);
-            eventsLogger.info(
-              { eventId: id, r2Key: oldR2Key },
-              'Stara slika plakata obrisana iz R2'
-            );
-          } catch (r2Error) {
-            eventsLogger.error(
-              { eventId: id, r2Key: oldR2Key, error: r2Error },
-              'Nije uspjelo brisanje stare slike plakata iz R2'
-            );
-          }
+        try {
+          await deleteImageVariantsFromUrl(existingEvent.posterImage);
+          eventsLogger.info(
+            { eventId: id },
+            'Stara slika plakata obrisana iz R2'
+          );
+        } catch (r2Error) {
+          eventsLogger.error(
+            { eventId: id, error: r2Error },
+            'Nije uspjelo brisanje stare slike plakata iz R2'
+          );
         }
       }
       updateData.posterImage = posterImage;
@@ -146,20 +143,17 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     // Best-effort R2 deletion for poster image (log errors but don't fail)
     if (existingEvent.posterImage) {
-      const r2Key = getR2KeyFromUrl(existingEvent.posterImage);
-      if (r2Key) {
-        try {
-          await deleteFromR2(r2Key);
-          eventsLogger.info(
-            { eventId: id, r2Key },
-            'Slika plakata obrisana iz R2'
-          );
-        } catch (r2Error) {
-          eventsLogger.error(
-            { eventId: id, r2Key, error: r2Error },
-            'Nije uspjelo brisanje slike plakata iz R2 (DB zapis već obrisan)'
-          );
-        }
+      try {
+        await deleteImageVariantsFromUrl(existingEvent.posterImage);
+        eventsLogger.info(
+          { eventId: id },
+          'Slika plakata obrisana iz R2'
+        );
+      } catch (r2Error) {
+        eventsLogger.error(
+          { eventId: id, error: r2Error },
+          'Nije uspjelo brisanje slike plakata iz R2 (DB zapis već obrisan)'
+        );
       }
     }
 

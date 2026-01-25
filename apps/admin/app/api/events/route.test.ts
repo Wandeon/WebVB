@@ -31,7 +31,7 @@ interface CleanedQueryData {
 interface ApiResponse {
   success: boolean;
   data?: {
-    data?: Array<{
+    events?: Array<{
       id: string;
       title: string;
       eventDate: Date;
@@ -146,7 +146,7 @@ describe('Events API', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data?.data).toHaveLength(1);
+      expect(data.data?.events).toHaveLength(1);
     });
 
     it('filters by date range', async () => {
