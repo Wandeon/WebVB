@@ -152,4 +152,57 @@ export const eventsRepository = {
       take: limit,
     });
   },
+
+  /**
+   * Get events for a specific month (for calendar display)
+   */
+  async getEventsByMonth(year: number, month: number): Promise<Event[]> {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+    return db.event.findMany({
+      where: {
+        eventDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: { eventDate: 'asc' },
+    });
+  },
+
+  /**
+   * Get past events with pagination
+   */
+  async getPastEvents(
+    options: { page?: number; limit?: number } = {}
+  ): Promise<FindAllEventsResult> {
+    const { page = 1, limit = 20 } = options;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const where: Prisma.EventWhereInput = {
+      eventDate: { lt: today },
+    };
+
+    const [total, events] = await Promise.all([
+      db.event.count({ where }),
+      db.event.findMany({
+        where,
+        orderBy: { eventDate: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+
+    return {
+      events,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  },
 };

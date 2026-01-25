@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.6 - Events Calendar (Completed)
+
+### Added
+- Public events page at `/dogadanja` with FullCalendar month view
+- Event detail page at `/dogadanja/[id]` with poster hero and "Add to Calendar"
+- EventCalendar component with FullCalendar integration (dayGrid, Croatian locale)
+- EventTabs component for switching between upcoming and past events
+- AddToCalendar component with Google Calendar link and ICS file download
+- EventHero component for event poster display
+- getEventsByMonth and getPastEvents repository methods
+- Tabs persist in URL (?tab=upcoming/past)
+- Calendar displays first word of event title in cells
+- Event click navigates to detail page with Next.js router
+- ISR with 60-second revalidation
+- Gate: Browse events, switch tabs, click calendar event, see details, add to calendar
+
 ## Sprint 2.5 - Documents Section (Completed)
 
 ### Added
