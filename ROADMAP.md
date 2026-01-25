@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 2.7 - Gallery Pages
-**Overall Progress:** 27/71 sprints
+**Active Sprint:** 2.8 - Static Pages
+**Overall Progress:** 28/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 
@@ -277,7 +277,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 ---
 
 ## Phase 2: Public Website
-**Status:** In Progress | **Progress:** 6/12 | **Track:** A
+**Status:** In Progress | **Progress:** 7/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -287,7 +287,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.4 ✅ | News detail page | 🔗 | 2.3 | Single post, related posts |
 | 2.5 ✅ | Documents section | 🔀 | 2.1 | List, filter by category/year |
 | 2.6 ✅ | Events calendar | 🔀 | 2.1 | Monthly view, event details |
-| 2.7 ⬜ | Gallery pages | 🔀 | 2.1 | Albums, lightbox |
+| 2.7 ✅ | Gallery pages | 🔀 | 2.1 | Albums, lightbox |
 | 2.8 ⬜ | Static pages | 🔀 | 2.1 | All pages from menu structure |
 | 2.9 ⬜ | Contact + forms | 🔀 | 2.1 | Contact form, problem report |
 | 2.10 ⬜ | Search (basic) | 🔗 | 2.3-2.8 | Full-text search, results page |
@@ -818,3 +818,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-25 | Sprint 2.5 completed: Documents section with sidebar navigation, accordion mobile, year filter, search |
 | 2026-01-25 | Sprint 2.5 audit fixes: year-filtered category counts, safe download URLs, filter-preserving category links |
 | 2026-01-25 | Sprint 2.6 completed: Events calendar with FullCalendar, event detail page, Add to Calendar (Google + ICS) |
+| 2026-01-25 | Sprint 2.7 completed: Gallery pages with album grid, photo grid, yet-another-react-lightbox |

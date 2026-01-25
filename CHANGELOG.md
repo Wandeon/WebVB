@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.7 - Gallery Pages (Completed)
+
+### Added
+- Public gallery listing page at `/galerija` with album grid
+- Gallery detail page at `/galerija/[slug]` with photo grid
+- GalleryCard component for album display with cover image and photo count
+- PhotoGrid component with yet-another-react-lightbox integration
+- Lightbox with swipe gestures, keyboard navigation, and touch support
+- findPublished repository method for public galleries
+- ISR with 60-second revalidation
+- Gate: Browse galleries, open album, click photo to open lightbox, swipe through photos
+
 ## Sprint 2.6 - Events Calendar (Completed)
 
 ### Added
