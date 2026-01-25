@@ -20,3 +20,4 @@ export const pagesLogger = logger.child({ module: 'pages' });
 export const authLogger = logger.child({ module: 'auth' });
 export const documentsLogger = logger.child({ module: 'documents' });
 export const eventsLogger = logger.child({ module: 'events' });
+export const galleriesLogger = logger.child({ module: 'galleries' });
