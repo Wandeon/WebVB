@@ -4,6 +4,8 @@ import { Menu } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
+
+import { cn } from '../lib/utils';
 import { Button } from '../primitives/button';
 import {
     Sheet,
@@ -12,15 +14,9 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '../primitives/sheet';
-import { cn } from '../lib/utils';
+
 import type { NavItem } from './nav-menu';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '../primitives/dropdown-menu';
-import { ChevronDown } from 'lucide-react';
+
 
 
 interface MobileDrawerProps {
