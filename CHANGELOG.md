@@ -8,6 +8,20 @@ All notable changes to this project will be documented in this file.
 - Improved public navigation accessibility with aria-current states, focus-visible styles, and canonical metadata.
 - Enforced server-side admin API authorization with audit logging for all core CRUD actions.
 
+## Sprint 2.3 - News Listing (Completed)
+
+### Added
+- News listing page at `/vijesti` with posts grid
+- CategoryFilter component with URL state persistence (`?kategorija=...`)
+- Pagination component with ellipsis for many pages (`?stranica=...`)
+- PostCardSkeleton component for loading states
+- findPublished repository method for public posts listing
+- Featured post hero display on first page without filters
+- Category filtering via URL searchParams
+- Empty state handling with Croatian messages
+- SEO metadata for news listing page
+- Gate: Browse news, filter by category, paginate through results
+
 ## Sprint 2.2 - Homepage (Completed)
 
 ### Added
