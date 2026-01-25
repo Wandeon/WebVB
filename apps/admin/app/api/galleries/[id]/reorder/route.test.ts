@@ -1,6 +1,8 @@
 // apps/admin/app/api/galleries/[id]/reorder/route.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { requireAuth } from '@/lib/api-auth';
+
 import { PUT } from './route';
 
 // Mock repository
@@ -19,10 +21,19 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
+vi.mock('@/lib/api-auth', () => ({
+  requireAuth: vi.fn(),
+}));
+
+vi.mock('@/lib/audit-log', () => ({
+  createAuditLog: vi.fn(),
+}));
+
 // eslint-disable-next-line import/order -- Must be after vi.mock calls
 import { galleriesRepository } from '@repo/database';
 
 const mockedGalleriesRepository = vi.mocked(galleriesRepository);
+const mockedRequireAuth = vi.mocked(requireAuth);
 
 const galleryId = '11111111-1111-4111-8111-111111111111';
 const imageIds = [
@@ -61,6 +72,13 @@ function createMockGallery(images: ReturnType<typeof createMockImage>[]) {
 describe('Galleries reorder API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRequireAuth.mockResolvedValue({
+      context: {
+        session: { user: { id: 'user-1', role: 'admin' } },
+        role: 'admin',
+        userId: 'user-1',
+      },
+    });
   });
 
   afterEach(() => {

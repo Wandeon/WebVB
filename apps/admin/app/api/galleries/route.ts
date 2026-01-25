@@ -1,6 +1,9 @@
 import { galleriesRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
 import { generateSlug } from '@/lib/utils/slug';
 import { createGallerySchema, galleryQuerySchema } from '@/lib/validations/gallery';
@@ -10,6 +13,12 @@ import type { NextRequest } from 'next/server';
 // GET /api/galleries - List galleries with filtering, pagination, sorting
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url);
 
     const queryResult = galleryQuerySchema.safeParse({
@@ -55,6 +64,12 @@ export async function GET(request: NextRequest) {
 // POST /api/galleries - Create new gallery
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = createGallerySchema.safeParse(body);
@@ -83,6 +98,17 @@ export async function POST(request: NextRequest) {
       description,
       eventDate: eventDate ? new Date(eventDate) : null,
       coverImage,
+    });
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.GALLERY,
+      entityId: gallery.id,
+      changes: {
+        after: gallery,
+      },
     });
 
     galleriesLogger.info(

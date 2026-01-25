@@ -1,6 +1,8 @@
 // apps/admin/app/api/pages/route.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { requireAuth } from '@/lib/api-auth';
+
 import { GET, POST } from './route';
 
 import type * as PageValidationModule from '@/lib/validations/page';
@@ -56,6 +58,14 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
+vi.mock('@/lib/api-auth', () => ({
+  requireAuth: vi.fn(),
+}));
+
+vi.mock('@/lib/audit-log', () => ({
+  createAuditLog: vi.fn(),
+}));
+
 // Mock the validations to handle null values from searchParams.get()
 vi.mock('@/lib/validations/page', async () => {
   const actual = await vi.importActual<typeof PageValidationModule>('@/lib/validations/page');
@@ -93,10 +103,18 @@ vi.mock('@/lib/validations/page', async () => {
 import { pagesRepository } from '@repo/database';
 
 const mockedPagesRepository = vi.mocked(pagesRepository);
+const mockedRequireAuth = vi.mocked(requireAuth);
 
 describe('Pages API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRequireAuth.mockResolvedValue({
+      context: {
+        session: { user: { id: 'user-1', role: 'admin' } },
+        role: 'admin',
+        userId: 'user-1',
+      },
+    });
   });
 
   afterEach(() => {

@@ -1,6 +1,9 @@
 import { eventsRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { eventsLogger } from '@/lib/logger';
 import { deleteImageVariantsFromUrl } from '@/lib/r2';
 import { updateEventSchema } from '@/lib/validations/event';
@@ -12,9 +15,14 @@ interface RouteParams {
 }
 
 // GET /api/events/[id] - Get single event
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const event = await eventsRepository.findById(id);
 
@@ -37,6 +45,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = updateEventSchema.safeParse({
@@ -110,6 +124,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const event = await eventsRepository.update(id, updateData);
 
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.EVENT,
+      entityId: event.id,
+      changes: {
+        before: existingEvent,
+        after: event,
+      },
+    });
+
     eventsLogger.info({ eventId: id }, 'Događaj uspješno ažuriran');
 
     return apiSuccess(event);
@@ -124,9 +150,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/events/[id] - Delete event
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const existingEvent = await eventsRepository.findById(id);
 
@@ -140,6 +171,17 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     // Delete from DB first
     const deletedEvent = await eventsRepository.delete(id);
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.EVENT,
+      entityId: deletedEvent.id,
+      changes: {
+        before: existingEvent,
+      },
+    });
 
     // Best-effort R2 deletion for poster image (log errors but don't fail)
     if (existingEvent.posterImage) {

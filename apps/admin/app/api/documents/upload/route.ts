@@ -1,8 +1,15 @@
 import { randomUUID } from 'crypto';
 
-import { DOCUMENT_MAX_SIZE_BYTES, DOCUMENT_MAX_SIZE_MB } from '@repo/shared';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  DOCUMENT_MAX_SIZE_BYTES,
+  DOCUMENT_MAX_SIZE_MB,
+} from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
 import { uploadToR2 } from '@/lib/r2';
 
@@ -15,6 +22,12 @@ function isPdfFile(buffer: Buffer): boolean {
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
@@ -65,6 +78,21 @@ export async function POST(request: Request) {
     const key = `documents/${id}.pdf`;
 
     const fileUrl = await uploadToR2(key, buffer, 'application/pdf');
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.DOCUMENT,
+      entityId: id,
+      changes: {
+        after: {
+          id,
+          fileUrl,
+          fileSize: file.size,
+        },
+      },
+    });
 
     documentsLogger.info({ documentId: id, size: file.size }, 'Document uploaded successfully');
 

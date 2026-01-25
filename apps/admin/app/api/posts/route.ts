@@ -1,6 +1,9 @@
 import { postsRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { postsLogger } from '@/lib/logger';
 import { generateSlug } from '@/lib/utils/slug';
 import { createPostSchema, postQuerySchema } from '@/lib/validations/post';
@@ -10,6 +13,12 @@ import type { NextRequest } from 'next/server';
 // GET /api/posts - List posts with filtering, pagination, sorting
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url);
 
     // Parse and validate query params
@@ -58,6 +67,12 @@ export async function GET(request: NextRequest) {
 // POST /api/posts - Create new post
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     // Validate request body
@@ -100,6 +115,18 @@ export async function POST(request: NextRequest) {
       isFeatured,
       publishedAt: publishedAt ?? null,
       featuredImage: featuredImage ?? null,
+      authorId: authResult.context.userId,
+    });
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.POST,
+      entityId: post.id,
+      changes: {
+        after: post,
+      },
     });
 
     postsLogger.info({ postId: post.id, slug }, 'Objava uspješno stvorena');

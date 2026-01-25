@@ -1,14 +1,14 @@
 import { usersRepository } from '@repo/database';
-import { USER_ROLES } from '@repo/shared';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
-import { auth } from '@/lib/auth';
-import { canAssignRole, canManageUser, isAdmin } from '@/lib/permissions';
+import { createAuditLog } from '@/lib/audit-log';
+import { usersLogger } from '@/lib/logger';
+import { canAssignRole, canManageUser, normalizeRole } from '@/lib/permissions';
 import { updateUserSchema } from '@/lib/validations/user';
 
 import type { NextRequest } from 'next/server';
-
-type Role = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -19,22 +19,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    // Check authentication
-    const session = await auth.api.getSession({ headers: request.headers });
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
-    if (!session?.user) {
-      return apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401);
-    }
-
-    const userRole = (session.user.role ?? USER_ROLES.STAFF) as Role;
-
-    // Check authorization - must be admin or super_admin
-    if (!isAdmin(userRole)) {
-      return apiError(
-        ErrorCodes.FORBIDDEN,
-        'Nemate ovlasti za pristup korisnicima',
-        403
-      );
+    if ('response' in authResult) {
+      return authResult.response;
     }
 
     const user = await usersRepository.findById(id);
@@ -45,7 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return apiSuccess(user);
   } catch (error) {
-    console.error('Error fetching user:', error);
+    usersLogger.error({ error }, 'Greška prilikom dohvaćanja korisnika');
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Greška prilikom dohvaćanja korisnika',
@@ -59,23 +47,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    // Check authentication
-    const session = await auth.api.getSession({ headers: request.headers });
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
-    if (!session?.user) {
-      return apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401);
+    if ('response' in authResult) {
+      return authResult.response;
     }
 
-    const userRole = (session.user.role ?? USER_ROLES.STAFF) as Role;
-
-    // Check authorization - must be admin or super_admin
-    if (!isAdmin(userRole)) {
-      return apiError(
-        ErrorCodes.FORBIDDEN,
-        'Nemate ovlasti za uređivanje korisnika',
-        403
-      );
-    }
+    const userRole = authResult.context.role;
 
     const existingUser = await usersRepository.findById(id);
 
@@ -84,7 +62,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if actor can manage this user
-    if (!canManageUser(userRole, existingUser.role as Role)) {
+    const existingUserRole = normalizeRole(existingUser.role);
+
+    if (!canManageUser(userRole, existingUserRole)) {
       return apiError(
         ErrorCodes.FORBIDDEN,
         'Nemate ovlasti za uređivanje ovog korisnika',
@@ -136,9 +116,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const user = await usersRepository.update(id, updateData);
 
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.USER,
+      entityId: user.id,
+      changes: {
+        before: existingUser,
+        after: user,
+      },
+    });
+
     return apiSuccess(user);
   } catch (error) {
-    console.error('Error updating user:', error);
+    usersLogger.error({ error }, 'Greška prilikom uređivanja korisnika');
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Greška prilikom uređivanja korisnika',
@@ -152,26 +144,16 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    // Check authentication
-    const session = await auth.api.getSession({ headers: request.headers });
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
-    if (!session?.user) {
-      return apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401);
+    if ('response' in authResult) {
+      return authResult.response;
     }
 
-    const userRole = (session.user.role ?? USER_ROLES.STAFF) as Role;
-
-    // Check authorization - must be admin or super_admin
-    if (!isAdmin(userRole)) {
-      return apiError(
-        ErrorCodes.FORBIDDEN,
-        'Nemate ovlasti za deaktiviranje korisnika',
-        403
-      );
-    }
+    const userRole = authResult.context.role;
 
     // Cannot deactivate yourself
-    if (session.user.id === id) {
+    if (authResult.context.userId === id) {
       return apiError(
         ErrorCodes.FORBIDDEN,
         'Ne možete deaktivirati vlastiti račun',
@@ -186,7 +168,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if actor can manage this user
-    if (!canManageUser(userRole, existingUser.role as Role)) {
+    const existingUserRole = normalizeRole(existingUser.role);
+
+    if (!canManageUser(userRole, existingUserRole)) {
       return apiError(
         ErrorCodes.FORBIDDEN,
         'Nemate ovlasti za deaktiviranje ovog korisnika',
@@ -196,9 +180,21 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const user = await usersRepository.deactivate(id);
 
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.USER,
+      entityId: user.id,
+      changes: {
+        before: existingUser,
+        after: user,
+      },
+    });
+
     return apiSuccess(user);
   } catch (error) {
-    console.error('Error deactivating user:', error);
+    usersLogger.error({ error }, 'Greška prilikom deaktiviranja korisnika');
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Greška prilikom deaktiviranja korisnika',

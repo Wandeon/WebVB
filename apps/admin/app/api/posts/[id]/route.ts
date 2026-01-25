@@ -1,6 +1,9 @@
 import { postsRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { postsLogger } from '@/lib/logger';
 import { generateSlug } from '@/lib/utils/slug';
 import { updatePostSchema } from '@/lib/validations/post';
@@ -12,9 +15,14 @@ interface RouteParams {
 }
 
 // GET /api/posts/[id] - Get single post by ID
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const post = await postsRepository.findById(id);
 
@@ -37,6 +45,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     // Validate request body
@@ -99,6 +113,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Update post
     const post = await postsRepository.update(id, updateData);
 
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.POST,
+      entityId: post.id,
+      changes: {
+        before: existingPost,
+        after: post,
+      },
+    });
+
     postsLogger.info({ postId: id }, 'Objava uspješno ažurirana');
 
     return apiSuccess(post);
@@ -113,9 +139,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/posts/[id] - Delete post
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     // Check if post exists
     const exists = await postsRepository.exists(id);
@@ -124,8 +155,24 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
-    // Delete post
+    const existingPost = await postsRepository.findById(id);
+
+    if (!existingPost) {
+      return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
+    }
+
     await postsRepository.delete(id);
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.POST,
+      entityId: existingPost.id,
+      changes: {
+        before: existingPost,
+      },
+    });
 
     postsLogger.info({ postId: id }, 'Objava uspješno obrisana');
 

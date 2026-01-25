@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 
 import sharp from 'sharp';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { postsLogger } from '@/lib/logger';
 import { deleteFromR2, uploadToR2 } from '@/lib/r2';
@@ -46,6 +47,12 @@ async function processAndUpload(
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
@@ -77,6 +84,12 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

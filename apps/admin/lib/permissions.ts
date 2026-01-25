@@ -58,3 +58,13 @@ export function isAdmin(role: Role): boolean {
     role === USER_ROLES.ADMIN || role === USER_ROLES.SUPER_ADMIN
   );
 }
+
+/**
+ * Normalize raw role values to a valid role with safe fallback.
+ */
+export function normalizeRole(role?: string | null): Role {
+  if (role === USER_ROLES.SUPER_ADMIN) return USER_ROLES.SUPER_ADMIN;
+  if (role === USER_ROLES.ADMIN) return USER_ROLES.ADMIN;
+  if (role === USER_ROLES.STAFF) return USER_ROLES.STAFF;
+  return USER_ROLES.STAFF;
+}

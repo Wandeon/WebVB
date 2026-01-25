@@ -50,3 +50,8 @@ export {
   type CreateUserData,
   type UpdateUserData,
 } from './users';
+
+export {
+  auditLogsRepository,
+  type CreateAuditLogInput,
+} from './audit-logs';

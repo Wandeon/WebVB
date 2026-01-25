@@ -1,36 +1,23 @@
-
-import { db, usersRepository } from '@repo/database';
-import { USER_ROLES } from '@repo/shared';
+import { usersRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 import { hashPassword } from 'better-auth/crypto';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
-import { auth } from '@/lib/auth';
-import { canAssignRole, isAdmin } from '@/lib/permissions';
+import { createAuditLog } from '@/lib/audit-log';
+import { usersLogger } from '@/lib/logger';
+import { canAssignRole } from '@/lib/permissions';
 import { createUserSchema, userQuerySchema } from '@/lib/validations/user';
 
 import type { NextRequest } from 'next/server';
 
-type Role = (typeof USER_ROLES)[keyof typeof USER_ROLES];
-
 // GET /api/users - List users with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await auth.api.getSession({ headers: request.headers });
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
-    if (!session?.user) {
-      return apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401);
-    }
-
-    const userRole = (session.user.role ?? USER_ROLES.STAFF) as Role;
-
-    // Check authorization - must be admin or super_admin
-    if (!isAdmin(userRole)) {
-      return apiError(
-        ErrorCodes.FORBIDDEN,
-        'Nemate ovlasti za pristup korisnicima',
-        403
-      );
+    if ('response' in authResult) {
+      return authResult.response;
     }
 
     const { searchParams } = new URL(request.url);
@@ -66,7 +53,7 @@ export async function GET(request: NextRequest) {
       pagination: result.pagination,
     });
   } catch (error) {
-    console.error('Error fetching users:', error);
+    usersLogger.error({ error }, 'Greška prilikom dohvaćanja korisnika');
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Greška prilikom dohvaćanja korisnika',
@@ -78,23 +65,13 @@ export async function GET(request: NextRequest) {
 // POST /api/users - Create a new user
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await auth.api.getSession({ headers: request.headers });
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
-    if (!session?.user) {
-      return apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401);
+    if ('response' in authResult) {
+      return authResult.response;
     }
 
-    const userRole = (session.user.role ?? USER_ROLES.STAFF) as Role;
-
-    // Check authorization - must be admin or super_admin
-    if (!isAdmin(userRole)) {
-      return apiError(
-        ErrorCodes.FORBIDDEN,
-        'Nemate ovlasti za stvaranje korisnika',
-        403
-      );
-    }
+    const userRole = authResult.context.role;
 
     const body: unknown = await request.json();
 
@@ -140,18 +117,25 @@ export async function POST(request: NextRequest) {
     });
 
     // Create credential account for the user
-    await db.account.create({
-      data: {
-        userId: user.id,
-        accountId: user.id,
-        providerId: 'credential',
-        password: hashedPassword,
+    await usersRepository.createCredentialAccount({
+      userId: user.id,
+      password: hashedPassword,
+    });
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.USER,
+      entityId: user.id,
+      changes: {
+        after: user,
       },
     });
 
     return apiSuccess(user, 201);
   } catch (error) {
-    console.error('Error creating user:', error);
+    usersLogger.error({ error }, 'Greška prilikom stvaranja korisnika');
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Greška prilikom stvaranja korisnika',

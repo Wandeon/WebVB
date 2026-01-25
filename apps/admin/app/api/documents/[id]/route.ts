@@ -1,7 +1,9 @@
 import { documentsRepository } from '@repo/database';
-import { updateDocumentSchema } from '@repo/shared';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES, updateDocumentSchema } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
 
@@ -15,6 +17,12 @@ interface RouteParams {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = updateDocumentSchema.safeParse({
@@ -46,6 +54,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const document = await documentsRepository.update(id, updateData);
 
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.DOCUMENT,
+      entityId: document.id,
+      changes: {
+        before: existingDocument,
+        after: document,
+      },
+    });
+
     documentsLogger.info({ documentId: id }, 'Document updated successfully');
 
     return apiSuccess(document);
@@ -60,9 +80,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/documents/[id] - Delete document
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const existingDocument = await documentsRepository.findById(id);
 
@@ -76,6 +101,17 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     // Delete from DB first
     const deletedDocument = await documentsRepository.delete(id);
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.DOCUMENT,
+      entityId: deletedDocument.id,
+      changes: {
+        before: existingDocument,
+      },
+    });
 
     // Best-effort R2 deletion (log errors but don't fail)
     const r2Key = getR2KeyFromUrl(existingDocument.fileUrl);

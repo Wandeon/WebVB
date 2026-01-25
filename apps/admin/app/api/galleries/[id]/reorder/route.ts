@@ -1,6 +1,9 @@
 import { galleriesRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
 import { reorderImagesSchema } from '@/lib/validations/gallery';
 
@@ -14,6 +17,12 @@ interface RouteParams {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     // Validate gallery exists
@@ -66,6 +75,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     await galleriesRepository.reorderImages(id, imageIds);
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.GALLERY,
+      entityId: id,
+      changes: {
+        imageIds,
+      },
+    });
 
     galleriesLogger.info(
       { galleryId: id, imageCount: imageIds.length },

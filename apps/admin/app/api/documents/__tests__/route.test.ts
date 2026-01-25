@@ -2,6 +2,9 @@
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { requireAuth } from '@/lib/api-auth';
+import { apiError, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
 
 import { GET, POST } from '../route';
@@ -46,6 +49,14 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
+vi.mock('@/lib/api-auth', () => ({
+  requireAuth: vi.fn(),
+}));
+
+vi.mock('@/lib/audit-log', () => ({
+  createAuditLog: vi.fn(),
+}));
+
 // Mock the schemas to handle null values from searchParams.get()
 vi.mock('@repo/shared', async () => {
   // Import the real module for createDocumentSchema
@@ -80,11 +91,12 @@ vi.mock('@repo/shared', async () => {
 // Import mocked modules and route handlers
 // eslint-disable-next-line import/order -- Must be after vi.mock calls
 import { documentsRepository } from '@repo/database';
-
 const mockedFindAll = vi.mocked(documentsRepository.findAll);
 const mockedCreate = vi.mocked(documentsRepository.create);
 const mockedLoggerError = vi.mocked(documentsLogger.error);
 const mockedLoggerInfo = vi.mocked(documentsLogger.info);
+const mockedRequireAuth = vi.mocked(requireAuth);
+const mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 // Helper to create a mock NextRequest
 function createMockNextRequest(
@@ -141,6 +153,13 @@ interface ApiErrorResponse {
 describe('GET /api/documents', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRequireAuth.mockResolvedValue({
+      context: {
+        session: { user: { id: 'user-1', role: 'staff' } },
+        role: 'staff',
+        userId: 'user-1',
+      },
+    });
   });
 
   it('returns paginated documents', async () => {
@@ -292,11 +311,29 @@ describe('GET /api/documents', () => {
     expect(body.success).toBe(false);
     expect(body.error.code).toBe('VALIDATION_ERROR');
   });
+
+  it('rejects unauthenticated requests', async () => {
+    mockedRequireAuth.mockResolvedValue({
+      response: apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401),
+    });
+
+    const request = createMockNextRequest('http://localhost:3000/api/documents');
+    const response = await GET(request);
+
+    expect(response.status).toBe(401);
+  });
 });
 
 describe('POST /api/documents', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRequireAuth.mockResolvedValue({
+      context: {
+        session: { user: { id: 'user-1', role: 'staff' } },
+        role: 'staff',
+        userId: 'user-1',
+      },
+    });
   });
 
   it('creates document with valid data', async () => {
@@ -335,8 +372,16 @@ describe('POST /api/documents', () => {
       year: 2024,
       fileUrl: 'https://example.com/documents/novi.pdf',
       fileSize: 512000,
-      uploadedBy: null,
+      uploadedBy: 'user-1',
     });
+
+    expect(mockedCreateAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'create',
+        entityType: 'document',
+        entityId: 'new-document-id',
+      })
+    );
 
     expect(mockedLoggerInfo).toHaveBeenCalledWith(
       expect.objectContaining({
