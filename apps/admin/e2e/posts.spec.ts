@@ -22,7 +22,7 @@ test.describe('Posts CRUD', () => {
 
     // Step 2: Navigate to posts and create a new post
     await page.goto('/posts');
-    await page.click('a:has-text("Nova objava")');
+    await page.getByRole('link', { name: 'Nova objava' }).click();
     await page.waitForURL('/posts/new');
 
     // Fill in the post form
@@ -30,14 +30,14 @@ test.describe('Posts CRUD', () => {
 
     // Select category - click the trigger then select an option
     await page.click('#category');
-    await page.click('[role="option"]:has-text("Opcinske aktualnosti")');
+    await page.getByRole('option', { name: 'Opcinske aktualnosti' }).click();
 
     // Fill TipTap editor - click into it and type
     await page.click('.tiptap');
     await page.keyboard.type('This is a test post content for E2E testing.');
 
     // Publish the post
-    await page.click('button:has-text("Objavi")');
+    await page.getByRole('button', { name: 'Objavi' }).click();
 
     // Wait for redirect to posts list
     await page.waitForURL('/posts');
@@ -54,17 +54,17 @@ test.describe('Posts CRUD', () => {
     // Step 4: Edit the post
     // Find the row with our post and open the actions menu
     const postRow = page.locator('tr').filter({ hasText: TEST_POST_TITLE });
-    await postRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await postRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Edit from dropdown
-    await page.click('[role="menuitem"]:has-text("Uredi")');
+    await page.getByRole('menuitem', { name: 'Uredi' }).click();
     await page.waitForURL(/\/posts\/.*\/edit/);
 
     // Update the title
     await page.fill('#title', UPDATED_POST_TITLE);
 
     // Save the changes
-    await page.click('button:has-text("Objavi")');
+    await page.getByRole('button', { name: 'Objavi' }).click();
 
     // Wait for redirect back to posts list
     await page.waitForURL('/posts');
@@ -88,13 +88,13 @@ test.describe('Posts CRUD', () => {
     const updatedPostRow = page.locator('tr').filter({
       hasText: UPDATED_POST_TITLE,
     });
-    await updatedPostRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await updatedPostRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Delete from dropdown
-    await page.click('[role="menuitem"]:has-text("Obrisi")');
+    await page.getByRole('menuitem', { name: /Obri[šs]i/ }).click();
 
     // Confirm deletion in dialog
-    await page.click('button:has-text("Obriši")');
+    await page.getByRole('button', { name: /Obri[šs]i/ }).click();
 
     // Wait for the post to be removed from the list
     await expect(

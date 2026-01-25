@@ -195,6 +195,7 @@ Gate: pnpm test:e2e (basic auth flow)
 
 Recent updates:
 - Sprint 1.12 completed: Admin integration tests with Playwright E2E tests for all CRUD modules (posts, pages, events, galleries, settings, users).
+- Sprint 1.12 follow-up: Hardened E2E selectors, reused shared auth helper, and added session revocation coverage plus user removal verification.
 - Sprint 1.11 completed: User management with CRUD, role-based permissions, soft-delete deactivation, and login blocking for inactive users.
 - Sprint 1.11 audit follow-up: tightened role hierarchy enforcement for user management.
 - Sprint 1.10 completed: Settings page with profile, password change, 2FA setup, and sessions management.
