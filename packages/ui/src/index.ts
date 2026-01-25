@@ -11,4 +11,5 @@ export * from './components/hero-section';
 export * from './components/newsletter-signup';
 export * from './components/section-header';
 export * from './components/fade-in';
+export * from './components/category-filter';
 export * from './lib/utils';
