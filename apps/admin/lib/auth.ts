@@ -2,11 +2,13 @@ import { db } from '@repo/database';
 import { USER_ROLES } from '@repo/shared';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { twoFactor } from 'better-auth/plugins';
 
 // Note: Using process.env directly here because Better Auth config is evaluated
 // at module load time (during Next.js build). Runtime validation of env vars
 // happens via getAdminAuthEnv() in API route handlers.
 export const auth = betterAuth({
+  appName: 'Veliki Bukovec Admin',
   baseURL: process.env.BETTER_AUTH_URL ?? '',
   secret: process.env.BETTER_AUTH_SECRET ?? '',
 
@@ -53,6 +55,8 @@ export const auth = betterAuth({
       trustedProviders: ['google'],
     },
   },
+
+  plugins: [twoFactor({ issuer: 'Veliki Bukovec Admin' })],
 });
 
 export type Session = typeof auth.$Infer.Session;
