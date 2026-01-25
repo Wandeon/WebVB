@@ -31,3 +31,87 @@ export async function clearUserSessions(userId: string): Promise<void> {
 export async function disconnectDb(): Promise<void> {
   await prisma.$disconnect();
 }
+
+// Posts
+export async function getPostByTitle(title: string) {
+  return prisma.post.findFirst({
+    where: { title },
+  });
+}
+
+export async function deletePostByTitle(title: string) {
+  return prisma.post.deleteMany({
+    where: { title },
+  });
+}
+
+// Pages
+export async function getPageByTitle(title: string) {
+  return prisma.page.findFirst({
+    where: { title },
+  });
+}
+
+export async function deletePageByTitle(title: string) {
+  return prisma.page.deleteMany({
+    where: { title },
+  });
+}
+
+// Events
+export async function getEventByTitle(title: string) {
+  return prisma.event.findFirst({
+    where: { title },
+  });
+}
+
+export async function deleteEventByTitle(title: string) {
+  return prisma.event.deleteMany({
+    where: { title },
+  });
+}
+
+// Galleries
+export async function getGalleryByName(name: string) {
+  return prisma.gallery.findFirst({
+    where: { name },
+  });
+}
+
+export async function deleteGalleryByName(name: string) {
+  return prisma.gallery.deleteMany({
+    where: { name },
+  });
+}
+
+// Documents
+export async function getDocumentByTitle(title: string) {
+  return prisma.document.findFirst({
+    where: { title },
+  });
+}
+
+export async function deleteDocumentByTitle(title: string) {
+  return prisma.document.deleteMany({
+    where: { title },
+  });
+}
+
+// Users
+export async function getUserByName(name: string) {
+  return prisma.user.findFirst({
+    where: { name },
+  });
+}
+
+export async function deleteUserByEmail(email: string) {
+  // Delete associated accounts and sessions first
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (user) {
+    await prisma.session.deleteMany({ where: { userId: user.id } });
+    await prisma.account.deleteMany({ where: { userId: user.id } });
+  }
+  return prisma.user.deleteMany({
+    where: { email },
+  });
+}

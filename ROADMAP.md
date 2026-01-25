@@ -7,7 +7,7 @@
 ## Current Status
 
 **Active Sprint:** 2.1 - Public Layout + Nav
-**Overall Progress:** 21/71 sprints
+**Overall Progress:** 22/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 4 deployment audit in `docs/audits/PHASE-4-DEPLOYMENT-AUDIT.md`
 
@@ -176,7 +176,7 @@ Gate: pnpm test:e2e (basic auth flow)
 ---
 
 ## Phase 1: Admin Core
-**Status:** In Progress | **Progress:** 11/12 | **Track:** A
+**Status:** Complete | **Progress:** 12/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -191,9 +191,10 @@ Gate: pnpm test:e2e (basic auth flow)
 | 1.9 ✅ | Gallery management | 🔗 | 1.5 | Albums, bulk upload, reorder |
 | 1.10 ✅ | Settings page | 🔀 | 1.1 | Profile, password, 2FA, sessions |
 | 1.11 ✅ | User management | 🔀 | 1.10 | CRUD users (admin only) |
-| 1.12 ⬜ | Admin integration test | 🔗 | 1.1-1.11 | All CRUD operations work end-to-end |
+| 1.12 ✅ | Admin integration test | 🔗 | 1.1-1.11 | All CRUD operations work end-to-end |
 
 Recent updates:
+- Sprint 1.12 completed: Admin integration tests with Playwright E2E tests for all CRUD modules (posts, pages, events, galleries, settings, users).
 - Sprint 1.11 completed: User management with CRUD, role-based permissions, soft-delete deactivation, and login blocking for inactive users.
 - Sprint 1.10 completed: Settings page with profile, password change, 2FA setup, and sessions management.
 - Sprint 1.9 completed: Gallery management with bulk image upload, drag-drop reorder, R2 integration.
