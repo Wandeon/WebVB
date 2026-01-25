@@ -19,3 +19,4 @@ export const postsLogger = logger.child({ module: 'posts' });
 export const pagesLogger = logger.child({ module: 'pages' });
 export const authLogger = logger.child({ module: 'auth' });
 export const documentsLogger = logger.child({ module: 'documents' });
+export const eventsLogger = logger.child({ module: 'events' });
