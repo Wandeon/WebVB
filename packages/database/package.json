@@ -14,8 +14,9 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "test": "pnpm exec vitest run",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src/",
+    "lint": "eslint src/ --ignore-pattern '**/*.test.ts'",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
@@ -30,6 +31,7 @@
     "@types/node": "^22.0.0",
     "prisma": "^6.2.0",
     "tsx": "^4.19.0",
+    "vitest": "^4.0.18",
     "typescript": "^5.7.0"
   }
 }

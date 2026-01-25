@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Added test coverage for homepage UI components and animations.
 - Clarified newsletter signup availability messaging and disabled submissions when unavailable.
 - Displayed optional event poster thumbnails in event cards.
+- Hardened news listing URL state handling and added tests for published pagination clamping.
 
 ## Sprint 2.3 - News Listing (Completed)
 

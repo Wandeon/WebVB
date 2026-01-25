@@ -293,6 +293,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.11 ⬜ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
 
 Recent updates:
+- Sprint 2.3 audit fixes: validated news URL params, clamped pagination, and added filter loading skeletons.
 - Sprint 2.3 completed: News listing page with category filtering, pagination, skeleton loading states, and empty state handling.
 - Sprint 2.2 completed: Homepage with hero section, quick links grid, latest news cards, upcoming events, newsletter signup, and scroll-triggered animations.
 - Sprint 2.1 completed: Public layout with header, footer, navigation, accessibility, and SEO metadata.
@@ -811,3 +812,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-25 | Sprint 1.11 completed: User management with CRUD, soft-delete, role-based permissions |
 | 2026-01-25 | Sprint 2.2 completed: Homepage with hero, quick links, news, events, newsletter, animations |
 | 2026-01-25 | Sprint 2.3 completed: News listing with category filter, pagination, skeleton loading |
+| 2026-01-25 | Sprint 2.3 audit fixes: news URL validation, pagination clamping, and filter skeletons |

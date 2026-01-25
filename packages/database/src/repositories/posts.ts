@@ -259,6 +259,7 @@ export const postsRepository = {
     options: FindPublishedPostsOptions = {}
   ): Promise<FindPublishedPostsResult> {
     const { page = 1, limit = 12, category } = options;
+    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
 
     // Build where clause - only published posts
     const where: Prisma.PostWhereInput = {
@@ -269,24 +270,24 @@ export const postsRepository = {
       where.category = category;
     }
 
-    const [total, posts] = await Promise.all([
-      db.post.count({ where }),
-      db.post.findMany({
-        where,
-        include: { author: { select: authorSelect } },
-        orderBy: { publishedAt: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-    ]);
+    const total = await db.post.count({ where });
+    const totalPages = Math.ceil(total / limit);
+    const clampedPage = totalPages > 0 ? Math.min(safePage, totalPages) : 1;
+    const posts = await db.post.findMany({
+      where,
+      include: { author: { select: authorSelect } },
+      orderBy: { publishedAt: 'desc' },
+      skip: (clampedPage - 1) * limit,
+      take: limit,
+    });
 
     return {
       posts,
       pagination: {
-        page,
+        page: clampedPage,
         limit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages,
       },
     };
   },

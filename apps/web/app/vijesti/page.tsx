@@ -82,10 +82,26 @@ function NewsContentSkeleton() {
   );
 }
 
+function CategoryFilterSkeleton() {
+  return (
+    <div className="mb-8 flex flex-wrap gap-2">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div
+          key={index}
+          className="h-9 w-24 animate-pulse rounded-full bg-neutral-100"
+        />
+      ))}
+    </div>
+  );
+}
+
 export default async function NewsPage({ searchParams }: NewsPageProps) {
   const params = await searchParams;
-  const category = params.kategorija;
-  const page = Math.max(1, parseInt(params.stranica || '1', 10));
+  const categoryParam = params.kategorija;
+  const category =
+    categoryParam && categoryParam in POST_CATEGORIES ? categoryParam : undefined;
+  const rawPage = Number(params.stranica);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
 
   return (
     <div className="py-8 md:py-12">
@@ -95,7 +111,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         </FadeIn>
 
         <FadeIn>
-          <Suspense fallback={null}>
+          <Suspense fallback={<CategoryFilterSkeleton />}>
             <CategoryFilter categories={POST_CATEGORY_OPTIONS} allLabel="Sve vijesti" className="mb-8" />
           </Suspense>
         </FadeIn>
