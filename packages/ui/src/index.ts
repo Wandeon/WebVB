@@ -15,4 +15,5 @@ export * from './components/fade-in';
 export * from './components/category-filter';
 export * from './components/pagination';
 export * from './components/article-hero';
+export * from './components/article-content';
 export * from './lib/utils';
