@@ -148,7 +148,7 @@ export function PageForm({ initialData }: PageFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 lg:grid-cols-3">
+    <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="grid gap-6 lg:grid-cols-3">
       {/* Main Content - 2/3 width on desktop */}
       <div className="space-y-6 lg:col-span-2">
         <Card>

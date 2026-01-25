@@ -1,7 +1,6 @@
 import {
   CalendarDays,
   FileText,
-  Home,
   Image,
   Inbox,
   LayoutDashboard,
@@ -48,6 +47,11 @@ export const adminNavigation: NavSection[] = [
         icon: icon(FileText),
       },
       {
+        title: 'Stranice',
+        href: '/pages',
+        icon: icon(FileText),
+      },
+      {
         title: 'Dokumenti',
         href: '/documents',
         icon: icon(FileText),
@@ -61,11 +65,6 @@ export const adminNavigation: NavSection[] = [
         title: 'Galerija',
         href: '/galleries',
         icon: icon(Image),
-      },
-      {
-        title: 'Stranice',
-        href: '/pages',
-        icon: icon(Home),
       },
     ],
   },
