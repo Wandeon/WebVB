@@ -46,6 +46,11 @@ export const auth = betterAuth({
         defaultValue: USER_ROLES.STAFF,
         input: false, // Don't allow setting via signup
       },
+      active: {
+        type: 'boolean',
+        required: false,
+        defaultValue: true,
+      },
     },
   },
 
@@ -57,6 +62,26 @@ export const auth = betterAuth({
   },
 
   plugins: [twoFactor({ issuer: 'Veliki Bukovec Admin' })],
+
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          // Check if user is active before creating session
+          const user = await db.user.findUnique({
+            where: { id: session.userId },
+            select: { active: true },
+          });
+
+          if (!user?.active) {
+            throw new Error('Vaš račun je deaktiviran. Kontaktirajte administratora.');
+          }
+
+          return { data: session };
+        },
+      },
+    },
+  },
 });
 
 export type Session = typeof auth.$Infer.Session;

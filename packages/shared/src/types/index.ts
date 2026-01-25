@@ -1,7 +1,14 @@
 // Common types used across apps
 // These mirror the Prisma schema for use in frontend code
 
-export type UserRole = 'super_admin' | 'admin' | 'staff';
+import type { UserRole as UserRoleType } from './user';
+
+export {
+  userRoleSchema,
+  type UserRole,
+  USER_ROLE_LABELS,
+  USER_ROLE_OPTIONS,
+} from './user';
 
 export interface User {
   id: string;
@@ -9,7 +16,8 @@ export interface User {
   email: string;
   emailVerified: boolean;
   image: string | null;
-  role: UserRole;
+  role: UserRoleType;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

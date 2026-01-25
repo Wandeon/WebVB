@@ -43,3 +43,10 @@ export {
   type UpdateGalleryData,
   type AddImageData,
 } from './galleries';
+
+export {
+  usersRepository,
+  type UsersQueryOptions,
+  type CreateUserData,
+  type UpdateUserData,
+} from './users';

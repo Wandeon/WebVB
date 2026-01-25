@@ -16,6 +16,23 @@ All notable changes to this project will be documented in this file.
 - Prevented duplicate R2 deletions when removing galleries with shared cover images.
 - Hardened settings security flows with password confirmation for backup codes, safer session revocation guards, and accessibility copy fixes.
 
+## Sprint 1.11 - User Management (Completed)
+
+### Added
+- User `active` field for soft-delete deactivation pattern
+- User types and role schema (super_admin, admin, staff) in @repo/shared
+- Users repository in @repo/database with CRUD, deactivate, and activate
+- Permission helper utilities (canManageUser, canAssignRole, getAssignableRoles, isAdmin)
+- Users API routes (GET, POST, PUT, DELETE) with role-based access control
+- Login blocking for inactive users via Better Auth databaseHooks
+- Users list page with DataTable, search, and role filtering
+- UserForm component with role-restricted options based on actor permissions
+- Create/edit user pages with Breadcrumbs
+- Users link in admin sidebar navigation under Administracija section
+- User validation schemas with Croatian error messages (25 new tests)
+- API route tests for users endpoints (15 new tests)
+- Gate: Create user, assign role, user can login, edit user, deactivate user
+
 ## Sprint 1.10 - Settings Page (Completed)
 
 ### Added
