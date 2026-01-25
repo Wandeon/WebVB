@@ -1,7 +1,8 @@
 import { APP_NAME } from '@repo/shared';
 import { MobileDrawer, NavMenu } from '@repo/ui';
-import { mainNav } from '../../lib/navigation';
 import Link from 'next/link';
+
+import { mainNav } from '../../lib/navigation';
 
 export function SiteHeader() {
     return (

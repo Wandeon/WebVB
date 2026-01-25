@@ -1,9 +1,9 @@
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import './globals.css';
-import { SiteHeader } from '../components/layout/header';
-import { SiteFooter } from '../components/layout/footer';
 import { baseMetadata } from './metadata';
+import { SiteFooter } from '../components/layout/footer';
+import { SiteHeader } from '../components/layout/header';
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],

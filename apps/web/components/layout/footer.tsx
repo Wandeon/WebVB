@@ -1,7 +1,10 @@
 import { APP_NAME } from '@repo/shared';
-import { Footer, FooterLinkGroup } from '@repo/ui';
-import { footerLinks } from '../../lib/navigation';
+import { Footer } from '@repo/ui';
 import Link from 'next/link';
+
+import { footerLinks } from '../../lib/navigation';
+
+import type { FooterLinkGroup } from '@repo/ui';
 
 // Transform footerLinks to match FooterLinkGroup interface if needed
 // In this case, they match exactly: { title: string, items: { title: string, href: string }[] }[]
