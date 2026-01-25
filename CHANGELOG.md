@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.5 - Documents Section (Completed)
+
+### Added
+- Public documents page at `/dokumenti` with category sidebar and year filter
+- DocumentCard component for document list items with PDF icon and download button
+- DocumentSidebar component for desktop category navigation (sticky)
+- DocumentAccordion component for mobile category navigation (collapsible)
+- YearFilter dropdown component using Radix Select
+- DocumentSearch component with instant client-side filtering
+- Accordion primitive using @radix-ui/react-accordion
+- getDistinctYears and getCategoryCounts repository methods
+- URL-driven filtering (kategorija, godina, stranica)
+- ISR with 60-second revalidation
+- Gate: Browse documents at `/dokumenti`, filter by category and year, search filters list, download PDF works
+
 ## Unreleased
 - Documented Sprint 1.5-1.6 audit review findings.
 - Hardened admin Playwright E2E coverage with shared login usage, more resilient selectors, settings session revocation flow, and user removal verification.
