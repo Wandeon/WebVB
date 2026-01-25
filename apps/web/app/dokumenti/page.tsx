@@ -61,7 +61,7 @@ export default async function DocumentsPage({
       sortBy: 'createdAt',
       sortOrder: 'desc',
     }),
-    documentsRepository.getCategoryCounts(),
+    documentsRepository.getCategoryCounts(Number.isFinite(year) ? year : undefined),
     documentsRepository.getDistinctYears(),
   ]);
 

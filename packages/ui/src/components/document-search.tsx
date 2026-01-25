@@ -39,6 +39,8 @@ export function DocumentSearch({ onSearch, className }: DocumentSearchProps) {
         onChange={handleChange}
         className="pl-10 pr-10"
         aria-label="Pretraži dokumente"
+        autoComplete="off"
+        enterKeyHint="search"
       />
       {query && (
         <Button

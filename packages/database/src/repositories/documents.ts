@@ -177,10 +177,11 @@ export const documentsRepository = {
   /**
    * Get document counts per category for sidebar badges
    */
-  async getCategoryCounts(): Promise<Record<string, number>> {
+  async getCategoryCounts(year?: number): Promise<Record<string, number>> {
     const results = await db.document.groupBy({
       by: ['category'],
       _count: { id: true },
+      ...(typeof year === 'number' ? { where: { year } } : {}),
     });
     return Object.fromEntries(
       results.map((r) => [r.category, r._count.id])

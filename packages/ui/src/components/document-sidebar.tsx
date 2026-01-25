@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 import { cn } from '../lib/utils';
 
@@ -17,6 +18,20 @@ export function DocumentSidebar({
   counts,
   className,
 }: DocumentSidebarProps) {
+  const searchParams = useSearchParams();
+
+  const createCategoryUrl = (category?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (category) {
+      params.set('kategorija', category);
+    } else {
+      params.delete('kategorija');
+    }
+    params.delete('stranica');
+    const queryString = params.toString();
+    return `/dokumenti${queryString ? `?${queryString}` : ''}`;
+  };
+
   return (
     <nav
       aria-label="Kategorije dokumenata"
@@ -28,7 +43,7 @@ export function DocumentSidebar({
       <ul className="space-y-1">
         <li>
           <Link
-            href="/dokumenti"
+            href={createCategoryUrl()}
             className={cn(
               'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
               !activeCategory
@@ -46,7 +61,7 @@ export function DocumentSidebar({
         {categories.map((cat) => (
           <li key={cat.value}>
             <Link
-              href={`/dokumenti?kategorija=${cat.value}`}
+              href={createCategoryUrl(cat.value)}
               className={cn(
                 'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
                 activeCategory === cat.value

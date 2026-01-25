@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
 - Displayed optional event poster thumbnails in event cards.
 - Hardened news listing URL state handling and added tests for published pagination clamping.
 - Secured news detail rendering with HTML sanitization, resilient metadata fallbacks, and improved share/hero accessibility.
+- Hardened documents filters with year-aware counts, safer download links, and category URL persistence.
 
 ## Sprint 2.4 - News Detail Page (Completed)
 

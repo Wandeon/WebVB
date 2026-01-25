@@ -816,3 +816,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-25 | Sprint 2.3 audit fixes: news URL validation, pagination clamping, and filter skeletons |
 | 2026-01-25 | Sprint 2.4 completed: News detail page with hero, content, share buttons, related posts, SEO |
 | 2026-01-25 | Sprint 2.5 completed: Documents section with sidebar navigation, accordion mobile, year filter, search |
+| 2026-01-25 | Sprint 2.5 audit fixes: year-filtered category counts, safe download URLs, filter-preserving category links |

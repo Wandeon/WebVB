@@ -136,3 +136,22 @@ After completing the checklist, create fixes for any issues found:
 - Sprint Plan: `docs/plans/2026-01-25-sprint-2.5-documents.md`
 - Sprint Design: `docs/plans/2026-01-25-sprint-2.5-documents-design.md`
 - Previous Audit (2.4): PR #45
+
+---
+
+## Audit Findings & Fixes (2026-01-25)
+
+### Security
+- **High:** Added safe URL validation for document download links to prevent unsafe schemes. ✅ Fixed.
+
+### Accessibility
+- **Medium:** Added `aria-current` to active mobile accordion links and preserved filter context on navigation. ✅ Fixed.
+- **Low:** Added `autoComplete` and `enterKeyHint` to document search input. ✅ Fixed.
+
+### Performance / UX
+- **Medium:** Category counts now respect the active year filter, matching the document list context. ✅ Fixed.
+- **Low:** Category navigation now preserves year filters while resetting pagination. ✅ Fixed.
+
+### Tests Added
+- Repository tests for year-filtered category counts.
+- UI tests for safe download links and filter-preserving category navigation.
