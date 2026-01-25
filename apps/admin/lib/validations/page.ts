@@ -19,6 +19,26 @@ export const pageSchema = z.object({
   menuOrder: z.number().int().min(0).default(0),
 });
 
+// Form schema without .default() for react-hook-form compatibility
+export const pageFormSchema = z.object({
+  title: z
+    .string()
+    .min(2, 'Naslov mora imati najmanje 2 znaka')
+    .max(200, 'Naslov može imati najviše 200 znakova'),
+  content: z
+    .string()
+    .min(1, 'Sadržaj je obavezan')
+    .refine(
+      (val) => {
+        const textContent = val.replace(/<[^>]*>/g, '').trim();
+        return textContent.length > 0;
+      },
+      { message: 'Sadržaj je obavezan' }
+    ),
+  parentId: z.string().uuid().nullable().optional(),
+  menuOrder: z.number().int().min(0),
+});
+
 export const createPageSchema = pageSchema;
 export const updatePageSchema = pageSchema.partial().extend({
   id: z.string().uuid(),
