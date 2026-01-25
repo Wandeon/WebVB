@@ -19,6 +19,7 @@ export function EventCard({
   description,
   eventDate,
   location,
+  posterImage,
   className,
 }: EventCardProps) {
   const date = new Date(eventDate);
@@ -61,6 +62,16 @@ export function EventCard({
           )}
         </div>
       </div>
+      {posterImage && (
+        <div className="hidden h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg sm:block">
+          <img
+            src={posterImage}
+            alt={title}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      )}
     </Link>
   );
 }

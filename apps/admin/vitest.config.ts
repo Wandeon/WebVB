@@ -14,6 +14,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './'),
+      'framer-motion': path.resolve(
+        __dirname,
+        '../../packages/ui/test-helpers/framer-motion.tsx'
+      ),
       'next/link': path.resolve(__dirname, '../../packages/ui/test-helpers/next-link.tsx'),
       'next/navigation': path.resolve(__dirname, '../../packages/ui/test-helpers/next-navigation.ts'),
     },

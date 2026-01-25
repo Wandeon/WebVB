@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 - Hardened admin Playwright E2E coverage with shared login usage, more resilient selectors, settings session revocation flow, and user removal verification.
 - Improved public navigation accessibility with aria-current states, focus-visible styles, and canonical metadata.
 - Enforced server-side admin API authorization with audit logging for all core CRUD actions.
+- Added test coverage for homepage UI components and animations.
+- Clarified newsletter signup availability messaging and disabled submissions when unavailable.
+- Displayed optional event poster thumbnails in event cards.
 
 ## Sprint 2.3 - News Listing (Completed)
 

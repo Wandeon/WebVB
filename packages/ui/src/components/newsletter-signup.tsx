@@ -16,16 +16,21 @@ export function NewsletterSignup({ onSubmit, className }: NewsletterSignupProps)
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const isSignupAvailable = Boolean(onSubmit);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email) return;
 
+    if (!onSubmit) {
+      setStatus('error');
+      setMessage('Prijava na newsletter trenutno nije dostupna.');
+      return;
+    }
+
     setStatus('loading');
     try {
-      if (onSubmit) {
-        await onSubmit(email);
-      }
+      await onSubmit(email);
       setStatus('success');
       setMessage('Hvala na prijavi! Provjerite svoj email za potvrdu.');
       setEmail('');
@@ -49,25 +54,40 @@ export function NewsletterSignup({ onSubmit, className }: NewsletterSignupProps)
         Primajte obavijesti o najnovijim vijestima i događanjima iz Općine Veliki Bukovec.
       </p>
       {status === 'success' ? (
-        <p className="mt-4 text-sm font-medium text-green-600">{message}</p>
+        <p className="mt-4 text-sm font-medium text-green-600" role="status">
+          {message}
+        </p>
       ) : (
-        <form onSubmit={(e) => void handleSubmit(e)} className="mt-4 flex gap-2">
-          <Input
-            type="email"
-            placeholder="Vaša email adresa"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="flex-1"
-            aria-label="Email adresa za pretplatu"
-          />
-          <Button type="submit" variant="primary" disabled={status === 'loading'}>
-            {status === 'loading' ? 'Šaljem...' : 'Pretplati se'}
-          </Button>
+        <form onSubmit={(e) => void handleSubmit(e)} className="mt-4">
+          <fieldset
+            className="flex gap-2"
+            disabled={!isSignupAvailable || status === 'loading'}
+            aria-disabled={!isSignupAvailable || status === 'loading'}
+          >
+            <Input
+              type="email"
+              placeholder="Vaša email adresa"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1"
+              aria-label="Email adresa za pretplatu"
+            />
+            <Button type="submit" variant="primary">
+              {status === 'loading' ? 'Šaljem...' : 'Pretplati se'}
+            </Button>
+          </fieldset>
         </form>
       )}
+      {!isSignupAvailable && status !== 'success' && (
+        <p className="mt-2 text-sm text-neutral-600" role="status">
+          Trenutno ne primamo nove prijave na newsletter.
+        </p>
+      )}
       {status === 'error' && (
-        <p className="mt-2 text-sm text-red-600">{message}</p>
+        <p className="mt-2 text-sm text-red-600" role="alert">
+          {message}
+        </p>
       )}
     </div>
   );
