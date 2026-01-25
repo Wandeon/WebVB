@@ -44,6 +44,7 @@ export const verify2FASchema = z.object({
     .string()
     .length(6, 'Kod mora imati točno 6 znamenki')
     .regex(/^\d+$/, 'Kod smije sadržavati samo brojeve'),
+  password: z.string().min(1, 'Lozinka je obavezna za generiranje rezervnih kodova'),
 });
 
 export type Verify2FAInput = z.infer<typeof verify2FASchema>;

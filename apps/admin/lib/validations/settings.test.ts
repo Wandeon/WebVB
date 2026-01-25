@@ -111,6 +111,7 @@ describe('Settings Validation Schemas', () => {
     it('accepts valid 6-digit code', () => {
       const result = verify2FASchema.safeParse({
         code: '123456',
+        password: 'mypassword',
       });
       expect(result.success).toBe(true);
     });
@@ -118,6 +119,7 @@ describe('Settings Validation Schemas', () => {
     it('rejects code with less than 6 digits', () => {
       const result = verify2FASchema.safeParse({
         code: '12345',
+        password: 'mypassword',
       });
       expect(result.success).toBe(false);
     });
@@ -125,6 +127,7 @@ describe('Settings Validation Schemas', () => {
     it('rejects code with more than 6 digits', () => {
       const result = verify2FASchema.safeParse({
         code: '1234567',
+        password: 'mypassword',
       });
       expect(result.success).toBe(false);
     });
@@ -132,6 +135,15 @@ describe('Settings Validation Schemas', () => {
     it('rejects code with non-numeric characters', () => {
       const result = verify2FASchema.safeParse({
         code: '12345a',
+        password: 'mypassword',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects missing password', () => {
+      const result = verify2FASchema.safeParse({
+        code: '123456',
+        password: '',
       });
       expect(result.success).toBe(false);
     });

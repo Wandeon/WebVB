@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**Active Sprint:** 1.9 - Gallery management
+**Active Sprint:** 1.11 - User management
 **Overall Progress:** 21/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 4 deployment audit in `docs/audits/PHASE-4-DEPLOYMENT-AUDIT.md`
@@ -198,6 +198,7 @@ Recent updates:
 - Sprint 1.9 completed: Gallery management with bulk image upload, drag-drop reorder, R2 integration.
 - Sprint 1.7 audit fixes: corrected Croatian diacritics and zero-state pagination copy in pages admin UI.
 - Sprint 1.9 follow-up: added stricter reorder validation and deduplicated R2 deletions for galleries.
+- Settings page hardening: added password confirmation for backup code generation, guarded current session revocation, and improved accessibility copy.
 
 ### Sprint 1.1: Admin Layout Shell
 ```

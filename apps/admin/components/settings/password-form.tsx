@@ -88,6 +88,7 @@ export function PasswordForm() {
               id="currentPassword"
               type="password"
               placeholder="Unesite trenutnu lozinku"
+              autoComplete="current-password"
               error={Boolean(errors.currentPassword)}
               {...register('currentPassword')}
             />
@@ -105,13 +106,15 @@ export function PasswordForm() {
               id="newPassword"
               type="password"
               placeholder="Unesite novu lozinku"
+              autoComplete="new-password"
+              aria-describedby="new-password-help"
               error={Boolean(errors.newPassword)}
               {...register('newPassword')}
             />
             {errors.newPassword ? (
               <p className="text-sm text-error">{errors.newPassword.message}</p>
             ) : (
-              <p className="text-xs text-neutral-500">
+              <p id="new-password-help" className="text-xs text-neutral-500">
                 Najmanje 8 znakova, mora sadržavati malo slovo, veliko slovo i
                 broj
               </p>
@@ -125,6 +128,7 @@ export function PasswordForm() {
               id="confirmPassword"
               type="password"
               placeholder="Ponovite novu lozinku"
+              autoComplete="new-password"
               error={Boolean(errors.confirmPassword)}
               {...register('confirmPassword')}
             />
