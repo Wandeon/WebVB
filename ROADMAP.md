@@ -197,6 +197,7 @@ Recent updates:
 - Sprint 1.10 completed: Settings page with profile, password change, 2FA setup, and sessions management.
 - Sprint 1.9 completed: Gallery management with bulk image upload, drag-drop reorder, R2 integration.
 - Sprint 1.7 audit fixes: corrected Croatian diacritics and zero-state pagination copy in pages admin UI.
+- Sprint 1.9 follow-up: added stricter reorder validation and deduplicated R2 deletions for galleries.
 
 ### Sprint 1.1: Admin Layout Shell
 ```
