@@ -293,6 +293,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 
 Recent updates:
 - Sprint 2.1 completed: Public layout with header, footer, navigation, accessibility, and SEO metadata.
+- Sprint 2.1 follow-up: added aria-current states, focus-visible styling, and canonical metadata for the public navigation.
 
 ### Sprint 2.1: Public Layout + Nav
 ```

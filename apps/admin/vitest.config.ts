@@ -14,6 +14,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './'),
+      'next/link': path.resolve(__dirname, '../../packages/ui/test-helpers/next-link.tsx'),
+      'next/navigation': path.resolve(__dirname, '../../packages/ui/test-helpers/next-navigation.ts'),
     },
   },
 });

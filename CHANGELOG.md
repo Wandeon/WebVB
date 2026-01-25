@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 - Documented Sprint 1.5-1.6 audit review findings.
 - Hardened admin Playwright E2E coverage with shared login usage, more resilient selectors, settings session revocation flow, and user removal verification.
+- Improved public navigation accessibility with aria-current states, focus-visible styles, and canonical metadata.
 
 ## Sprint 2.1 - Public Layout + Nav (Completed)
 
