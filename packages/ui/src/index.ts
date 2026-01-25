@@ -23,4 +23,5 @@ export * from './components/document-sidebar';
 export * from './components/document-accordion';
 export * from './components/year-filter';
 export * from './components/document-search';
+export * from './components/event-tabs';
 export * from './lib/utils';
