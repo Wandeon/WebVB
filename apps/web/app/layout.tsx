@@ -1,10 +1,9 @@
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
-import type { Metadata } from 'next';
-
 import './globals.css';
 import { SiteHeader } from '../components/layout/header';
 import { SiteFooter } from '../components/layout/footer';
+import { baseMetadata } from './metadata';
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
@@ -18,10 +17,7 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'Općina Veliki Bukovec',
-  description: 'Službena web stranica Općine Veliki Bukovec',
-};
+export const metadata = baseMetadata;
 
 export default function RootLayout({
   children,
