@@ -37,7 +37,6 @@ export function TwoFactorSetup() {
   const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabling, setIsDisabling] = useState(false);
-  const [enablePassword, setEnablePassword] = useState<string>('');
 
   const is2FAEnabled = session?.user?.twoFactorEnabled;
 
@@ -54,6 +53,7 @@ export function TwoFactorSetup() {
     resolver: zodResolver(verify2FASchema),
     defaultValues: {
       code: '',
+      password: '',
     },
   });
 
@@ -77,11 +77,10 @@ export function TwoFactorSetup() {
         },
       });
       setQrCodeUrl(url);
-    } catch (error) {
-      console.error('Failed to generate QR code:', error);
+    } catch {
       toast({
-        title: 'Greska',
-        description: 'Nije moguce generirati QR kod.',
+        title: 'Greška',
+        description: 'Nije moguće generirati QR kod.',
         variant: 'destructive',
       });
     }
@@ -109,21 +108,21 @@ export function TwoFactorSetup() {
       });
 
       if (result.error) {
-        throw new Error(result.error.message ?? 'Doslo je do greske');
+        throw new Error(result.error.message ?? 'Došlo je do greške');
       }
 
       if (result.data?.totpURI) {
         setTotpUri(result.data.totpURI);
-        setEnablePassword(data.password);
+        passwordForm.reset();
         setStep('scan');
       } else {
         throw new Error('TOTP URI nije primljen');
       }
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -145,33 +144,46 @@ export function TwoFactorSetup() {
       }
 
       // Generate backup codes
-      const backupResult = await twoFactor.generateBackupCodes({
-        password: enablePassword,
-      });
+      try {
+        const backupResult = await twoFactor.generateBackupCodes({
+          password: data.password,
+        });
 
-      if (backupResult.error) {
-        throw new Error(
-          backupResult.error.message ?? 'Greska pri generiranju backup kodova'
-        );
-      }
+        if (backupResult.error) {
+          throw new Error(
+            backupResult.error.message ??
+              'Greška pri generiranju rezervnih kodova'
+          );
+        }
 
-      if (backupResult.data?.backupCodes) {
-        setBackupCodes(backupResult.data.backupCodes);
+        if (backupResult.data?.backupCodes) {
+          setBackupCodes(backupResult.data.backupCodes);
+        }
+      } catch (backupError) {
+        toast({
+          title: 'Upozorenje',
+          description:
+            backupError instanceof Error
+              ? backupError.message
+              : 'Rezervni kodovi nisu generirani. Možete ih kasnije ponovno stvoriti.',
+          variant: 'warning',
+        });
       }
 
       setStep('complete');
+      verifyForm.reset();
       await refetch();
 
       toast({
         title: 'Uspjeh',
-        description: 'Dvofaktorska autentifikacija je uspjesno omogucena.',
+        description: 'Dvofaktorska autentifikacija je uspješno omogućena.',
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -189,7 +201,7 @@ export function TwoFactorSetup() {
       });
 
       if (result.error) {
-        throw new Error(result.error.message ?? 'Doslo je do greske');
+        throw new Error(result.error.message ?? 'Došlo je do greške');
       }
 
       disableForm.reset();
@@ -197,14 +209,14 @@ export function TwoFactorSetup() {
 
       toast({
         title: 'Uspjeh',
-        description: 'Dvofaktorska autentifikacija je onemogucena.',
+        description: 'Dvofaktorska autentifikacija je onemogućena.',
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -218,7 +230,6 @@ export function TwoFactorSetup() {
     setTotpUri(null);
     setQrCodeUrl(null);
     setBackupCodes(null);
-    setEnablePassword('');
     passwordForm.reset();
     verifyForm.reset();
   };
@@ -233,7 +244,7 @@ export function TwoFactorSetup() {
             <CardTitle>Dvofaktorska autentifikacija</CardTitle>
           </div>
           <CardDescription>
-            Dodatni sloj sigurnosti za vas racun
+            Dodatni sloj sigurnosti za vaš račun
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -243,7 +254,7 @@ export function TwoFactorSetup() {
             <div>
               <p className="font-medium text-success">2FA je aktivna</p>
               <p className="text-sm text-neutral-600">
-                Vas racun je zasticen dvofaktorskom autentifikacijom.
+                Vaš račun je zaštićen dvofaktorskom autentifikacijom.
               </p>
             </div>
           </div>
@@ -255,12 +266,13 @@ export function TwoFactorSetup() {
           >
             <div className="space-y-2">
               <Label htmlFor="disablePassword">
-                Lozinka za onemogucavanje 2FA
+                Lozinka za onemogućavanje 2FA
               </Label>
               <Input
                 id="disablePassword"
                 type="password"
                 placeholder="Unesite lozinku"
+                autoComplete="current-password"
                 error={Boolean(disableForm.formState.errors.password)}
                 {...disableForm.register('password')}
               />
@@ -271,7 +283,7 @@ export function TwoFactorSetup() {
               )}
             </div>
             <Button type="submit" variant="danger" disabled={isDisabling}>
-              {isDisabling ? 'Onemogucavanje...' : 'Onemogući 2FA'}
+              {isDisabling ? 'Onemogućavanje...' : 'Onemogući 2FA'}
             </Button>
           </form>
         </CardContent>
@@ -286,7 +298,7 @@ export function TwoFactorSetup() {
           <ShieldOff className="h-5 w-5 text-neutral-400" />
           <CardTitle>Dvofaktorska autentifikacija</CardTitle>
         </div>
-        <CardDescription>Dodatni sloj sigurnosti za vas racun</CardDescription>
+        <CardDescription>Dodatni sloj sigurnosti za vaš račun</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Idle state */}
@@ -294,11 +306,11 @@ export function TwoFactorSetup() {
           <>
             <div className="rounded-lg border border-warning/20 bg-warning/10 p-4">
               <p className="text-sm text-warning-foreground">
-                Dvofaktorska autentifikacija nije omogucena. Preporucamo da je
-                omogucite radi dodatne sigurnosti vaseg racuna.
+                Dvofaktorska autentifikacija nije omogućena. Preporučamo da je
+                omogućite radi dodatne sigurnosti vašeg računa.
               </p>
             </div>
-            <Button onClick={() => setStep('password')}>Omoguci 2FA</Button>
+            <Button onClick={() => setStep('password')}>Omogući 2FA</Button>
           </>
         )}
 
@@ -313,7 +325,8 @@ export function TwoFactorSetup() {
               <Input
                 id="enablePassword"
                 type="password"
-                placeholder="Unesite vasu lozinku"
+                placeholder="Unesite vašu lozinku"
+                autoComplete="current-password"
                 error={Boolean(passwordForm.formState.errors.password)}
                 {...passwordForm.register('password')}
               />
@@ -325,7 +338,7 @@ export function TwoFactorSetup() {
             </div>
             <div className="flex gap-2">
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Ucitavanje...' : 'Nastavi'}
+                {isLoading ? 'Učitavanje...' : 'Nastavi'}
               </Button>
               <Button type="button" variant="outline" onClick={resetFlow}>
                 Odustani
@@ -359,7 +372,7 @@ export function TwoFactorSetup() {
 
             <div className="space-y-4">
               <h3 className="font-medium">
-                2. Ili unesite tajni kljuc rucno
+                2. Ili unesite tajni ključ ručno
               </h3>
               <div className="rounded-lg bg-neutral-100 p-3">
                 <code className="break-all font-mono text-sm">
@@ -383,12 +396,31 @@ export function TwoFactorSetup() {
                   maxLength={6}
                   placeholder="000000"
                   className="text-center text-2xl tracking-widest"
+                  autoComplete="one-time-code"
                   error={Boolean(verifyForm.formState.errors.code)}
                   {...verifyForm.register('code')}
                 />
                 {verifyForm.formState.errors.code && (
                   <p className="text-sm text-error">
                     {verifyForm.formState.errors.code.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="verifyPassword">
+                  4. Potvrdite lozinku za stvaranje rezervnih kodova
+                </Label>
+                <Input
+                  id="verifyPassword"
+                  type="password"
+                  placeholder="Unesite lozinku"
+                  autoComplete="current-password"
+                  error={Boolean(verifyForm.formState.errors.password)}
+                  {...verifyForm.register('password')}
+                />
+                {verifyForm.formState.errors.password && (
+                  <p className="text-sm text-error">
+                    {verifyForm.formState.errors.password.message}
                   </p>
                 )}
               </div>
@@ -411,10 +443,10 @@ export function TwoFactorSetup() {
               <CheckCircle className="h-5 w-5 text-success" />
               <div>
                 <p className="font-medium text-success">
-                  2FA je uspjesno omogucena!
+                  2FA je uspješno omogućena!
                 </p>
                 <p className="text-sm text-neutral-600">
-                  Vas racun je sada zasticen dvofaktorskom autentifikacijom.
+                  Vaš račun je sada zaštićen dvofaktorskom autentifikacijom.
                 </p>
               </div>
             </div>
@@ -422,10 +454,10 @@ export function TwoFactorSetup() {
             {backupCodes && backupCodes.length > 0 && (
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-medium">Backup kodovi</h3>
+                  <h3 className="font-medium">Rezervni kodovi</h3>
                   <p className="text-sm text-neutral-600">
-                    Spremite ove kodove na sigurno mjesto. Mozete ih koristiti
-                    za pristup racunu ako izgubite pristup aplikaciji za
+                    Spremite ove kodove na sigurno mjesto. Možete ih koristiti
+                    za pristup računu ako izgubite pristup aplikaciji za
                     autentifikaciju.
                   </p>
                 </div>
@@ -437,8 +469,8 @@ export function TwoFactorSetup() {
                   ))}
                 </div>
                 <p className="text-xs text-warning-foreground">
-                  Vazno: Ovi kodovi ce biti prikazani samo jednom. Spremite ih
-                  sada!
+                  Važno: Ovi kodovi će biti prikazani samo jednom. Spremite ih
+                  odmah!
                 </p>
               </div>
             )}

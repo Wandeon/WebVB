@@ -85,13 +85,14 @@ export function SessionsList() {
   const [isLoading, setIsLoading] = useState(true);
   const [revokingToken, setRevokingToken] = useState<string | null>(null);
   const [isRevokingAll, setIsRevokingAll] = useState(false);
+  const currentSessionToken = session?.session?.token;
 
   const fetchSessions = useCallback(async () => {
     try {
       const result = await listSessions();
 
       if (result.error) {
-        throw new Error(result.error.message ?? 'Doslo je do greske');
+        throw new Error(result.error.message ?? 'Došlo je do greške');
       }
 
       if (result.data) {
@@ -107,9 +108,9 @@ export function SessionsList() {
       }
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -122,27 +123,36 @@ export function SessionsList() {
   }, [fetchSessions]);
 
   const handleRevokeSession = async (token: string) => {
+    if (token === currentSessionToken) {
+      toast({
+        title: 'Greška',
+        description: 'Ne možete opozvati trenutačnu sesiju.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setRevokingToken(token);
 
     try {
       const result = await revokeSession({ token });
 
       if (result.error) {
-        throw new Error(result.error.message ?? 'Doslo je do greske');
+        throw new Error(result.error.message ?? 'Došlo je do greške');
       }
 
       setSessions((prev) => prev.filter((s) => s.token !== token));
 
       toast({
         title: 'Uspjeh',
-        description: 'Sesija je uspjesno opozvana.',
+        description: 'Sesija je uspješno opozvana.',
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -157,21 +167,21 @@ export function SessionsList() {
       const result = await revokeOtherSessions();
 
       if (result.error) {
-        throw new Error(result.error.message ?? 'Doslo je do greske');
+        throw new Error(result.error.message ?? 'Došlo je do greške');
       }
 
       await fetchSessions();
 
       toast({
         title: 'Uspjeh',
-        description: 'Sve ostale sesije su uspjesno opozvane.',
+        description: 'Sve ostale sesije su uspješno opozvane.',
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Greska',
+        title: 'Greška',
         description:
-          error instanceof Error ? error.message : 'Doslo je do greske',
+          error instanceof Error ? error.message : 'Došlo je do greške',
         variant: 'destructive',
       });
     } finally {
@@ -179,7 +189,6 @@ export function SessionsList() {
     }
   };
 
-  const currentSessionToken = session?.session?.token;
   const currentSession = sessions.find((s) => s.token === currentSessionToken);
   const otherSessions = sessions.filter((s) => s.token !== currentSessionToken);
 
@@ -188,12 +197,12 @@ export function SessionsList() {
       <CardHeader>
         <CardTitle>Aktivne sesije</CardTitle>
         <CardDescription>
-          Pregledajte i upravljajte uredajima na kojima ste prijavljeni
+          Pregledajte i upravljajte uređajima na kojima ste prijavljeni
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {isLoading ? (
-          <p className="text-sm text-neutral-500">Ucitavanje...</p>
+          <p className="text-sm text-neutral-500">Učitavanje...</p>
         ) : sessions.length === 0 ? (
           <p className="text-sm text-neutral-500">Nema aktivnih sesija</p>
         ) : (
@@ -259,6 +268,7 @@ export function SessionsList() {
                     size="icon"
                     onClick={() => void handleRevokeSession(sessionItem.token)}
                     disabled={revokingToken === sessionItem.token}
+                    aria-label={`Opozovi sesiju za ${browser}`}
                   >
                     <Trash2 className="h-4 w-4 text-error" />
                   </Button>

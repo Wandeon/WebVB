@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Ensured event poster cleanup removes all R2 image variants when posters are replaced or events deleted.
 - Tightened gallery reorder validation and added test coverage for reorder endpoint.
 - Prevented duplicate R2 deletions when removing galleries with shared cover images.
+- Hardened settings security flows with password confirmation for backup codes, safer session revocation guards, and accessibility copy fixes.
 
 ## Sprint 1.10 - Settings Page (Completed)
 
