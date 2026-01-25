@@ -357,24 +357,11 @@ describe('Users API', () => {
       expect(data.error?.message).toContain('uloge');
     });
 
-    it('allows admin to create another admin (same level)', async () => {
+    it('returns 403 when admin tries to create another admin', async () => {
       mockedGetSession.mockResolvedValue({
         session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
         user: mockAdmin,
       } as never);
-
-      mockedUsersRepository.findByEmail.mockResolvedValue(null);
-      mockedUsersRepository.create.mockResolvedValue({
-        id: 'new-admin-1',
-        name: 'New Admin',
-        email: 'newadmin@example.com',
-        emailVerified: false,
-        image: null,
-        role: 'admin',
-        active: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
 
       const request = createMockNextRequest('http://localhost/api/users', {
         method: 'POST',
@@ -389,10 +376,10 @@ describe('Users API', () => {
       const response = await POST(request);
       const data = (await response.json()) as ApiResponse;
 
-      // Admin can assign roles at or below their level (including admin)
-      expect(response.status).toBe(201);
-      expect(data.success).toBe(true);
-      expect(data.data?.role).toBe('admin');
+      expect(response.status).toBe(403);
+      expect(data.success).toBe(false);
+      expect(data.error?.code).toBe('FORBIDDEN');
+      expect(data.error?.message).toContain('uloge');
     });
 
     it('creates staff user when admin requests', async () => {

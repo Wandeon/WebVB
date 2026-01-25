@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - Tightened gallery reorder validation and added test coverage for reorder endpoint.
 - Prevented duplicate R2 deletions when removing galleries with shared cover images.
 - Hardened settings security flows with password confirmation for backup codes, safer session revocation guards, and accessibility copy fixes.
+- Tightened user management role enforcement to prevent admin-to-admin escalation and added permission tests.
 
 ## Sprint 1.11 - User Management (Completed)
 
