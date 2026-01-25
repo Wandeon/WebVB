@@ -1,7 +1,8 @@
 'use client';
 
+import { useId, useState } from 'react';
+
 import { Check, Facebook, Link2 } from 'lucide-react';
-import { useState } from 'react';
 
 import { cn } from '../lib/utils';
 import { Button } from '../primitives/button';
@@ -14,10 +15,15 @@ export interface ShareButtonsProps {
 
 export function ShareButtons({ url, title: _title, className }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const statusId = useId();
 
   const handleFacebookShare = () => {
     const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-    window.open(shareUrl, 'facebook-share', 'width=580,height=296');
+    window.open(
+      shareUrl,
+      'facebook-share',
+      'noopener,noreferrer,width=580,height=296'
+    );
   };
 
   const handleCopyLink = async () => {
@@ -39,7 +45,11 @@ export function ShareButtons({ url, title: _title, className }: ShareButtonsProp
   };
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div
+      className={cn('flex items-center gap-2', className)}
+      role="group"
+      aria-label="Podijeli vijest"
+    >
       <span className="text-sm text-neutral-500">Podijeli:</span>
       <Button
         variant="outline"
@@ -53,7 +63,8 @@ export function ShareButtons({ url, title: _title, className }: ShareButtonsProp
         variant="outline"
         size="sm"
         onClick={() => void handleCopyLink()}
-        aria-label={copied ? 'Kopirano' : 'Kopiraj poveznicu'}
+        aria-label={copied ? 'Poveznica je kopirana' : 'Kopiraj poveznicu'}
+        aria-describedby={statusId}
       >
         {copied ? (
           <>
@@ -64,6 +75,9 @@ export function ShareButtons({ url, title: _title, className }: ShareButtonsProp
           <Link2 className="h-4 w-4" />
         )}
       </Button>
+      <span id={statusId} role="status" aria-live="polite" className="sr-only">
+        {copied ? 'Poveznica je kopirana.' : ''}
+      </span>
     </div>
   );
 }

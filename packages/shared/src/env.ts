@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ADMIN_APP_URL_DEFAULT } from './constants';
+import { ADMIN_APP_URL_DEFAULT, PUBLIC_SITE_URL_DEFAULT } from './constants';
 
 // Schema definitions - single source of truth for both validation and types
 const baseEnvSchema = z.object({
@@ -29,6 +29,7 @@ const adminAuthEnvSchema = baseEnvSchema
 
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
+  NEXT_PUBLIC_SITE_URL: z.string().url().default(PUBLIC_SITE_URL_DEFAULT),
 });
 
 const adminR2EnvSchema = z.object({

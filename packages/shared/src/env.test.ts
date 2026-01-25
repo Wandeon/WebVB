@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ADMIN_APP_URL_DEFAULT } from './constants';
+import { ADMIN_APP_URL_DEFAULT, PUBLIC_SITE_URL_DEFAULT } from './constants';
 import { getAdminAuthEnv, getBaseEnv, getPublicEnv } from './env';
 
 const originalEnv = process.env;
@@ -22,10 +22,12 @@ describe('env validation', () => {
   it('uses default public app url when missing', () => {
     resetEnv();
     delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.NEXT_PUBLIC_SITE_URL;
 
     const env = getPublicEnv();
 
     expect(env.NEXT_PUBLIC_APP_URL).toBe(ADMIN_APP_URL_DEFAULT);
+    expect(env.NEXT_PUBLIC_SITE_URL).toBe(PUBLIC_SITE_URL_DEFAULT);
   });
 
   it('validates admin auth env with required values', () => {

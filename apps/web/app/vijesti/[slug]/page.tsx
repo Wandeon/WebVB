@@ -1,6 +1,11 @@
 
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
+import { ArrowLeft } from 'lucide-react';
+
 import { postsRepository, type PostWithAuthor } from '@repo/database';
-import { POST_CATEGORIES } from '@repo/shared';
+import { getPublicEnv, POST_CATEGORIES } from '@repo/shared';
 import {
   ArticleContent,
   ArticleHero,
@@ -8,9 +13,6 @@ import {
   RelatedPosts,
   ShareButtons,
 } from '@repo/ui';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 
@@ -19,6 +21,11 @@ export const revalidate = 60;
 interface NewsDetailPageProps {
   params: Promise<{ slug: string }>;
 }
+
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+
+const META_TITLE_MAX_LENGTH = 70;
+const META_DESCRIPTION_MAX_LENGTH = 160;
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim();
@@ -29,27 +36,67 @@ function truncate(text: string, length: number): string {
   return text.slice(0, length).trim() + '...';
 }
 
+async function fetchPostBySlug(slug: string): Promise<PostWithAuthor | null> {
+  try {
+    return await postsRepository.findBySlug(slug);
+  } catch {
+    throw new Error('Ne možemo trenutno učitati vijest. Pokušajte ponovno.');
+  }
+}
+
+async function fetchRelatedPosts(
+  postId: string,
+  category: string,
+  limit: number
+): Promise<PostWithAuthor[]> {
+  try {
+    return await postsRepository.getRelatedPosts(postId, category, limit);
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({
   params,
 }: NewsDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await postsRepository.findBySlug(slug);
+  let post: PostWithAuthor | null = null;
+
+  try {
+    post = await fetchPostBySlug(slug);
+  } catch {
+    return {
+      title: 'Vijest trenutno nije dostupna',
+      description: 'Došlo je do greške prilikom dohvaćanja vijesti.',
+    };
+  }
 
   if (!post || !post.publishedAt) {
     return { title: 'Vijest nije pronađena' };
   }
 
-  const description = post.excerpt || truncate(stripHtml(post.content), 160);
+  const titleText = truncate(stripHtml(post.title), META_TITLE_MAX_LENGTH);
+  const description =
+    post.excerpt ||
+    truncate(stripHtml(post.content), META_DESCRIPTION_MAX_LENGTH);
+  const fallbackImage = `${NEXT_PUBLIC_SITE_URL}/og-image.jpg`;
+  const ogImage = post.featuredImage ?? fallbackImage;
 
   return {
-    title: post.title,
+    title: titleText,
     description,
     openGraph: {
-      title: post.title,
+      title: titleText,
       description,
       type: 'article',
       publishedTime: post.publishedAt.toISOString(),
-      images: post.featuredImage ? [post.featuredImage] : [],
+      images: ogImage ? [ogImage] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: titleText,
+      description,
+      images: ogImage ? [ogImage] : [],
     },
   };
 }
@@ -61,24 +108,19 @@ export async function generateStaticParams() {
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;
-  const post = await postsRepository.findBySlug(slug);
+  const post = await fetchPostBySlug(slug);
 
   if (!post || !post.publishedAt) {
     notFound();
   }
 
-  const relatedPosts = await postsRepository.getRelatedPosts(
-    post.id,
-    post.category,
-    3
-  );
+  const relatedPosts = await fetchRelatedPosts(post.id, post.category, 3);
 
   const categoryLabel =
     POST_CATEGORIES[post.category as keyof typeof POST_CATEGORIES] ||
     post.category;
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://velikibukovec.hr';
-  const articleUrl = `${baseUrl}/vijesti/${post.slug}`;
+  const articleUrl = `${NEXT_PUBLIC_SITE_URL}/vijesti/${post.slug}`;
 
   return (
     <>

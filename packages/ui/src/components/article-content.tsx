@@ -1,11 +1,16 @@
-import { cn } from '../lib/utils';
+import DOMPurify from 'isomorphic-dompurify';
 
+import { cn } from '../lib/utils';
 export interface ArticleContentProps {
   content: string;
   className?: string;
 }
 
 export function ArticleContent({ content, className }: ArticleContentProps) {
+  const sanitizedContent = DOMPurify.sanitize(content, {
+    USE_PROFILES: { html: true },
+  });
+
   return (
     <article
       className={cn(
@@ -15,7 +20,7 @@ export function ArticleContent({ content, className }: ArticleContentProps) {
         'prose-img:rounded-lg',
         className
       )}
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );
 }

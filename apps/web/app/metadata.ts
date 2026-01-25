@@ -1,6 +1,9 @@
+import { getPublicEnv } from '@repo/shared';
+
 import type { Metadata } from 'next';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://velikibukovec.hr';
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+const siteUrl = NEXT_PUBLIC_SITE_URL;
 
 export const siteConfig = {
   name: 'Općina Veliki Bukovec',
