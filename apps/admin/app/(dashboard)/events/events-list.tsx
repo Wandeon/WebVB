@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Breadcrumbs } from '@/components/layout';
 import {
   DataTable,
   DataTablePagination,
@@ -15,6 +14,7 @@ import {
   getColumns,
   type Event,
 } from '@/components/events';
+import { Breadcrumbs } from '@/components/layout';
 
 interface PaginatedResponse {
   success: boolean;

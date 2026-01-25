@@ -1,7 +1,7 @@
 import { Toaster } from '@repo/ui';
 
-import { Breadcrumbs } from '@/components/layout';
 import { EventForm } from '@/components/events';
+import { Breadcrumbs } from '@/components/layout';
 
 export const metadata = {
   title: 'Novo događanje | Admin',

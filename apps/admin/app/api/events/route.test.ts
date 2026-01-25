@@ -160,9 +160,12 @@ describe('Events API', () => {
       );
       await GET(request as never);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockedEventsRepository.findAll).toHaveBeenCalledWith(
         expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           from: expect.any(Date),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           to: expect.any(Date),
         })
       );
@@ -177,6 +180,7 @@ describe('Events API', () => {
       const request = new Request('http://localhost/api/events?upcoming=true');
       await GET(request as never);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockedEventsRepository.findAll).toHaveBeenCalledWith(
         expect.objectContaining({
           upcoming: true,

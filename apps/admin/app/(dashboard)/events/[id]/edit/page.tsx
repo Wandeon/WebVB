@@ -2,8 +2,8 @@ import { eventsRepository } from '@repo/database';
 import { Toaster } from '@repo/ui';
 import { notFound } from 'next/navigation';
 
-import { Breadcrumbs } from '@/components/layout';
 import { EventForm } from '@/components/events';
+import { Breadcrumbs } from '@/components/layout';
 
 interface EditEventPageProps {
   params: Promise<{ id: string }>;
