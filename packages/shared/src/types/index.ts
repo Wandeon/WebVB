@@ -10,6 +10,7 @@ export interface User {
   emailVerified: boolean;
   image: string | null;
   role: UserRole;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

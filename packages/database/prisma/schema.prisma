@@ -27,6 +27,7 @@ model User {
 
   // Custom extension field
   role          String    @default("staff") // 'super_admin', 'admin', 'staff'
+  active        Boolean   @default(true)    // Soft-delete flag for user management
 
   // Relations
   sessions      Session[]
