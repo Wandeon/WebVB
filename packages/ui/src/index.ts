@@ -4,4 +4,5 @@ export * from './components/ui';
 export * from './components/nav-menu';
 export * from './components/mobile-drawer';
 export * from './components/footer';
+export * from './components/post-card';
 export * from './lib/utils';
