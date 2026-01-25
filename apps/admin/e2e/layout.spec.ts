@@ -1,16 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import type { Page } from '@playwright/test';
-
-import { TEST_USER } from './helpers/test-user';
-
-const login = async (page: Page) => {
-  await page.goto('/login');
-  await page.fill('input[type="email"]', TEST_USER.email);
-  await page.fill('input[type="password"]', TEST_USER.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL('/');
-};
+import { login } from './helpers/auth';
 
 test.describe('Admin layout navigation', () => {
   test('marks the active navigation item with aria-current', async ({ page }) => {

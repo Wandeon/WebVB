@@ -1,7 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 import { login } from './helpers/auth';
-import { disconnectDb, getUserByEmail } from './helpers/db';
+import {
+  clearUserSessions,
+  disconnectDb,
+  getSessionCount,
+  getUserByEmail,
+} from './helpers/db';
 import { TEST_USER } from './helpers/test-user';
 
 test.describe('Settings', () => {
@@ -26,7 +31,7 @@ test.describe('Settings', () => {
     await page.fill('#name', newName);
 
     // Click save button
-    await page.click('button:has-text("Spremi promjene")');
+    await page.getByRole('button', { name: 'Spremi promjene' }).click();
 
     // Wait for success toast
     await expect(page.getByText('Profil je uspješno ažuriran.')).toBeVisible();
@@ -38,7 +43,7 @@ test.describe('Settings', () => {
 
     // Step 5: Restore original name
     await page.fill('#name', originalName ?? '');
-    await page.click('button:has-text("Spremi promjene")');
+    await page.getByRole('button', { name: 'Spremi promjene' }).click();
 
     // Wait for success toast again
     await expect(page.getByText('Profil je uspješno ažuriran.')).toBeVisible();
@@ -59,5 +64,41 @@ test.describe('Settings', () => {
 
     // Step 3: Verify current session badge is shown
     await expect(page.getByText('Trenutna sesija')).toBeVisible();
+  });
+
+  test('sessions revoke removes other sessions', async ({ page, browser }) => {
+    const user = await getUserByEmail(TEST_USER.email);
+    expect(user).not.toBeNull();
+    const userId = user!.id;
+
+    await clearUserSessions(userId);
+
+    await login(page);
+    await page.goto('/settings');
+
+    const otherContext = await browser.newContext();
+    const otherPage = await otherContext.newPage();
+    await login(otherPage);
+    await otherContext.close();
+
+    await expect(page.getByText('Aktivne sesije')).toBeVisible();
+
+    const initialSessionCount = await getSessionCount(userId);
+    expect(initialSessionCount).toBeGreaterThanOrEqual(2);
+
+    await page
+      .getByRole('button', { name: /Opozovi sve ostale sesije/ })
+      .click();
+
+    await expect(
+      page.getByText('Sve ostale sesije su uspješno opozvane.')
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole('button', { name: /Opozovi sve ostale sesije/ })
+    ).toHaveCount(0);
+
+    const remainingSessionCount = await getSessionCount(userId);
+    expect(remainingSessionCount).toBe(1);
   });
 });

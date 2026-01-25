@@ -22,7 +22,7 @@ test.describe('Events CRUD', () => {
 
     // Step 2: Navigate to events and create a new event
     await page.goto('/events');
-    await page.click('a:has-text("Novo događanje")');
+    await page.getByRole('link', { name: 'Novo događanje' }).click();
     await page.waitForURL('/events/new');
 
     // Fill in the event form
@@ -42,7 +42,7 @@ test.describe('Events CRUD', () => {
     await page.keyboard.type('This is a test event description for E2E testing.');
 
     // Save the event
-    await page.click('button:has-text("Spremi")');
+    await page.getByRole('button', { name: 'Spremi' }).click();
 
     // Wait for redirect to events list
     await page.waitForURL('/events');
@@ -58,17 +58,17 @@ test.describe('Events CRUD', () => {
     // Step 4: Edit the event
     // Find the row with our event and open the actions menu
     const eventRow = page.locator('tr').filter({ hasText: TEST_EVENT_TITLE });
-    await eventRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await eventRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Edit from dropdown
-    await page.click('[role="menuitem"]:has-text("Uredi")');
+    await page.getByRole('menuitem', { name: 'Uredi' }).click();
     await page.waitForURL(/\/events\/.*\/edit/);
 
     // Update the title
     await page.fill('#title', UPDATED_EVENT_TITLE);
 
     // Save the changes
-    await page.click('button:has-text("Spremi")');
+    await page.getByRole('button', { name: 'Spremi' }).click();
 
     // Wait for redirect back to events list
     await page.waitForURL('/events');
@@ -92,13 +92,13 @@ test.describe('Events CRUD', () => {
     const updatedEventRow = page.locator('tr').filter({
       hasText: UPDATED_EVENT_TITLE,
     });
-    await updatedEventRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await updatedEventRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Delete from dropdown
-    await page.click('[role="menuitem"]:has-text("Obrisi")');
+    await page.getByRole('menuitem', { name: /Obri[šs]i/ }).click();
 
     // Confirm deletion in dialog
-    await page.click('button:has-text("Obrisi")');
+    await page.getByRole('button', { name: /Obri[šs]i/ }).click();
 
     // Wait for the event to be removed from the list
     await expect(

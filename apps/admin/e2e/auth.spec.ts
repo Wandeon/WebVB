@@ -82,7 +82,7 @@ test.describe('Authentication Flow', () => {
     expect(session).not.toBeNull();
 
     // Click logout button
-    await page.click('button:has-text("Odjava")');
+    await page.getByRole('button', { name: 'Odjava' }).click();
 
     // Wait for redirect to login
     await page.waitForURL('/login');

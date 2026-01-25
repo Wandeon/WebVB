@@ -22,7 +22,7 @@ test.describe('Galleries CRUD', () => {
 
     // Step 2: Navigate to galleries and create a new gallery
     await page.goto('/galleries');
-    await page.click('a:has-text("Nova galerija")');
+    await page.getByRole('link', { name: 'Nova galerija' }).click();
     await page.waitForURL('/galleries/new');
 
     // Fill in the gallery form
@@ -36,7 +36,7 @@ test.describe('Galleries CRUD', () => {
     await page.fill('#eventDate', today ?? '');
 
     // Save the gallery
-    await page.click('button:has-text("Spremi")');
+    await page.getByRole('button', { name: 'Spremi' }).click();
 
     // Wait for redirect to galleries list
     await page.waitForURL('/galleries');
@@ -52,17 +52,17 @@ test.describe('Galleries CRUD', () => {
     // Step 4: Edit the gallery
     // Find the row with our gallery and open the actions menu
     const galleryRow = page.locator('tr').filter({ hasText: TEST_GALLERY_NAME });
-    await galleryRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await galleryRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Edit from dropdown
-    await page.click('[role="menuitem"]:has-text("Uredi")');
+    await page.getByRole('menuitem', { name: 'Uredi' }).click();
     await page.waitForURL(/\/galleries\/.*/);
 
     // Update the name
     await page.fill('#name', UPDATED_GALLERY_NAME);
 
     // Save the changes
-    await page.click('button:has-text("Spremi")');
+    await page.getByRole('button', { name: 'Spremi' }).click();
 
     // Wait for redirect back to galleries list
     await page.waitForURL('/galleries');
@@ -86,13 +86,13 @@ test.describe('Galleries CRUD', () => {
     const updatedGalleryRow = page.locator('tr').filter({
       hasText: UPDATED_GALLERY_NAME,
     });
-    await updatedGalleryRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await updatedGalleryRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Delete from dropdown
-    await page.click('[role="menuitem"]:has-text("Obrisi")');
+    await page.getByRole('menuitem', { name: /Obri[šs]i/ }).click();
 
     // Confirm deletion in dialog
-    await page.click('button:has-text("Obrisi")');
+    await page.getByRole('button', { name: /Obri[šs]i/ }).click();
 
     // Wait for the gallery to be removed from the list
     await expect(

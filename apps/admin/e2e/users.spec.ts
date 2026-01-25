@@ -23,7 +23,7 @@ test.describe('Users CRUD', () => {
 
     // Step 2: Navigate to users and create a new user
     await page.goto('/users');
-    await page.click('a:has-text("Novi korisnik")');
+    await page.getByRole('link', { name: 'Novi korisnik' }).click();
     await page.waitForURL('/users/new');
 
     // Fill in the user form
@@ -33,10 +33,10 @@ test.describe('Users CRUD', () => {
 
     // Select role - click the trigger then select an option
     await page.click('#role');
-    await page.click('[role="option"]:has-text("Osoblje")');
+    await page.getByRole('option', { name: 'Osoblje' }).click();
 
     // Create the user
-    await page.click('button:has-text("Stvori korisnika")');
+    await page.getByRole('button', { name: 'Stvori korisnika' }).click();
 
     // Wait for redirect to users list
     await page.waitForURL('/users');
@@ -53,17 +53,17 @@ test.describe('Users CRUD', () => {
     // Step 4: Edit the user
     // Find the row with our user and open the actions menu
     const userRow = page.locator('tr').filter({ hasText: TEST_USER_NAME });
-    await userRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await userRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Edit from dropdown
-    await page.click('[role="menuitem"]:has-text("Uredi")');
+    await page.getByRole('menuitem', { name: 'Uredi' }).click();
     await page.waitForURL(/\/users\/.*$/);
 
     // Update the name
     await page.fill('#name', UPDATED_USER_NAME);
 
     // Save the changes
-    await page.click('button:has-text("Spremi promjene")');
+    await page.getByRole('button', { name: 'Spremi promjene' }).click();
 
     // Wait for redirect back to users list
     await page.waitForURL('/users');
@@ -87,10 +87,10 @@ test.describe('Users CRUD', () => {
     const updatedUserRow = page.locator('tr').filter({
       hasText: UPDATED_USER_NAME,
     });
-    await updatedUserRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await updatedUserRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Deactivate from dropdown
-    await page.click('[role="menuitem"]:has-text("Deaktiviraj")');
+    await page.getByRole('menuitem', { name: 'Deaktiviraj' }).click();
 
     // Wait for the inactive badge to appear
     await expect(
@@ -101,5 +101,17 @@ test.describe('Users CRUD', () => {
     const deactivatedUser = await getUserByName(UPDATED_USER_NAME);
     expect(deactivatedUser).not.toBeNull();
     expect(deactivatedUser?.active).toBe(false);
+
+    // Step 6: Delete the user from database and verify removal
+    await deleteUserByEmail(TEST_USER_EMAIL);
+
+    await page.reload();
+
+    await expect(
+      page.locator('tr').filter({ hasText: UPDATED_USER_NAME })
+    ).toHaveCount(0);
+
+    const deletedUser = await getUserByName(UPDATED_USER_NAME);
+    expect(deletedUser).toBeNull();
   });
 });

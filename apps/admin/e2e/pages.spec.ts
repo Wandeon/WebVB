@@ -22,7 +22,7 @@ test.describe('Pages CRUD', () => {
 
     // Step 2: Navigate to pages and create a new page
     await page.goto('/pages');
-    await page.click('a:has-text("Nova stranica")');
+    await page.getByRole('link', { name: 'Nova stranica' }).click();
     await page.waitForURL('/pages/new');
 
     // Fill in the page form
@@ -33,7 +33,7 @@ test.describe('Pages CRUD', () => {
     await page.keyboard.type('This is a test page content for E2E testing.');
 
     // Save the page
-    await page.click('button:has-text("Spremi")');
+    await page.getByRole('button', { name: 'Spremi' }).click();
 
     // Wait for redirect to pages list
     await page.waitForURL('/pages');
@@ -49,17 +49,17 @@ test.describe('Pages CRUD', () => {
     // Step 4: Edit the page
     // Find the row with our page and open the actions menu
     const pageRow = page.locator('tr').filter({ hasText: TEST_PAGE_TITLE });
-    await pageRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await pageRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Edit from dropdown
-    await page.click('[role="menuitem"]:has-text("Uredi")');
+    await page.getByRole('menuitem', { name: 'Uredi' }).click();
     await page.waitForURL(/\/pages\/.*\/edit/);
 
     // Update the title
     await page.fill('#title', UPDATED_PAGE_TITLE);
 
     // Save the changes
-    await page.click('button:has-text("Spremi")');
+    await page.getByRole('button', { name: 'Spremi' }).click();
 
     // Wait for redirect back to pages list
     await page.waitForURL('/pages');
@@ -83,13 +83,13 @@ test.describe('Pages CRUD', () => {
     const updatedPageRow = page.locator('tr').filter({
       hasText: UPDATED_PAGE_TITLE,
     });
-    await updatedPageRow.locator('button[aria-label="Otvori izbornik"]').click();
+    await updatedPageRow.getByRole('button', { name: 'Otvori izbornik' }).click();
 
     // Click Delete from dropdown
-    await page.click('[role="menuitem"]:has-text("Obriši")');
+    await page.getByRole('menuitem', { name: /Obri[šs]i/ }).click();
 
     // Confirm deletion in dialog
-    await page.click('button:has-text("Obriši")');
+    await page.getByRole('button', { name: /Obri[šs]i/ }).click();
 
     // Wait for the page to be removed from the list
     await expect(

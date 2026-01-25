@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 - Documented Sprint 1.5-1.6 audit review findings.
+- Hardened admin Playwright E2E coverage with shared login usage, more resilient selectors, settings session revocation flow, and user removal verification.
 
 ## Sprint 1.12 - Admin Integration Tests (Completed)
 
