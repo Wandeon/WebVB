@@ -71,3 +71,5 @@ export interface DocumentWithUploader extends Document {
     email: string;
   } | null;
 }
+
+export type { Page, PageWithChildren } from './page';
