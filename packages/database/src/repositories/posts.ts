@@ -197,4 +197,41 @@ export const postsRepository = {
     const count = await db.post.count({ where: { id } });
     return count > 0;
   },
+
+  /**
+   * Get the latest featured published post
+   */
+  async getFeaturedPost(): Promise<PostWithAuthor | null> {
+    return db.post.findFirst({
+      where: {
+        isFeatured: true,
+        publishedAt: { not: null },
+      },
+      include: { author: { select: authorSelect } },
+      orderBy: { publishedAt: 'desc' },
+    });
+  },
+
+  /**
+   * Get latest published posts (optionally excluding featured)
+   */
+  async getLatestPosts(
+    limit: number = 4,
+    excludeFeatured: boolean = true
+  ): Promise<PostWithAuthor[]> {
+    const where: Prisma.PostWhereInput = {
+      publishedAt: { not: null },
+    };
+
+    if (excludeFeatured) {
+      where.isFeatured = false;
+    }
+
+    return db.post.findMany({
+      where,
+      include: { author: { select: authorSelect } },
+      orderBy: { publishedAt: 'desc' },
+      take: limit,
+    });
+  },
 };

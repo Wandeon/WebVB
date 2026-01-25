@@ -8,6 +8,22 @@ All notable changes to this project will be documented in this file.
 - Improved public navigation accessibility with aria-current states, focus-visible styles, and canonical metadata.
 - Enforced server-side admin API authorization with audit logging for all core CRUD actions.
 
+## Sprint 2.2 - Homepage (Completed)
+
+### Added
+- HeroSection component with featured news display
+- PostCard component for news display
+- EventCard component for events display
+- QuickLinkCard component for quick links grid
+- NewsletterSignup component with form validation
+- SectionHeader component for section titles
+- FadeIn animation component using framer-motion
+- Homepage data fetching methods in repositories (getFeaturedPost, getLatestPosts, getUpcomingEvents)
+- Quick links configuration for homepage
+- Complete homepage with hero, quick links, news, events, and newsletter sections
+- Revalidation every 60 seconds for fresh data
+- Gate: Homepage loads with real data, responsive layout works
+
 ## Sprint 2.1 - Public Layout + Nav (Completed)
 
 ### Added

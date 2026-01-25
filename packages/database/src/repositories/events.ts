@@ -136,4 +136,20 @@ export const eventsRepository = {
     const count = await db.event.count({ where: { id } });
     return count > 0;
   },
+
+  /**
+   * Get upcoming events (from today onwards)
+   */
+  async getUpcomingEvents(limit: number = 5): Promise<Event[]> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return db.event.findMany({
+      where: {
+        eventDate: { gte: today },
+      },
+      orderBy: { eventDate: 'asc' },
+      take: limit,
+    });
+  },
 };
