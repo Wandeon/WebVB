@@ -27,4 +27,6 @@ export * from './components/event-tabs';
 export * from './components/event-calendar';
 export * from './components/add-to-calendar';
 export * from './components/event-hero';
+export * from './components/gallery-card';
+export * from './components/photo-grid';
 export * from './lib/utils';
