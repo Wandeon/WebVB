@@ -13,6 +13,19 @@ All notable changes to this project will be documented in this file.
 - Fixed events list API response to return events payload consistently and aligned client expectations.
 - Ensured event poster cleanup removes all R2 image variants when posters are replaced or events deleted.
 
+## Sprint 1.10 - Settings Page (Completed)
+
+### Added
+- Better Auth twoFactor plugin integration for TOTP-based 2FA
+- ProfileForm component for updating user name
+- PasswordForm component with password strength validation
+- TwoFactorSetup component with QR code generation and backup codes
+- SessionsList component for viewing and revoking active sessions
+- Settings validation schemas with Croatian error messages
+- Settings page combining profile, security, and sessions management
+- Validation tests for all settings schemas (17 new tests)
+- Gate: Update profile, change password, enable/disable 2FA, view/revoke sessions
+
 ## Sprint 1.9 - Gallery Management (Completed)
 
 ### Added
