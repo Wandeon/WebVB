@@ -15,3 +15,12 @@ export type {
   CreateDocumentData,
   UpdateDocumentData,
 } from './documents';
+
+export {
+  pagesRepository,
+  type PageWithRelations,
+  type FindAllPagesOptions,
+  type FindAllPagesResult,
+  type CreatePageData,
+  type UpdatePageData,
+} from './pages';
