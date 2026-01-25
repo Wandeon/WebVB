@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+      'framer-motion': resolve(__dirname, 'test-helpers/framer-motion.tsx'),
       'next/link': resolve(__dirname, 'test-helpers/next-link.tsx'),
       'next/navigation': resolve(__dirname, 'test-helpers/next-navigation.ts'),
     },

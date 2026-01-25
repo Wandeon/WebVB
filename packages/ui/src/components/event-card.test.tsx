@@ -1,0 +1,30 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+
+import { EventCard } from './event-card';
+
+describe('EventCard', () => {
+  it('renders event details and poster image', () => {
+    render(
+      <EventCard
+        id="event-1"
+        title="Seoska fešta"
+        description="Druženje i glazba"
+        eventDate={new Date('2024-05-10T18:30:00.000Z')}
+        location="Veliki Bukovec"
+        posterImage="https://example.com/event.jpg"
+      />
+    );
+
+    expect(screen.getByRole('link', { name: /Seoska fešta/ })).toHaveAttribute(
+      'href',
+      '/dogadanja/event-1'
+    );
+    expect(screen.getByText('Druženje i glazba')).toBeInTheDocument();
+    expect(screen.getByText('Veliki Bukovec')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Seoska fešta' })).toHaveAttribute(
+      'src',
+      'https://example.com/event.jpg'
+    );
+  });
+});
