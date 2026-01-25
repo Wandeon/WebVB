@@ -31,6 +31,33 @@ const imageIds = [
   '44444444-4444-4444-8444-444444444444',
 ];
 
+function createMockImage(id: string, sortOrder: number) {
+  return {
+    id,
+    createdAt: new Date(),
+    galleryId,
+    imageUrl: `https://r2.example.com/uploads/${id}/large.webp`,
+    thumbnailUrl: `https://r2.example.com/uploads/${id}/thumb.webp`,
+    caption: null,
+    sortOrder,
+  };
+}
+
+function createMockGallery(images: ReturnType<typeof createMockImage>[]) {
+  return {
+    id: galleryId,
+    name: 'Test Gallery',
+    slug: 'test-gallery',
+    description: null,
+    eventDate: new Date(),
+    coverImage: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    images,
+    _count: { images: images.length },
+  };
+}
+
 describe('Galleries reorder API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -62,10 +89,9 @@ describe('Galleries reorder API', () => {
   });
 
   it('rejects duplicate image IDs', async () => {
-    mockedGalleriesRepository.findById.mockResolvedValue({
-      id: galleryId,
-      images: imageIds.map((id) => ({ id })),
-    });
+    mockedGalleriesRepository.findById.mockResolvedValue(
+      createMockGallery(imageIds.map((id, idx) => createMockImage(id, idx)))
+    );
 
     const request = new Request(
       `http://localhost/api/galleries/${galleryId}/reorder`,
@@ -87,10 +113,9 @@ describe('Galleries reorder API', () => {
   });
 
   it('rejects payloads that do not include all images', async () => {
-    mockedGalleriesRepository.findById.mockResolvedValue({
-      id: galleryId,
-      images: imageIds.map((id) => ({ id })),
-    });
+    mockedGalleriesRepository.findById.mockResolvedValue(
+      createMockGallery(imageIds.map((id, idx) => createMockImage(id, idx)))
+    );
 
     const request = new Request(
       `http://localhost/api/galleries/${galleryId}/reorder`,
@@ -112,10 +137,9 @@ describe('Galleries reorder API', () => {
   });
 
   it('rejects image IDs not in the gallery', async () => {
-    mockedGalleriesRepository.findById.mockResolvedValue({
-      id: galleryId,
-      images: imageIds.map((id) => ({ id })),
-    });
+    mockedGalleriesRepository.findById.mockResolvedValue(
+      createMockGallery(imageIds.map((id, idx) => createMockImage(id, idx)))
+    );
 
     const request = new Request(
       `http://localhost/api/galleries/${galleryId}/reorder`,
@@ -143,10 +167,9 @@ describe('Galleries reorder API', () => {
   });
 
   it('reorders images when payload is valid', async () => {
-    mockedGalleriesRepository.findById.mockResolvedValue({
-      id: galleryId,
-      images: imageIds.map((id) => ({ id })),
-    });
+    mockedGalleriesRepository.findById.mockResolvedValue(
+      createMockGallery(imageIds.map((id, idx) => createMockImage(id, idx)))
+    );
     mockedGalleriesRepository.reorderImages.mockResolvedValue();
 
     const request = new Request(
