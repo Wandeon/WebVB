@@ -1,8 +1,5 @@
 
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
-import { ArrowLeft } from 'lucide-react';
 
 import { postsRepository, type PostWithAuthor } from '@repo/database';
 import { getPublicEnv, POST_CATEGORIES } from '@repo/shared';
@@ -13,6 +10,9 @@ import {
   RelatedPosts,
   ShareButtons,
 } from '@repo/ui';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 
