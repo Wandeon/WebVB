@@ -10,4 +10,5 @@ export * from './components/quick-link-card';
 export * from './components/hero-section';
 export * from './components/newsletter-signup';
 export * from './components/section-header';
+export * from './components/fade-in';
 export * from './lib/utils';
