@@ -5,6 +5,7 @@ export * from './components/nav-menu';
 export * from './components/mobile-drawer';
 export * from './components/footer';
 export * from './components/post-card';
+export * from './components/post-card-skeleton';
 export * from './components/event-card';
 export * from './components/quick-link-card';
 export * from './components/hero-section';
