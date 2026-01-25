@@ -1,10 +1,11 @@
 'use client';
 
-import type { GalleryImage } from '@repo/shared';
 import { Button, cn, Input } from '@repo/ui';
 import { GripVertical, Star, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
+
+import type { GalleryImage } from '@repo/shared';
 
 interface ImageGridProps {
   images: GalleryImage[];

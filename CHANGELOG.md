@@ -11,6 +11,23 @@ All notable changes to this project will be documented in this file.
 - Expanded environment template to cover Cloudflare, SiteGround, and Sentry client vars.
 - Fixed Croatian diacritics and zero-state pagination messaging in pages admin UI.
 
+## Sprint 1.9 - Gallery Management (Completed)
+
+### Added
+- Gallery types and Zod schemas in @repo/shared
+- Galleries repository in @repo/database with image management (addImages, deleteImage, reorderImages)
+- Galleries API routes (GET, POST, PUT, DELETE) with R2 cleanup for cover and all images
+- Gallery image routes for bulk upload, individual delete, and reorder
+- Galleries list page with DataTable, search, and pagination
+- GalleryForm component with cover image upload and date picker
+- ImageManager component combining upload zone and image grid
+- ImageGrid with HTML5 drag-drop reordering, inline caption editing, set cover
+- ImageUploadZone for bulk image uploads
+- Create/edit gallery routes with Breadcrumbs
+- Galleries link in admin sidebar navigation (Images icon)
+- API route tests for galleries endpoints
+- Gate: Create gallery, upload images, reorder, set cover, edit, delete (R2 cleaned)
+
 ## Sprint 1.8 - Events Calendar (Completed)
 
 ### Added

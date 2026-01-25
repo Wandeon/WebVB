@@ -1,11 +1,12 @@
 'use client';
 
-import type { GalleryImage } from '@repo/shared';
 import { Card, CardContent, CardHeader, CardTitle, toast } from '@repo/ui';
 import { useCallback, useState } from 'react';
 
 import { ImageGrid } from './image-grid';
 import { ImageUploadZone } from './image-upload-zone';
+
+import type { GalleryImage } from '@repo/shared';
 
 interface UploadedImage {
   imageUrl: string;
@@ -247,16 +248,16 @@ export function ImageManager({
       </CardHeader>
       <CardContent className="space-y-6">
         <ImageUploadZone
-          onUploadComplete={handleUploadComplete}
+          onUploadComplete={(imgs) => void handleUploadComplete(imgs)}
           disabled={isLoading}
         />
         <ImageGrid
           images={images}
           currentCoverImage={coverImage}
-          onSetCover={handleSetCover}
-          onUpdateCaption={handleUpdateCaption}
-          onDeleteImage={handleDeleteImage}
-          onReorder={handleReorder}
+          onSetCover={(url) => void handleSetCover(url)}
+          onUpdateCaption={(id, caption) => void handleUpdateCaption(id, caption)}
+          onDeleteImage={(id) => void handleDeleteImage(id)}
+          onReorder={(ids) => void handleReorder(ids)}
         />
       </CardContent>
     </Card>

@@ -176,7 +176,7 @@ Gate: pnpm test:e2e (basic auth flow)
 ---
 
 ## Phase 1: Admin Core
-**Status:** In Progress | **Progress:** 8/12 | **Track:** A
+**Status:** In Progress | **Progress:** 9/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -188,12 +188,13 @@ Gate: pnpm test:e2e (basic auth flow)
 | 1.6 ✅ | Documents management | 🔀 | 1.5 | Upload PDF, categorize, list, delete |
 | 1.7 ✅ | Static pages CRUD | 🔀 | 1.4 | Create/edit static pages with TipTap |
 | 1.8 ✅ | Events calendar | 🔀 | 1.1 | CRUD events, calendar view |
-| 1.9 ⬜ | Gallery management | 🔗 | 1.5 | Albums, bulk upload, reorder |
+| 1.9 ✅ | Gallery management | 🔗 | 1.5 | Albums, bulk upload, reorder |
 | 1.10 ⬜ | Settings page | 🔀 | 1.1 | Profile, password, 2FA, sessions |
 | 1.11 ⬜ | User management | 🔀 | 1.10 | CRUD users (admin only) |
 | 1.12 ⬜ | Admin integration test | 🔗 | 1.1-1.11 | All CRUD operations work end-to-end |
 
 Recent updates:
+- Sprint 1.9 completed: Gallery management with bulk image upload, drag-drop reorder, R2 integration.
 - Sprint 1.7 audit fixes: corrected Croatian diacritics and zero-state pagination copy in pages admin UI.
 
 ### Sprint 1.1: Admin Layout Shell

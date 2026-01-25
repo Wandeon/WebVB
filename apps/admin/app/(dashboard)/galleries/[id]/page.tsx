@@ -1,10 +1,11 @@
 import { galleriesRepository } from '@repo/database';
-import type { GalleryImage } from '@repo/shared';
 import { Toaster } from '@repo/ui';
 import { notFound } from 'next/navigation';
 
 import { GalleryForm, ImageManager } from '@/components/galleries';
 import { Breadcrumbs } from '@/components/layout';
+
+import type { GalleryImage } from '@repo/shared';
 
 interface EditGalleryPageProps {
   params: Promise<{ id: string }>;
