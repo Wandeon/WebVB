@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 2.5 - Documents Section
-**Overall Progress:** 25/71 sprints
+**Active Sprint:** 2.6 - Events Calendar
+**Overall Progress:** 26/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 
@@ -277,7 +277,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 ---
 
 ## Phase 2: Public Website
-**Status:** In Progress | **Progress:** 4/12 | **Track:** A
+**Status:** In Progress | **Progress:** 5/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -285,7 +285,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.2 ✅ | Homepage | 🔗 | 2.1 | Hero, news, events, quick links |
 | 2.3 ✅ | News listing | 🔀 | 2.1 | List, pagination, category filter |
 | 2.4 ✅ | News detail page | 🔗 | 2.3 | Single post, related posts |
-| 2.5 ⬜ | Documents section | 🔀 | 2.1 | List, filter by category/year |
+| 2.5 ✅ | Documents section | 🔀 | 2.1 | List, filter by category/year |
 | 2.6 ⬜ | Events calendar | 🔀 | 2.1 | Monthly view, event details |
 | 2.7 ⬜ | Gallery pages | 🔀 | 2.1 | Albums, lightbox |
 | 2.8 ⬜ | Static pages | 🔀 | 2.1 | All pages from menu structure |
@@ -815,3 +815,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-25 | Sprint 2.3 completed: News listing with category filter, pagination, skeleton loading |
 | 2026-01-25 | Sprint 2.3 audit fixes: news URL validation, pagination clamping, and filter skeletons |
 | 2026-01-25 | Sprint 2.4 completed: News detail page with hero, content, share buttons, related posts, SEO |
+| 2026-01-25 | Sprint 2.5 completed: Documents section with sidebar navigation, accordion mobile, year filter, search |

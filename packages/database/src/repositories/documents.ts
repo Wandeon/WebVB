@@ -160,4 +160,30 @@ export const documentsRepository = {
     const count = await db.document.count({ where: { id } });
     return count > 0;
   },
+
+  /**
+   * Get distinct years from documents for year filter dropdown
+   */
+  async getDistinctYears(): Promise<number[]> {
+    const results = await db.document.findMany({
+      where: { year: { not: null } },
+      select: { year: true },
+      distinct: ['year'],
+      orderBy: { year: 'desc' },
+    });
+    return results.map((r) => r.year!);
+  },
+
+  /**
+   * Get document counts per category for sidebar badges
+   */
+  async getCategoryCounts(): Promise<Record<string, number>> {
+    const results = await db.document.groupBy({
+      by: ['category'],
+      _count: { id: true },
+    });
+    return Object.fromEntries(
+      results.map((r) => [r.category, r._count.id])
+    );
+  },
 };
