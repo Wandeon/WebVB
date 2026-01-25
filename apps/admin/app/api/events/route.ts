@@ -1,6 +1,9 @@
 import { eventsRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { eventsLogger } from '@/lib/logger';
 import { createEventSchema, eventQuerySchema } from '@/lib/validations/event';
 
@@ -9,6 +12,12 @@ import type { NextRequest } from 'next/server';
 // GET /api/events - List events with filtering, pagination, sorting
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url);
 
     const queryResult = eventQuerySchema.safeParse({
@@ -61,6 +70,12 @@ export async function GET(request: NextRequest) {
 // POST /api/events - Create new event
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = createEventSchema.safeParse(body);
@@ -102,6 +117,17 @@ export async function POST(request: NextRequest) {
       endDate: endDate ? new Date(endDate) : null,
       location,
       posterImage,
+    });
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.EVENT,
+      entityId: event.id,
+      changes: {
+        after: event,
+      },
     });
 
     eventsLogger.info(

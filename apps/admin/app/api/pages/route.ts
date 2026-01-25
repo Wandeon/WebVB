@@ -1,6 +1,9 @@
 import { pagesRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { pagesLogger } from '@/lib/logger';
 import { generateSlug } from '@/lib/utils/slug';
 import { createPageSchema, pageQuerySchema } from '@/lib/validations/page';
@@ -9,6 +12,12 @@ import type { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url);
 
     const queryResult = pageQuerySchema.safeParse({
@@ -52,6 +61,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = createPageSchema.safeParse(body);
@@ -88,6 +103,17 @@ export async function POST(request: NextRequest) {
       content,
       parentId: parentId ?? null,
       menuOrder: menuOrder ?? 0,
+    });
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.PAGE,
+      entityId: page.id,
+      changes: {
+        after: page,
+      },
     });
 
     pagesLogger.info({ pageId: page.id, slug }, 'Stranica uspješno stvorena');

@@ -1,7 +1,14 @@
 import { documentsRepository } from '@repo/database';
-import { createDocumentSchema, documentQuerySchema } from '@repo/shared';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  createDocumentSchema,
+  documentQuerySchema,
+} from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
 
 import type { NextRequest } from 'next/server';
@@ -9,6 +16,12 @@ import type { NextRequest } from 'next/server';
 // GET /api/documents - List documents with filtering, pagination, sorting
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url);
 
     const queryResult = documentQuerySchema.safeParse({
@@ -59,6 +72,12 @@ export async function GET(request: NextRequest) {
 // POST /api/documents - Create new document (metadata only, file already uploaded)
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = createDocumentSchema.safeParse(body);
@@ -80,7 +99,18 @@ export async function POST(request: NextRequest) {
       category,
       subcategory: subcategory ?? null,
       year: year ?? null,
-      uploadedBy: null, // Auth: get from session when implemented
+      uploadedBy: authResult.context.userId,
+    });
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.DOCUMENT,
+      entityId: document.id,
+      changes: {
+        after: document,
+      },
     });
 
     documentsLogger.info(

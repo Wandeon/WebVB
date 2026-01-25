@@ -23,6 +23,11 @@ export interface UpdateUserData {
   active?: boolean;
 }
 
+export interface CreateCredentialAccountData {
+  userId: string;
+  password: string;
+}
+
 const userSelect = {
   id: true,
   name: true,
@@ -101,6 +106,17 @@ export const usersRepository = {
         active: true,
       },
       select: userSelect,
+    });
+  },
+
+  async createCredentialAccount(data: CreateCredentialAccountData) {
+    return db.account.create({
+      data: {
+        userId: data.userId,
+        accountId: data.userId,
+        providerId: 'credential',
+        password: data.password,
+      },
     });
   },
 

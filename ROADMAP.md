@@ -9,7 +9,7 @@
 **Active Sprint:** 2.1 - Public Layout + Nav
 **Overall Progress:** 22/71 sprints
 **Target Launch:** TBD
-**Latest Audit:** Phase 4 deployment audit in `docs/audits/PHASE-4-DEPLOYMENT-AUDIT.md`
+**Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 
 ---
 
@@ -198,6 +198,7 @@ Recent updates:
 - Sprint 1.12 follow-up: Hardened E2E selectors, reused shared auth helper, and added session revocation coverage plus user removal verification.
 - Sprint 1.11 completed: User management with CRUD, role-based permissions, soft-delete deactivation, and login blocking for inactive users.
 - Sprint 1.11 audit follow-up: tightened role hierarchy enforcement for user management.
+- Phase 0/1/4 system audit: enforced server-side auth and audit logging across admin APIs.
 - Sprint 1.10 completed: Settings page with profile, password change, 2FA setup, and sessions management.
 - Sprint 1.9 completed: Gallery management with bulk image upload, drag-drop reorder, R2 integration.
 - Sprint 1.7 audit fixes: corrected Croatian diacritics and zero-state pagination copy in pages admin UI.

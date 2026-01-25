@@ -1,6 +1,8 @@
 // apps/admin/app/api/galleries/route.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createAuditLog } from '@/lib/audit-log';
+import { requireAuth } from '@/lib/api-auth';
 import { GET, POST } from './route';
 
 import type * as GalleryValidationModule from '@/lib/validations/gallery';
@@ -59,6 +61,14 @@ vi.mock('@repo/database', () => ({
   },
 }));
 
+vi.mock('@/lib/api-auth', () => ({
+  requireAuth: vi.fn(),
+}));
+
+vi.mock('@/lib/audit-log', () => ({
+  createAuditLog: vi.fn(),
+}));
+
 // Mock logger
 vi.mock('@/lib/logger', () => ({
   galleriesLogger: {
@@ -106,10 +116,19 @@ vi.mock('@/lib/validations/gallery', async () => {
 import { galleriesRepository } from '@repo/database';
 
 const mockedGalleriesRepository = vi.mocked(galleriesRepository);
+const mockedRequireAuth = vi.mocked(requireAuth);
+const mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 describe('Galleries API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRequireAuth.mockResolvedValue({
+      context: {
+        session: { user: { id: 'user-1', role: 'admin' } },
+        role: 'admin',
+        userId: 'user-1',
+      },
+    });
   });
 
   afterEach(() => {

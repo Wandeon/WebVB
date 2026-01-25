@@ -1,6 +1,9 @@
 import { galleriesRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
 import { generateSlug } from '@/lib/utils/slug';
@@ -13,9 +16,14 @@ interface RouteParams {
 }
 
 // GET /api/galleries/[id] - Get single gallery with images
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const gallery = await galleriesRepository.findById(id);
 
@@ -38,6 +46,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = updateGallerySchema.safeParse({
@@ -109,6 +123,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const gallery = await galleriesRepository.update(id, updateData);
 
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.GALLERY,
+      entityId: gallery.id,
+      changes: {
+        before: existingGallery,
+        after: gallery,
+      },
+    });
+
     galleriesLogger.info({ galleryId: id, slug: gallery.slug }, 'Galerija uspješno ažurirana');
 
     return apiSuccess(gallery);
@@ -123,9 +149,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/galleries/[id] - Delete gallery with R2 cleanup
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const existingGallery = await galleriesRepository.findById(id);
 
@@ -139,6 +170,17 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     // Delete from DB first (cascades to images)
     const deletedGallery = await galleriesRepository.delete(id);
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.GALLERY,
+      entityId: deletedGallery.id,
+      changes: {
+        before: existingGallery,
+      },
+    });
 
     const deletedKeys = new Set<string>();
     const deleteR2Key = async (

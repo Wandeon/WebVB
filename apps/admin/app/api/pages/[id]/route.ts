@@ -1,6 +1,9 @@
 import { pagesRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { pagesLogger } from '@/lib/logger';
 import { generateSlug } from '@/lib/utils/slug';
 import { updatePageSchema } from '@/lib/validations/page';
@@ -11,9 +14,14 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const page = await pagesRepository.findById(id);
 
@@ -35,6 +43,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const body: unknown = await request.json();
 
     const validationResult = updatePageSchema.safeParse({
@@ -99,6 +113,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const page = await pagesRepository.update(id, updateData);
 
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.PAGE,
+      entityId: page.id,
+      changes: {
+        before: existingPage,
+        after: page,
+      },
+    });
+
     pagesLogger.info({ pageId: page.id, slug: page.slug }, 'Stranica uspješno ažurirana');
 
     return apiSuccess(page);
@@ -112,9 +138,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
 
     const existingPage = await pagesRepository.findById(id);
 
@@ -123,6 +154,17 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     }
 
     await pagesRepository.delete(id);
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.PAGE,
+      entityId: existingPage.id,
+      changes: {
+        before: existingPage,
+      },
+    });
 
     pagesLogger.info({ pageId: id }, 'Stranica uspješno obrisana');
 

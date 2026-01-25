@@ -13,7 +13,17 @@ vi.mock('@/lib/r2', () => ({
   uploadToR2: vi.fn(),
 }));
 
+vi.mock('@/lib/api-auth', () => ({
+  requireAuth: vi.fn(),
+}));
+
+vi.mock('@/lib/audit-log', () => ({
+  createAuditLog: vi.fn(),
+}));
+
 // Import mocked modules
+import { requireAuth } from '@/lib/api-auth';
+import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
 import { uploadToR2 } from '@/lib/r2';
 
@@ -24,6 +34,8 @@ const mockedUploadToR2 = vi.mocked(uploadToR2);
 const mockedLoggerInfo = vi.mocked(documentsLogger.info);
 const mockedLoggerWarn = vi.mocked(documentsLogger.warn);
 const mockedLoggerError = vi.mocked(documentsLogger.error);
+const mockedRequireAuth = vi.mocked(requireAuth);
+const mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 // UUID regex pattern for validation
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -73,6 +85,13 @@ interface UploadResult {
 describe('POST /api/documents/upload', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRequireAuth.mockResolvedValue({
+      context: {
+        session: { user: { id: 'user-1', role: 'staff' } },
+        role: 'staff',
+        userId: 'user-1',
+      },
+    });
   });
 
   it('uploads valid PDF file', async () => {
@@ -102,6 +121,13 @@ describe('POST /api/documents/upload', () => {
       expect.stringMatching(/^documents\/[0-9a-f-]+\.pdf$/),
       expect.any(Buffer),
       'application/pdf'
+    );
+
+    expect(mockedCreateAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'create',
+        entityType: 'document',
+      })
     );
 
     expect(mockedLoggerInfo).toHaveBeenCalledWith(

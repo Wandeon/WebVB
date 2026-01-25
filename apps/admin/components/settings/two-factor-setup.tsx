@@ -13,7 +13,7 @@ import {
   toast,
 } from '@repo/ui';
 import { CheckCircle, Shield, ShieldOff } from 'lucide-react';
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 

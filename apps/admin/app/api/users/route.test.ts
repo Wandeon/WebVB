@@ -2,6 +2,9 @@
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { requireAuth } from '@/lib/api-auth';
+import { apiError, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { GET, POST } from './route';
 
 import type * as UserValidationModule from '@/lib/validations/user';
@@ -58,13 +61,9 @@ vi.mock('@repo/database', () => ({
     findById: vi.fn(),
     findByEmail: vi.fn(),
     create: vi.fn(),
+    createCredentialAccount: vi.fn(),
     update: vi.fn(),
     deactivate: vi.fn(),
-  },
-  db: {
-    account: {
-      create: vi.fn(),
-    },
   },
 }));
 
@@ -73,13 +72,12 @@ vi.mock('better-auth/crypto', () => ({
   hashPassword: vi.fn().mockResolvedValue('hashed_password'),
 }));
 
-// Mock auth
-vi.mock('@/lib/auth', () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(),
-    },
-  },
+vi.mock('@/lib/api-auth', () => ({
+  requireAuth: vi.fn(),
+}));
+
+vi.mock('@/lib/audit-log', () => ({
+  createAuditLog: vi.fn(),
 }));
 
 // Mock the validations to handle null values from searchParams.get()
@@ -119,15 +117,15 @@ vi.mock('@/lib/validations/user', async () => {
 
 // Import mocked modules after vi.mock calls
 // eslint-disable-next-line import/order -- Must be after vi.mock calls
-import { db, usersRepository } from '@repo/database';
+import { usersRepository } from '@repo/database';
 // eslint-disable-next-line import/order -- Must be after vi.mock calls
-import { auth } from '@/lib/auth';
+import { createAuditLog } from '@/lib/audit-log';
+// eslint-disable-next-line import/order -- Must be after vi.mock calls
+import { requireAuth } from '@/lib/api-auth';
 
 const mockedUsersRepository = vi.mocked(usersRepository);
-const mockedDb = vi.mocked(db);
-
-// Cast to get access to mock methods
-const mockedGetSession = auth.api.getSession as unknown as ReturnType<typeof vi.fn>;
+const mockedRequireAuth = vi.mocked(requireAuth);
+const mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 // Helper to create a mock NextRequest
 function createMockNextRequest(
@@ -181,7 +179,9 @@ describe('Users API', () => {
 
   describe('GET /api/users', () => {
     it('returns 401 when not authenticated', async () => {
-      mockedGetSession.mockResolvedValue(null);
+      mockedRequireAuth.mockResolvedValue({
+        response: apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401),
+      });
 
       const request = createMockNextRequest('http://localhost/api/users');
       const response = await GET(request);
@@ -193,10 +193,13 @@ describe('Users API', () => {
     });
 
     it('returns 403 when user is staff', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'user-1', expiresAt: new Date() },
-        user: mockUser,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        response: apiError(
+          ErrorCodes.FORBIDDEN,
+          'Nemate ovlasti za ovu akciju',
+          403
+        ),
+      });
 
       const request = createMockNextRequest('http://localhost/api/users');
       const response = await GET(request);
@@ -208,10 +211,13 @@ describe('Users API', () => {
     });
 
     it('returns users for admin', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       mockedUsersRepository.findMany.mockResolvedValue({
         users: [mockUser, mockAdmin],
@@ -228,10 +234,13 @@ describe('Users API', () => {
     });
 
     it('returns users for super_admin', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'super-admin-1', expiresAt: new Date() },
-        user: mockSuperAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockSuperAdmin.id, role: mockSuperAdmin.role } },
+          role: mockSuperAdmin.role,
+          userId: mockSuperAdmin.id,
+        },
+      });
 
       mockedUsersRepository.findMany.mockResolvedValue({
         users: [mockUser, mockAdmin, mockSuperAdmin],
@@ -248,10 +257,13 @@ describe('Users API', () => {
     });
 
     it('filters by role', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       mockedUsersRepository.findMany.mockResolvedValue({
         users: [mockUser],
@@ -267,10 +279,13 @@ describe('Users API', () => {
     });
 
     it('filters by active status', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       mockedUsersRepository.findMany.mockResolvedValue({
         users: [mockUser],
@@ -288,7 +303,9 @@ describe('Users API', () => {
 
   describe('POST /api/users', () => {
     it('returns 401 when not authenticated', async () => {
-      mockedGetSession.mockResolvedValue(null);
+      mockedRequireAuth.mockResolvedValue({
+        response: apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401),
+      });
 
       const request = createMockNextRequest('http://localhost/api/users', {
         method: 'POST',
@@ -309,10 +326,13 @@ describe('Users API', () => {
     });
 
     it('returns 403 when user is staff', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'user-1', expiresAt: new Date() },
-        user: mockUser,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        response: apiError(
+          ErrorCodes.FORBIDDEN,
+          'Nemate ovlasti za ovu akciju',
+          403
+        ),
+      });
 
       const request = createMockNextRequest('http://localhost/api/users', {
         method: 'POST',
@@ -333,10 +353,13 @@ describe('Users API', () => {
     });
 
     it('returns 403 when admin tries to create super_admin', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       const request = createMockNextRequest('http://localhost/api/users', {
         method: 'POST',
@@ -358,10 +381,13 @@ describe('Users API', () => {
     });
 
     it('returns 403 when admin tries to create another admin', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       const request = createMockNextRequest('http://localhost/api/users', {
         method: 'POST',
@@ -383,10 +409,13 @@ describe('Users API', () => {
     });
 
     it('creates staff user when admin requests', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       mockedUsersRepository.findByEmail.mockResolvedValue(null);
       mockedUsersRepository.create.mockResolvedValue({
@@ -425,21 +454,28 @@ describe('Users API', () => {
         role: 'staff',
       });
 
-      expect(mockedDb.account.create).toHaveBeenCalledWith({
-        data: {
-          userId: 'new-user-1',
-          accountId: 'new-user-1',
-          providerId: 'credential',
-          password: 'hashed_password',
-        },
+      expect(mockedUsersRepository.createCredentialAccount).toHaveBeenCalledWith({
+        userId: 'new-user-1',
+        password: 'hashed_password',
       });
+
+      expect(mockedCreateAuditLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'create',
+          entityType: 'user',
+          entityId: 'new-user-1',
+        })
+      );
     });
 
     it('allows super_admin to create any role', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'super-admin-1', expiresAt: new Date() },
-        user: mockSuperAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockSuperAdmin.id, role: mockSuperAdmin.role } },
+          role: mockSuperAdmin.role,
+          userId: mockSuperAdmin.id,
+        },
+      });
 
       mockedUsersRepository.findByEmail.mockResolvedValue(null);
       mockedUsersRepository.create.mockResolvedValue({
@@ -470,13 +506,17 @@ describe('Users API', () => {
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
       expect(data.data?.role).toBe('admin');
+      expect(mockedCreateAuditLog).toHaveBeenCalled();
     });
 
     it('rejects duplicate email', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       mockedUsersRepository.findByEmail.mockResolvedValue(mockUser);
 
@@ -500,10 +540,13 @@ describe('Users API', () => {
     });
 
     it('validates required fields', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       const request = createMockNextRequest('http://localhost/api/users', {
         method: 'POST',
@@ -521,10 +564,13 @@ describe('Users API', () => {
     });
 
     it('validates password length', async () => {
-      mockedGetSession.mockResolvedValue({
-        session: { id: 'session-1', userId: 'admin-1', expiresAt: new Date() },
-        user: mockAdmin,
-      } as never);
+      mockedRequireAuth.mockResolvedValue({
+        context: {
+          session: { user: { id: mockAdmin.id, role: mockAdmin.role } },
+          role: mockAdmin.role,
+          userId: mockAdmin.id,
+        },
+      });
 
       const request = createMockNextRequest('http://localhost/api/users', {
         method: 'POST',

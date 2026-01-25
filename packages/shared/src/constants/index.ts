@@ -10,6 +10,13 @@ export const USER_ROLES = {
   STAFF: 'staff',
 } as const;
 
+export {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  type AuditAction,
+  type AuditEntityType,
+} from './audit';
+
 // Re-export post categories from dedicated file
 export { POST_CATEGORIES, POST_CATEGORY_OPTIONS, type PostCategory } from './categories';
 
