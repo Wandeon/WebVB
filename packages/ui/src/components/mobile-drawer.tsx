@@ -17,8 +17,6 @@ import {
 
 import type { NavItem } from './nav-menu';
 
-
-
 interface MobileDrawerProps {
     items: NavItem[];
     logo?: React.ReactNode;
@@ -36,7 +34,7 @@ export function MobileDrawer({ items, logo }: MobileDrawerProps) {
     function isParentActive(item: NavItem): boolean {
         if (isActive(item.href)) return true;
         if (item.items) {
-            return item.items.some(sub => isActive(sub.href));
+            return item.items.some((sub) => isActive(sub.href));
         }
         return false;
     }
@@ -71,8 +69,9 @@ export function MobileDrawer({ items, logo }: MobileDrawerProps) {
                                                 key={subItem.href}
                                                 href={subItem.href}
                                                 onClick={() => setOpen(false)}
+                                                aria-current={isActive(subItem.href) ? "page" : undefined}
                                                 className={cn(
-                                                    "text-sm font-medium hover:text-primary-600",
+                                                    "text-sm font-medium hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 rounded-sm",
                                                     isActive(subItem.href)
                                                         ? "text-primary-600 font-semibold"
                                                         : "text-neutral-600"
@@ -87,8 +86,9 @@ export function MobileDrawer({ items, logo }: MobileDrawerProps) {
                                 <Link
                                     href={item.href}
                                     onClick={() => setOpen(false)}
+                                    aria-current={isActive(item.href) ? "page" : undefined}
                                     className={cn(
-                                        "block px-6 py-4 font-semibold hover:bg-neutral-50 hover:text-primary-600",
+                                        "block px-6 py-4 font-semibold hover:bg-neutral-50 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 rounded-sm",
                                         isActive(item.href)
                                             ? "text-primary-600 bg-primary-50"
                                             : "text-neutral-900"
