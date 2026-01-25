@@ -26,4 +26,5 @@ export * from './components/document-search';
 export * from './components/event-tabs';
 export * from './components/event-calendar';
 export * from './components/add-to-calendar';
+export * from './components/event-hero';
 export * from './lib/utils';
