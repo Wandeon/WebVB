@@ -64,3 +64,29 @@ export function getR2KeyFromUrl(url: string): string | null {
   if (!url.startsWith(env.CLOUDFLARE_R2_PUBLIC_URL)) return null;
   return url.replace(`${env.CLOUDFLARE_R2_PUBLIC_URL}/`, '');
 }
+
+export function getR2ImageVariantKeysFromUrl(url: string): string[] | null {
+  const key = getR2KeyFromUrl(url);
+  if (!key) return null;
+
+  const match = key.match(/^uploads\/([^/]+)\/(thumb|medium|large)\.webp$/);
+  if (!match) {
+    return [key];
+  }
+
+  const id = match[1];
+  return [
+    `uploads/${id}/thumb.webp`,
+    `uploads/${id}/medium.webp`,
+    `uploads/${id}/large.webp`,
+  ];
+}
+
+export async function deleteImageVariantsFromUrl(
+  url: string,
+  deleteFn: (key: string) => Promise<void> = deleteFromR2
+): Promise<void> {
+  const keys = getR2ImageVariantKeysFromUrl(url);
+  if (!keys) return;
+  await Promise.all(keys.map((key) => deleteFn(key)));
+}

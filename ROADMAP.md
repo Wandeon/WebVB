@@ -638,6 +638,7 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-24 | Sprint 1.4 completed: TipTap editor integration with HTML content |
 | 2026-01-24 | Sprint 1.5 completed: Image upload to R2 with Sharp processing |
 | 2026-01-24 | Sprint 1.6 completed: Documents management with PDF upload, validation, CRUD |
+| 2026-01-24 | Sprint 1.8 audit fixes: normalized events API payload and cleaned R2 poster variants |
 | 2026-01-24 | Sprint 3.1 completed: VPS provisioned (Debian 13), Tailscale configured |
 | 2026-01-24 | Sprint 3.2 completed: UFW, SSH hardening, fail2ban, unattended-upgrades |
 | 2026-01-24 | Sprint 3.3 completed: PostgreSQL 17 + pgvector 0.8.0, localhost only |

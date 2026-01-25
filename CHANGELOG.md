@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Added optional deployment workflows for VPS and Cloudflare Pages rebuilds.
 - Expanded environment template to cover Cloudflare, SiteGround, and Sentry client vars.
 - Fixed Croatian diacritics and zero-state pagination messaging in pages admin UI.
+- Fixed events list API response to return events payload consistently and aligned client expectations.
+- Ensured event poster cleanup removes all R2 image variants when posters are replaced or events deleted.
 
 ## Sprint 1.9 - Gallery Management (Completed)
 

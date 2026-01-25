@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     return apiSuccess({
-      data: result.events,
+      events: result.events,
       pagination: result.pagination,
     });
   } catch (error) {
