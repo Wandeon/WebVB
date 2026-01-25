@@ -9,10 +9,11 @@ const revokeOtherSessionsMock = vi.fn();
 const useSessionMock = vi.fn();
 
 vi.mock('@/lib/auth-client', () => ({
-  listSessions: () => listSessionsMock(),
-  revokeSession: (payload: { token: string }) => revokeSessionMock(payload),
-  revokeOtherSessions: () => revokeOtherSessionsMock(),
-  useSession: () => useSessionMock(),
+  listSessions: () => listSessionsMock() as unknown,
+  revokeSession: (payload: { token: string }) =>
+    revokeSessionMock(payload) as unknown,
+  revokeOtherSessions: () => revokeOtherSessionsMock() as unknown,
+  useSession: () => useSessionMock() as unknown,
 }));
 
 describe('SessionsList', () => {

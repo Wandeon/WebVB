@@ -77,7 +77,7 @@ export function TwoFactorSetup() {
         },
       });
       setQrCodeUrl(url);
-    } catch (error) {
+    } catch {
       toast({
         title: 'Greška',
         description: 'Nije moguće generirati QR kod.',
