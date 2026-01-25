@@ -8,9 +8,16 @@ export interface EventCardProps {
   title: string;
   description: string | null;
   eventDate: Date;
+  eventTime?: Date | null;
   location: string | null;
   posterImage: string | null;
   className?: string;
+}
+
+const EVENT_TIME_ZONE = 'Europe/Zagreb';
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 export function EventCard({
@@ -18,13 +25,34 @@ export function EventCard({
   title,
   description,
   eventDate,
+  eventTime,
   location,
   posterImage,
   className,
 }: EventCardProps) {
   const date = new Date(eventDate);
-  const day = date.getDate();
-  const month = new Intl.DateTimeFormat('hr-HR', { month: 'short' }).format(date);
+  const day = new Intl.DateTimeFormat('hr-HR', {
+    day: 'numeric',
+    timeZone: EVENT_TIME_ZONE,
+  }).format(date);
+  const month = new Intl.DateTimeFormat('hr-HR', {
+    month: 'short',
+    timeZone: EVENT_TIME_ZONE,
+  }).format(date);
+  const dateLabel = new Intl.DateTimeFormat('hr-HR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: EVENT_TIME_ZONE,
+  }).format(date);
+  const timeLabel = eventTime
+    ? new Intl.DateTimeFormat('hr-HR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'UTC',
+      }).format(eventTime)
+    : null;
+  const descriptionText = description ? stripHtml(description) : null;
 
   return (
     <Link
@@ -42,17 +70,16 @@ export function EventCard({
         <h3 className="font-display font-semibold text-neutral-900 group-hover:text-primary-600">
           {title}
         </h3>
-        {description && (
-          <p className="mt-1 line-clamp-1 text-sm text-neutral-600">{description}</p>
+        {descriptionText && (
+          <p className="mt-1 line-clamp-1 text-sm text-neutral-600">
+            {descriptionText}
+          </p>
         )}
         <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
           <span className="flex items-center gap-1">
             <CalendarDays className="h-3 w-3" />
-            {new Intl.DateTimeFormat('hr-HR', {
-              weekday: 'long',
-              hour: '2-digit',
-              minute: '2-digit',
-            }).format(date)}
+            {dateLabel}
+            {timeLabel ? ` u ${timeLabel}` : ''}
           </span>
           {location && (
             <span className="flex items-center gap-1">

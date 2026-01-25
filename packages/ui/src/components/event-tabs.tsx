@@ -11,12 +11,13 @@ export interface EventTabsProps {
 
 export function EventTabs({ className }: EventTabsProps) {
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'upcoming';
-
   const tabs = [
     { value: 'upcoming', label: 'Nadolazeći' },
     { value: 'past', label: 'Prošli' },
   ];
+  const activeTab = tabs.some((tab) => tab.value === searchParams.get('tab'))
+    ? searchParams.get('tab')
+    : 'upcoming';
 
   const buildTabUrl = (tab: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -26,11 +27,12 @@ export function EventTabs({ className }: EventTabsProps) {
       params.set('tab', tab);
     }
     params.delete('stranica');
-    return `/dogadanja?${params.toString()}`;
+    const queryString = params.toString();
+    return queryString ? `/dogadanja?${queryString}` : '/dogadanja';
   };
 
   return (
-    <div className={cn('flex gap-2', className)}>
+    <nav className={cn('flex gap-2', className)} aria-label="Filtriranje događanja">
       {tabs.map((tab) => (
         <Link
           key={tab.value}
@@ -46,6 +48,6 @@ export function EventTabs({ className }: EventTabsProps) {
           {tab.label}
         </Link>
       ))}
-    </div>
+    </nav>
   );
 }

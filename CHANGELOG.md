@@ -56,6 +56,7 @@ All notable changes to this project will be documented in this file.
 - Hardened news listing URL state handling and added tests for published pagination clamping.
 - Secured news detail rendering with HTML sanitization, resilient metadata fallbacks, and improved share/hero accessibility.
 - Hardened documents filters with year-aware counts, safer download links, and category URL persistence.
+- Audited events calendar: sanitized event descriptions, synced calendar month state to URL, and corrected calendar exports for time zones.
 
 ## Sprint 2.4 - News Detail Page (Completed)
 
