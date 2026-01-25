@@ -20,4 +20,5 @@ export * from './components/share-buttons';
 export * from './components/related-posts';
 export * from './components/document-card';
 export * from './components/document-sidebar';
+export * from './components/document-accordion';
 export * from './lib/utils';

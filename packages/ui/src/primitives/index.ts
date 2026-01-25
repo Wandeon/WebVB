@@ -90,6 +90,12 @@ export {
 } from './toast';
 export { Toaster } from './toaster';
 export {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from './accordion';
+export {
   AlertDialog,
   AlertDialogPortal,
   AlertDialogOverlay,
