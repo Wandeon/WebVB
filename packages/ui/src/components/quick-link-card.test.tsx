@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import { forwardRef } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import type { LucideIcon, LucideProps } from 'lucide-react';
-
 import { QuickLinkCard } from './quick-link-card';
+
+import type { LucideIcon, LucideProps } from 'lucide-react';
 
 const MockIcon: LucideIcon = forwardRef<SVGSVGElement, LucideProps>((props, ref) => (
   <svg ref={ref} {...props} />
