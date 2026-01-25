@@ -17,4 +17,5 @@ export * from './components/pagination';
 export * from './components/article-hero';
 export * from './components/article-content';
 export * from './components/share-buttons';
+export * from './components/related-posts';
 export * from './lib/utils';
