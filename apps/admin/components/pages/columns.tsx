@@ -74,7 +74,7 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Page>[] {
     },
     {
       accessorKey: 'parent',
-      header: 'Nadredena',
+      header: 'Nadređena',
       cell: ({ row }) => {
         const parent = row.original.parent;
         return parent ? (
@@ -93,7 +93,7 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Page>[] {
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Azurirano',
+      header: 'Ažurirano',
       cell: ({ row }) => {
         const updatedAt = row.original.updatedAt;
         return new Date(updatedAt).toLocaleDateString('hr-HR', {
@@ -128,7 +128,7 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Page>[] {
                 onClick={() => onDelete(page)}
               >
                 <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-                Obrisi
+                Obriši
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

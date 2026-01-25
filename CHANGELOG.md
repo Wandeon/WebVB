@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Aligned backup script retention default with 90-day policy.
 - Added optional deployment workflows for VPS and Cloudflare Pages rebuilds.
 - Expanded environment template to cover Cloudflare, SiteGround, and Sentry client vars.
+- Fixed Croatian diacritics and zero-state pagination messaging in pages admin UI.
 
 ## Sprint 1.8 - Events Calendar (Completed)
 

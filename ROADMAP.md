@@ -193,6 +193,9 @@ Gate: pnpm test:e2e (basic auth flow)
 | 1.11 ⬜ | User management | 🔀 | 1.10 | CRUD users (admin only) |
 | 1.12 ⬜ | Admin integration test | 🔗 | 1.1-1.11 | All CRUD operations work end-to-end |
 
+Recent updates:
+- Sprint 1.7 audit fixes: corrected Croatian diacritics and zero-state pagination copy in pages admin UI.
+
 ### Sprint 1.1: Admin Layout Shell
 ```
 Acceptance Criteria:

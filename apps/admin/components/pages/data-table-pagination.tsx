@@ -27,8 +27,9 @@ export function DataTablePagination({
   onPageChange,
   onLimitChange,
 }: DataTablePaginationProps) {
-  const startItem = (page - 1) * limit + 1;
-  const endItem = Math.min(page * limit, total);
+  const hasItems = total > 0;
+  const startItem = hasItems ? (page - 1) * limit + 1 : 0;
+  const endItem = hasItems ? Math.min(page * limit, total) : 0;
 
   return (
     <div className="flex items-center justify-between px-2 py-4">
@@ -70,7 +71,7 @@ export function DataTablePagination({
             size="icon"
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
-            aria-label="Sljedeca stranica"
+            aria-label="Sljedeća stranica"
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </Button>
