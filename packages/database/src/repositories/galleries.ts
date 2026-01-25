@@ -206,4 +206,28 @@ export const galleriesRepository = {
   async getImageById(imageId: string): Promise<GalleryImage | null> {
     return db.galleryImage.findUnique({ where: { id: imageId } });
   },
+
+  async findPublished(options: { page?: number; limit?: number } = {}): Promise<FindAllGalleriesResult> {
+    const { page = 1, limit = 12 } = options;
+
+    const [total, galleries] = await Promise.all([
+      db.gallery.count(),
+      db.gallery.findMany({
+        include: { _count: { select: { images: true } } },
+        orderBy: { eventDate: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+
+    return {
+      galleries,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  },
 };
