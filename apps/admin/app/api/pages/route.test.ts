@@ -2,7 +2,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { requireAuth } from '@/lib/api-auth';
-import { createAuditLog } from '@/lib/audit-log';
 
 import { GET, POST } from './route';
 
@@ -105,8 +104,6 @@ import { pagesRepository } from '@repo/database';
 
 const mockedPagesRepository = vi.mocked(pagesRepository);
 const mockedRequireAuth = vi.mocked(requireAuth);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- available for future audit assertions
-const _mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 describe('Pages API', () => {
   beforeEach(() => {

@@ -119,10 +119,6 @@ vi.mock('@/lib/validations/user', async () => {
 // Import mocked modules after vi.mock calls
 // eslint-disable-next-line import/order -- Must be after vi.mock calls
 import { usersRepository } from '@repo/database';
-// eslint-disable-next-line import/order -- Must be after vi.mock calls
-import { createAuditLog } from '@/lib/audit-log';
-// eslint-disable-next-line import/order -- Must be after vi.mock calls
-import { requireAuth } from '@/lib/api-auth';
 
 const mockedUsersRepository = vi.mocked(usersRepository);
 const mockedRequireAuth = vi.mocked(requireAuth);
@@ -143,7 +139,7 @@ const mockUser = {
   email: 'test@example.com',
   emailVerified: false,
   image: null,
-  role: 'staff',
+  role: 'staff' as const,
   active: true,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -155,7 +151,7 @@ const mockAdmin = {
   email: 'admin@example.com',
   emailVerified: true,
   image: null,
-  role: 'admin',
+  role: 'admin' as const,
   active: true,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -167,7 +163,7 @@ const mockSuperAdmin = {
   email: 'superadmin@example.com',
   emailVerified: true,
   image: null,
-  role: 'super_admin',
+  role: 'super_admin' as const,
   active: true,
   createdAt: new Date(),
   updatedAt: new Date(),
