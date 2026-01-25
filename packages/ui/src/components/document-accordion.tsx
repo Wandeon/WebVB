@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 import { cn } from '../lib/utils';
 import {
@@ -23,7 +24,20 @@ export function DocumentAccordion({
   counts,
   className,
 }: DocumentAccordionProps) {
+  const searchParams = useSearchParams();
   const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+
+  const createCategoryUrl = (category?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (category) {
+      params.set('kategorija', category);
+    } else {
+      params.delete('kategorija');
+    }
+    params.delete('stranica');
+    const queryString = params.toString();
+    return `/dokumenti${queryString ? `?${queryString}` : ''}`;
+  };
 
   return (
     <Accordion
@@ -45,13 +59,14 @@ export function DocumentAccordion({
             <ul className="space-y-1">
               <li>
                 <Link
-                  href="/dokumenti"
+                  href={createCategoryUrl()}
                   className={cn(
                     'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
                     !activeCategory
                       ? 'bg-primary-100 font-medium text-primary-900'
                       : 'text-neutral-700 hover:bg-neutral-100'
                   )}
+                  aria-current={!activeCategory ? 'page' : undefined}
                 >
                   <span>Sve kategorije</span>
                   <span className="text-xs text-neutral-500">{totalCount}</span>
@@ -60,13 +75,14 @@ export function DocumentAccordion({
               {categories.map((cat) => (
                 <li key={cat.value}>
                   <Link
-                    href={`/dokumenti?kategorija=${cat.value}`}
+                    href={createCategoryUrl(cat.value)}
                     className={cn(
                       'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
                       activeCategory === cat.value
                         ? 'bg-primary-100 font-medium text-primary-900'
                         : 'text-neutral-700 hover:bg-neutral-100'
                     )}
+                    aria-current={activeCategory === cat.value ? 'page' : undefined}
                   >
                     <span>{cat.label}</span>
                     <span className="text-xs text-neutral-500">

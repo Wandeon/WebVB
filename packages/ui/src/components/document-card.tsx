@@ -27,6 +27,18 @@ function formatDate(date: Date): string {
   }).format(new Date(date));
 }
 
+function getSafeFileUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.toString();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function DocumentCard({
   title,
   fileUrl,
@@ -34,6 +46,8 @@ export function DocumentCard({
   createdAt,
   className,
 }: DocumentCardProps) {
+  const safeFileUrl = getSafeFileUrl(fileUrl);
+
   return (
     <div
       className={cn(
@@ -60,22 +74,30 @@ export function DocumentCard({
           </div>
         </div>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        asChild
-        className="shrink-0"
-      >
-        <a
-          href={fileUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Preuzmi ${title}`}
+      {safeFileUrl ? (
+        <Button variant="outline" size="sm" asChild className="shrink-0">
+          <a
+            href={safeFileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Preuzmi ${title}`}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Preuzmi
+          </a>
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          className="shrink-0"
+          disabled
+          aria-disabled="true"
         >
           <Download className="mr-2 h-4 w-4" />
           Preuzmi
-        </a>
-      </Button>
+        </Button>
+      )}
     </div>
   );
 }

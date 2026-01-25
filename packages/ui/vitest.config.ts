@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       'framer-motion': resolve(__dirname, 'test-helpers/framer-motion.tsx'),
+      '@radix-ui/react-accordion': resolve(__dirname, 'test-helpers/radix-accordion.tsx'),
+      'isomorphic-dompurify': resolve(__dirname, 'test-helpers/isomorphic-dompurify.ts'),
       'next/link': resolve(__dirname, 'test-helpers/next-link.tsx'),
       'next/navigation': resolve(__dirname, 'test-helpers/next-navigation.ts'),
     },
