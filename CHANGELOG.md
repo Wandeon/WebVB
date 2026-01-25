@@ -12,6 +12,22 @@ All notable changes to this project will be documented in this file.
 - Displayed optional event poster thumbnails in event cards.
 - Hardened news listing URL state handling and added tests for published pagination clamping.
 
+## Sprint 2.4 - News Detail Page (Completed)
+
+### Added
+- News detail page at `/vijesti/[slug]` with dynamic routing
+- ArticleHero component with featured image, gradient overlay, category badge, and formatted date
+- ArticleContent component with Tailwind Typography prose styling for rich HTML
+- ShareButtons client component with Facebook share popup and copy-to-clipboard with "Kopirano!" feedback
+- RelatedPosts sidebar component showing up to 3 posts from same category
+- getRelatedPosts repository method for fetching related articles
+- Dynamic metadata generation for SEO with Open Graph article tags
+- generateStaticParams for build-time pre-rendering of published posts
+- ISR with 60-second revalidation
+- Back navigation link to news listing
+- FadeIn animations for content sections
+- Gate: Open article at `/vijesti/[slug]`, layout looks professional, OG tags correct
+
 ## Sprint 2.3 - News Listing (Completed)
 
 ### Added

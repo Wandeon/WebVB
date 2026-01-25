@@ -291,4 +291,24 @@ export const postsRepository = {
       },
     };
   },
+
+  /**
+   * Get related posts from same category, excluding current post
+   */
+  async getRelatedPosts(
+    excludeId: string,
+    category: string,
+    limit: number = 3
+  ): Promise<PostWithAuthor[]> {
+    return db.post.findMany({
+      where: {
+        id: { not: excludeId },
+        category,
+        publishedAt: { not: null },
+      },
+      include: { author: { select: authorSelect } },
+      orderBy: { publishedAt: 'desc' },
+      take: limit,
+    });
+  },
 };
