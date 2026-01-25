@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+// @ts-expect-error -- __setPathname is provided by test-helpers alias
 import { __setPathname } from 'next/navigation';
 import { beforeEach, describe, expect, it } from 'vitest';
 
