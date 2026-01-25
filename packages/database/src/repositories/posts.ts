@@ -55,6 +55,22 @@ export interface UpdatePostData {
   featuredImage?: string | null;
 }
 
+export interface FindPublishedPostsOptions {
+  page?: number;
+  limit?: number;
+  category?: string;
+}
+
+export interface FindPublishedPostsResult {
+  posts: PostWithAuthor[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 const authorSelect = {
   id: true,
   name: true,
@@ -233,5 +249,45 @@ export const postsRepository = {
       orderBy: { publishedAt: 'desc' },
       take: limit,
     });
+  },
+
+  /**
+   * Find published posts with pagination and optional category filtering
+   * For public news listing pages
+   */
+  async findPublished(
+    options: FindPublishedPostsOptions = {}
+  ): Promise<FindPublishedPostsResult> {
+    const { page = 1, limit = 12, category } = options;
+
+    // Build where clause - only published posts
+    const where: Prisma.PostWhereInput = {
+      publishedAt: { not: null },
+    };
+
+    if (category) {
+      where.category = category;
+    }
+
+    const [total, posts] = await Promise.all([
+      db.post.count({ where }),
+      db.post.findMany({
+        where,
+        include: { author: { select: authorSelect } },
+        orderBy: { publishedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+
+    return {
+      posts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   },
 };
