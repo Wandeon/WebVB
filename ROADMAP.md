@@ -275,11 +275,11 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 ---
 
 ## Phase 2: Public Website
-**Status:** Not Started | **Progress:** 0/12 | **Track:** A
+**Status:** In Progress | **Progress:** 1/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 2.1 ⬜ | Public layout + nav | No | Phase 1 | Header, footer, mobile nav |
+| 2.1 ✅ | Public layout + nav | No | Phase 1 | Header, footer, mobile nav |
 | 2.2 ⬜ | Homepage | 🔗 | 2.1 | Hero, news, events, quick links |
 | 2.3 ⬜ | News listing | 🔀 | 2.1 | List, pagination, category filter |
 | 2.4 ⬜ | News detail page | 🔗 | 2.3 | Single post, related posts |
@@ -290,6 +290,9 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.9 ⬜ | Contact + forms | 🔀 | 2.1 | Contact form, problem report |
 | 2.10 ⬜ | Search (basic) | 🔗 | 2.3-2.8 | Full-text search, results page |
 | 2.11 ⬜ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
+
+Recent updates:
+- Sprint 2.1 completed: Public layout with header, footer, navigation, accessibility, and SEO metadata.
 
 ### Sprint 2.1: Public Layout + Nav
 ```

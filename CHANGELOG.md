@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 - Documented Sprint 1.5-1.6 audit review findings.
 - Hardened admin Playwright E2E coverage with shared login usage, more resilient selectors, settings session revocation flow, and user removal verification.
 
+## Sprint 2.1 - Public Layout + Nav (Completed)
+
+### Added
+- Public site root layout with Inter and Plus Jakarta Sans fonts
+- SiteHeader component with responsive navigation
+- NavMenu component with dropdown menus for desktop
+- MobileDrawer component with sheet-based mobile navigation
+- SiteFooter component with link groups and copyright
+- Navigation data structure with full site hierarchy
+- Skip-to-content accessibility link
+- Active state styling for navigation items
+- Comprehensive SEO metadata configuration
+- Gate: Mobile menu works, footer renders, no layout shifts
+
 ## Sprint 1.12 - Admin Integration Tests (Completed)
 
 ### Added
