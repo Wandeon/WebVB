@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 2.3 - News Listing
-**Overall Progress:** 23/71 sprints
+**Active Sprint:** 2.4 - News Detail Page
+**Overall Progress:** 24/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 
@@ -276,13 +276,13 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 ---
 
 ## Phase 2: Public Website
-**Status:** In Progress | **Progress:** 2/12 | **Track:** A
+**Status:** In Progress | **Progress:** 3/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
 | 2.1 ✅ | Public layout + nav | No | Phase 1 | Header, footer, mobile nav |
 | 2.2 ✅ | Homepage | 🔗 | 2.1 | Hero, news, events, quick links |
-| 2.3 ⬜ | News listing | 🔀 | 2.1 | List, pagination, category filter |
+| 2.3 ✅ | News listing | 🔀 | 2.1 | List, pagination, category filter |
 | 2.4 ⬜ | News detail page | 🔗 | 2.3 | Single post, related posts |
 | 2.5 ⬜ | Documents section | 🔀 | 2.1 | List, filter by category/year |
 | 2.6 ⬜ | Events calendar | 🔀 | 2.1 | Monthly view, event details |
@@ -293,6 +293,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.11 ⬜ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
 
 Recent updates:
+- Sprint 2.3 completed: News listing page with category filtering, pagination, skeleton loading states, and empty state handling.
 - Sprint 2.2 completed: Homepage with hero section, quick links grid, latest news cards, upcoming events, newsletter signup, and scroll-triggered animations.
 - Sprint 2.1 completed: Public layout with header, footer, navigation, accessibility, and SEO metadata.
 - Sprint 2.1 follow-up: added aria-current states, focus-visible styling, and canonical metadata for the public navigation.
@@ -809,3 +810,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-24 | Sprint 3.5 completed: R2 bucket velikibukovec-media created, CORS configured |
 | 2026-01-25 | Sprint 1.11 completed: User management with CRUD, soft-delete, role-based permissions |
 | 2026-01-25 | Sprint 2.2 completed: Homepage with hero, quick links, news, events, newsletter, animations |
+| 2026-01-25 | Sprint 2.3 completed: News listing with category filter, pagination, skeleton loading |
