@@ -1,16 +1,16 @@
 'use client';
 
+import { USER_ROLES, type UserRole } from '@repo/shared';
+import { Card, CardContent, toast } from '@repo/ui';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Card, CardContent, toast } from '@repo/ui';
-import { USER_ROLES, type UserRole } from '@repo/shared';
 
+import { UserForm } from '@/components/users/user-form';
 import { useSession } from '@/lib/auth-client';
 import { isAdmin } from '@/lib/permissions';
 import { type UpdateUserInput } from '@/lib/validations/user';
 
-import { UserForm } from '@/components/users/user-form';
 
 interface UserData {
   id: string;

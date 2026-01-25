@@ -20,7 +20,7 @@ import { getColumns, type UserRow } from './columns';
 interface DataTableProps {
   data: UserRow[];
   onEdit: (user: UserRow) => void;
-  onToggleActive: (user: UserRow) => void;
+  onToggleActive: (user: UserRow) => void | Promise<void>;
   currentUserId: string;
 }
 

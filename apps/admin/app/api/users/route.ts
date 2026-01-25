@@ -1,7 +1,7 @@
-import { hashPassword } from 'better-auth/crypto';
 
 import { db, usersRepository } from '@repo/database';
 import { USER_ROLES } from '@repo/shared';
+import { hashPassword } from 'better-auth/crypto';
 
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { auth } from '@/lib/auth';

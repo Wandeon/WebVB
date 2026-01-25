@@ -1,16 +1,16 @@
 'use client';
 
+import { USER_ROLES, type UserRole } from '@repo/shared';
+import { toast } from '@repo/ui';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { toast } from '@repo/ui';
-import { USER_ROLES, type UserRole } from '@repo/shared';
 
+import { UserForm } from '@/components/users/user-form';
 import { useSession } from '@/lib/auth-client';
 import { isAdmin } from '@/lib/permissions';
 import { type CreateUserInput } from '@/lib/validations/user';
 
-import { UserForm } from '@/components/users/user-form';
 
 type SessionUser = {
   id: string;

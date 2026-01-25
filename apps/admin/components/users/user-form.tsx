@@ -1,8 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-
+import { USER_ROLE_OPTIONS, type UserRole } from '@repo/shared';
 import {
   Button,
   Card,
@@ -18,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@repo/ui';
-import { USER_ROLE_OPTIONS, type UserRole } from '@repo/shared';
+import { useForm } from 'react-hook-form';
+
 
 import { getAssignableRoles } from '@/lib/permissions';
 import {
@@ -85,7 +85,7 @@ export function UserForm({
   const selectedRole = watch('role');
 
   const roleOptions = USER_ROLE_OPTIONS.filter((option) =>
-    assignableRoles.includes(option.value as UserRole)
+    assignableRoles.includes(option.value)
   );
 
   const handleFormSubmit = async (data: CreateUserInput | UpdateUserInput) => {

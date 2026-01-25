@@ -27,7 +27,7 @@ export interface UserRow {
 
 interface GetColumnsOptions {
   onEdit: (user: UserRow) => void;
-  onToggleActive: (user: UserRow) => void;
+  onToggleActive: (user: UserRow) => void | Promise<void>;
   currentUserId: string;
 }
 
@@ -127,7 +127,7 @@ export function getColumns({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className={user.active ? 'text-red-600 focus:text-red-600' : 'text-green-600 focus:text-green-600'}
-                    onClick={() => onToggleActive(user)}
+                    onClick={() => void onToggleActive(user)}
                   >
                     {user.active ? (
                       <>

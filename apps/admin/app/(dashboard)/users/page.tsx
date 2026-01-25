@@ -1,6 +1,6 @@
 'use client';
 
-import { USER_ROLE_LABELS, USER_ROLE_OPTIONS, USER_ROLES } from '@repo/shared';
+import { USER_ROLE_OPTIONS, USER_ROLES } from '@repo/shared';
 import {
   Button,
   Card,
@@ -53,7 +53,7 @@ export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const currentUserId = user?.id ?? '';
-  const userRole = (user?.role ?? USER_ROLES.STAFF) as keyof typeof USER_ROLE_LABELS;
+  const userRole = (user?.role ?? USER_ROLES.STAFF);
   const hasAdminAccess = isAdmin(userRole);
 
   // Fetch users
