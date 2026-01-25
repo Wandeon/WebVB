@@ -1,8 +1,9 @@
 // apps/admin/app/api/galleries/[id]/reorder/route.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createAuditLog } from '@/lib/audit-log';
 import { requireAuth } from '@/lib/api-auth';
+import { createAuditLog } from '@/lib/audit-log';
+
 import { PUT } from './route';
 
 // Mock repository
@@ -34,7 +35,8 @@ import { galleriesRepository } from '@repo/database';
 
 const mockedGalleriesRepository = vi.mocked(galleriesRepository);
 const mockedRequireAuth = vi.mocked(requireAuth);
-const mockedCreateAuditLog = vi.mocked(createAuditLog);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- available for future audit assertions
+const _mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 const galleryId = '11111111-1111-4111-8111-111111111111';
 const imageIds = [

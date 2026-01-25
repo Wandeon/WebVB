@@ -1,8 +1,9 @@
 // apps/admin/app/api/events/route.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createAuditLog } from '@/lib/audit-log';
 import { requireAuth } from '@/lib/api-auth';
+import { createAuditLog } from '@/lib/audit-log';
+
 import { GET, POST } from './route';
 
 import type * as EventValidationModule from '@/lib/validations/event';
@@ -119,7 +120,8 @@ import { eventsRepository } from '@repo/database';
 
 const mockedEventsRepository = vi.mocked(eventsRepository);
 const mockedRequireAuth = vi.mocked(requireAuth);
-const mockedCreateAuditLog = vi.mocked(createAuditLog);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- available for future audit assertions
+const _mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 describe('Events API', () => {
   beforeEach(() => {

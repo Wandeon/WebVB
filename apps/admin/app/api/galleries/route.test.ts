@@ -1,8 +1,9 @@
 // apps/admin/app/api/galleries/route.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createAuditLog } from '@/lib/audit-log';
 import { requireAuth } from '@/lib/api-auth';
+import { createAuditLog } from '@/lib/audit-log';
+
 import { GET, POST } from './route';
 
 import type * as GalleryValidationModule from '@/lib/validations/gallery';
@@ -117,7 +118,8 @@ import { galleriesRepository } from '@repo/database';
 
 const mockedGalleriesRepository = vi.mocked(galleriesRepository);
 const mockedRequireAuth = vi.mocked(requireAuth);
-const mockedCreateAuditLog = vi.mocked(createAuditLog);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- available for future audit assertions
+const _mockedCreateAuditLog = vi.mocked(createAuditLog);
 
 describe('Galleries API', () => {
   beforeEach(() => {
