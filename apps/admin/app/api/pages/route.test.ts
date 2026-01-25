@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GET, POST } from './route';
 
+import type * as PageValidationModule from '@/lib/validations/page';
+
 // Define types for the mocked schema data
 interface QueryData {
   page?: string | null;
@@ -20,6 +22,20 @@ interface CleanedQueryData {
   parentId: string | null | undefined;
   sortBy: string;
   sortOrder: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: {
+    pages?: Array<{
+      id: string;
+      title: string;
+      slug: string;
+    }>;
+    title?: string;
+    slug?: string;
+  };
+  error?: string;
 }
 
 // Mock the repository
@@ -42,9 +58,7 @@ vi.mock('@/lib/logger', () => ({
 
 // Mock the validations to handle null values from searchParams.get()
 vi.mock('@/lib/validations/page', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/validations/page')>(
-    '@/lib/validations/page'
-  );
+  const actual = await vi.importActual<typeof PageValidationModule>('@/lib/validations/page');
   return {
     ...actual,
     pageQuerySchema: {
@@ -74,7 +88,11 @@ vi.mock('@/lib/validations/page', async () => {
   };
 });
 
+// Import mocked modules after vi.mock calls
+// eslint-disable-next-line import/order -- Must be after vi.mock calls
 import { pagesRepository } from '@repo/database';
+
+const mockedPagesRepository = vi.mocked(pagesRepository);
 
 describe('Pages API', () => {
   beforeEach(() => {
@@ -102,25 +120,25 @@ describe('Pages API', () => {
         },
       ];
 
-      vi.mocked(pagesRepository.findAll).mockResolvedValue({
+      mockedPagesRepository.findAll.mockResolvedValue({
         pages: mockPages,
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       });
 
       const request = new Request('http://localhost/api/pages');
       const response = await GET(request as never);
-      const data = await response.json();
+      const data = (await response.json()) as ApiResponse;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.pages).toHaveLength(1);
+      expect(data.data?.pages).toHaveLength(1);
     });
   });
 
   describe('POST /api/pages', () => {
     it('creates a new page', async () => {
-      vi.mocked(pagesRepository.slugExists).mockResolvedValue(false);
-      vi.mocked(pagesRepository.create).mockResolvedValue({
+      mockedPagesRepository.slugExists.mockResolvedValue(false);
+      mockedPagesRepository.create.mockResolvedValue({
         id: '1',
         title: 'Nova stranica',
         slug: 'nova-stranica',
@@ -144,11 +162,11 @@ describe('Pages API', () => {
       });
 
       const response = await POST(request as never);
-      const data = await response.json();
+      const data = (await response.json()) as ApiResponse;
 
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
-      expect(data.data.title).toBe('Nova stranica');
+      expect(data.data?.title).toBe('Nova stranica');
     });
 
     it('validates required fields', async () => {
@@ -159,14 +177,14 @@ describe('Pages API', () => {
       });
 
       const response = await POST(request as never);
-      const data = await response.json();
+      const data = (await response.json()) as ApiResponse;
 
       expect(response.status).toBe(400);
       expect(data.success).toBe(false);
     });
 
     it('validates parent exists', async () => {
-      vi.mocked(pagesRepository.exists).mockResolvedValue(false);
+      mockedPagesRepository.exists.mockResolvedValue(false);
 
       const request = new Request('http://localhost/api/pages', {
         method: 'POST',
@@ -179,7 +197,7 @@ describe('Pages API', () => {
       });
 
       const response = await POST(request as never);
-      const data = await response.json();
+      const data = (await response.json()) as ApiResponse;
 
       expect(response.status).toBe(404);
       expect(data.success).toBe(false);

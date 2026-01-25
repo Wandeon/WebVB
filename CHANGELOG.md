@@ -10,6 +10,19 @@ All notable changes to this project will be documented in this file.
 - Added optional deployment workflows for VPS and Cloudflare Pages rebuilds.
 - Expanded environment template to cover Cloudflare, SiteGround, and Sentry client vars.
 
+## Sprint 1.7 - Static Pages CRUD (Completed)
+
+### Added
+- Pages repository in @repo/database with hierarchy support
+- Page types and Zod schemas in @repo/shared
+- Pages API routes (GET, POST, PUT, DELETE) with parent validation
+- Pages list page with DataTable and search
+- PageForm component with TipTap editor and parent selection
+- Create/edit page routes
+- Pages link in admin sidebar navigation
+- API route tests for pages endpoints
+- Gate: Create page, set parent, edit it, delete it
+
 ## Sprint 1.6 - Documents Management (Completed)
 
 ### Added
