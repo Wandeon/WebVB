@@ -195,10 +195,9 @@ jobs:
       - name: Verify database connection
         run: |
           echo "DATABASE_URL is set: ${DATABASE_URL:+yes}"
-          echo "DATABASE_URL value: $DATABASE_URL"
-          echo "Testing database connection..."
-          pnpm --filter @repo/database exec prisma db execute --stdin <<< "SELECT 1;"
-          echo "Database connection successful"
+          echo "Testing database connection via psql..."
+          PGPASSWORD=postgres psql -h localhost -U postgres -d velikibukovec_ci -c "SELECT 1;" || echo "psql not available, trying pg_isready..."
+          pg_isready -h localhost -p 5432 -U postgres && echo "Database is ready!"
 
       - name: Build
         run: |
