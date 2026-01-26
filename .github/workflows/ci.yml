@@ -201,5 +201,8 @@ jobs:
 
       - name: Build
         run: |
+          # Create .env file for Next.js to pick up
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/velikibukovec_ci" > .env
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/velikibukovec_ci" > apps/web/.env
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
           pnpm turbo run build --env-mode=loose
