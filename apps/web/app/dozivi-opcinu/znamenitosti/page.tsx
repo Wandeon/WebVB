@@ -1,5 +1,6 @@
 import { FadeIn } from '@repo/ui';
 import Image from 'next/image';
+
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
