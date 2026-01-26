@@ -15,10 +15,24 @@ import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
+// Required for static export - only these params are valid, all others 404
+export const dynamicParams = false;
+export const dynamic = 'force-static';
+
 // Required for static export - generate all event pages at build time
 export async function generateStaticParams() {
-  const events = await eventsRepository.findAllForSitemap();
-  return events.map((event) => ({ id: event.id }));
+  console.log('[generateStaticParams] Starting for /dogadanja/[id]');
+  try {
+    const events = await eventsRepository.findAllForSitemap();
+    console.log('[generateStaticParams] Found', events.length, 'events');
+    const params = events.map((event) => ({ id: event.id }));
+    console.log('[generateStaticParams] Returning params:', JSON.stringify(params));
+    return params;
+  } catch (error) {
+    console.error('[generateStaticParams] Error:', error);
+    // Return empty array as fallback to allow build to proceed
+    return [];
+  }
 }
 
 interface EventDetailPageProps {

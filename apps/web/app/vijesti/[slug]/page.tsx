@@ -22,8 +22,6 @@ import { siteConfig } from '../../metadata';
 
 import type { Metadata } from 'next';
 
-export const revalidate = 60;
-
 interface NewsDetailPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -103,9 +101,24 @@ export async function generateMetadata({
   };
 }
 
+// Required for static export - only these params are valid, all others 404
+export const dynamicParams = false;
+export const dynamic = 'force-static';
+
+// Required for static export - generate all news pages at build time
 export async function generateStaticParams() {
-  const { posts } = await postsRepository.findPublished({ limit: 100 });
-  return posts.map((post) => ({ slug: post.slug }));
+  console.log('[generateStaticParams] Starting for /vijesti/[slug]');
+  try {
+    const { posts } = await postsRepository.findPublished({ limit: 100 });
+    console.log('[generateStaticParams] Found', posts.length, 'posts');
+    const params = posts.map((post) => ({ slug: post.slug }));
+    console.log('[generateStaticParams] Returning params:', JSON.stringify(params));
+    return params;
+  } catch (error) {
+    console.error('[generateStaticParams] Error:', error);
+    // Return empty array as fallback to allow build to proceed
+    return [];
+  }
 }
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {

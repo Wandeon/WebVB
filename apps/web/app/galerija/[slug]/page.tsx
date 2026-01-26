@@ -9,10 +9,18 @@ import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
+// Required for static export - only these params are valid, all others 404
+export const dynamicParams = false;
+export const dynamic = 'force-static';
+
 // Required for static export - generate all gallery pages at build time
 export async function generateStaticParams() {
+  console.log('[generateStaticParams] Starting for /galerija/[slug]');
   const galleries = await galleriesRepository.findAllForSitemap();
-  return galleries.map((gallery) => ({ slug: gallery.slug }));
+  console.log('[generateStaticParams] Found', galleries.length, 'galleries');
+  const params = galleries.map((gallery) => ({ slug: gallery.slug }));
+  console.log('[generateStaticParams] Returning params:', JSON.stringify(params));
+  return params;
 }
 
 interface GalleryDetailPageProps {

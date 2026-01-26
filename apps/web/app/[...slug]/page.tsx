@@ -5,8 +5,6 @@ import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 
-export const revalidate = 60;
-
 interface StaticPageProps {
   params: Promise<{ slug: string[] }>;
 }
@@ -36,11 +34,26 @@ function getSlugPath(segments: string[]): string | null {
   return isValidPageSlug(slugPath) ? slugPath : null;
 }
 
+// Required for static export - only these params are valid, all others 404
+export const dynamicParams = false;
+export const dynamic = 'force-static';
+
+// Required for static export - generate all static pages at build time
 export async function generateStaticParams() {
-  const pages = await pagesRepository.findPublished();
-  return pages.map((page) => ({
-    slug: page.slug.split('/'),
-  }));
+  console.log('[generateStaticParams] Starting for /[...slug]');
+  try {
+    const pages = await pagesRepository.findPublished();
+    console.log('[generateStaticParams] Found', pages.length, 'pages');
+    const params = pages.map((page) => ({
+      slug: page.slug.split('/'),
+    }));
+    console.log('[generateStaticParams] Returning params:', JSON.stringify(params));
+    return params;
+  } catch (error) {
+    console.error('[generateStaticParams] Error:', error);
+    // Return empty array as fallback to allow build to proceed
+    return [];
+  }
 }
 
 export async function generateMetadata({

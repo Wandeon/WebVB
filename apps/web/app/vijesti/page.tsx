@@ -1,125 +1,49 @@
-
-import { postsRepository, type PostWithAuthor } from '@repo/database';
-import { POST_CATEGORIES, POST_CATEGORY_OPTIONS } from '@repo/shared';
-import {
-  CategoryFilter,
-  FadeIn,
-  HeroSection,
-  Pagination,
-  PostCard,
-  PostCardSkeleton,
-  SectionHeader,
-} from '@repo/ui';
+import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
-export const revalidate = 60;
+import { NewsPageClient } from './news-page-client';
 
-interface NewsPageProps {
-  searchParams: Promise<{
-    kategorija?: string;
-    stranica?: string;
-  }>;
-}
+import type { Metadata } from 'next';
 
-async function NewsContent({ category, page }: { category: string | undefined; page: number }) {
-  const { posts, pagination } = await postsRepository.findPublished({
-    page,
-    limit: 12,
-    ...(category && { category }),
-  });
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
-  const featuredPost = page === 1 && !category ? await postsRepository.getFeaturedPost() : null;
-  const gridPosts = featuredPost ? posts.filter((p) => p.id !== featuredPost.id) : posts;
+export const metadata: Metadata = {
+  title: 'Vijesti',
+  description: 'Pratite sve novosti i događanja iz Općine Veliki Bukovec.',
+  alternates: {
+    canonical: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/vijesti'),
+  },
+  openGraph: {
+    title: 'Vijesti - Općina Veliki Bukovec',
+    description: 'Pratite sve novosti i događanja iz Općine Veliki Bukovec.',
+    type: 'website',
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/vijesti'),
+  },
+};
 
+function NewsPageFallback() {
   return (
-    <>
-      {featuredPost && (
-        <FadeIn>
-          <HeroSection post={featuredPost} />
-        </FadeIn>
-      )}
-
-      {gridPosts.length > 0 ? (
-        <>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {gridPosts.map((post: PostWithAuthor, index: number) => (
-              <FadeIn key={post.id} delay={index * 0.05}>
-                <PostCard
-                  title={post.title}
-                  excerpt={post.excerpt}
-                  slug={post.slug}
-                  category={POST_CATEGORIES[post.category as keyof typeof POST_CATEGORIES] || post.category}
-                  featuredImage={post.featuredImage}
-                  publishedAt={post.publishedAt}
-                />
-              </FadeIn>
-            ))}
-          </div>
-          <FadeIn>
-            <Pagination currentPage={pagination.page} totalPages={pagination.totalPages} className="mt-12" />
-          </FadeIn>
-        </>
-      ) : (
-        <FadeIn>
-          <div className="rounded-lg bg-neutral-100 py-12 text-center">
-            <p className="text-neutral-600">
-              {category ? 'Nema vijesti u odabranoj kategoriji.' : 'Trenutno nema objavljenih vijesti.'}
-            </p>
-          </div>
-        </FadeIn>
-      )}
-    </>
-  );
-}
-
-function NewsContentSkeleton() {
-  return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <PostCardSkeleton key={i} />
-      ))}
-    </div>
-  );
-}
-
-function CategoryFilterSkeleton() {
-  return (
-    <div className="mb-8 flex flex-wrap gap-2">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <div
-          key={index}
-          className="h-9 w-24 animate-pulse rounded-full bg-neutral-100"
-        />
-      ))}
-    </div>
-  );
-}
-
-export default async function NewsPage({ searchParams }: NewsPageProps) {
-  const params = await searchParams;
-  const categoryParam = params.kategorija;
-  const category =
-    categoryParam && categoryParam in POST_CATEGORIES ? categoryParam : undefined;
-  const rawPage = Number(params.stranica);
-  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
-
-  return (
-    <div className="py-8 md:py-12">
-      <div className="container mx-auto px-4">
-        <FadeIn>
-          <SectionHeader title="Vijesti" description="Pratite sve novosti i događanja iz Općine Veliki Bukovec" />
-        </FadeIn>
-
-        <FadeIn>
-          <Suspense fallback={<CategoryFilterSkeleton />}>
-            <CategoryFilter categories={POST_CATEGORY_OPTIONS} allLabel="Sve vijesti" className="mb-8" />
-          </Suspense>
-        </FadeIn>
-
-        <Suspense fallback={<NewsContentSkeleton />}>
-          <NewsContent category={category} page={page} />
-        </Suspense>
+    <div className="container mx-auto px-4 py-12">
+      <div className="h-8 w-48 animate-pulse rounded bg-neutral-200" />
+      <div className="mt-4 h-4 w-64 animate-pulse rounded bg-neutral-200" />
+      <div className="mt-8 mb-8 flex flex-wrap gap-2">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="h-9 w-24 animate-pulse rounded-full bg-neutral-100" />
+        ))}
+      </div>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="h-80 animate-pulse rounded-lg bg-neutral-200" />
+        ))}
       </div>
     </div>
+  );
+}
+
+export default function NewsPage() {
+  return (
+    <Suspense fallback={<NewsPageFallback />}>
+      <NewsPageClient />
+    </Suspense>
   );
 }
