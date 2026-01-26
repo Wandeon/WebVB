@@ -174,4 +174,49 @@ export const pagesRepository = {
       orderBy: [{ menuOrder: 'asc' }, { title: 'asc' }],
     });
   },
+
+  async findPublished(): Promise<Pick<Page, 'id' | 'slug' | 'title' | 'menuOrder'>[]> {
+    return db.page.findMany({
+      select: { id: true, slug: true, title: true, menuOrder: true },
+      orderBy: { menuOrder: 'asc' },
+    });
+  },
+
+  async findSiblingsBySlug(slug: string): Promise<Pick<Page, 'id' | 'slug' | 'title' | 'menuOrder'>[]> {
+    const hasSlash = slug.includes('/');
+
+    if (!hasSlash) {
+      // Root page: return all pages without "/" in slug
+      return db.page.findMany({
+        where: {
+          NOT: {
+            slug: {
+              contains: '/',
+            },
+          },
+        },
+        select: { id: true, slug: true, title: true, menuOrder: true },
+        orderBy: { menuOrder: 'asc' },
+      });
+    }
+
+    // Child page: return pages with same parent prefix and same depth
+    const segments = slug.split('/');
+    const parentPrefix = segments.slice(0, -1).join('/') + '/';
+    const depth = segments.length;
+
+    // Get all pages starting with parent prefix
+    const allSiblings = await db.page.findMany({
+      where: {
+        slug: {
+          startsWith: parentPrefix,
+        },
+      },
+      select: { id: true, slug: true, title: true, menuOrder: true },
+      orderBy: { menuOrder: 'asc' },
+    });
+
+    // Filter to only include pages at the same depth
+    return allSiblings.filter((page) => page.slug.split('/').length === depth);
+  },
 };
