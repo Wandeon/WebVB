@@ -31,4 +31,5 @@ export * from './components/gallery-card';
 export * from './components/photo-grid';
 export * from './components/page-sidebar';
 export * from './components/page-accordion';
+export * from './components/contact-form';
 export * from './lib/utils';

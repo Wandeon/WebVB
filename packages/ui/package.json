@@ -30,6 +30,7 @@
     "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^5.1.2",
@@ -44,6 +45,8 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@repo/shared": "workspace:*",
+    "@hookform/resolvers": "^5.0.1",
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/react": "^6.1.20",
@@ -68,6 +71,8 @@
     "isomorphic-dompurify": "^2.35.0",
     "lucide-react": "^0.563.0",
     "tailwind-merge": "^3.4.0",
-    "yet-another-react-lightbox": "^3.28.0"
+    "react-hook-form": "^7.56.4",
+    "yet-another-react-lightbox": "^3.28.0",
+    "zod": "^4.3.6"
   }
 }
