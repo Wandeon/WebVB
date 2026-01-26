@@ -192,22 +192,8 @@ jobs:
       - name: Run database migrations
         run: pnpm db:push
 
-      - name: Verify database connection
-        run: |
-          echo "DATABASE_URL is set: ${DATABASE_URL:+yes}"
-          echo "Testing database connection via psql..."
-          PGPASSWORD=postgres psql -h localhost -U postgres -d velikibukovec_ci -c "SELECT 1;" || echo "psql not available, trying pg_isready..."
-          pg_isready -h localhost -p 5432 -U postgres && echo "Database is ready!"
-
       - name: Build
         env:
-          # Allow empty static params for CI builds without seed data
+          # Allow placeholder params for CI builds without seed data
           ALLOW_EMPTY_STATIC_PARAMS: "true"
-        run: |
-          # Create .env file for Next.js to pick up
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/velikibukovec_ci" > .env
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/velikibukovec_ci" > apps/web/.env
-          echo "ALLOW_EMPTY_STATIC_PARAMS=true" >> apps/web/.env
-          export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
-          export ALLOW_EMPTY_STATIC_PARAMS="true"
-          pnpm turbo run build --env-mode=loose
+        run: pnpm build
