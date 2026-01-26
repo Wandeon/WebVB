@@ -29,10 +29,22 @@ export function withStaticParams<TParams extends Record<string, string | string[
   options: StaticParamsOptions
 ) {
   return async () => {
+    // eslint-disable-next-line no-console
+    console.log(`[withStaticParams:${options.routeName}] Starting, ALLOW_EMPTY=${process.env.ALLOW_EMPTY_STATIC_PARAMS}, CI=${process.env.CI}`);
     try {
-      return await factory();
+      const result = await factory();
+      // eslint-disable-next-line no-console
+      console.log(`[withStaticParams:${options.routeName}] Success, returning ${result.length} params`);
+      return result;
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(`[withStaticParams:${options.routeName}] Error caught, shouldAllow=${shouldAllowEmptyParams()}`);
+      // eslint-disable-next-line no-console
+      console.error(`[withStaticParams:${options.routeName}] Error:`, error);
+
       if (shouldAllowEmptyParams()) {
+        // eslint-disable-next-line no-console
+        console.log(`[withStaticParams:${options.routeName}] Returning empty array`);
         return [];
       }
 
