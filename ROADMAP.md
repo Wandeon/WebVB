@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** Phase 2 Complete - Ready for Phase 4/5
-**Overall Progress:** 39/71 sprints (Phase 0-3 complete)
+**Active Sprint:** Phase 4 Complete - Ready for Phase 5/6/7
+**Overall Progress:** 46/71 sprints (Phase 0-4 complete)
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -541,17 +541,17 @@ Gate: Security checklist from SECURITY.md passes
 ---
 
 ## Phase 4: Content Migration
-**Status:** Not Started | **Progress:** 0/7 | **Track:** C (Human-driven)
+**Status:** Complete | **Progress:** 7/7 | **Track:** C (Human-driven)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 4.1 ⬜ | WordPress export | No | - | XML + media files downloaded |
-| 4.2 ⬜ | Content mapping | 🔗 | 4.1 | Spreadsheet: old URL → new URL |
-| 4.3 ⬜ | Migration scripts | 🔗 | 4.2, Phase 1 | Scripts parse and transform |
-| 4.4 ⬜ | Test migration | 🔗 | 4.3 | Run on staging, verify content |
-| 4.5 ⬜ | Image migration | 🔗 | 4.4, 3.5 | All images in R2, URLs updated |
-| 4.6 ⬜ | Final migration | 🔗 | 4.5 | Production data loaded |
-| 4.7 ⬜ | Redirects setup | 🔗 | 4.6 | _redirects file, old URLs work |
+| 4.1 ✅ | WordPress export | No | - | XML + media files downloaded |
+| 4.2 ✅ | Content mapping | 🔗 | 4.1 | Spreadsheet: old URL → new URL |
+| 4.3 ✅ | Migration scripts | 🔗 | 4.2, Phase 1 | Scripts parse and transform |
+| 4.4 ✅ | Test migration | 🔗 | 4.3 | Run on staging, verify content |
+| 4.5 ✅ | Image migration | 🔗 | 4.4, 3.5 | All images in R2, URLs updated |
+| 4.6 ✅ | Final migration | 🔗 | 4.5 | Production data loaded |
+| 4.7 ✅ | Redirects setup | 🔗 | 4.6 | _redirects file, old URLs work |
 
 ### Sprint 4.1: WordPress Export (Human Task)
 ```
@@ -841,3 +841,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-26 | Sprint 2.12 completed: Static export with client component wrappers, fixed LeafletMap SSR, all routes generate |
 | 2026-01-26 | Sprint 2.12 follow-up: Merged public API endpoints with tests, withStaticParams utility, initial data hydration |
 | 2026-01-26 | Staging deployed: Frontend (Caddy) at :80, Admin (PM2) at :3001 on VPS via Tailscale |
+| 2026-01-26 | Phase 4 Content Migration complete: 302 posts (234 with R2 images), 82 pages (74 with content), 1450 documents, 17 galleries (108 images), 26 events migrated from WordPress |
