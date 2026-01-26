@@ -21,8 +21,13 @@ error() {
 
 cd "$APP_DIR" || error "Failed to cd to $APP_DIR"
 
-# Load environment if exists
-if [[ -f .env ]]; then
+# Load environment from apps/admin/.env
+if [[ -f apps/admin/.env ]]; then
+  set -a
+  source apps/admin/.env
+  set +a
+  log "Loaded apps/admin/.env"
+elif [[ -f .env ]]; then
   set -a
   source .env
   set +a
