@@ -125,6 +125,22 @@ jobs:
     # SECURITY: This job only runs on trusted code (merged to main)
     # When self-hosted runner is ready, change to: runs-on: [self-hosted, vb-prod]
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: velikibukovec_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -172,6 +188,9 @@ jobs:
 
       - name: Generate Prisma client
         run: pnpm db:generate
+
+      - name: Run database migrations
+        run: pnpm db:push
 
       - name: Build
         run: pnpm build
