@@ -9,7 +9,7 @@ import {
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Event {
   id: string;
@@ -27,6 +27,22 @@ interface CalendarEvent {
   date: Date;
 }
 
+interface SerializedEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  eventDate: string;
+  eventTime: string | null;
+  location: string | null;
+  posterImage: string | null;
+}
+
+interface SerializedCalendarEvent {
+  id: string;
+  title: string;
+  eventDate: string;
+}
+
 interface Pagination {
   page: number;
   limit: number;
@@ -34,23 +50,77 @@ interface Pagination {
   totalPages: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+interface PublicEventsResponse {
+  success: boolean;
+  data?: {
+    events: SerializedEvent[];
+    pagination: Pagination;
+  };
+  error?: {
+    message: string;
+  };
+}
 
-export function EventsPageClient() {
+interface PublicCalendarResponse {
+  success: boolean;
+  data?: {
+    events: SerializedCalendarEvent[];
+  };
+  error?: {
+    message: string;
+  };
+}
+
+export interface EventsPageInitialData {
+  events: SerializedEvent[];
+  calendarEvents: SerializedCalendarEvent[];
+  pagination: Pagination;
+  initialYear: number;
+  initialMonth: number;
+}
+
+interface EventsPageClientProps {
+  initialData: EventsPageInitialData;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const FETCH_TIMEOUT_MS = 10_000;
+
+const deserializeEvent = (event: SerializedEvent): Event => ({
+  ...event,
+  eventDate: new Date(event.eventDate),
+  eventTime: event.eventTime ? new Date(event.eventTime) : null,
+});
+
+const deserializeCalendarEvent = (event: SerializedCalendarEvent): CalendarEvent => ({
+  id: event.id,
+  title: event.title,
+  date: new Date(event.eventDate),
+});
+
+export function EventsPageClient({ initialData }: EventsPageClientProps) {
   const searchParams = useSearchParams();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [events, setEvents] = useState<Event[]>(
+    initialData.events.map(deserializeEvent)
+  );
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(
+    initialData.calendarEvents.map(deserializeCalendarEvent)
+  );
+  const [pagination, setPagination] = useState<Pagination>(
+    initialData.pagination
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [listErrorMessage, setListErrorMessage] = useState<string | null>(null);
+  const [calendarErrorMessage, setCalendarErrorMessage] = useState<string | null>(null);
 
   const tab = searchParams.get('tab') === 'past' ? 'past' : 'upcoming';
-  const parsedPage = searchParams.get('stranica') ? parseInt(searchParams.get('stranica') as string, 10) : 1;
+  const pageParam = searchParams.get('stranica');
+  const parsedPage = pageParam ? parseInt(pageParam, 10) : 1;
   const page = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
 
   // Parse month or default to current
-  const now = new Date();
-  let calendarYear = now.getFullYear();
-  let calendarMonth = now.getMonth() + 1;
+  let calendarYear = initialData.initialYear;
+  let calendarMonth = initialData.initialMonth;
 
   const mjesec = searchParams.get('mjesec');
   if (mjesec) {
@@ -61,47 +131,112 @@ export function EventsPageClient() {
     }
   }
 
+  const shouldUseInitialEvents = useMemo(
+    () => tab === 'upcoming' && page === 1,
+    [page, tab]
+  );
+  const shouldUseInitialCalendar = useMemo(
+    () =>
+      calendarYear === initialData.initialYear &&
+      calendarMonth === initialData.initialMonth,
+    [calendarMonth, calendarYear, initialData.initialMonth, initialData.initialYear]
+  );
+
   useEffect(() => {
+    if (shouldUseInitialEvents) {
+      setEvents(initialData.events.map(deserializeEvent));
+      setPagination(initialData.pagination);
+      setIsLoading(false);
+      setListErrorMessage(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     async function fetchEvents() {
       setIsLoading(true);
+      setListErrorMessage(null);
       try {
-        const eventsUrl = tab === 'upcoming'
-          ? `${API_URL}/api/public/events?upcoming=true&page=${page}&limit=10`
-          : `${API_URL}/api/public/events?past=true&page=${page}&limit=10`;
-        const calendarUrl = `${API_URL}/api/public/events/calendar?year=${calendarYear}&month=${calendarMonth}`;
+        const eventsUrl =
+          tab === 'upcoming'
+            ? `${API_URL}/api/public/events?upcoming=true&page=${page}&limit=10`
+            : `${API_URL}/api/public/events?past=true&page=${page}&limit=10`;
 
-        const [eventsRes, calendarRes] = await Promise.all([
-          fetch(eventsUrl),
-          fetch(calendarUrl),
-        ]);
+        const response = await fetch(eventsUrl, { signal: controller.signal });
+        const payload = (await response.json()) as PublicEventsResponse;
 
-        if (eventsRes.ok) {
-          const eventsData = await eventsRes.json();
-          setEvents(eventsData.events.map((e: { id: string; title: string; description: string | null; eventDate: string; eventTime: string | null; location: string | null; posterImage: string | null }) => ({
-            ...e,
-            eventDate: new Date(e.eventDate),
-            eventTime: e.eventTime ? new Date(e.eventTime) : null,
-          })));
-          setPagination(eventsData.pagination);
+        if (!response.ok || !payload.success || !payload.data) {
+          setListErrorMessage('Ne možemo trenutno učitati događanja. Pokušajte ponovno.');
+          return;
         }
 
-        if (calendarRes.ok) {
-          const calendarData = await calendarRes.json();
-          setCalendarEvents(calendarData.events.map((e: { id: string; title: string; eventDate: string }) => ({
-            id: e.id,
-            title: e.title,
-            date: new Date(e.eventDate),
-          })));
-        }
+        setEvents(payload.data.events.map(deserializeEvent));
+        setPagination(payload.data.pagination);
       } catch (error) {
-        console.error('Error fetching events:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        setListErrorMessage('Ne možemo trenutno učitati događanja. Pokušajte ponovno.');
       } finally {
         setIsLoading(false);
+        window.clearTimeout(timeoutId);
       }
     }
 
-    fetchEvents();
-  }, [tab, page, calendarYear, calendarMonth]);
+    void fetchEvents();
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [initialData, page, shouldUseInitialEvents, tab]);
+
+  useEffect(() => {
+    if (shouldUseInitialCalendar) {
+      setCalendarEvents(initialData.calendarEvents.map(deserializeCalendarEvent));
+      setCalendarErrorMessage(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+    async function fetchCalendar() {
+      setCalendarErrorMessage(null);
+      try {
+        const calendarUrl = `${API_URL}/api/public/events/calendar?year=${calendarYear}&month=${calendarMonth}`;
+        const response = await fetch(calendarUrl, { signal: controller.signal });
+        const payload = (await response.json()) as PublicCalendarResponse;
+
+        if (!response.ok || !payload.success || !payload.data) {
+          setCalendarErrorMessage('Ne možemo trenutno učitati kalendar.');
+          return;
+        }
+
+        setCalendarEvents(payload.data.events.map(deserializeCalendarEvent));
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        setCalendarErrorMessage('Ne možemo trenutno učitati kalendar.');
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    }
+
+    void fetchCalendar();
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    calendarMonth,
+    calendarYear,
+    initialData,
+    shouldUseInitialCalendar,
+  ]);
 
   return (
     <>
@@ -137,11 +272,17 @@ export function EventsPageClient() {
 
         {/* Calendar */}
         <FadeIn delay={0.1}>
-          <EventCalendar
-            events={calendarEvents}
-            initialDate={new Date(calendarYear, calendarMonth - 1, 1)}
-            className="mb-8 rounded-lg border border-neutral-200 bg-white p-4"
-          />
+          {calendarErrorMessage ? (
+            <div className="mb-8 rounded-lg border border-red-200 bg-red-50 p-4 text-center text-sm text-red-700">
+              {calendarErrorMessage}
+            </div>
+          ) : (
+            <EventCalendar
+              events={calendarEvents}
+              initialDate={new Date(calendarYear, calendarMonth - 1, 1)}
+              className="mb-8 rounded-lg border border-neutral-200 bg-white p-4"
+            />
+          )}
         </FadeIn>
 
         {/* Events list */}
@@ -150,7 +291,11 @@ export function EventsPageClient() {
             {tab === 'upcoming' ? 'Nadolazeći događaji' : 'Prošli događaji'}
           </h2>
 
-          {isLoading ? (
+          {listErrorMessage ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+              {listErrorMessage}
+            </div>
+          ) : isLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-32 animate-pulse rounded-lg bg-neutral-200" />

@@ -6,6 +6,7 @@ import {
   POST_CATEGORIES,
   stripHtmlTags,
   truncateText,
+  withStaticParams,
 } from '@repo/shared';
 import {
   ArticleContent,
@@ -106,14 +107,10 @@ export const dynamicParams = false;
 export const dynamic = 'force-static';
 
 // Required for static export - generate all news pages at build time
-export async function generateStaticParams() {
-  try {
-    const { posts } = await postsRepository.findPublished({ limit: 100 });
-    return posts.map((post) => ({ slug: post.slug }));
-  } catch {
-    return [];
-  }
-}
+export const generateStaticParams = withStaticParams(async () => {
+  const { posts } = await postsRepository.findPublished({ limit: 100 });
+  return posts.map((post) => ({ slug: post.slug }));
+}, { routeName: 'news detail pages' });
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;

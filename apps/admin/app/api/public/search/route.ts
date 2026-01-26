@@ -31,7 +31,7 @@ const MAX_RESULTS_PER_TYPE = 5;
 const MAX_TOTAL_RESULTS = 20;
 const MIN_QUERY_LENGTH = 2;
 
-export async function OPTIONS(request: Request) {
+export function OPTIONS(request: Request) {
   return corsResponse(request);
 }
 

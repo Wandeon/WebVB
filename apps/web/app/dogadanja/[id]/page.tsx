@@ -5,6 +5,7 @@ import {
   getPublicEnv,
   stripHtmlTags,
   truncateText,
+  withStaticParams,
 } from '@repo/shared';
 import { AddToCalendar, ArticleContent, EventHero, FadeIn } from '@repo/ui';
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
@@ -20,14 +21,10 @@ export const dynamicParams = false;
 export const dynamic = 'force-static';
 
 // Required for static export - generate all event pages at build time
-export async function generateStaticParams() {
-  try {
-    const events = await eventsRepository.findAllForSitemap();
-    return events.map((event) => ({ id: event.id }));
-  } catch {
-    return [];
-  }
-}
+export const generateStaticParams = withStaticParams(async () => {
+  const events = await eventsRepository.findAllForSitemap();
+  return events.map((event) => ({ id: event.id }));
+}, { routeName: 'event detail pages' });
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;

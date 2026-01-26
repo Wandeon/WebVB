@@ -296,6 +296,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.12 ✅ | Static Export Verify | 🔗 | 2.1-2.11 | Build succeeds, 404.html, no hydration errors |
 
 Recent updates:
+- Sprint 2.12 follow-up: added build-safe static params generation, public read-only API endpoints, and initial-data hydration for list pages in static export mode.
 - Sprint 2.3 audit fixes: validated news URL params, clamped pagination, and added filter loading skeletons.
 - Sprint 2.3 completed: News listing page with category filtering, pagination, skeleton loading states, and empty state handling.
 - Sprint 2.2 completed: Homepage with hero section, quick links grid, latest news cards, upcoming events, newsletter signup, and scroll-triggered animations.

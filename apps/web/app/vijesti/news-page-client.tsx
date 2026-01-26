@@ -11,7 +11,7 @@ import {
   SectionHeader,
 } from '@repo/ui';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Post {
   id: string;
@@ -23,6 +23,16 @@ interface Post {
   publishedAt: Date | null;
 }
 
+interface SerializedPost {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  slug: string;
+  category: string;
+  featuredImage: string | null;
+  publishedAt: string | null;
+}
+
 interface PaginationData {
   page: number;
   limit: number;
@@ -30,14 +40,49 @@ interface PaginationData {
   totalPages: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+interface PublicPostsResponse {
+  success: boolean;
+  data?: {
+    posts: SerializedPost[];
+    featuredPost: SerializedPost | null;
+    pagination: PaginationData;
+  };
+  error?: {
+    message: string;
+  };
+}
 
-export function NewsPageClient() {
+export interface NewsPageInitialData {
+  posts: SerializedPost[];
+  featuredPost: SerializedPost | null;
+  pagination: PaginationData;
+}
+
+interface NewsPageClientProps {
+  initialData: NewsPageInitialData;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const FETCH_TIMEOUT_MS = 10_000;
+
+const deserializePost = (post: SerializedPost): Post => ({
+  ...post,
+  publishedAt: post.publishedAt ? new Date(post.publishedAt) : null,
+});
+
+export function NewsPageClient({ initialData }: NewsPageClientProps) {
   const searchParams = useSearchParams();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [featuredPost, setFeaturedPost] = useState<Post | null>(null);
-  const [pagination, setPagination] = useState<PaginationData>({ page: 1, limit: 12, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>(
+    initialData.posts.map(deserializePost)
+  );
+  const [featuredPost, setFeaturedPost] = useState<Post | null>(
+    initialData.featuredPost ? deserializePost(initialData.featuredPost) : null
+  );
+  const [pagination, setPagination] = useState<PaginationData>(
+    initialData.pagination
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const categoryParam = searchParams.get('kategorija');
   const category = categoryParam && categoryParam in POST_CATEGORIES ? categoryParam : undefined;
@@ -45,44 +90,72 @@ export function NewsPageClient() {
   const rawPage = pageParam ? parseInt(pageParam, 10) : 1;
   const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
 
+  const shouldUseInitialData = useMemo(
+    () => page === 1 && !category,
+    [category, page]
+  );
+
   useEffect(() => {
+    if (shouldUseInitialData) {
+      setPosts(initialData.posts.map(deserializePost));
+      setFeaturedPost(
+        initialData.featuredPost ? deserializePost(initialData.featuredPost) : null
+      );
+      setPagination(initialData.pagination);
+      setIsLoading(false);
+      setErrorMessage(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     async function fetchPosts() {
       setIsLoading(true);
+      setErrorMessage(null);
       try {
         const params = new URLSearchParams();
         if (category) params.set('category', category);
         params.set('page', String(page));
         params.set('limit', '12');
 
-        const response = await fetch(`${API_URL}/api/public/posts?${params.toString()}`);
-        if (response.ok) {
-          const data = await response.json();
-          const fetchedPosts = data.posts.map((p: { id: string; title: string; excerpt: string | null; slug: string; category: string; featuredImage: string | null; publishedAt: string | null }) => ({
-            ...p,
-            publishedAt: p.publishedAt ? new Date(p.publishedAt) : null,
-          }));
-          setPosts(fetchedPosts);
-          setPagination(data.pagination);
+        const response = await fetch(
+          `${API_URL}/api/public/posts?${params.toString()}`,
+          { signal: controller.signal }
+        );
+        const payload = (await response.json()) as PublicPostsResponse;
 
-          // Get featured post only on first page without category filter
-          if (page === 1 && !category && data.featuredPost) {
-            setFeaturedPost({
-              ...data.featuredPost,
-              publishedAt: data.featuredPost.publishedAt ? new Date(data.featuredPost.publishedAt) : null,
-            });
-          } else {
-            setFeaturedPost(null);
-          }
+        if (!response.ok || !payload.success || !payload.data) {
+          setErrorMessage('Ne možemo trenutno učitati vijesti. Pokušajte ponovno.');
+          return;
+        }
+
+        setPosts(payload.data.posts.map(deserializePost));
+        setPagination(payload.data.pagination);
+
+        if (page === 1 && !category && payload.data.featuredPost) {
+          setFeaturedPost(deserializePost(payload.data.featuredPost));
+        } else {
+          setFeaturedPost(null);
         }
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        setErrorMessage('Ne možemo trenutno učitati vijesti. Pokušajte ponovno.');
       } finally {
         setIsLoading(false);
+        window.clearTimeout(timeoutId);
       }
     }
 
-    fetchPosts();
-  }, [category, page]);
+    void fetchPosts();
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [category, page, initialData, shouldUseInitialData]);
 
   const gridPosts = featuredPost ? posts.filter((p) => p.id !== featuredPost.id) : posts;
 
@@ -97,7 +170,13 @@ export function NewsPageClient() {
           <CategoryFilter categories={POST_CATEGORY_OPTIONS} allLabel="Sve vijesti" className="mb-8" />
         </FadeIn>
 
-        {isLoading ? (
+        {errorMessage ? (
+          <FadeIn>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+              {errorMessage}
+            </div>
+          </FadeIn>
+        ) : isLoading ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 12 }).map((_, i) => (
               <PostCardSkeleton key={i} />

@@ -1,6 +1,6 @@
 'use client';
 
-import { DOCUMENT_CATEGORY_OPTIONS } from '@repo/shared';
+import { DOCUMENT_CATEGORIES, DOCUMENT_CATEGORY_OPTIONS } from '@repo/shared';
 import {
   DocumentAccordion,
   DocumentCard,
@@ -23,6 +23,14 @@ interface Document {
   createdAt: Date;
 }
 
+interface SerializedDocument {
+  id: string;
+  title: string;
+  fileUrl: string;
+  fileSize: number;
+  createdAt: string;
+}
+
 interface Pagination {
   page: number;
   limit: number;
@@ -30,53 +38,128 @@ interface Pagination {
   totalPages: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+interface PublicDocumentsResponse {
+  success: boolean;
+  data?: {
+    documents: SerializedDocument[];
+    pagination: Pagination;
+    years: number[];
+    counts: Record<string, number>;
+  };
+  error?: {
+    message: string;
+  };
+}
 
-export function DocumentsPageClient() {
+export interface DocumentsPageInitialData {
+  documents: SerializedDocument[];
+  pagination: Pagination;
+  years: number[];
+  counts: Record<string, number>;
+}
+
+interface DocumentsPageClientProps {
+  initialData: DocumentsPageInitialData;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const FETCH_TIMEOUT_MS = 10_000;
+
+const deserializeDocument = (doc: SerializedDocument): Document => ({
+  ...doc,
+  createdAt: new Date(doc.createdAt),
+});
+
+export function DocumentsPageClient({ initialData }: DocumentsPageClientProps) {
   const searchParams = useSearchParams();
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [years, setYears] = useState<number[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [documents, setDocuments] = useState<Document[]>(
+    initialData.documents.map(deserializeDocument)
+  );
+  const [years, setYears] = useState<number[]>(initialData.years);
+  const [counts, setCounts] = useState<Record<string, number>>(
+    initialData.counts
+  );
+  const [pagination, setPagination] = useState<Pagination>(
+    initialData.pagination
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const category = searchParams.get('kategorija') || undefined;
+  const categoryParam = searchParams.get('kategorija');
+  const category =
+    categoryParam && categoryParam in DOCUMENT_CATEGORIES
+      ? categoryParam
+      : undefined;
   const yearParam = searchParams.get('godina');
-  const year = yearParam ? parseInt(yearParam, 10) : undefined;
+  const yearValue = yearParam ? parseInt(yearParam, 10) : undefined;
+  const year = Number.isFinite(yearValue) ? yearValue : undefined;
   const pageParam = searchParams.get('stranica');
-  const page = pageParam ? parseInt(pageParam, 10) : 1;
+  const rawPage = pageParam ? parseInt(pageParam, 10) : 1;
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+
+  const shouldUseInitialData = useMemo(
+    () => page === 1 && !category && !year,
+    [category, page, year]
+  );
 
   useEffect(() => {
+    if (shouldUseInitialData) {
+      setDocuments(initialData.documents.map(deserializeDocument));
+      setPagination(initialData.pagination);
+      setYears(initialData.years);
+      setCounts(initialData.counts);
+      setIsLoading(false);
+      setErrorMessage(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     async function fetchDocuments() {
       setIsLoading(true);
+      setErrorMessage(null);
       try {
         const params = new URLSearchParams();
         if (category) params.set('category', category);
         if (year && Number.isFinite(year)) params.set('year', String(year));
-        params.set('page', String(page > 0 ? page : 1));
+        params.set('page', String(page));
         params.set('limit', '20');
 
-        const response = await fetch(`${API_URL}/api/public/documents?${params.toString()}`);
-        if (response.ok) {
-          const data = await response.json();
-          setDocuments(data.documents.map((d: { id: string; title: string; fileUrl: string; fileSize: number; createdAt: string }) => ({
-            ...d,
-            createdAt: new Date(d.createdAt),
-          })));
-          setPagination(data.pagination);
-          setYears(data.years || []);
-          setCounts(data.counts || {});
+        const response = await fetch(
+          `${API_URL}/api/public/documents?${params.toString()}`,
+          { signal: controller.signal }
+        );
+        const payload = (await response.json()) as PublicDocumentsResponse;
+
+        if (!response.ok || !payload.success || !payload.data) {
+          setErrorMessage('Ne možemo trenutno učitati dokumente. Pokušajte ponovno.');
+          return;
         }
+
+        setDocuments(payload.data.documents.map(deserializeDocument));
+        setPagination(payload.data.pagination);
+        setYears(payload.data.years || []);
+        setCounts(payload.data.counts || {});
       } catch (error) {
-        console.error('Error fetching documents:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        setErrorMessage('Ne možemo trenutno učitati dokumente. Pokušajte ponovno.');
       } finally {
         setIsLoading(false);
+        window.clearTimeout(timeoutId);
       }
     }
 
-    fetchDocuments();
-  }, [category, year, page]);
+    void fetchDocuments();
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [category, initialData, page, shouldUseInitialData, year]);
 
   const filteredDocuments = useMemo(() => {
     if (!searchQuery.trim()) return documents;
@@ -150,7 +233,13 @@ export function DocumentsPageClient() {
             </p>
 
             {/* Document list */}
-            {isLoading ? (
+            {errorMessage ? (
+              <FadeIn>
+                <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+                  {errorMessage}
+                </div>
+              </FadeIn>
+            ) : isLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-24 animate-pulse rounded-lg bg-neutral-200" />

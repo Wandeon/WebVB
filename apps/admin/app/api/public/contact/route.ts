@@ -9,7 +9,7 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 const RATE_LIMIT = 5;
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 
-export async function OPTIONS(request: Request) {
+export function OPTIONS(request: Request) {
   return corsResponse(request);
 }
 

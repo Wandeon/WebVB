@@ -1,8 +1,10 @@
+import { postsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
 import { NewsPageClient } from './news-page-client';
 
+import type { NewsPageInitialData } from './news-page-client';
 import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -40,10 +42,45 @@ function NewsPageFallback() {
   );
 }
 
-export default function NewsPage() {
+async function getInitialNewsData(): Promise<NewsPageInitialData> {
+  const [newsResult, featuredPost] = await Promise.all([
+    postsRepository.findPublished({ page: 1, limit: 12 }),
+    postsRepository.getFeaturedPost(),
+  ]);
+
+  const posts = newsResult.posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    excerpt: post.excerpt,
+    slug: post.slug,
+    category: post.category,
+    featuredImage: post.featuredImage,
+    publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
+  }));
+
+  return {
+    posts,
+    pagination: newsResult.pagination,
+    featuredPost: featuredPost
+      ? {
+          id: featuredPost.id,
+          title: featuredPost.title,
+          excerpt: featuredPost.excerpt,
+          slug: featuredPost.slug,
+          category: featuredPost.category,
+          featuredImage: featuredPost.featuredImage,
+          publishedAt: featuredPost.publishedAt ? featuredPost.publishedAt.toISOString() : null,
+        }
+      : null,
+  };
+}
+
+export default async function NewsPage() {
+  const initialData = await getInitialNewsData();
+
   return (
     <Suspense fallback={<NewsPageFallback />}>
-      <NewsPageClient />
+      <NewsPageClient initialData={initialData} />
     </Suspense>
   );
 }

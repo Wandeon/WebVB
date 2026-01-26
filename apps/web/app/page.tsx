@@ -18,8 +18,6 @@ import {
 import { siteConfig } from './metadata';
 import { quickLinks } from '../lib/quick-links';
 
-export const revalidate = 60; // Revalidate every 60 seconds
-
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 async function getHomepageData() {

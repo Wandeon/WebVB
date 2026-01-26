@@ -4,7 +4,7 @@ import { FadeIn, GalleryCard, Pagination } from '@repo/ui';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Gallery {
   id: string;
@@ -12,7 +12,16 @@ interface Gallery {
   slug: string;
   coverImage: string | null;
   eventDate: Date | null;
-  _count: { images: number };
+  imageCount: number;
+}
+
+interface SerializedGallery {
+  id: string;
+  name: string;
+  slug: string;
+  coverImage: string | null;
+  eventDate: string | null;
+  imageCount: number;
 }
 
 interface PaginationData {
@@ -22,39 +31,98 @@ interface PaginationData {
   totalPages: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+interface PublicGalleriesResponse {
+  success: boolean;
+  data?: {
+    galleries: SerializedGallery[];
+    pagination: PaginationData;
+  };
+  error?: {
+    message: string;
+  };
+}
 
-export function GalleryPageClient() {
+export interface GalleryPageInitialData {
+  galleries: SerializedGallery[];
+  pagination: PaginationData;
+}
+
+interface GalleryPageClientProps {
+  initialData: GalleryPageInitialData;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const FETCH_TIMEOUT_MS = 10_000;
+
+const deserializeGallery = (gallery: SerializedGallery): Gallery => ({
+  ...gallery,
+  eventDate: gallery.eventDate ? new Date(gallery.eventDate) : null,
+});
+
+export function GalleryPageClient({ initialData }: GalleryPageClientProps) {
   const searchParams = useSearchParams();
-  const [galleries, setGalleries] = useState<Gallery[]>([]);
-  const [pagination, setPagination] = useState<PaginationData>({ page: 1, limit: 12, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [galleries, setGalleries] = useState<Gallery[]>(
+    initialData.galleries.map(deserializeGallery)
+  );
+  const [pagination, setPagination] = useState<PaginationData>(
+    initialData.pagination
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const pageParam = searchParams.get('stranica');
-  const page = pageParam ? parseInt(pageParam, 10) : 1;
+  const rawPage = pageParam ? parseInt(pageParam, 10) : 1;
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+
+  const shouldUseInitialData = useMemo(() => page === 1, [page]);
 
   useEffect(() => {
+    if (shouldUseInitialData) {
+      setGalleries(initialData.galleries.map(deserializeGallery));
+      setPagination(initialData.pagination);
+      setIsLoading(false);
+      setErrorMessage(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     async function fetchGalleries() {
       setIsLoading(true);
+      setErrorMessage(null);
       try {
-        const response = await fetch(`${API_URL}/api/public/galleries?page=${page > 0 ? page : 1}&limit=12`);
-        if (response.ok) {
-          const data = await response.json();
-          setGalleries(data.galleries.map((g: { id: string; name: string; slug: string; coverImage: string | null; eventDate: string | null; _count: { images: number } }) => ({
-            ...g,
-            eventDate: g.eventDate ? new Date(g.eventDate) : null,
-          })));
-          setPagination(data.pagination);
+        const response = await fetch(
+          `${API_URL}/api/public/galleries?page=${page}&limit=12`,
+          { signal: controller.signal }
+        );
+        const payload = (await response.json()) as PublicGalleriesResponse;
+
+        if (!response.ok || !payload.success || !payload.data) {
+          setErrorMessage('Ne možemo trenutno učitati galerije. Pokušajte ponovno.');
+          return;
         }
+
+        setGalleries(payload.data.galleries.map(deserializeGallery));
+        setPagination(payload.data.pagination);
       } catch (error) {
-        console.error('Error fetching galleries:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        setErrorMessage('Ne možemo trenutno učitati galerije. Pokušajte ponovno.');
       } finally {
         setIsLoading(false);
+        window.clearTimeout(timeoutId);
       }
     }
 
-    fetchGalleries();
-  }, [page]);
+    void fetchGalleries();
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [initialData, page, shouldUseInitialData]);
 
   return (
     <>
@@ -83,7 +151,13 @@ export function GalleryPageClient() {
 
       {/* Gallery grid */}
       <div className="container mx-auto px-4 pb-12">
-        {isLoading ? (
+        {errorMessage ? (
+          <FadeIn>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+              {errorMessage}
+            </div>
+          </FadeIn>
+        ) : isLoading ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-64 animate-pulse rounded-lg bg-neutral-200" />
@@ -98,7 +172,7 @@ export function GalleryPageClient() {
                     name={gallery.name}
                     slug={gallery.slug}
                     coverImage={gallery.coverImage}
-                    imageCount={gallery._count.images}
+                    imageCount={gallery.imageCount}
                     eventDate={gallery.eventDate}
                   />
                 </FadeIn>

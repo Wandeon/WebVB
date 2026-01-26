@@ -1,5 +1,5 @@
 import { pagesRepository } from '@repo/database';
-import { buildCanonicalUrl, getPublicEnv, isValidPageSlug } from '@repo/shared';
+import { buildCanonicalUrl, getPublicEnv, isValidPageSlug, withStaticParams } from '@repo/shared';
 import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
 import { notFound } from 'next/navigation';
 
@@ -39,16 +39,12 @@ export const dynamicParams = false;
 export const dynamic = 'force-static';
 
 // Required for static export - generate all static pages at build time
-export async function generateStaticParams() {
-  try {
-    const pages = await pagesRepository.findPublished();
-    return pages.map((page) => ({
-      slug: page.slug.split('/'),
-    }));
-  } catch {
-    return [];
-  }
-}
+export const generateStaticParams = withStaticParams(async () => {
+  const pages = await pagesRepository.findPublished();
+  return pages.map((page) => ({
+    slug: page.slug.split('/'),
+  }));
+}, { routeName: 'static pages' });
 
 export async function generateMetadata({
   params,

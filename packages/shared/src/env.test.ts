@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ADMIN_APP_URL_DEFAULT, PUBLIC_SITE_URL_DEFAULT } from './constants';
-import { getAdminAuthEnv, getBaseEnv, getPublicEnv } from './env';
+import { getAdminAuthEnv, getBaseEnv, getBuildEnv, getPublicEnv } from './env';
 
 const originalEnv = process.env;
 
@@ -49,5 +49,18 @@ describe('env validation', () => {
     delete process.env.GOOGLE_CLIENT_SECRET;
 
     expect(() => getAdminAuthEnv()).toThrow('Google OAuth requires both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.');
+  });
+
+  it('returns build env flags when provided', () => {
+    resetEnv();
+    process.env.NODE_ENV = 'development';
+    process.env.CI = 'true';
+    process.env.ALLOW_EMPTY_STATIC_PARAMS = 'true';
+
+    const env = getBuildEnv();
+
+    expect(env.NODE_ENV).toBe('development');
+    expect(env.CI).toBe('true');
+    expect(env.ALLOW_EMPTY_STATIC_PARAMS).toBe('true');
   });
 });

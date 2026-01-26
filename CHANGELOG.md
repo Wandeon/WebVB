@@ -106,6 +106,10 @@ All notable changes to this project will be documented in this file.
 - Gate: Browse documents at `/dokumenti`, filter by category and year, search filters list, download PDF works
 
 ## Unreleased
+- Added build-safe static params wrapper with CI/production guardrails for static export builds.
+- Added public API endpoints for posts, galleries, events (including calendar), and documents to support static list page navigation.
+- Converted public list pages to server-provided initial data with client-side fetch fallbacks and improved error handling.
+- Removed ISR revalidation from the homepage to preserve static export compatibility.
 - Documented Sprint 1.5-1.6 audit review findings.
 - Hardened admin Playwright E2E coverage with shared login usage, more resilient selectors, settings session revocation flow, and user removal verification.
 - Improved public navigation accessibility with aria-current states, focus-visible styles, and canonical metadata.

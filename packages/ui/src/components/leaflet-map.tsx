@@ -64,7 +64,7 @@ export function LeafletMap({
       setTileLayerComponent(() => TileLayer);
     }
 
-    loadLeaflet();
+    void loadLeaflet();
   }, []);
 
   // Show loading placeholder during SSR and while loading

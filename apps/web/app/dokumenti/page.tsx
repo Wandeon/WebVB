@@ -1,8 +1,10 @@
+import { documentsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
 import { DocumentsPageClient } from './documents-page-client';
 
+import type { DocumentsPageInitialData } from './documents-page-client';
 import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -39,10 +41,33 @@ function DocumentsPageFallback() {
   );
 }
 
-export default function DocumentsPage() {
+async function getInitialDocumentsData(): Promise<DocumentsPageInitialData> {
+  const [documentsResult, years, counts] = await Promise.all([
+    documentsRepository.findAll({ page: 1, limit: 20 }),
+    documentsRepository.getDistinctYears(),
+    documentsRepository.getCategoryCounts(),
+  ]);
+
+  return {
+    documents: documentsResult.documents.map((doc) => ({
+      id: doc.id,
+      title: doc.title,
+      fileUrl: doc.fileUrl,
+      fileSize: doc.fileSize ?? 0,
+      createdAt: doc.createdAt.toISOString(),
+    })),
+    pagination: documentsResult.pagination,
+    years,
+    counts,
+  };
+}
+
+export default async function DocumentsPage() {
+  const initialData = await getInitialDocumentsData();
+
   return (
     <Suspense fallback={<DocumentsPageFallback />}>
-      <DocumentsPageClient />
+      <DocumentsPageClient initialData={initialData} />
     </Suspense>
   );
 }
