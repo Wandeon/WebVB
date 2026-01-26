@@ -15,7 +15,13 @@ function shouldAllowEmptyParams(): boolean {
   );
   const isCi = Boolean(env.CI) && env.CI !== 'false';
 
-  return env.NODE_ENV === 'development' && allowEmpty && !isCi;
+  // Allow empty params in CI when explicitly enabled (for builds without seed data)
+  if (isCi && allowEmpty) {
+    return true;
+  }
+
+  // Allow in development when explicitly enabled
+  return env.NODE_ENV === 'development' && allowEmpty;
 }
 
 export function withStaticParams<TParams extends Record<string, string | string[]>>(
@@ -24,20 +30,8 @@ export function withStaticParams<TParams extends Record<string, string | string[
 ) {
   return async () => {
     try {
-      // Debug: Log DATABASE_URL availability
-      const dbUrl = process.env.DATABASE_URL;
-      // eslint-disable-next-line no-console
-      console.log(`[withStaticParams:${options.routeName}] DATABASE_URL set: ${!!dbUrl}, length: ${dbUrl?.length ?? 0}`);
-
-      const result = await factory();
-      // eslint-disable-next-line no-console
-      console.log(`[withStaticParams:${options.routeName}] Generated ${result.length} params`);
-      return result;
+      return await factory();
     } catch (error) {
-      // Debug: Log the actual error
-      // eslint-disable-next-line no-console
-      console.error(`[withStaticParams:${options.routeName}] ERROR:`, error);
-
       if (shouldAllowEmptyParams()) {
         return [];
       }

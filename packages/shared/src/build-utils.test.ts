@@ -45,10 +45,25 @@ describe('withStaticParams', () => {
     );
   });
 
-  it('does not allow empty params in CI', async () => {
+  it('allows empty params in CI when explicitly enabled', async () => {
     resetEnv({
-      NODE_ENV: 'development',
+      NODE_ENV: 'production',
       ALLOW_EMPTY_STATIC_PARAMS: 'true',
+      CI: 'true',
+    });
+
+    const factory = withStaticParams(
+      () => Promise.reject(new Error('DB not reachable')),
+      { routeName: 'test-route' }
+    );
+
+    await expect(factory()).resolves.toEqual([]);
+  });
+
+  it('does not allow empty params in CI without explicit allowance', async () => {
+    resetEnv({
+      NODE_ENV: 'production',
+      ALLOW_EMPTY_STATIC_PARAMS: undefined,
       CI: 'true',
     });
 
