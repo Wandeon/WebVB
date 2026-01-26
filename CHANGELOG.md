@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.12 - Static Export Verify (Completed)
+
+### Added
+- `withStaticParams` utility for safe generateStaticParams with CI/prod fail-loud behavior
+- Initial data hydration for all list pages (vijesti, galerija, dogadanja, dokumenti)
+- Public API endpoints in admin app for client-side fetching:
+  - GET `/api/public/posts` - Posts with pagination, category filter
+  - GET `/api/public/galleries` - Galleries with pagination
+  - GET `/api/public/events` - Events with upcoming/past filter
+  - GET `/api/public/events/calendar` - Monthly calendar events
+  - GET `/api/public/documents` - Documents with category, year filter
+- Comprehensive test coverage for all public API endpoints
+- CORS support for IP-based origins (staging environments)
+- VPS staging deployment documentation
+
+### Fixed
+- LeafletMap SSR issue with dynamic imports inside useEffect
+- searchParams incompatibility by converting list pages to client components with Suspense
+- Removed ISR `revalidate` exports incompatible with static export
+- Build now fails loudly in CI/production when database unavailable
+
+### Infrastructure
+- Caddy configured to serve static files on port 80
+- PM2 running admin app on port 3001
+- Both accessible via Tailscale at 100.120.125.83
+
 ## Sprint 2.11 - SEO Implementation (Completed)
 
 ### Added

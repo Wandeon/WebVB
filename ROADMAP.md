@@ -2,14 +2,15 @@
 
 > AI-agent optimized roadmap with clear gates and parallel tracks.
 > Each sprint is independently completable with defined acceptance criteria.
-> Last updated: 2026-01-25
+> Last updated: 2026-01-26
 
 ## Current Status
 
 **Active Sprint:** Phase 2 Complete - Ready for Phase 4/5
-**Overall Progress:** 30/71 sprints
+**Overall Progress:** 39/71 sprints (Phase 0-3 complete)
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
+**Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
 
 ---
 
@@ -838,3 +839,5 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-26 | Sprint 2.10 completed: Full-text search with Cmd+K modal, keyboard navigation, recent searches |
 | 2026-01-26 | Sprint 2.11 completed: SEO with metadata, JSON-LD, sitemap.xml, robots.txt, canonical URLs |
 | 2026-01-26 | Sprint 2.12 completed: Static export with client component wrappers, fixed LeafletMap SSR, all routes generate |
+| 2026-01-26 | Sprint 2.12 follow-up: Merged public API endpoints with tests, withStaticParams utility, initial data hydration |
+| 2026-01-26 | Staging deployed: Frontend (Caddy) at :80, Admin (PM2) at :3001 on VPS via Tailscale |
