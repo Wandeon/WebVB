@@ -131,6 +131,41 @@ All notable changes to this project will be documented in this file.
 - ISR with 60-second revalidation
 - Gate: Browse documents at `/dokumenti`, filter by category and year, search filters list, download PDF works
 
+## Phase 4: Content Migration Complete (2026-01-26)
+
+### Added - Full WordPress Independence
+
+**Content Migrated:**
+- 302 posts (234 with R2 images)
+- 82 pages (74 with content)
+- 1,450 documents (categorized)
+- 17 galleries (108 images)
+- 26 events (converted from dogadanja posts)
+
+**Migration Scripts:**
+- `reimport-posts.ts` - Re-imported posts with HTML preserved to TipTap JSON
+- `update-pages.ts` - Updated pages with WordPress content
+- `import-documents.ts` - Imported and categorized all documents
+- `import-galleries.ts` - Imported galleries with image relationships
+- `convert-events.ts` - Converted dogadanja posts to proper events
+- `generate-redirects.ts` - Generated 372 URL redirects
+- `fix-remaining-urls.ts` - Fixed internal links and external images
+- `fix-malformed-urls.ts` - Fixed malformed paths like /pocetnawp-content/
+
+**URL Migration:**
+- 295 internal links fixed across posts and pages
+- 11 external images (Google) downloaded to R2
+- 3 expired Facebook CDN images removed
+- 6 malformed URL paths corrected
+- 372 URL redirects generated for old WordPress URLs
+
+**Verification:**
+- Zero WordPress dependencies remain
+- Site is 100% independent of velikibukovec.hr
+- All media served from Cloudflare R2
+
+---
+
 ## Unreleased
 - Added build-safe static params wrapper with CI/production guardrails for static export builds.
 - Added public API endpoints for posts, galleries, events (including calendar), and documents to support static list page navigation.
