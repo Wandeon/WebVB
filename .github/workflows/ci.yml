@@ -193,6 +193,6 @@ jobs:
         run: pnpm db:push
 
       - name: Build
-        run: pnpm build
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
+        run: |
+          export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
+          pnpm build
