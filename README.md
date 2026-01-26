@@ -4,9 +4,20 @@ Modern website with AI features for Općina Veliki Bukovec, a Croatian municipal
 
 ## Project Status
 
-**Phase:** 0 - Foundation
-**Progress:** 0/71 sprints
-**Status:** Pre-development (documentation complete)
+**Phase:** 4-8 remaining (Phases 0-3 complete)
+**Progress:** 39/71 sprints (55%)
+**Status:** Core development complete, staging deployed
+
+### Completed Phases
+- ✅ **Phase 0:** Foundation (6/6 sprints)
+- ✅ **Phase 1:** Admin Core (12/12 sprints)
+- ✅ **Phase 2:** Public Website (12/12 sprints)
+- ✅ **Phase 3:** Infrastructure (9/9 sprints)
+
+### Staging Environment
+- **Frontend:** http://100.120.125.83/ (via Tailscale)
+- **Admin:** http://100.120.125.83:3001/ (via Tailscale)
+- **Auto-deploy:** Push to main triggers GitHub Actions → VPS
 
 ## Tech Stack
 
@@ -81,17 +92,17 @@ Modern website with AI features for Općina Veliki Bukovec, a Croatian municipal
 
 ## Development Phases
 
-| Phase | Focus | Sprints |
-|-------|-------|---------|
-| **0** | **Foundation** | 6 |
-| 1 | Admin Core | 12 |
-| 2 | Public Website | 12 |
-| 3 | Infrastructure | 9 |
-| 4 | Content Migration | 7 |
-| 5 | Communication | 6 |
-| 6 | AI Integration | 7 |
-| 7 | Chatbot & Polish | 8 |
-| 8 | Testing & Launch | 8 |
+| Phase | Focus | Sprints | Status |
+|-------|-------|---------|--------|
+| 0 | Foundation | 6/6 | ✅ Complete |
+| 1 | Admin Core | 12/12 | ✅ Complete |
+| 2 | Public Website | 12/12 | ✅ Complete |
+| 3 | Infrastructure | 9/9 | ✅ Complete |
+| 4 | Content Migration | 0/7 | ⬜ Pending |
+| 5 | Communication | 0/6 | ⬜ Pending |
+| 6 | AI Integration | 0/7 | ⬜ Pending |
+| 7 | Chatbot & Polish | 0/8 | ⬜ Pending |
+| 8 | Testing & Launch | 0/8 | ⬜ Pending |
 
 ## Getting Started
 
