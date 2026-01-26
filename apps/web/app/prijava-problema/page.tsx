@@ -30,11 +30,12 @@ async function submitProblemReport(data: ProblemReportData): Promise<{ success: 
     body: JSON.stringify(data),
   });
   const payload = (await response.json()) as ProblemReportApiResponse;
-  return {
+  const result: { success: boolean; message?: string; error?: string } = {
     success: payload.success,
-    message: payload.data?.message,
-    error: payload.error?.message,
   };
+  if (payload.data?.message) result.message = payload.data.message;
+  if (payload.error?.message) result.error = payload.error.message;
+  return result;
 }
 
 export default function ProblemReportPage() {

@@ -48,7 +48,10 @@ export async function POST(request: Request) {
       reporterName: result.data.reporterName || null,
       reporterEmail: result.data.reporterEmail || null,
       reporterPhone: result.data.reporterPhone || null,
-      images: result.data.images ?? null,
+      images: result.data.images?.map((img) => ({
+        url: img.url,
+        caption: img.caption ?? null,
+      })) ?? null,
       status: 'new',
       ipAddress: ip,
     });
