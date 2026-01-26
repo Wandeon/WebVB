@@ -1,8 +1,12 @@
-
-
-
 import { postsRepository, type PostWithAuthor } from '@repo/database';
-import { getPublicEnv, POST_CATEGORIES } from '@repo/shared';
+import {
+  buildCanonicalUrl,
+  createArticleJsonLd,
+  getPublicEnv,
+  POST_CATEGORIES,
+  stripHtmlTags,
+  truncateText,
+} from '@repo/shared';
 import {
   ArticleContent,
   ArticleHero,
@@ -13,6 +17,8 @@ import {
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+import { siteConfig } from '../../metadata';
 
 import type { Metadata } from 'next';
 
@@ -26,15 +32,6 @@ const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 const META_TITLE_MAX_LENGTH = 70;
 const META_DESCRIPTION_MAX_LENGTH = 160;
-
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').trim();
-}
-
-function truncate(text: string, length: number): string {
-  if (text.length <= length) return text;
-  return text.slice(0, length).trim() + '...';
-}
 
 async function fetchPostBySlug(slug: string): Promise<PostWithAuthor | null> {
   try {
@@ -75,21 +72,26 @@ export async function generateMetadata({
     return { title: 'Vijest nije pronađena' };
   }
 
-  const titleText = truncate(stripHtml(post.title), META_TITLE_MAX_LENGTH);
+  const titleText = truncateText(stripHtmlTags(post.title), META_TITLE_MAX_LENGTH);
   const description =
     post.excerpt ||
-    truncate(stripHtml(post.content), META_DESCRIPTION_MAX_LENGTH);
+    truncateText(stripHtmlTags(post.content), META_DESCRIPTION_MAX_LENGTH);
   const fallbackImage = `${NEXT_PUBLIC_SITE_URL}/og-image.jpg`;
   const ogImage = post.featuredImage ?? fallbackImage;
+  const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/vijesti/${post.slug}`);
 
   return {
     title: titleText,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: titleText,
       description,
       type: 'article',
       publishedTime: post.publishedAt.toISOString(),
+      url: canonicalUrl,
       images: ogImage ? [ogImage] : [],
     },
     twitter: {
@@ -121,9 +123,33 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
     post.category;
 
   const articleUrl = `${NEXT_PUBLIC_SITE_URL}/vijesti/${post.slug}`;
+  const description =
+    post.excerpt ||
+    truncateText(stripHtmlTags(post.content), META_DESCRIPTION_MAX_LENGTH);
+  const structuredData = createArticleJsonLd({
+    headline: post.title,
+    description,
+    datePublished: post.publishedAt.toISOString(),
+    dateModified: post.updatedAt?.toISOString(),
+    author: {
+      '@type': post.author?.name ? 'Person' : 'Organization',
+      name: post.author?.name ?? siteConfig.creator,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: siteConfig.creator,
+      logo: {
+        '@type': 'ImageObject',
+        url: siteConfig.logo,
+      },
+    },
+    mainEntityOfPage: articleUrl,
+    image: post.featuredImage ? [post.featuredImage] : [siteConfig.ogImage],
+  });
 
   return (
     <>
+      <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       {/* Back link */}
       <div className="container mx-auto px-4 py-4">
         <Link

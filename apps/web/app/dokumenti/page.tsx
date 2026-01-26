@@ -1,5 +1,5 @@
 import { documentsRepository } from '@repo/database';
-import { DOCUMENT_CATEGORY_OPTIONS } from '@repo/shared';
+import { buildCanonicalUrl, DOCUMENT_CATEGORY_OPTIONS, getPublicEnv } from '@repo/shared';
 import {
   DocumentAccordion,
   DocumentSidebar,
@@ -13,6 +13,8 @@ import { DocumentsClient } from './documents-client';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
+
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 interface DocumentsPageProps {
   searchParams: Promise<{
@@ -34,12 +36,16 @@ export async function generateMetadata({
     title: categoryLabel ? `${categoryLabel} - Dokumenti` : 'Dokumenti',
     description:
       'Službeni dokumenti Općine Veliki Bukovec - sjednice, proračun, planovi, javna nabava i drugi javni dokumenti.',
+    alternates: {
+      canonical: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/dokumenti'),
+    },
     openGraph: {
       title: categoryLabel
         ? `${categoryLabel} - Dokumenti - Općina Veliki Bukovec`
         : 'Dokumenti - Općina Veliki Bukovec',
       description: 'Pristupite službenim dokumentima općine.',
       type: 'website',
+      url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/dokumenti'),
     },
   };
 }

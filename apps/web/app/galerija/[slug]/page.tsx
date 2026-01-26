@@ -1,4 +1,5 @@
 import { galleriesRepository } from '@repo/database';
+import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { FadeIn, PhotoGrid } from '@repo/ui';
 import { ArrowLeft, Calendar, Images } from 'lucide-react';
 import Link from 'next/link';
@@ -6,7 +7,13 @@ import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 
-export const revalidate = 60;
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+
+// Required for static export - generate all gallery pages at build time
+export async function generateStaticParams() {
+  const galleries = await galleriesRepository.findAllForSitemap();
+  return galleries.map((gallery) => ({ slug: gallery.slug }));
+}
 
 interface GalleryDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -25,14 +32,19 @@ export async function generateMetadata({
   const description = gallery.description
     ? gallery.description.slice(0, 160)
     : `Foto galerija: ${gallery.name}`;
+  const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/galerija/${gallery.slug}`);
 
   return {
     title: gallery.name,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${gallery.name} - Galerija - Općina Veliki Bukovec`,
       description,
       type: 'website',
+      url: canonicalUrl,
       ...(gallery.coverImage && { images: [gallery.coverImage] }),
     },
   };

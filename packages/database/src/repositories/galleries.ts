@@ -29,6 +29,11 @@ export interface FindAllGalleriesResult {
   };
 }
 
+export interface GallerySitemapEntry {
+  slug: string;
+  createdAt: Date;
+}
+
 export interface CreateGalleryData {
   name: string;
   slug: string;
@@ -233,5 +238,15 @@ export const galleriesRepository = {
         totalPages,
       },
     };
+  },
+
+  /**
+   * Get gallery slugs for sitemap generation
+   */
+  async findAllForSitemap(): Promise<GallerySitemapEntry[]> {
+    return db.gallery.findMany({
+      select: { slug: true, createdAt: true },
+      orderBy: { eventDate: 'desc' },
+    });
   },
 };

@@ -1,4 +1,4 @@
-import { getPublicEnv } from '@repo/shared';
+import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { ContactForm, ContactInfo, FadeIn, WorkingHours } from '@repo/ui';
 import dynamic from 'next/dynamic';
 
@@ -32,10 +32,13 @@ const WORKING_HOURS = [
 export const metadata: Metadata = {
   title: 'Kontakt',
   description: 'Kontaktirajte Općinu Veliki Bukovec. Adresa, telefon, email i radno vrijeme.',
+  alternates: {
+    canonical: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/kontakt'),
+  },
   openGraph: {
     title: 'Kontakt - Općina Veliki Bukovec',
     description: 'Kontaktirajte Općinu Veliki Bukovec. Adresa, telefon, email i radno vrijeme.',
-    url: `${NEXT_PUBLIC_SITE_URL}/kontakt`,
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/kontakt'),
   },
 };
 

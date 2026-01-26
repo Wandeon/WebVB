@@ -37,6 +37,11 @@ export interface FindAllPagesResult {
   };
 }
 
+export interface PageSitemapEntry {
+  slug: string;
+  updatedAt: Date;
+}
+
 export interface CreatePageData {
   title: string;
   slug: string;
@@ -185,6 +190,13 @@ export const pagesRepository = {
     return db.page.findMany({
       select: { id: true, slug: true, title: true, menuOrder: true },
       orderBy: { menuOrder: 'asc' },
+    });
+  },
+
+  async findPublishedForSitemap(): Promise<PageSitemapEntry[]> {
+    return db.page.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
     });
   },
 

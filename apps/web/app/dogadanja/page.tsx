@@ -1,4 +1,5 @@
 import { eventsRepository } from '@repo/database';
+import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import {
   EventCalendar,
   EventCard,
@@ -12,13 +13,19 @@ import type { Metadata } from 'next';
 
 export const revalidate = 60;
 
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+
 export const metadata: Metadata = {
   title: 'Događanja',
   description: 'Kalendar događanja i aktivnosti u Općini Veliki Bukovec.',
+  alternates: {
+    canonical: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/dogadanja'),
+  },
   openGraph: {
     title: 'Događanja - Općina Veliki Bukovec',
     description: 'Kalendar događanja i aktivnosti u Općini Veliki Bukovec.',
     type: 'website',
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/dogadanja'),
   },
 };
 

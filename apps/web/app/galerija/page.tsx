@@ -1,4 +1,5 @@
 import { galleriesRepository } from '@repo/database';
+import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { FadeIn, GalleryCard, Pagination } from '@repo/ui';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -7,13 +8,19 @@ import type { Metadata } from 'next';
 
 export const revalidate = 60;
 
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+
 export const metadata: Metadata = {
   title: 'Galerija',
   description: 'Foto galerija Općine Veliki Bukovec.',
+  alternates: {
+    canonical: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/galerija'),
+  },
   openGraph: {
     title: 'Galerija - Općina Veliki Bukovec',
     description: 'Foto galerija Općine Veliki Bukovec.',
     type: 'website',
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/galerija'),
   },
 };
 

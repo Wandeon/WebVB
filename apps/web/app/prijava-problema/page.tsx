@@ -1,4 +1,4 @@
-import { getPublicEnv } from '@repo/shared';
+import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { FadeIn, ProblemReportForm } from '@repo/ui';
 
 import type { ProblemReportData } from '@repo/shared';
@@ -9,10 +9,13 @@ const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 export const metadata: Metadata = {
   title: 'Prijava problema',
   description: 'Prijavite komunalni problem u Općini Veliki Bukovec - oštećenja cesta, javne rasvjete, odlaganja otpada.',
+  alternates: {
+    canonical: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/prijava-problema'),
+  },
   openGraph: {
     title: 'Prijava problema - Općina Veliki Bukovec',
     description: 'Prijavite komunalni problem u Općini Veliki Bukovec.',
-    url: `${NEXT_PUBLIC_SITE_URL}/prijava-problema`,
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/prijava-problema'),
   },
 };
 
