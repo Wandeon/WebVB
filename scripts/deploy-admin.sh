@@ -33,9 +33,9 @@ fi
 [[ -z "${DATABASE_URL:-}" ]] && error "DATABASE_URL not set"
 
 log "Fetching latest code..."
-git fetch --prune
-git checkout main
-git pull --ff-only
+git fetch --prune origin
+git reset --hard origin/main
+git clean -fd
 
 log "Installing dependencies..."
 pnpm install --frozen-lockfile
