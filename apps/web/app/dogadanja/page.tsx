@@ -32,8 +32,9 @@ interface EventsPageProps {
 
 export default async function EventsPage({ searchParams }: EventsPageProps) {
   const params = await searchParams;
-  const tab = params.tab || 'upcoming';
-  const page = params.stranica ? parseInt(params.stranica, 10) : 1;
+  const tab = params.tab === 'past' ? 'past' : 'upcoming';
+  const parsedPage = params.stranica ? parseInt(params.stranica, 10) : 1;
+  const page = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
 
   // Parse month or default to current
   const now = new Date();
@@ -123,6 +124,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                     title={event.title}
                     description={event.description}
                     eventDate={event.eventDate}
+                    eventTime={event.eventTime}
                     location={event.location}
                     posterImage={event.posterImage}
                   />

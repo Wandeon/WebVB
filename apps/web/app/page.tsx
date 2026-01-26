@@ -118,6 +118,7 @@ export default async function HomePage() {
                         title={event.title}
                         description={event.description}
                         eventDate={event.eventDate}
+                        eventTime={event.eventTime}
                         location={event.location}
                         posterImage={event.posterImage}
                       />

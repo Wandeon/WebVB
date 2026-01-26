@@ -1,5 +1,5 @@
 import { eventsRepository } from '@repo/database';
-import { AddToCalendar, EventHero, FadeIn } from '@repo/ui';
+import { AddToCalendar, ArticleContent, EventHero, FadeIn } from '@repo/ui';
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -10,6 +10,18 @@ export const revalidate = 60;
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
+}
+
+const EVENT_TIME_ZONE = 'Europe/Zagreb';
+const META_DESCRIPTION_MAX_LENGTH = 160;
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
+function truncate(text: string, length: number): string {
+  if (text.length <= length) return text;
+  return text.slice(0, length).trim() + '...';
 }
 
 export async function generateMetadata({
@@ -23,7 +35,7 @@ export async function generateMetadata({
   }
 
   const description = event.description
-    ? event.description.slice(0, 160)
+    ? truncate(stripHtml(event.description), META_DESCRIPTION_MAX_LENGTH)
     : 'Događanje u Općini Veliki Bukovec';
 
   return {
@@ -49,23 +61,29 @@ export default async function EventDetailPage({
   }
 
   const eventDate = new Date(event.eventDate);
-  const day = eventDate.getDate();
-  const month = new Intl.DateTimeFormat('hr-HR', { month: 'short' }).format(
-    eventDate
-  );
+  const day = new Intl.DateTimeFormat('hr-HR', {
+    day: 'numeric',
+    timeZone: EVENT_TIME_ZONE,
+  }).format(eventDate);
+  const month = new Intl.DateTimeFormat('hr-HR', {
+    month: 'short',
+    timeZone: EVENT_TIME_ZONE,
+  }).format(eventDate);
 
   const formattedDate = new Intl.DateTimeFormat('hr-HR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: EVENT_TIME_ZONE,
   }).format(eventDate);
 
   const formattedTime = event.eventTime
     ? new Intl.DateTimeFormat('hr-HR', {
         hour: '2-digit',
         minute: '2-digit',
-      }).format(new Date(event.eventTime))
+        timeZone: 'UTC',
+      }).format(event.eventTime)
     : null;
 
   const googleMapsUrl = event.location
@@ -149,6 +167,7 @@ export default async function EventDetailPage({
                 title={event.title}
                 description={event.description}
                 startDate={eventDate}
+                startTime={event.eventTime}
                 endDate={event.endDate}
                 location={event.location}
               />
@@ -158,9 +177,11 @@ export default async function EventDetailPage({
           {/* Description */}
           {event.description && (
             <FadeIn delay={0.3}>
-              <div className="prose prose-neutral max-w-none">
-                <h2>Opis događanja</h2>
-                <div dangerouslySetInnerHTML={{ __html: event.description }} />
+              <div>
+                <h2 className="font-display text-xl font-semibold text-neutral-900">
+                  Opis događanja
+                </h2>
+                <ArticleContent content={event.description} className="mt-4" />
               </div>
             </FadeIn>
           )}
