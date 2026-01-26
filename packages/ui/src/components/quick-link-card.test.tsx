@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { FileText } from 'lucide-react';
 import { forwardRef } from 'react';
 import { describe, expect, it } from 'vitest';
 
@@ -42,5 +43,37 @@ describe('QuickLinkCard', () => {
     expect(link).toHaveAttribute('href', 'https://example.com');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+});
+
+describe('QuickLinkCard bento variant', () => {
+  it('renders large bento card with description', () => {
+    render(
+      <QuickLinkCard
+        title="Test"
+        description="Test description"
+        href="/test"
+        icon={FileText}
+        variant="bento"
+        size="large"
+      />
+    );
+
+    expect(screen.getByText('Test description')).toBeInTheDocument();
+  });
+
+  it('renders small bento card without description', () => {
+    render(
+      <QuickLinkCard
+        title="Test"
+        description="Test description"
+        href="/test"
+        icon={FileText}
+        variant="bento"
+        size="small"
+      />
+    );
+
+    expect(screen.queryByText('Test description')).not.toBeInTheDocument();
   });
 });
