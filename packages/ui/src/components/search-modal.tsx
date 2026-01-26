@@ -1,13 +1,13 @@
 'use client';
 
 import * as Dialog from '@radix-ui/react-dialog';
-import { Search, X, Clock, ArrowUp, ArrowDown, CornerDownLeft } from 'lucide-react';
+import { ArrowDown, ArrowUp, Clock, CornerDownLeft, Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
+import { SearchResults } from './search-results';
 import { useRecentSearches } from '../hooks/use-recent-searches';
 import { useSearch } from '../hooks/use-search';
-import { SearchResults } from './search-results';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -61,7 +61,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         e.preventDefault();
         navigateDown();
         break;
-      case 'Enter':
+      case 'Enter': {
         e.preventDefault();
         const selected = selectCurrent();
         if (selected) {
@@ -69,6 +69,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           onClose();
         }
         break;
+      }
       case 'Escape':
         onClose();
         break;

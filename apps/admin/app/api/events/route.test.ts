@@ -58,6 +58,7 @@ vi.mock('@repo/database', () => ({
     findAll: vi.fn(),
     create: vi.fn(),
   },
+  indexEvent: vi.fn(),
 }));
 
 // Mock logger

@@ -39,6 +39,7 @@ vi.mock('@repo/database', () => ({
     findAll: vi.fn(),
     create: vi.fn(),
   },
+  indexDocument: vi.fn(),
 }));
 
 vi.mock('@/lib/logger', () => ({

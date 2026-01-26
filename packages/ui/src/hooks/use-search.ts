@@ -51,7 +51,7 @@ export function useSearch() {
 
   const totalResults = flatResults.length;
 
-  const search = useCallback(async (searchQuery: string) => {
+  const search = useCallback((searchQuery: string) => {
     const trimmed = searchQuery.trim();
     setQuery(trimmed);
 
@@ -75,35 +75,36 @@ export function useSearch() {
     }
 
     // Debounce the actual fetch
-    debounceRef.current = setTimeout(async () => {
+    debounceRef.current = setTimeout(() => {
       setIsLoading(true);
       setError(null);
 
       abortControllerRef.current = new AbortController();
 
-      try {
-        const response = await fetch(
-          `/api/search?q=${encodeURIComponent(trimmed)}`,
-          { signal: abortControllerRef.current.signal }
-        );
-
-        if (!response.ok) {
-          throw new Error('Search failed');
-        }
-
-        const data = (await response.json()) as SearchResponse;
-        setResults(data.results);
-        setSelectedIndex(-1);
-      } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
-          // Request was aborted, ignore
-          return;
-        }
-        setError('Pretraživanje nije uspjelo');
-        setResults(null);
-      } finally {
-        setIsLoading(false);
-      }
+      fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
+        signal: abortControllerRef.current.signal,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Search failed');
+          }
+          return response.json() as Promise<SearchResponse>;
+        })
+        .then((data) => {
+          setResults(data.results);
+          setSelectedIndex(-1);
+        })
+        .catch((err: unknown) => {
+          if (err instanceof Error && err.name === 'AbortError') {
+            // Request was aborted, ignore
+            return;
+          }
+          setError('Pretraživanje nije uspjelo');
+          setResults(null);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }, DEBOUNCE_MS);
   }, []);
 

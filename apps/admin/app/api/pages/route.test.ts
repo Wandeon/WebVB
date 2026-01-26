@@ -48,6 +48,7 @@ vi.mock('@repo/database', () => ({
     exists: vi.fn(),
     create: vi.fn(),
   },
+  indexPage: vi.fn(),
 }));
 
 // Mock logger
