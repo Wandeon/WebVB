@@ -1,5 +1,5 @@
 import { galleriesRepository } from '@repo/database';
-import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
+import { buildCanonicalUrl, getPublicEnv, withStaticParams } from '@repo/shared';
 import { FadeIn, PhotoGrid } from '@repo/ui';
 import { ArrowLeft, Calendar, Images } from 'lucide-react';
 import Link from 'next/link';
@@ -15,12 +15,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all gallery pages at build time
 export async function generateStaticParams() {
-  try {
+  return withStaticParams('/galerija/[slug]', async () => {
     const galleries = await galleriesRepository.findAllForSitemap();
     return galleries.map((gallery) => ({ slug: gallery.slug }));
-  } catch {
-    return [];
-  }
+  });
 }
 
 interface GalleryDetailPageProps {

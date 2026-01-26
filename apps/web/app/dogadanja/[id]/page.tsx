@@ -5,6 +5,7 @@ import {
   getPublicEnv,
   stripHtmlTags,
   truncateText,
+  withStaticParams,
 } from '@repo/shared';
 import { AddToCalendar, ArticleContent, EventHero, FadeIn } from '@repo/ui';
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
@@ -21,12 +22,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all event pages at build time
 export async function generateStaticParams() {
-  try {
+  return withStaticParams('/dogadanja/[id]', async () => {
     const events = await eventsRepository.findAllForSitemap();
     return events.map((event) => ({ id: event.id }));
-  } catch {
-    return [];
-  }
+  });
 }
 
 interface EventDetailPageProps {

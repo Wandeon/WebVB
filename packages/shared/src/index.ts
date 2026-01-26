@@ -5,6 +5,7 @@ export * from './constants';
 export * from './env';
 export * from './schemas';
 export * from './utils';
+export * from './build-utils';
 
 export {
   contactFormSchema,

@@ -20,50 +20,69 @@ interface Document {
   title: string;
   fileUrl: string;
   fileSize: number;
-  createdAt: Date;
+  createdAt: string;
 }
 
-interface Pagination {
+interface PaginationData {
   page: number;
   limit: number;
   total: number;
   totalPages: number;
 }
 
+export interface InitialDocumentsData {
+  documents: Document[];
+  years: number[];
+  counts: Record<string, number>;
+  pagination: PaginationData;
+}
+
+interface DocumentsPageClientProps {
+  initialData: InitialDocumentsData;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-export function DocumentsPageClient() {
+export function DocumentsPageClient({ initialData }: DocumentsPageClientProps) {
   const searchParams = useSearchParams();
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [years, setYears] = useState<number[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [documents, setDocuments] = useState<Document[]>(initialData.documents);
+  const [years, setYears] = useState<number[]>(initialData.years);
+  const [counts, setCounts] = useState<Record<string, number>>(initialData.counts);
+  const [pagination, setPagination] = useState<PaginationData>(initialData.pagination);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const category = searchParams.get('kategorija') || undefined;
   const yearParam = searchParams.get('godina');
   const year = yearParam ? parseInt(yearParam, 10) : undefined;
   const pageParam = searchParams.get('stranica');
-  const page = pageParam ? parseInt(pageParam, 10) : 1;
+  const rawPage = pageParam ? parseInt(pageParam, 10) : 1;
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+
+  const needsFetch = category || year || page > 1;
 
   useEffect(() => {
+    if (!needsFetch) {
+      setDocuments(initialData.documents);
+      setYears(initialData.years);
+      setCounts(initialData.counts);
+      setPagination(initialData.pagination);
+      return;
+    }
+
     async function fetchDocuments() {
       setIsLoading(true);
       try {
         const params = new URLSearchParams();
         if (category) params.set('category', category);
         if (year && Number.isFinite(year)) params.set('year', String(year));
-        params.set('page', String(page > 0 ? page : 1));
+        params.set('page', String(page));
         params.set('limit', '20');
 
         const response = await fetch(`${API_URL}/api/public/documents?${params.toString()}`);
         if (response.ok) {
           const data = await response.json();
-          setDocuments(data.documents.map((d: { id: string; title: string; fileUrl: string; fileSize: number; createdAt: string }) => ({
-            ...d,
-            createdAt: new Date(d.createdAt),
-          })));
+          setDocuments(data.documents);
           setPagination(data.pagination);
           setYears(data.years || []);
           setCounts(data.counts || {});
@@ -76,7 +95,7 @@ export function DocumentsPageClient() {
     }
 
     fetchDocuments();
-  }, [category, year, page]);
+  }, [category, year, page, needsFetch, initialData]);
 
   const filteredDocuments = useMemo(() => {
     if (!searchQuery.trim()) return documents;
@@ -164,7 +183,7 @@ export function DocumentsPageClient() {
                       title={doc.title}
                       fileUrl={doc.fileUrl}
                       fileSize={doc.fileSize}
-                      createdAt={doc.createdAt}
+                      createdAt={new Date(doc.createdAt)}
                     />
                   </FadeIn>
                 ))}

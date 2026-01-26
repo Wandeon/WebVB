@@ -15,8 +15,8 @@ interface Event {
   id: string;
   title: string;
   description: string | null;
-  eventDate: Date;
-  eventTime: Date | null;
+  eventDate: string;
+  eventTime: string | null;
   location: string | null;
   posterImage: string | null;
 }
@@ -24,7 +24,7 @@ interface Event {
 interface CalendarEvent {
   id: string;
   title: string;
-  date: Date;
+  date: string;
 }
 
 interface Pagination {
@@ -34,14 +34,24 @@ interface Pagination {
   totalPages: number;
 }
 
+export interface InitialEventsData {
+  events: Event[];
+  calendarEvents: CalendarEvent[];
+  pagination: Pagination;
+}
+
+interface EventsPageClientProps {
+  initialData: InitialEventsData;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-export function EventsPageClient() {
+export function EventsPageClient({ initialData }: EventsPageClientProps) {
   const searchParams = useSearchParams();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [events, setEvents] = useState<Event[]>(initialData.events);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(initialData.calendarEvents);
+  const [pagination, setPagination] = useState<Pagination>(initialData.pagination);
+  const [isLoading, setIsLoading] = useState(false);
 
   const tab = searchParams.get('tab') === 'past' ? 'past' : 'upcoming';
   const parsedPage = searchParams.get('stranica') ? parseInt(searchParams.get('stranica') as string, 10) : 1;
@@ -61,7 +71,17 @@ export function EventsPageClient() {
     }
   }
 
+  // Only fetch if user navigated away from initial state
+  const needsFetch = tab === 'past' || page > 1 || mjesec;
+
   useEffect(() => {
+    if (!needsFetch) {
+      setEvents(initialData.events);
+      setCalendarEvents(initialData.calendarEvents);
+      setPagination(initialData.pagination);
+      return;
+    }
+
     async function fetchEvents() {
       setIsLoading(true);
       try {
@@ -77,11 +97,7 @@ export function EventsPageClient() {
 
         if (eventsRes.ok) {
           const eventsData = await eventsRes.json();
-          setEvents(eventsData.events.map((e: { id: string; title: string; description: string | null; eventDate: string; eventTime: string | null; location: string | null; posterImage: string | null }) => ({
-            ...e,
-            eventDate: new Date(e.eventDate),
-            eventTime: e.eventTime ? new Date(e.eventTime) : null,
-          })));
+          setEvents(eventsData.events);
           setPagination(eventsData.pagination);
         }
 
@@ -90,7 +106,7 @@ export function EventsPageClient() {
           setCalendarEvents(calendarData.events.map((e: { id: string; title: string; eventDate: string }) => ({
             id: e.id,
             title: e.title,
-            date: new Date(e.eventDate),
+            date: e.eventDate,
           })));
         }
       } catch (error) {
@@ -101,7 +117,7 @@ export function EventsPageClient() {
     }
 
     fetchEvents();
-  }, [tab, page, calendarYear, calendarMonth]);
+  }, [tab, page, calendarYear, calendarMonth, needsFetch, initialData]);
 
   return (
     <>
@@ -138,7 +154,7 @@ export function EventsPageClient() {
         {/* Calendar */}
         <FadeIn delay={0.1}>
           <EventCalendar
-            events={calendarEvents}
+            events={calendarEvents.map((e) => ({ ...e, date: new Date(e.date) }))}
             initialDate={new Date(calendarYear, calendarMonth - 1, 1)}
             className="mb-8 rounded-lg border border-neutral-200 bg-white p-4"
           />
@@ -164,8 +180,8 @@ export function EventsPageClient() {
                     id={event.id}
                     title={event.title}
                     description={event.description}
-                    eventDate={event.eventDate}
-                    eventTime={event.eventTime}
+                    eventDate={new Date(event.eventDate)}
+                    eventTime={event.eventTime ? new Date(event.eventTime) : null}
                     location={event.location}
                     posterImage={event.posterImage}
                   />

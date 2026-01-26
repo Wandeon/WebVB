@@ -1,7 +1,8 @@
+import { postsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
-import { NewsPageClient } from './news-page-client';
+import { NewsPageClient, type InitialNewsData } from './news-page-client';
 
 import type { Metadata } from 'next';
 
@@ -40,10 +41,50 @@ function NewsPageFallback() {
   );
 }
 
-export default function NewsPage() {
+// Fetch initial data at build time for SEO
+async function getInitialData(): Promise<InitialNewsData> {
+  try {
+    const { posts, pagination } = await postsRepository.findPublished({
+      page: 1,
+      limit: 12,
+    });
+    const featuredPost = await postsRepository.getFeaturedPost();
+
+    return {
+      posts: posts.map((p) => ({
+        id: p.id,
+        title: p.title,
+        excerpt: p.excerpt,
+        slug: p.slug,
+        category: p.category,
+        featuredImage: p.featuredImage,
+        publishedAt: p.publishedAt?.toISOString() ?? null,
+      })),
+      pagination,
+      featuredPost: featuredPost
+        ? {
+            id: featuredPost.id,
+            title: featuredPost.title,
+            excerpt: featuredPost.excerpt,
+            slug: featuredPost.slug,
+            category: featuredPost.category,
+            featuredImage: featuredPost.featuredImage,
+            publishedAt: featuredPost.publishedAt?.toISOString() ?? null,
+          }
+        : null,
+    };
+  } catch {
+    // Return empty initial data - client will fetch
+    return { posts: [], pagination: { page: 1, limit: 12, total: 0, totalPages: 0 }, featuredPost: null };
+  }
+}
+
+export default async function NewsPage() {
+  const initialData = await getInitialData();
+
   return (
     <Suspense fallback={<NewsPageFallback />}>
-      <NewsPageClient />
+      <NewsPageClient initialData={initialData} />
     </Suspense>
   );
 }

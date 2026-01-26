@@ -1,7 +1,8 @@
+import { eventsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
-import { EventsPageClient } from './events-page-client';
+import { EventsPageClient, type InitialEventsData } from './events-page-client';
 
 import type { Metadata } from 'next';
 
@@ -35,10 +36,49 @@ function EventsPageFallback() {
   );
 }
 
-export default function EventsPage() {
+async function getInitialData(): Promise<InitialEventsData> {
+  try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    const [eventsResult, calendarEventsRaw] = await Promise.all([
+      eventsRepository.findAll({ upcoming: true, page: 1, limit: 10 }),
+      eventsRepository.getEventsByMonth(year, month),
+    ]);
+
+    return {
+      events: eventsResult.events.map((e) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        eventDate: e.eventDate.toISOString(),
+        eventTime: e.eventTime?.toISOString() ?? null,
+        location: e.location,
+        posterImage: e.posterImage,
+      })),
+      calendarEvents: calendarEventsRaw.map((e) => ({
+        id: e.id,
+        title: e.title,
+        date: e.eventDate.toISOString(),
+      })),
+      pagination: eventsResult.pagination,
+    };
+  } catch {
+    return {
+      events: [],
+      calendarEvents: [],
+      pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+    };
+  }
+}
+
+export default async function EventsPage() {
+  const initialData = await getInitialData();
+
   return (
     <Suspense fallback={<EventsPageFallback />}>
-      <EventsPageClient />
+      <EventsPageClient initialData={initialData} />
     </Suspense>
   );
 }

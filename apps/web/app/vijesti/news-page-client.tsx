@@ -20,7 +20,7 @@ interface Post {
   slug: string;
   category: string;
   featuredImage: string | null;
-  publishedAt: Date | null;
+  publishedAt: string | null;
 }
 
 interface PaginationData {
@@ -30,14 +30,24 @@ interface PaginationData {
   totalPages: number;
 }
 
+export interface InitialNewsData {
+  posts: Post[];
+  pagination: PaginationData;
+  featuredPost: Post | null;
+}
+
+interface NewsPageClientProps {
+  initialData: InitialNewsData;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-export function NewsPageClient() {
+export function NewsPageClient({ initialData }: NewsPageClientProps) {
   const searchParams = useSearchParams();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [featuredPost, setFeaturedPost] = useState<Post | null>(null);
-  const [pagination, setPagination] = useState<PaginationData>({ page: 1, limit: 12, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>(initialData.posts);
+  const [featuredPost, setFeaturedPost] = useState<Post | null>(initialData.featuredPost);
+  const [pagination, setPagination] = useState<PaginationData>(initialData.pagination);
+  const [isLoading, setIsLoading] = useState(false);
 
   const categoryParam = searchParams.get('kategorija');
   const category = categoryParam && categoryParam in POST_CATEGORIES ? categoryParam : undefined;
@@ -45,7 +55,18 @@ export function NewsPageClient() {
   const rawPage = pageParam ? parseInt(pageParam, 10) : 1;
   const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
 
+  // Check if we need to fetch (user navigated from initial page)
+  const needsFetch = category || page > 1;
+
   useEffect(() => {
+    // Don't fetch if we're on the initial page (no category, page 1)
+    if (!needsFetch) {
+      setPosts(initialData.posts);
+      setFeaturedPost(initialData.featuredPost);
+      setPagination(initialData.pagination);
+      return;
+    }
+
     async function fetchPosts() {
       setIsLoading(true);
       try {
@@ -57,19 +78,12 @@ export function NewsPageClient() {
         const response = await fetch(`${API_URL}/api/public/posts?${params.toString()}`);
         if (response.ok) {
           const data = await response.json();
-          const fetchedPosts = data.posts.map((p: { id: string; title: string; excerpt: string | null; slug: string; category: string; featuredImage: string | null; publishedAt: string | null }) => ({
-            ...p,
-            publishedAt: p.publishedAt ? new Date(p.publishedAt) : null,
-          }));
-          setPosts(fetchedPosts);
+          setPosts(data.posts);
           setPagination(data.pagination);
 
           // Get featured post only on first page without category filter
           if (page === 1 && !category && data.featuredPost) {
-            setFeaturedPost({
-              ...data.featuredPost,
-              publishedAt: data.featuredPost.publishedAt ? new Date(data.featuredPost.publishedAt) : null,
-            });
+            setFeaturedPost(data.featuredPost);
           } else {
             setFeaturedPost(null);
           }
@@ -82,7 +96,7 @@ export function NewsPageClient() {
     }
 
     fetchPosts();
-  }, [category, page]);
+  }, [category, page, needsFetch, initialData]);
 
   const gridPosts = featuredPost ? posts.filter((p) => p.id !== featuredPost.id) : posts;
 
@@ -107,7 +121,12 @@ export function NewsPageClient() {
           <>
             {featuredPost && (
               <FadeIn>
-                <HeroSection post={featuredPost} />
+                <HeroSection
+                  post={{
+                    ...featuredPost,
+                    publishedAt: featuredPost.publishedAt ? new Date(featuredPost.publishedAt) : null,
+                  }}
+                />
               </FadeIn>
             )}
 
@@ -122,7 +141,7 @@ export function NewsPageClient() {
                         slug={post.slug}
                         category={POST_CATEGORIES[post.category as keyof typeof POST_CATEGORIES] || post.category}
                         featuredImage={post.featuredImage}
-                        publishedAt={post.publishedAt}
+                        publishedAt={post.publishedAt ? new Date(post.publishedAt) : null}
                       />
                     </FadeIn>
                   ))}

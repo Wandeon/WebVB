@@ -1,7 +1,8 @@
+import { galleriesRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
-import { GalleryPageClient } from './gallery-page-client';
+import { GalleryPageClient, type InitialGalleryData } from './gallery-page-client';
 
 import type { Metadata } from 'next';
 
@@ -35,10 +36,35 @@ function GalleryPageFallback() {
   );
 }
 
-export default function GalleryPage() {
+async function getInitialData(): Promise<InitialGalleryData> {
+  try {
+    const { galleries, pagination } = await galleriesRepository.findPublished({
+      page: 1,
+      limit: 12,
+    });
+
+    return {
+      galleries: galleries.map((g) => ({
+        id: g.id,
+        name: g.name,
+        slug: g.slug,
+        coverImage: g.coverImage,
+        eventDate: g.eventDate?.toISOString() ?? null,
+        _count: g._count,
+      })),
+      pagination,
+    };
+  } catch {
+    return { galleries: [], pagination: { page: 1, limit: 12, total: 0, totalPages: 0 } };
+  }
+}
+
+export default async function GalleryPage() {
+  const initialData = await getInitialData();
+
   return (
     <Suspense fallback={<GalleryPageFallback />}>
-      <GalleryPageClient />
+      <GalleryPageClient initialData={initialData} />
     </Suspense>
   );
 }

@@ -11,7 +11,7 @@ interface Gallery {
   name: string;
   slug: string;
   coverImage: string | null;
-  eventDate: Date | null;
+  eventDate: string | null;
   _count: { images: number };
 }
 
@@ -22,28 +22,43 @@ interface PaginationData {
   totalPages: number;
 }
 
+export interface InitialGalleryData {
+  galleries: Gallery[];
+  pagination: PaginationData;
+}
+
+interface GalleryPageClientProps {
+  initialData: InitialGalleryData;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-export function GalleryPageClient() {
+export function GalleryPageClient({ initialData }: GalleryPageClientProps) {
   const searchParams = useSearchParams();
-  const [galleries, setGalleries] = useState<Gallery[]>([]);
-  const [pagination, setPagination] = useState<PaginationData>({ page: 1, limit: 12, total: 0, totalPages: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [galleries, setGalleries] = useState<Gallery[]>(initialData.galleries);
+  const [pagination, setPagination] = useState<PaginationData>(initialData.pagination);
+  const [isLoading, setIsLoading] = useState(false);
 
   const pageParam = searchParams.get('stranica');
-  const page = pageParam ? parseInt(pageParam, 10) : 1;
+  const rawPage = pageParam ? parseInt(pageParam, 10) : 1;
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+
+  const needsFetch = page > 1;
 
   useEffect(() => {
+    if (!needsFetch) {
+      setGalleries(initialData.galleries);
+      setPagination(initialData.pagination);
+      return;
+    }
+
     async function fetchGalleries() {
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_URL}/api/public/galleries?page=${page > 0 ? page : 1}&limit=12`);
+        const response = await fetch(`${API_URL}/api/public/galleries?page=${page}&limit=12`);
         if (response.ok) {
           const data = await response.json();
-          setGalleries(data.galleries.map((g: { id: string; name: string; slug: string; coverImage: string | null; eventDate: string | null; _count: { images: number } }) => ({
-            ...g,
-            eventDate: g.eventDate ? new Date(g.eventDate) : null,
-          })));
+          setGalleries(data.galleries);
           setPagination(data.pagination);
         }
       } catch (error) {
@@ -54,7 +69,7 @@ export function GalleryPageClient() {
     }
 
     fetchGalleries();
-  }, [page]);
+  }, [page, needsFetch, initialData]);
 
   return (
     <>
@@ -99,7 +114,7 @@ export function GalleryPageClient() {
                     slug={gallery.slug}
                     coverImage={gallery.coverImage}
                     imageCount={gallery._count.images}
-                    eventDate={gallery.eventDate}
+                    eventDate={gallery.eventDate ? new Date(gallery.eventDate) : null}
                   />
                 </FadeIn>
               ))}
