@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.10 - Search (Completed)
+
+### Added
+- Global search with Cmd+K / Ctrl+K keyboard shortcut
+- SearchModal component with Radix Dialog, keyboard navigation, recent searches
+- SearchTrigger component with desktop input-like button and mobile icon
+- Search API at GET `/api/search?q=` with PostgreSQL full-text search
+- SearchIndex table with tsvector, GIN index, and ts_rank relevance scoring
+- ts_headline for search result highlighting with `<mark>` tags
+- Results grouped by type: posts, documents, pages, events (max 5 per type)
+- Recent searches stored in localStorage (max 5, persistent)
+- useSearch hook with debounced fetch (150ms), abort controller
+- useRecentSearches hook for localStorage management
+- useSearchShortcut hook for global keyboard shortcut
+- Search indexing utilities: indexPost, indexDocument, indexPage, indexEvent
+- Automatic indexing on content create/update, removal on delete
+- Backfill script: `pnpm --filter @repo/database run backfill-search`
+- Gate: Press Cmd+K, type search term, navigate with arrows, press Enter to go
+
 ## Sprint 2.9 - Contact + Forms (Completed)
 
 ### Added

@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 2.10 - Search (Basic)
-**Overall Progress:** 28/71 sprints
+**Active Sprint:** 2.11 - SEO Implementation
+**Overall Progress:** 29/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 
@@ -291,7 +291,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.7 ✅ | Gallery pages | 🔀 | 2.1 | Albums, lightbox |
 | 2.8 ✅ | Static pages | 🔀 | 2.1 | All pages from menu structure |
 | 2.9 ✅ | Contact + forms | 🔀 | 2.1 | Contact form, problem report |
-| 2.10 ⬜ | Search (basic) | 🔗 | 2.3-2.8 | Full-text search, results page |
+| 2.10 ✅ | Search (basic) | 🔗 | 2.3-2.8 | Full-text search, results page |
 | 2.11 ⬜ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
 
 Recent updates:
@@ -432,17 +432,17 @@ Acceptance Criteria:
 Gate: Submit contact form, receive success message
 ```
 
-### Sprint 2.10: Search (Basic)
+### Sprint 2.10: Search (Basic) ✅
 ```
 Acceptance Criteria:
-□ Cmd+K / Ctrl+K opens search modal
-□ Search input with debounce (150ms)
-□ PostgreSQL full-text search (tsvector)
-□ Results grouped by type (news, docs, pages, events)
-□ Keyboard navigation (↑↓ Enter Esc)
-□ Highlighted matching text
-□ Recent searches (localStorage)
-□ Mobile: full-screen search
+✓ Cmd+K / Ctrl+K opens search modal
+✓ Search input with debounce (150ms)
+✓ PostgreSQL full-text search (tsvector)
+✓ Results grouped by type (news, docs, pages, events)
+✓ Keyboard navigation (↑↓ Enter Esc)
+✓ Highlighted matching text
+✓ Recent searches (localStorage)
+✓ Mobile: full-screen search
 
 Gate: Search "proračun", find relevant documents and news
 ```
