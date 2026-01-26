@@ -107,16 +107,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all news pages at build time
 export async function generateStaticParams() {
-  console.log('[generateStaticParams] Starting for /vijesti/[slug]');
   try {
     const { posts } = await postsRepository.findPublished({ limit: 100 });
-    console.log('[generateStaticParams] Found', posts.length, 'posts');
-    const params = posts.map((post) => ({ slug: post.slug }));
-    console.log('[generateStaticParams] Returning params:', JSON.stringify(params));
-    return params;
-  } catch (error) {
-    console.error('[generateStaticParams] Error:', error);
-    // Return empty array as fallback to allow build to proceed
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch {
     return [];
   }
 }

@@ -40,18 +40,12 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all static pages at build time
 export async function generateStaticParams() {
-  console.log('[generateStaticParams] Starting for /[...slug]');
   try {
     const pages = await pagesRepository.findPublished();
-    console.log('[generateStaticParams] Found', pages.length, 'pages');
-    const params = pages.map((page) => ({
+    return pages.map((page) => ({
       slug: page.slug.split('/'),
     }));
-    console.log('[generateStaticParams] Returning params:', JSON.stringify(params));
-    return params;
-  } catch (error) {
-    console.error('[generateStaticParams] Error:', error);
-    // Return empty array as fallback to allow build to proceed
+  } catch {
     return [];
   }
 }

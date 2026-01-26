@@ -21,16 +21,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all event pages at build time
 export async function generateStaticParams() {
-  console.log('[generateStaticParams] Starting for /dogadanja/[id]');
   try {
     const events = await eventsRepository.findAllForSitemap();
-    console.log('[generateStaticParams] Found', events.length, 'events');
-    const params = events.map((event) => ({ id: event.id }));
-    console.log('[generateStaticParams] Returning params:', JSON.stringify(params));
-    return params;
-  } catch (error) {
-    console.error('[generateStaticParams] Error:', error);
-    // Return empty array as fallback to allow build to proceed
+    return events.map((event) => ({ id: event.id }));
+  } catch {
     return [];
   }
 }
