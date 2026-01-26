@@ -7,3 +7,5 @@ export type {
   SearchResponse,
   SearchResult,
 } from './use-search';
+
+export { useSearchShortcut } from './use-search-shortcut';

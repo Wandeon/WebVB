@@ -36,4 +36,9 @@ export { ProblemReportForm, type ProblemReportFormProps } from './components/pro
 export { ContactInfo, type ContactInfoProps } from './components/contact-info';
 export { WorkingHours, type WorkingHoursProps, type WorkingHoursItem } from './components/working-hours';
 export { LeafletMap, type LeafletMapProps } from './components/leaflet-map';
+export { SearchModal } from './components/search-modal';
+export { SearchResults } from './components/search-results';
+export { SearchResultItem } from './components/search-result-item';
+export { SearchTrigger } from './components/search-trigger';
+export * from './hooks';
 export * from './lib/utils';
