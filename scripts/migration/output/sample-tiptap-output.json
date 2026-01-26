@@ -1,0 +1,50 @@
+{
+  "original": "Članovi velikobukovečkog ribolovnog društva Linjak organizirali su prvu radnu akciju. Tako su uredili okoliš oko ribnjaka, a okupilo se čak 36 vrijednih članova.\r\n\r\nSljedeća radna akcija održat će se 28. ožujka s početkom u 14 sati.\r\n\r\n<a href=\"https://velikibukovec.hr/wp-content/uploads/2015/03/linjak-radna-akcija2.jpg\"><img class=\"alignnone size-medium wp-image-160\" src=\"https://velikibukovec.hr/wp-content/uploads/2015/03/linjak-radna-akcija2-300x169.jpg\" alt=\"linjak radna akcija2\" width=\"300\" height=\"169\" /></a><a href=\"https://velikibukovec.hr/wp-content/uploads/2015/03/linjak-radna-akcija.jpg\"><img class=\"alignnone size-medium wp-image-159\" src=\"https://velikibukovec.hr/wp-content/uploads/2015/03/linjak-radna-akcija-300x169.jpg\" alt=\"linjak radna akcija\" width=\"300\" height=\"169\" /></a><a href=\"https://velikibukovec.hr/wp-content/uploads/2015/03/linjak-radna-akcija3.jpg\"><img class=\"alignnone size-medium wp-image-161\" src=\"https://velikibukovec.hr/wp-content/uploads/2015/03/linjak-radna-akcija3-300x169.jpg\" alt=\"linjak radna akcija3\" width=\"300\" height=\"169\" /></a>",
+  "converted": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Članovi velikobukovečkog ribolovnog društva Linjak organizirali su prvu radnu akciju. Tako su uredili okoliš oko ribnjaka, a okupilo se čak 36 vrijednih članova."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Sljedeća radna akcija održat će se 28. ožujka s početkom u 14 sati."
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "src": "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/03/linjak-radna-akcija2.webp",
+          "alt": "linjak radna akcija2",
+          "title": ""
+        }
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "src": "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/03/linjak-radna-akcija.webp",
+          "alt": "linjak radna akcija",
+          "title": ""
+        }
+      },
+      {
+        "type": "image",
+        "attrs": {
+          "src": "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/03/linjak-radna-akcija3.webp",
+          "alt": "linjak radna akcija3",
+          "title": ""
+        }
+      }
+    ]
+  }
+}
