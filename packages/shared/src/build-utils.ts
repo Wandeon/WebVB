@@ -1,7 +1,9 @@
 import { getBuildEnv } from './env';
 
-interface StaticParamsOptions {
+interface StaticParamsOptions<TParams> {
   routeName: string;
+  /** Placeholder param to use when result is empty in CI builds */
+  placeholder?: TParams;
 }
 
 type StaticParamsFactory<TParams extends Record<string, string | string[]>> = () => Promise<TParams[]>;
@@ -26,14 +28,22 @@ function shouldAllowEmptyParams(): boolean {
 
 export function withStaticParams<TParams extends Record<string, string | string[]>>(
   factory: StaticParamsFactory<TParams>,
-  options: StaticParamsOptions
+  options: StaticParamsOptions<TParams>
 ) {
   return async () => {
     try {
-      return await factory();
+      const result = await factory();
+      // If empty and allowed and placeholder provided, return placeholder
+      // This satisfies Next.js static export which requires at least one param
+      if (result.length === 0 && shouldAllowEmptyParams() && options.placeholder) {
+        return [options.placeholder];
+      }
+      return result;
     } catch (error) {
       if (shouldAllowEmptyParams()) {
-        return [];
+        // If placeholder provided, return it; otherwise return empty array
+        // (empty array works for dev, placeholder needed for CI static export)
+        return options.placeholder ? [options.placeholder] : [];
       }
 
       const details =

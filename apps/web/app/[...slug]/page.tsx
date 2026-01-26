@@ -34,9 +34,8 @@ function getSlugPath(segments: string[]): string | null {
   return isValidPageSlug(slugPath) ? slugPath : null;
 }
 
-// Allow dynamic params for static export when database is empty
-// With output: export, non-generated routes will 404 anyway (no server)
-export const dynamicParams = true;
+// Required for static export - only these params are valid, all others 404
+export const dynamicParams = false;
 export const dynamic = 'force-static';
 
 // Required for static export - generate all static pages at build time
@@ -45,7 +44,10 @@ export const generateStaticParams = withStaticParams(async () => {
   return pages.map((page) => ({
     slug: page.slug.split('/'),
   }));
-}, { routeName: 'static pages' });
+}, {
+  routeName: 'static pages',
+  placeholder: { slug: ['__ci_placeholder__'] },
+});
 
 export async function generateMetadata({
   params,

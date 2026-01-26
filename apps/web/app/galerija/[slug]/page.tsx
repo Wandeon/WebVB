@@ -9,16 +9,18 @@ import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
-// Allow dynamic params for static export when database is empty
-// With output: export, non-generated routes will 404 anyway (no server)
-export const dynamicParams = true;
+// Required for static export - only these params are valid, all others 404
+export const dynamicParams = false;
 export const dynamic = 'force-static';
 
 // Required for static export - generate all gallery pages at build time
 export const generateStaticParams = withStaticParams(async () => {
   const galleries = await galleriesRepository.findAllForSitemap();
   return galleries.map((gallery) => ({ slug: gallery.slug }));
-}, { routeName: 'gallery detail pages' });
+}, {
+  routeName: 'gallery detail pages',
+  placeholder: { slug: '__ci_placeholder__' },
+});
 
 interface GalleryDetailPageProps {
   params: Promise<{ slug: string }>;

@@ -102,16 +102,18 @@ export async function generateMetadata({
   };
 }
 
-// Allow dynamic params for static export when database is empty
-// With output: export, non-generated routes will 404 anyway (no server)
-export const dynamicParams = true;
+// Required for static export - only these params are valid, all others 404
+export const dynamicParams = false;
 export const dynamic = 'force-static';
 
 // Required for static export - generate all news pages at build time
 export const generateStaticParams = withStaticParams(async () => {
   const { posts } = await postsRepository.findPublished({ limit: 100 });
   return posts.map((post) => ({ slug: post.slug }));
-}, { routeName: 'news detail pages' });
+}, {
+  routeName: 'news detail pages',
+  placeholder: { slug: '__ci_placeholder__' },
+});
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;

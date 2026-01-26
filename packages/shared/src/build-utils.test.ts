@@ -76,4 +76,34 @@ describe('withStaticParams', () => {
       'Neuspjelo generiranje statičkih ruta za test-route.'
     );
   });
+
+  it('returns placeholder when empty result in CI with placeholder provided', async () => {
+    resetEnv({
+      NODE_ENV: 'production',
+      ALLOW_EMPTY_STATIC_PARAMS: 'true',
+      CI: 'true',
+    });
+
+    const factory = withStaticParams(
+      () => Promise.resolve([]),
+      { routeName: 'test-route', placeholder: { slug: '__placeholder__' } }
+    );
+
+    await expect(factory()).resolves.toEqual([{ slug: '__placeholder__' }]);
+  });
+
+  it('returns placeholder when error in CI with placeholder provided', async () => {
+    resetEnv({
+      NODE_ENV: 'production',
+      ALLOW_EMPTY_STATIC_PARAMS: 'true',
+      CI: 'true',
+    });
+
+    const factory = withStaticParams(
+      () => Promise.reject(new Error('DB not reachable')),
+      { routeName: 'test-route', placeholder: { slug: '__placeholder__' } }
+    );
+
+    await expect(factory()).resolves.toEqual([{ slug: '__placeholder__' }]);
+  });
 });
