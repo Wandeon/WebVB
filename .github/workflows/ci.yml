@@ -202,4 +202,4 @@ jobs:
       - name: Build
         run: |
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
-          pnpm build
+          pnpm turbo run build --env-mode=loose
