@@ -20,8 +20,8 @@ describe('AddToCalendar', () => {
     const href = link.getAttribute('href') ?? '';
 
     expect(href).toContain('ctz=Europe%2FZagreb');
-    expect(href).toContain('dates=20260210T093000/20260210T103000');
-    expect(href).toContain('details=Opis%20doga%C4%91aja');
+    expect(href).toContain('dates=20260210T093000%2F20260210T103000');
+    expect(href).toContain('details=Opis+doga%C4%91aja');
   });
 
   it('generates all-day ICS entries when start time is missing', () => {

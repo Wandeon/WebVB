@@ -84,13 +84,13 @@ function buildCalendarDates({
 
   const { hour, minute, second } = getTimeParts(startTime);
   const withStartTime = new Date(startDate);
-  withStartTime.setHours(Number(hour), Number(minute), Number(second), 0);
-  const defaultEnd = new Date(withStartTime);
-  defaultEnd.setHours(defaultEnd.getHours() + 1);
+  withStartTime.setUTCHours(Number(hour), Number(minute), Number(second), 0);
+  const defaultEndTime = new Date(startTime.getTime() + 60 * 60 * 1000);
 
   const start = formatLocalDateTime(startDate, startTime);
-  const endBase = endDate ? new Date(endDate) : defaultEnd;
-  const end = formatLocalDateTime(endBase, startTime);
+  const endBase = endDate ? new Date(endDate) : withStartTime;
+  const endTime = endDate ? startTime : defaultEndTime;
+  const end = formatLocalDateTime(endBase, endTime);
   return { start, end, isAllDay };
 }
 
