@@ -1,10 +1,9 @@
-import { notFound } from 'next/navigation';
-
-import type { Metadata } from 'next';
-
 import { pagesRepository } from '@repo/database';
 import { getPublicEnv, isValidPageSlug } from '@repo/shared';
 import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
+import { notFound } from 'next/navigation';
+
+import type { Metadata } from 'next';
 
 export const revalidate = 60;
 
