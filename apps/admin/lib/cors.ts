@@ -12,9 +12,28 @@ const ALLOWED_ORIGINS = [
 
 const DEFAULT_ORIGIN = 'https://velikibukovec.hr';
 
+function isAllowedOrigin(origin: string): boolean {
+  // Always allow configured origins
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    return true;
+  }
+
+  // In non-production, allow any origin (for staging/dev with IP access)
+  if (process.env.NODE_ENV !== 'production' || process.env.ALLOW_ANY_ORIGIN === 'true') {
+    return true;
+  }
+
+  // Allow IP-based origins in staging
+  if (origin.match(/^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/)) {
+    return true;
+  }
+
+  return false;
+}
+
 export function getCorsHeaders(request: Request): HeadersInit {
   const origin = request.headers.get('Origin') || '';
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : DEFAULT_ORIGIN;
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : DEFAULT_ORIGIN;
 
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
