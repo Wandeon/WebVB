@@ -29,16 +29,28 @@ export interface BentoGridItemProps {
   className?: string;
 }
 
+// Static mapping of area to lg: grid-area classes (required for Tailwind JIT)
+const areaClasses: Record<string, string> = {
+  a: 'lg:[grid-area:a]',
+  b: 'lg:[grid-area:b]',
+  c: 'lg:[grid-area:c]',
+  d: 'lg:[grid-area:d]',
+  e: 'lg:[grid-area:e]',
+  f: 'lg:[grid-area:f]',
+};
+
 export function BentoGridItem({ children, area, className }: BentoGridItemProps) {
   return (
     <div
       className={cn(
         // Mobile: first 4 items span full width, last 2 are half
-        '[&:nth-child(-n+4)]:col-span-2',
+        // These only apply before lg: breakpoint (when grid-template-areas is not set)
+        '[&:nth-child(-n+4)]:col-span-2 lg:[&:nth-child(-n+4)]:col-span-1',
         '[&:nth-child(n+5)]:col-span-1',
+        // Desktop: use grid-area for placement
+        area && areaClasses[area],
         className
       )}
-      style={area ? { gridArea: area } : undefined}
     >
       {children}
     </div>

@@ -137,8 +137,8 @@ export default async function HomePage() {
                     ))}
                   </div>
                   {/* Mobile: horizontal scroll */}
-                  <div className="relative mt-6 sm:hidden">
-                    <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                  <div className="relative mt-6 overflow-hidden sm:hidden">
+                    <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
                       {latestPosts.map((post: PostWithAuthor) => (
                         <div
                           key={post.id}
