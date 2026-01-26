@@ -40,5 +40,6 @@ export { SearchModal } from './components/search-modal';
 export { SearchResults } from './components/search-results';
 export { SearchResultItem } from './components/search-result-item';
 export { SearchTrigger } from './components/search-trigger';
+export * from './components/place-hero';
 export * from './hooks';
 export * from './lib/utils';
