@@ -820,3 +820,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-25 | Sprint 2.6 completed: Events calendar with FullCalendar, event detail page, Add to Calendar (Google + ICS) |
 | 2026-01-25 | Sprint 2.7 completed: Gallery pages with album grid, photo grid, yet-another-react-lightbox |
 | 2026-01-26 | Sprint 2.6 audit fixes: sanitized event descriptions, month URL sync, timezone-safe calendar exports |
+| 2026-01-26 | Sprint 2.7 audit fixes: gallery pagination clamping, lightbox focus restoration, alt text fallbacks |

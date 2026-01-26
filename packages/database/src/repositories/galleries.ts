@@ -209,24 +209,28 @@ export const galleriesRepository = {
 
   async findPublished(options: { page?: number; limit?: number } = {}): Promise<FindAllGalleriesResult> {
     const { page = 1, limit = 12 } = options;
+    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 12;
+    const where: Prisma.GalleryWhereInput = { images: { some: {} } };
 
-    const [total, galleries] = await Promise.all([
-      db.gallery.count(),
-      db.gallery.findMany({
-        include: { _count: { select: { images: true } } },
-        orderBy: { eventDate: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-    ]);
+    const total = await db.gallery.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = totalPages > 0 ? Math.min(safePage, totalPages) : 1;
+    const galleries = await db.gallery.findMany({
+      where,
+      include: { _count: { select: { images: true } } },
+      orderBy: { eventDate: 'desc' },
+      skip: (clampedPage - 1) * safeLimit,
+      take: safeLimit,
+    });
 
     return {
       galleries,
       pagination: {
-        page,
-        limit,
+        page: clampedPage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages,
       },
     };
   },
