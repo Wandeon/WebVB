@@ -192,6 +192,13 @@ jobs:
       - name: Run database migrations
         run: pnpm db:push
 
+      - name: Verify database connection
+        run: |
+          echo "DATABASE_URL is set: ${DATABASE_URL:+yes}"
+          echo "Testing database connection..."
+          npx prisma db execute --stdin <<< "SELECT 1;" --schema packages/database/prisma/schema.prisma
+          echo "Database connection successful"
+
       - name: Build
         run: |
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
