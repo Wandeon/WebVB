@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.8 - Static Pages (Completed)
+
+### Added
+- Catch-all route at `/[...slug]` for CMS-managed static pages
+- PageSidebar component for desktop section navigation (sticky)
+- PageAccordion component for mobile section navigation (collapsible)
+- `findPublished` and `findSiblingsBySlug` repository methods for pages
+- Section-aware sidebar showing sibling pages in same section
+- "Zadnje ažurirano" (Last updated) date display on static pages
+- Hero section with gradient background and page title
+- ISR with 60-second revalidation
+- Gate: Navigate "Organizacija" section, sidebar highlights correctly
+
 ## Sprint 2.7 - Gallery Pages (Completed)
 
 ### Added

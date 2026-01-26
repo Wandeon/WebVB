@@ -6,7 +6,7 @@
 
 ## Current Status
 
-**Active Sprint:** 2.8 - Static Pages
+**Active Sprint:** 2.9 - Contact + Forms
 **Overall Progress:** 28/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
@@ -277,7 +277,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 ---
 
 ## Phase 2: Public Website
-**Status:** In Progress | **Progress:** 7/12 | **Track:** A
+**Status:** In Progress | **Progress:** 8/12 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -288,7 +288,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.5 ✅ | Documents section | 🔀 | 2.1 | List, filter by category/year |
 | 2.6 ✅ | Events calendar | 🔀 | 2.1 | Monthly view, event details |
 | 2.7 ✅ | Gallery pages | 🔀 | 2.1 | Albums, lightbox |
-| 2.8 ⬜ | Static pages | 🔀 | 2.1 | All pages from menu structure |
+| 2.8 ✅ | Static pages | 🔀 | 2.1 | All pages from menu structure |
 | 2.9 ⬜ | Contact + forms | 🔀 | 2.1 | Contact form, problem report |
 | 2.10 ⬜ | Search (basic) | 🔗 | 2.3-2.8 | Full-text search, results page |
 | 2.11 ⬜ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
@@ -821,3 +821,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-25 | Sprint 2.7 completed: Gallery pages with album grid, photo grid, yet-another-react-lightbox |
 | 2026-01-26 | Sprint 2.6 audit fixes: sanitized event descriptions, month URL sync, timezone-safe calendar exports |
 | 2026-01-26 | Sprint 2.7 audit fixes: gallery pagination clamping, lightbox focus restoration, alt text fallbacks |
+| 2026-01-26 | Sprint 2.8 completed: Static pages with catch-all route, section sidebar navigation, mobile accordion |
