@@ -1,4 +1,4 @@
-import { pagesRepository } from '@repo/database';
+import { indexPage, pagesRepository, removeFromIndex } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -125,6 +125,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    // Update search index
+    await indexPage({
+      id: page.id,
+      title: page.title,
+      slug: page.slug,
+      content: page.content,
+    });
+
     pagesLogger.info({ pageId: page.id, slug: page.slug }, 'Stranica uspješno ažurirana');
 
     return apiSuccess(page);
@@ -154,6 +162,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     await pagesRepository.delete(id);
+
+    // Remove from search index
+    await removeFromIndex('page', id);
 
     await createAuditLog({
       request,

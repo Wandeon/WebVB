@@ -1,4 +1,4 @@
-import { documentsRepository } from '@repo/database';
+import { documentsRepository, indexDocument, removeFromIndex } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES, updateDocumentSchema } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -66,6 +66,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    // Update search index
+    await indexDocument({
+      id: document.id,
+      title: document.title,
+      fileUrl: document.fileUrl,
+      category: document.category,
+      subcategory: document.subcategory,
+      year: document.year,
+    });
+
     documentsLogger.info({ documentId: id }, 'Document updated successfully');
 
     return apiSuccess(document);
@@ -101,6 +111,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Delete from DB first
     const deletedDocument = await documentsRepository.delete(id);
+
+    // Remove from search index
+    await removeFromIndex('document', id);
 
     await createAuditLog({
       request,

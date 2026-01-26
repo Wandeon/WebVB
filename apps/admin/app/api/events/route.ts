@@ -1,4 +1,4 @@
-import { eventsRepository } from '@repo/database';
+import { eventsRepository, indexEvent } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -128,6 +128,15 @@ export async function POST(request: NextRequest) {
       changes: {
         after: event,
       },
+    });
+
+    // Index for search
+    await indexEvent({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      eventDate: event.eventDate,
+      location: event.location,
     });
 
     eventsLogger.info(

@@ -1,4 +1,4 @@
-import { eventsRepository } from '@repo/database';
+import { eventsRepository, indexEvent, removeFromIndex } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -136,6 +136,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    // Update search index
+    await indexEvent({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      eventDate: event.eventDate,
+      location: event.location,
+    });
+
     eventsLogger.info({ eventId: id }, 'Događaj uspješno ažuriran');
 
     return apiSuccess(event);
@@ -171,6 +180,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Delete from DB first
     const deletedEvent = await eventsRepository.delete(id);
+
+    // Remove from search index
+    await removeFromIndex('event', id);
 
     await createAuditLog({
       request,

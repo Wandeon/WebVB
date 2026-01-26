@@ -1,4 +1,4 @@
-import { pagesRepository } from '@repo/database';
+import { indexPage, pagesRepository } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -114,6 +114,14 @@ export async function POST(request: NextRequest) {
       changes: {
         after: page,
       },
+    });
+
+    // Index for search
+    await indexPage({
+      id: page.id,
+      title: page.title,
+      slug: page.slug,
+      content: page.content,
     });
 
     pagesLogger.info({ pageId: page.id, slug }, 'Stranica uspješno stvorena');

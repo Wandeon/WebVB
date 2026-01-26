@@ -1,4 +1,4 @@
-import { documentsRepository } from '@repo/database';
+import { documentsRepository, indexDocument } from '@repo/database';
 import {
   AUDIT_ACTIONS,
   AUDIT_ENTITY_TYPES,
@@ -111,6 +111,16 @@ export async function POST(request: NextRequest) {
       changes: {
         after: document,
       },
+    });
+
+    // Index for search
+    await indexDocument({
+      id: document.id,
+      title: document.title,
+      fileUrl: document.fileUrl,
+      category: document.category,
+      subcategory: document.subcategory,
+      year: document.year,
     });
 
     documentsLogger.info(

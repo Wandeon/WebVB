@@ -1,4 +1,4 @@
-import { postsRepository } from '@repo/database';
+import { indexPost, postsRepository } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -127,6 +127,17 @@ export async function POST(request: NextRequest) {
       changes: {
         after: post,
       },
+    });
+
+    // Index for search (only if published)
+    await indexPost({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      content: post.content,
+      excerpt: post.excerpt,
+      category: post.category,
+      publishedAt: post.publishedAt,
     });
 
     postsLogger.info({ postId: post.id, slug }, 'Objava uspješno stvorena');

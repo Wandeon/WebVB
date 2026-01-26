@@ -1,4 +1,4 @@
-import { postsRepository } from '@repo/database';
+import { indexPost, postsRepository, removeFromIndex } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -125,6 +125,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    // Update search index (handles publish/unpublish)
+    await indexPost({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      content: post.content,
+      excerpt: post.excerpt,
+      category: post.category,
+      publishedAt: post.publishedAt,
+    });
+
     postsLogger.info({ postId: id }, 'Objava uspješno ažurirana');
 
     return apiSuccess(post);
@@ -162,6 +173,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     await postsRepository.delete(id);
+
+    // Remove from search index
+    await removeFromIndex('post', id);
 
     await createAuditLog({
       request,
