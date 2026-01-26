@@ -23,6 +23,12 @@ export interface FindAllEventsResult {
   };
 }
 
+export interface EventSitemapEntry {
+  id: string;
+  updatedAt: Date;
+  eventDate: Date;
+}
+
 export interface CreateEventData {
   title: string;
   description?: string | null;
@@ -204,5 +210,15 @@ export const eventsRepository = {
         totalPages: Math.ceil(total / limit),
       },
     };
+  },
+
+  /**
+   * Get events for sitemap generation
+   */
+  async findAllForSitemap(): Promise<EventSitemapEntry[]> {
+    return db.event.findMany({
+      select: { id: true, updatedAt: true, eventDate: true },
+      orderBy: { eventDate: 'desc' },
+    });
   },
 };

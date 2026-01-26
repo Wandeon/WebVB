@@ -1,4 +1,11 @@
 import { eventsRepository } from '@repo/database';
+import {
+  buildCanonicalUrl,
+  createEventJsonLd,
+  getPublicEnv,
+  stripHtmlTags,
+  truncateText,
+} from '@repo/shared';
 import { AddToCalendar, ArticleContent, EventHero, FadeIn } from '@repo/ui';
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
 import Link from 'next/link';
@@ -15,14 +22,7 @@ interface EventDetailPageProps {
 const EVENT_TIME_ZONE = 'Europe/Zagreb';
 const META_DESCRIPTION_MAX_LENGTH = 160;
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').trim();
-}
-
-function truncate(text: string, length: number): string {
-  if (text.length <= length) return text;
-  return text.slice(0, length).trim() + '...';
-}
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 export async function generateMetadata({
   params,
@@ -35,16 +35,21 @@ export async function generateMetadata({
   }
 
   const description = event.description
-    ? truncate(stripHtml(event.description), META_DESCRIPTION_MAX_LENGTH)
+    ? truncateText(stripHtmlTags(event.description), META_DESCRIPTION_MAX_LENGTH)
     : 'Događanje u Općini Veliki Bukovec';
+  const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/dogadanja/${event.id}`);
 
   return {
     title: event.title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${event.title} - Događanja - Općina Veliki Bukovec`,
       description,
       type: 'article',
+      url: canonicalUrl,
       ...(event.posterImage && { images: [event.posterImage] }),
     },
   };
@@ -89,9 +94,28 @@ export default async function EventDetailPage({
   const googleMapsUrl = event.location
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
     : null;
+  const description = event.description
+    ? truncateText(stripHtmlTags(event.description), META_DESCRIPTION_MAX_LENGTH)
+    : undefined;
+  const structuredData = createEventJsonLd({
+    name: event.title,
+    startDate: event.eventDate.toISOString(),
+    ...(event.endDate && { endDate: event.endDate.toISOString() }),
+    ...(description && { description }),
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/dogadanja/${event.id}`),
+    image: event.posterImage ? [event.posterImage] : undefined,
+    ...(event.location && {
+      location: {
+        '@type': 'Place',
+        name: event.location,
+        address: event.location,
+      },
+    }),
+  });
 
   return (
     <>
+      <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       {/* Back link */}
       <div className="container mx-auto px-4 py-4">
         <Link

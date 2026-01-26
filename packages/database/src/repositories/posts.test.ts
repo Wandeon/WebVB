@@ -76,3 +76,26 @@ describe('postsRepository.findPublished', () => {
     expect(result.pagination.totalPages).toBe(0);
   });
 });
+
+describe('postsRepository.findPublishedForSitemap', () => {
+  beforeEach(() => {
+    mockedDb.post.findMany.mockReset();
+  });
+
+  it('returns published post slugs with timestamps', async () => {
+    const updatedAt = new Date('2026-01-25T10:00:00.000Z');
+    const publishedAt = new Date('2026-01-20T10:00:00.000Z');
+    mockedDb.post.findMany.mockResolvedValue([
+      { slug: 'test-vijest', updatedAt, publishedAt },
+    ]);
+
+    const result = await postsRepository.findPublishedForSitemap();
+
+    expect(mockedDb.post.findMany).toHaveBeenCalledWith({
+      where: { publishedAt: { not: null } },
+      select: { slug: true, updatedAt: true, publishedAt: true },
+      orderBy: { publishedAt: 'desc' },
+    });
+    expect(result).toEqual([{ slug: 'test-vijest', updatedAt, publishedAt }]);
+  });
+});

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.11 - SEO Implementation (Completed)
+
+### Added
+- Canonical URLs for public pages and dynamic content (news, events, galleries, CMS pages)
+- Structured data (JSON-LD) for Organization (homepage), Article (news), and Event (event detail)
+- Auto-generated sitemap.xml covering static routes, posts, events, galleries, and CMS pages
+- robots.txt allowing all user agents with sitemap reference
+- Shared SEO utilities for canonical URLs, structured data, and content truncation
+
 ## Sprint 2.10 - Search (Completed)
 
 ### Added

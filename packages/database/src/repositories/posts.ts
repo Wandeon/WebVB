@@ -71,6 +71,12 @@ export interface FindPublishedPostsResult {
   };
 }
 
+export interface PublishedPostSitemapEntry {
+  slug: string;
+  updatedAt: Date;
+  publishedAt: Date | null;
+}
+
 const authorSelect = {
   id: true,
   name: true,
@@ -290,6 +296,17 @@ export const postsRepository = {
         totalPages,
       },
     };
+  },
+
+  /**
+   * Find all published posts for sitemap generation
+   */
+  async findPublishedForSitemap(): Promise<PublishedPostSitemapEntry[]> {
+    return db.post.findMany({
+      where: { publishedAt: { not: null } },
+      select: { slug: true, updatedAt: true, publishedAt: true },
+      orderBy: { publishedAt: 'desc' },
+    });
   },
 
   /**

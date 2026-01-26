@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** 2.11 - SEO Implementation
-**Overall Progress:** 29/71 sprints
+**Active Sprint:** 2.12 - Static Export Verify
+**Overall Progress:** 30/71 sprints
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 
@@ -292,7 +292,7 @@ Gate: Create user, assign role, user can login, edit user, deactivate user
 | 2.8 ✅ | Static pages | 🔀 | 2.1 | All pages from menu structure |
 | 2.9 ✅ | Contact + forms | 🔀 | 2.1 | Contact form, problem report |
 | 2.10 ✅ | Search (basic) | 🔗 | 2.3-2.8 | Full-text search, results page |
-| 2.11 ⬜ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
+| 2.11 ✅ | SEO implementation | 🔗 | 2.2-2.9 | Meta, OG, JSON-LD, sitemap |
 
 Recent updates:
 - Sprint 2.3 audit fixes: validated news URL params, clamped pagination, and added filter loading skeletons.
@@ -450,16 +450,16 @@ Gate: Search "proračun", find relevant documents and news
 ### Sprint 2.11: SEO Implementation
 ```
 Acceptance Criteria:
-□ Next.js Metadata API for all pages
-□ Dynamic meta title/description
-□ Open Graph tags (title, description, image)
-□ JSON-LD structured data:
+✓ Next.js Metadata API for all pages
+✓ Dynamic meta title/description
+✓ Open Graph tags (title, description, image)
+✓ JSON-LD structured data:
   - Organization (homepage)
   - Article (news posts)
   - Event (events)
-□ Auto-generated sitemap.xml
-□ robots.txt (allow all)
-□ Canonical URLs
+✓ Auto-generated sitemap.xml
+✓ robots.txt (allow all)
+✓ Canonical URLs
 
 Gate: Facebook debugger shows correct preview, Google Rich Results test passes
 ```

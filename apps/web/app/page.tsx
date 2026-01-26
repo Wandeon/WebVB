@@ -4,6 +4,7 @@ import {
   type Event,
   type PostWithAuthor,
 } from '@repo/database';
+import { createOrganizationJsonLd, getPublicEnv } from '@repo/shared';
 import {
   EventCard,
   FadeIn,
@@ -14,9 +15,12 @@ import {
   SectionHeader,
 } from '@repo/ui';
 
+import { siteConfig } from './metadata';
 import { quickLinks } from '../lib/quick-links';
 
 export const revalidate = 60; // Revalidate every 60 seconds
+
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 async function getHomepageData() {
   const [featuredPost, latestPosts, upcomingEvents] = await Promise.all([
@@ -30,9 +34,28 @@ async function getHomepageData() {
 
 export default async function HomePage() {
   const { featuredPost, latestPosts, upcomingEvents } = await getHomepageData();
+  const organizationStructuredData = createOrganizationJsonLd({
+    name: siteConfig.name,
+    url: NEXT_PUBLIC_SITE_URL,
+    logo: siteConfig.logo,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: siteConfig.address.streetAddress,
+      addressLocality: siteConfig.address.addressLocality,
+      postalCode: siteConfig.address.postalCode,
+      addressCountry: siteConfig.address.addressCountry,
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: siteConfig.contactPoint.telephone,
+      email: siteConfig.contactPoint.email,
+      contactType: siteConfig.contactPoint.contactType,
+    },
+  });
 
   return (
     <>
+      <script type="application/ld+json">{JSON.stringify(organizationStructuredData)}</script>
       {/* Hero Section */}
       <HeroSection post={featuredPost} />
 

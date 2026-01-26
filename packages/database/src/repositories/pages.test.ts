@@ -49,6 +49,22 @@ describe('pagesRepository', () => {
     });
   });
 
+  describe('findPublishedForSitemap', () => {
+    it('returns slugs with updated timestamps', async () => {
+      const updatedAt = new Date('2026-01-25T10:00:00.000Z');
+      const mockPages = [{ slug: 'organizacija', updatedAt }];
+      mockedDb.page.findMany.mockResolvedValue(mockPages);
+
+      const result = await pagesRepository.findPublishedForSitemap();
+
+      expect(mockedDb.page.findMany).toHaveBeenCalledWith({
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+      });
+      expect(result).toEqual(mockPages);
+    });
+  });
+
   describe('findSiblingsBySlug', () => {
     it('returns sibling pages for a child page', async () => {
       // Mock returns all pages with the parent prefix

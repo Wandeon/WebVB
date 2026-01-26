@@ -1,5 +1,5 @@
 import { pagesRepository } from '@repo/database';
-import { getPublicEnv, isValidPageSlug } from '@repo/shared';
+import { buildCanonicalUrl, getPublicEnv, isValidPageSlug } from '@repo/shared';
 import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
 import { notFound } from 'next/navigation';
 
@@ -59,12 +59,17 @@ export async function generateMetadata({
     return { title: 'Stranica nije pronađena' };
   }
 
+  const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/${slugPath}`);
+
   return {
     title: page.title,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: page.title,
       type: 'website',
-      url: `${NEXT_PUBLIC_SITE_URL}/${slugPath}`,
+      url: canonicalUrl,
     },
   };
 }

@@ -12,6 +12,18 @@ export const siteConfig = {
   ogImage: `${siteUrl}/og-image.jpg`,
   locale: 'hr_HR',
   creator: 'Općina Veliki Bukovec',
+  logo: `${siteUrl}/apple-touch-icon.png`,
+  address: {
+    streetAddress: 'Trg svetog Franje 425',
+    addressLocality: 'Veliki Bukovec',
+    postalCode: '42231',
+    addressCountry: 'HR',
+  },
+  contactPoint: {
+    telephone: '042 719 001',
+    email: 'opcina@velikibukovec.hr',
+    contactType: 'customer service',
+  },
 };
 
 export const baseMetadata: Metadata = {

@@ -76,3 +76,24 @@ describe('galleriesRepository.findPublished', () => {
     expect(result.pagination.totalPages).toBe(0);
   });
 });
+
+describe('galleriesRepository.findAllForSitemap', () => {
+  beforeEach(() => {
+    mockedDb.gallery.findMany.mockReset();
+  });
+
+  it('returns gallery slugs with created dates', async () => {
+    const createdAt = new Date('2026-01-25T10:00:00.000Z');
+    mockedDb.gallery.findMany.mockResolvedValue([
+      { slug: 'zimska-prica', createdAt },
+    ]);
+
+    const result = await galleriesRepository.findAllForSitemap();
+
+    expect(mockedDb.gallery.findMany).toHaveBeenCalledWith({
+      select: { slug: true, createdAt: true },
+      orderBy: { eventDate: 'desc' },
+    });
+    expect(result).toEqual([{ slug: 'zimska-prica', createdAt }]);
+  });
+});
