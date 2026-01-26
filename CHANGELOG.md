@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
 - Server actions for form submission from page components
 - Gate: Submit contact form, receive success message; report problem, receive confirmation
 
+### Fixed
+- Contact and problem report API routes now use repositories with structured logging and standard error payloads
+- Problem report image previews are now cleaned up to avoid lingering object URLs
+
 ## Sprint 2.8 - Static Pages (Completed)
 
 ### Added

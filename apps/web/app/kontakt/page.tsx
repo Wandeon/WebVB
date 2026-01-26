@@ -39,6 +39,12 @@ export const metadata: Metadata = {
   },
 };
 
+type ContactApiResponse = {
+  success: boolean;
+  data?: { message?: string };
+  error?: { message?: string };
+};
+
 async function submitContactForm(data: ContactFormData): Promise<{ success: boolean; message?: string; error?: string }> {
   'use server';
   const response = await fetch(`${NEXT_PUBLIC_SITE_URL}/api/contact`, {
@@ -46,7 +52,13 @@ async function submitContactForm(data: ContactFormData): Promise<{ success: bool
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  return response.json() as Promise<{ success: boolean; message?: string; error?: string }>;
+  const payload = (await response.json()) as ContactApiResponse;
+  const result: { success: boolean; message?: string; error?: string } = {
+    success: payload.success,
+  };
+  if (payload.data?.message) result.message = payload.data.message;
+  if (payload.error?.message) result.error = payload.error.message;
+  return result;
 }
 
 export default function ContactPage() {

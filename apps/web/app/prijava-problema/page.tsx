@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   },
 };
 
+type ProblemReportApiResponse = {
+  success: boolean;
+  data?: { message?: string };
+  error?: { message?: string };
+};
+
 async function submitProblemReport(data: ProblemReportData): Promise<{ success: boolean; message?: string; error?: string }> {
   'use server';
   const response = await fetch(`${NEXT_PUBLIC_SITE_URL}/api/problem-report`, {
@@ -23,7 +29,13 @@ async function submitProblemReport(data: ProblemReportData): Promise<{ success: 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  return response.json() as Promise<{ success: boolean; message?: string; error?: string }>;
+  const payload = (await response.json()) as ProblemReportApiResponse;
+  const result: { success: boolean; message?: string; error?: string } = {
+    success: payload.success,
+  };
+  if (payload.data?.message) result.message = payload.data.message;
+  if (payload.error?.message) result.error = payload.error.message;
+  return result;
 }
 
 export default function ProblemReportPage() {
