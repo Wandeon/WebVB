@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server';
-
 import { problemReportsRepository } from '@repo/database';
 import { problemReportSchema } from '@repo/shared';
+import { NextResponse } from 'next/server';
 
 import { problemReportsLogger } from '@/lib/logger';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
@@ -61,6 +60,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     problemReportsLogger.error({ error }, 'Greška prilikom slanja prijave problema');
     return NextResponse.json(
       { success: false, error: { code: 'SERVER_ERROR', message: 'Došlo je do greške. Pokušajte ponovno.' } },

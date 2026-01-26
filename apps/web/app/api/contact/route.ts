@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server';
-
 import { contactMessagesRepository } from '@repo/database';
 import { contactFormSchema } from '@repo/shared';
+import { NextResponse } from 'next/server';
 
 import { contactLogger } from '@/lib/logger';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
@@ -58,6 +57,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     contactLogger.error({ error }, 'Greška prilikom slanja kontakt poruke');
     return NextResponse.json(
       { success: false, error: { code: 'SERVER_ERROR', message: 'Došlo je do greške. Pokušajte ponovno.' } },
