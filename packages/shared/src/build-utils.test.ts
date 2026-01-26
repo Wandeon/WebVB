@@ -21,7 +21,8 @@ describe('withStaticParams', () => {
   });
 
   it('allows empty params in development when explicitly enabled', async () => {
-    resetEnv({ NODE_ENV: 'development', ALLOW_EMPTY_STATIC_PARAMS: 'true' });
+    // Must explicitly clear CI to test development behavior (CI sets CI=true)
+    resetEnv({ NODE_ENV: 'development', ALLOW_EMPTY_STATIC_PARAMS: 'true', CI: undefined });
 
     const factory = withStaticParams(
       () => Promise.reject(new Error('DB not reachable')),
