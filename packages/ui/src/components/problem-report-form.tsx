@@ -42,7 +42,6 @@ export function ProblemReportForm({ onSubmit, onImageUpload, className }: Proble
   } = useForm<ProblemReportData>({
     resolver: zodResolver(problemReportSchema),
     defaultValues: {
-      problemType: undefined,
       location: '',
       description: '',
       reporterName: '',
