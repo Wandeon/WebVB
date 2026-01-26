@@ -64,3 +64,4 @@ fi
 log "Deployment completed."
 log "Admin: http://100.120.125.83:3001/"
 log "Web:   http://100.120.125.83/"
+
