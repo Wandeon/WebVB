@@ -2,6 +2,9 @@ import { getPublicEnv } from '@repo/shared';
 
 import type { MetadataRoute } from 'next';
 
+// Required for static export
+export const dynamic = 'force-static';
+
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 export default function robots(): MetadataRoute.Robots {
@@ -9,6 +12,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: '/api/',
     },
     sitemap: `${NEXT_PUBLIC_SITE_URL}/sitemap.xml`,
   };

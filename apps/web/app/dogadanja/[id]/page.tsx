@@ -13,7 +13,13 @@ import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 
-export const revalidate = 60;
+const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+
+// Required for static export - generate all event pages at build time
+export async function generateStaticParams() {
+  const events = await eventsRepository.findAllForSitemap();
+  return events.map((event) => ({ id: event.id }));
+}
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -21,8 +27,6 @@ interface EventDetailPageProps {
 
 const EVENT_TIME_ZONE = 'Europe/Zagreb';
 const META_DESCRIPTION_MAX_LENGTH = 160;
-
-const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 export async function generateMetadata({
   params,

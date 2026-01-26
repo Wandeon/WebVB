@@ -7,9 +7,13 @@ import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 
-export const revalidate = 60;
-
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+
+// Required for static export - generate all gallery pages at build time
+export async function generateStaticParams() {
+  const galleries = await galleriesRepository.findAllForSitemap();
+  return galleries.map((gallery) => ({ slug: gallery.slug }));
+}
 
 interface GalleryDetailPageProps {
   params: Promise<{ slug: string }>;
