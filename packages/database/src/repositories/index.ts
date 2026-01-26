@@ -55,3 +55,16 @@ export {
   auditLogsRepository,
   type CreateAuditLogInput,
 } from './audit-logs';
+
+export {
+  contactMessagesRepository,
+  type CreateContactMessageData,
+  type ContactMessageRecord,
+} from './contact-messages';
+
+export {
+  problemReportsRepository,
+  type CreateProblemReportData,
+  type ProblemReportImage,
+  type ProblemReportRecord,
+} from './problem-reports';

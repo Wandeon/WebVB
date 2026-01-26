@@ -1,7 +1,9 @@
-import { db } from '@repo/database';
-import { contactFormSchema } from '@repo/shared';
 import { NextResponse } from 'next/server';
 
+import { contactMessagesRepository } from '@repo/database';
+import { contactFormSchema } from '@repo/shared';
+
+import { contactLogger } from '@/lib/logger';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const RATE_LIMIT = 5;
@@ -14,7 +16,7 @@ export async function POST(request: Request) {
     const rateCheck = checkRateLimit(ip, RATE_LIMIT, RATE_WINDOW);
     if (!rateCheck.allowed) {
       return NextResponse.json(
-        { success: false, error: 'Previše zahtjeva. Pokušajte ponovno za sat vremena.' },
+        { success: false, error: { code: 'RATE_LIMIT', message: 'Previše zahtjeva. Pokušajte ponovno za sat vremena.' } },
         { status: 429, headers: { 'Retry-After': String(Math.ceil((rateCheck.resetAt - Date.now()) / 1000)) } }
       );
     }
@@ -24,7 +26,14 @@ export async function POST(request: Request) {
 
     if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Neispravni podaci', details: result.error.flatten().fieldErrors },
+        {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Neispravni podaci',
+            details: result.error.flatten().fieldErrors,
+          },
+        },
         { status: 400 }
       );
     }
@@ -33,25 +42,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true }); // Silent rejection for bots
     }
 
-    await db.contactMessage.create({
-      data: {
-        name: result.data.name,
-        email: result.data.email,
-        subject: result.data.subject || null,
-        message: result.data.message,
-        status: 'new',
-        ipAddress: ip,
-      },
+    await contactMessagesRepository.create({
+      name: result.data.name,
+      email: result.data.email,
+      subject: result.data.subject || null,
+      message: result.data.message,
+      status: 'new',
+      ipAddress: ip,
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Vaša poruka je uspješno poslana. Odgovorit ćemo vam u najkraćem mogućem roku.',
+      data: {
+        message: 'Vaša poruka je uspješno poslana. Odgovorit ćemo vam u najkraćem mogućem roku.',
+      },
     });
   } catch (error) {
-    console.error('Contact form error:', error);
+    contactLogger.error({ error }, 'Greška prilikom slanja kontakt poruke');
     return NextResponse.json(
-      { success: false, error: 'Došlo je do greške. Pokušajte ponovno.' },
+      { success: false, error: { code: 'SERVER_ERROR', message: 'Došlo je do greške. Pokušajte ponovno.' } },
       { status: 500 }
     );
   }

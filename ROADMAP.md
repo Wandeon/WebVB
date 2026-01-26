@@ -825,3 +825,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-26 | Sprint 2.8 completed: Static pages with catch-all route, section sidebar navigation, mobile accordion |
 | 2026-01-26 | Sprint 2.8 audit fixes: validated static page slugs, improved section navigation accessibility, guarded repository queries |
 | 2026-01-26 | Sprint 2.9 completed: Contact page with map, problem report page, rate-limited API routes, honeypot spam protection |
+| 2026-01-27 | Sprint 2.9 audit fixes: repository-based contact/problem storage, structured logging, preview cleanup |

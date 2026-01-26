@@ -1,10 +1,11 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PROBLEM_TYPES, problemReportSchema, type ProblemReportData } from '@repo/shared';
 import { X } from 'lucide-react';
-import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+
+import { PROBLEM_TYPES, problemReportSchema, type ProblemReportData } from '@repo/shared';
 
 import { cn } from '../lib/utils';
 import { Button } from '../primitives/button';
@@ -31,6 +32,7 @@ export function ProblemReportForm({ onSubmit, onImageUpload, className }: Proble
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadedImagesRef = useRef<UploadedImage[]>([]);
 
   const {
     register,
@@ -53,6 +55,22 @@ export function ProblemReportForm({ onSubmit, onImageUpload, className }: Proble
   });
 
   const selectedProblemType = watch('problemType');
+
+  const revokePreview = (image: UploadedImage) => {
+    if (image.preview) {
+      URL.revokeObjectURL(image.preview);
+    }
+  };
+
+  useEffect(() => {
+    uploadedImagesRef.current = uploadedImages;
+  }, [uploadedImages]);
+
+  useEffect(() => {
+    return () => {
+      uploadedImagesRef.current.forEach(revokePreview);
+    };
+  }, []);
 
   const handleProblemTypeChange = (value: ProblemReportData['problemType']) => {
     setValue('problemType', value, { shouldValidate: true });
@@ -95,6 +113,10 @@ export function ProblemReportForm({ onSubmit, onImageUpload, className }: Proble
   };
 
   const removeImage = (index: number) => {
+    const imageToRemove = uploadedImages[index];
+    if (imageToRemove) {
+      revokePreview(imageToRemove);
+    }
     const newImages = uploadedImages.filter((_, i) => i !== index);
     setUploadedImages(newImages);
     setValue(
@@ -113,6 +135,7 @@ export function ProblemReportForm({ onSubmit, onImageUpload, className }: Proble
         setStatus('success');
         setMessage(result.message || 'Prijava uspješno poslana!');
         reset();
+        uploadedImages.forEach(revokePreview);
         setUploadedImages([]);
       } else {
         setStatus('error');
