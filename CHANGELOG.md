@@ -71,6 +71,7 @@ All notable changes to this project will be documented in this file.
 - Hardened documents filters with year-aware counts, safer download links, and category URL persistence.
 - Audited events calendar: sanitized event descriptions, synced calendar month state to URL, and corrected calendar exports for time zones.
 - Improved gallery pagination clamping, lightbox focus restoration, and alt text fallbacks for photo grids.
+- Hardened static pages slug validation, sidebar navigation accessibility, and repository guards for invalid slugs.
 
 ## Sprint 2.4 - News Detail Page (Completed)
 

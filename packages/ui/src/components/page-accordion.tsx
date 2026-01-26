@@ -31,16 +31,15 @@ export function PageAccordion({
   className,
 }: PageAccordionProps) {
   const displayTitle =
-    currentTitle || pages.find((p) => p.slug === currentSlug)?.title || '';
+    currentTitle || pages.find((p) => p.slug === currentSlug)?.title || sectionTitle;
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      className={cn('', className)}
-    >
+    <Accordion type="single" collapsible className={cn('', className)}>
       <AccordionItem value="pages" className="border-b-0">
-        <AccordionTrigger className="rounded-lg bg-neutral-100 px-4 hover:bg-neutral-200 hover:no-underline">
+        <AccordionTrigger
+          aria-label={`${sectionTitle} navigacija`}
+          className="rounded-lg bg-neutral-100 px-4 hover:bg-neutral-200 hover:no-underline"
+        >
           <div className="flex flex-col items-start gap-0.5">
             <span className="text-xs font-normal uppercase tracking-wider text-neutral-500">
               {sectionTitle}
