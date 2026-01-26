@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -117,16 +117,18 @@ describe('ProblemReportForm', () => {
   });
 
   it('shows validation errors for empty required fields', async () => {
+    const user = userEvent.setup();
     render(<ProblemReportForm onSubmit={mockOnSubmit} />);
 
     const submitButton = screen.getByRole('button', { name: 'Pošalji prijavu' });
-    fireEvent.click(submitButton);
+    await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Odaberite vrstu problema')).toBeInTheDocument();
+      // Check error messages by their specific IDs to avoid matching placeholder text
+      expect(document.getElementById('problemType-error')).toHaveTextContent('Odaberite vrstu problema');
+      expect(document.getElementById('location-error')).toHaveTextContent('Lokacija je obavezna');
+      expect(document.getElementById('description-error')).toHaveTextContent('Opis mora imati najmanje 10 znakova');
     });
-    expect(screen.getByText('Lokacija je obavezna')).toBeInTheDocument();
-    expect(screen.getByText('Opis mora imati najmanje 10 znakova')).toBeInTheDocument();
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
