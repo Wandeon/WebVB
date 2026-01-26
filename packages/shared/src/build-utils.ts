@@ -24,8 +24,20 @@ export function withStaticParams<TParams extends Record<string, string | string[
 ) {
   return async () => {
     try {
-      return await factory();
+      // Debug: Log DATABASE_URL availability
+      const dbUrl = process.env.DATABASE_URL;
+      // eslint-disable-next-line no-console
+      console.log(`[withStaticParams:${options.routeName}] DATABASE_URL set: ${!!dbUrl}, length: ${dbUrl?.length ?? 0}`);
+
+      const result = await factory();
+      // eslint-disable-next-line no-console
+      console.log(`[withStaticParams:${options.routeName}] Generated ${result.length} params`);
+      return result;
     } catch (error) {
+      // Debug: Log the actual error
+      // eslint-disable-next-line no-console
+      console.error(`[withStaticParams:${options.routeName}] ERROR:`, error);
+
       if (shouldAllowEmptyParams()) {
         return [];
       }
