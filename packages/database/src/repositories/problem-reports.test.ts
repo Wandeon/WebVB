@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 
@@ -40,7 +41,7 @@ describe('problemReportsRepository.create', () => {
         reporterName: null,
         reporterEmail: null,
         reporterPhone: null,
-        images: null,
+        images: Prisma.JsonNull,
         status: 'new',
         ipAddress: null,
       },
