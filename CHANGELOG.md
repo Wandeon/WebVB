@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## Sprint 2.9 - Contact + Forms (Completed)
+
+### Added
+- Contact page at `/kontakt` with municipality info, working hours, and interactive map
+- Problem report page at `/prijava-problema` for community issue reporting
+- ContactForm component with react-hook-form, Zod validation, and honeypot spam protection
+- ProblemReportForm component with problem type selector and optional image upload
+- ContactInfo and WorkingHours display components with lucide-react icons
+- LeafletMap component with OpenStreetMap tiles (no API key needed)
+- API routes: POST `/api/contact` and POST `/api/problem-report`
+- In-memory IP-based rate limiting (5/hour for contact, 3/hour for problem reports)
+- Zod validation schemas: `contactFormSchema` and `problemReportSchema` in @repo/shared
+- Server actions for form submission from page components
+- Gate: Submit contact form, receive success message; report problem, receive confirmation
+
 ## Sprint 2.8 - Static Pages (Completed)
 
 ### Added

@@ -5,3 +5,12 @@ export * from './constants';
 export * from './env';
 export * from './schemas';
 export * from './utils';
+
+export {
+  contactFormSchema,
+  problemReportSchema,
+  PROBLEM_TYPES,
+  problemTypeValues,
+  type ContactFormData,
+  type ProblemReportData,
+} from './validations/contact';
