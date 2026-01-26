@@ -198,6 +198,7 @@ Recent updates:
 - Sprint 1.12 follow-up: Hardened E2E selectors, reused shared auth helper, and added session revocation coverage plus user removal verification.
 - Sprint 1.11 completed: User management with CRUD, role-based permissions, soft-delete deactivation, and login blocking for inactive users.
 - Sprint 1.11 audit follow-up: tightened role hierarchy enforcement for user management.
+- Sprint 2.8 audit follow-up: validated static page slugs, improved section navigation accessibility, and guarded repository queries for invalid slugs.
 - Sprint 2.4 follow-up: Hardened news detail page security, metadata fallbacks, and accessibility.
 - Phase 0/1/4 system audit: enforced server-side auth and audit logging across admin APIs.
 - Sprint 1.10 completed: Settings page with profile, password change, 2FA setup, and sessions management.

@@ -1,3 +1,5 @@
+import { isValidPageSlug } from '@repo/shared';
+
 import { db } from '../client';
 
 import type { Prisma, Page } from '@prisma/client';
@@ -116,6 +118,10 @@ export const pagesRepository = {
   },
 
   async findBySlug(slug: string): Promise<PageWithRelations | null> {
+    if (!isValidPageSlug(slug)) {
+      return null;
+    }
+
     return db.page.findUnique({
       where: { slug },
       include: relationsSelect,
@@ -183,6 +189,10 @@ export const pagesRepository = {
   },
 
   async findSiblingsBySlug(slug: string): Promise<Pick<Page, 'id' | 'slug' | 'title' | 'menuOrder'>[]> {
+    if (!isValidPageSlug(slug)) {
+      return [];
+    }
+
     const hasSlash = slug.includes('/');
 
     if (!hasSlash) {

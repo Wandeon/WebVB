@@ -125,5 +125,12 @@ describe('pagesRepository', () => {
         { id: '2', slug: 'org/sub/page2', title: 'Page 2', menuOrder: 1 },
       ]);
     });
+
+    it('returns empty array for invalid slugs without querying the database', async () => {
+      const result = await pagesRepository.findSiblingsBySlug('Organizacija');
+
+      expect(mockedDb.page.findMany).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
   });
 });

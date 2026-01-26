@@ -1,9 +1,10 @@
-import { pagesRepository } from '@repo/database';
-import { getPublicEnv } from '@repo/shared';
-import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
 import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
+
+import { pagesRepository } from '@repo/database';
+import { getPublicEnv, isValidPageSlug } from '@repo/shared';
+import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
 
 export const revalidate = 60;
 
@@ -31,6 +32,11 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
+function getSlugPath(segments: string[]): string | null {
+  const slugPath = segments.join('/');
+  return isValidPageSlug(slugPath) ? slugPath : null;
+}
+
 export async function generateStaticParams() {
   const pages = await pagesRepository.findPublished();
   return pages.map((page) => ({
@@ -42,7 +48,12 @@ export async function generateMetadata({
   params,
 }: StaticPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const slugPath = slug.join('/');
+  const slugPath = getSlugPath(slug);
+
+  if (!slugPath) {
+    return { title: 'Stranica nije pronađena' };
+  }
+
   const page = await pagesRepository.findBySlug(slugPath);
 
   if (!page) {
@@ -61,7 +72,11 @@ export async function generateMetadata({
 
 export default async function StaticPage({ params }: StaticPageProps) {
   const { slug } = await params;
-  const slugPath = slug.join('/');
+  const slugPath = getSlugPath(slug);
+
+  if (!slugPath) {
+    notFound();
+  }
 
   const page = await pagesRepository.findBySlug(slugPath);
 
