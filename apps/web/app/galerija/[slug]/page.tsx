@@ -9,8 +9,9 @@ import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
-// Required for static export - only these params are valid, all others 404
-export const dynamicParams = false;
+// Allow dynamic params for static export when database is empty
+// With output: export, non-generated routes will 404 anyway (no server)
+export const dynamicParams = true;
 export const dynamic = 'force-static';
 
 // Required for static export - generate all gallery pages at build time
