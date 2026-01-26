@@ -164,10 +164,10 @@ describe('problemReportSchema', () => {
     const result = problemReportSchema.safeParse(validData);
 
     expect(result.success).toBe(true);
-    if (result.success) {
+    if (result.success && result.data.images) {
       expect(result.data.images).toHaveLength(2);
-      expect(result.data.images?.[0].caption).toBe('Slika kontejnera');
-      expect(result.data.images?.[1].caption).toBeUndefined();
+      expect(result.data.images[0]?.caption).toBe('Slika kontejnera');
+      expect(result.data.images[1]?.caption).toBeUndefined();
     }
   });
 
