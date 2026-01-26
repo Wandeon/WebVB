@@ -17,35 +17,35 @@ datasource db {
 // ============================================================================
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Custom extension field
-  role          String    @default("staff") // 'super_admin', 'admin', 'staff'
-  active        Boolean   @default(true)    // Soft-delete flag for user management
+  role   String  @default("staff") // 'super_admin', 'admin', 'staff'
+  active Boolean @default(true) // Soft-delete flag for user management
 
   // Relations
-  sessions      Session[]
-  accounts      Account[]
-  passkeys      Passkey[]
-  twoFactor     TwoFactor?
+  sessions  Session[]
+  accounts  Account[]
+  passkeys  Passkey[]
+  twoFactor TwoFactor?
 
   // Content relations
-  posts         Post[]
-  documents     Document[]
+  posts     Post[]
+  documents Document[]
 
   // Communication relations
-  contactReplies ContactMessage[] @relation("RepliedBy")
-  problemResolutions ProblemReport[] @relation("ResolvedBy")
+  contactReplies     ContactMessage[] @relation("RepliedBy")
+  problemResolutions ProblemReport[]  @relation("ResolvedBy")
 
   // System relations
-  aiRequests    AiQueue[]
-  auditLogs     AuditLog[]
+  aiRequests AiQueue[]
+  auditLogs  AuditLog[]
 
   @@index([email])
   @@index([role])
@@ -73,14 +73,14 @@ model Account {
   id                    String    @id @default(cuid())
   userId                String
   accountId             String
-  providerId            String    // 'google', 'credential'
+  providerId            String // 'google', 'credential'
   accessToken           String?
   refreshToken          String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
   idToken               String?
-  password              String?   // For credential provider (hashed)
+  password              String? // For credential provider (hashed)
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
@@ -92,8 +92,8 @@ model Account {
 
 model Verification {
   id         String   @id @default(cuid())
-  identifier String   // email or other identifier
-  value      String   // token value
+  identifier String // email or other identifier
+  value      String // token value
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -108,13 +108,13 @@ model Verification {
 model Passkey {
   id           String   @id @default(cuid())
   userId       String
-  name         String?  // User-friendly name "MacBook Touch ID"
+  name         String? // User-friendly name "MacBook Touch ID"
   publicKey    String
   credentialID String   @unique
   counter      Int      @default(0)
-  deviceType   String?  // 'platform' or 'cross-platform'
+  deviceType   String? // 'platform' or 'cross-platform'
   backedUp     Boolean  @default(false)
-  transports   String?  // JSON array of transports
+  transports   String? // JSON array of transports
   createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -127,8 +127,8 @@ model Passkey {
 model TwoFactor {
   id          String   @id @default(cuid())
   userId      String   @unique
-  secret      String   // Encrypted TOTP secret
-  backupCodes String?  // Encrypted backup codes (JSON)
+  secret      String // Encrypted TOTP secret
+  backupCodes String? // Encrypted backup codes (JSON)
   createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -144,10 +144,10 @@ model Post {
   id             String    @id @default(uuid())
   title          String
   slug           String    @unique
-  content        String    // Rich text (TipTap HTML)
-  excerpt        String?   // Short summary
+  content        String // Rich text (TipTap HTML)
+  excerpt        String? // Short summary
   featuredImage  String?   @map("featured_image") // R2 URL
-  images         Json?     // Additional images [{url, caption}]
+  images         Json? // Additional images [{url, caption}]
   category       String    @default("aktualnosti")
   isFeatured     Boolean   @default(false) @map("is_featured")
   facebookPostId String?   @map("facebook_post_id")
@@ -170,7 +170,7 @@ model Document {
   title       String
   fileUrl     String   @map("file_url") // R2 URL
   fileSize    Int?     @map("file_size")
-  category    String   // 'sjednice', 'izbori', 'planovi', etc.
+  category    String // 'sjednice', 'izbori', 'planovi', etc.
   subcategory String?
   year        Int?
   uploadedBy  String?  @map("uploaded_by")
@@ -275,7 +275,7 @@ model ProblemReport {
   problemType     String    @map("problem_type") // 'cesta', 'rasvjeta', 'otpad', 'komunalno', 'ostalo'
   location        String
   description     String
-  images          Json?     // [{url, caption}] R2 URLs
+  images          Json? // [{url, caption}] R2 URLs
   status          String    @default("new") // 'new', 'in_progress', 'resolved', 'rejected'
   resolutionNotes String?   @map("resolution_notes")
   resolvedAt      DateTime? @map("resolved_at")
@@ -329,32 +329,32 @@ model Setting {
 }
 
 model Embedding {
-  id         String                 @id @default(uuid())
-  sourceType String                 @map("source_type") // 'document', 'page', 'post'
-  sourceId   String                 @map("source_id")
-  chunkIndex Int                    @map("chunk_index")
-  chunkText  String                 @map("chunk_text")
+  id         String                      @id @default(uuid())
+  sourceType String                      @map("source_type") // 'document', 'page', 'post'
+  sourceId   String                      @map("source_id")
+  chunkIndex Int                         @map("chunk_index")
+  chunkText  String                      @map("chunk_text")
   embedding  Unsupported("vector(768)")?
-  createdAt  DateTime               @default(now()) @map("created_at")
+  createdAt  DateTime                    @default(now()) @map("created_at")
 
   @@index([sourceType, sourceId])
   @@map("embeddings")
 }
 
 model SearchIndex {
-  id           String                 @id @default(uuid())
-  sourceType   String                 @map("source_type") // 'post', 'document', 'page', 'event'
-  sourceId     String                 @map("source_id")
+  id           String                      @id @default(uuid())
+  sourceType   String                      @map("source_type") // 'post', 'document', 'page', 'event'
+  sourceId     String                      @map("source_id")
   title        String
-  contentText  String                 @map("content_text")
+  contentText  String                      @map("content_text")
   category     String?
   url          String
-  publishedAt  DateTime?              @map("published_at")
-  searchVector Unsupported("tsvector")? @map("search_vector")
+  publishedAt  DateTime?                   @map("published_at")
+  searchVector Unsupported("tsvector")?    @map("search_vector")
   embedding    Unsupported("vector(768)")?
-  updatedAt    DateTime               @default(now()) @updatedAt @map("updated_at")
+  updatedAt    DateTime                    @default(now()) @updatedAt @map("updated_at")
 
-  @@index([sourceType, sourceId])
+  @@unique([sourceType, sourceId])
   @@map("search_index")
 }
 
@@ -380,10 +380,10 @@ model AiQueue {
 model AuditLog {
   id         String   @id @default(uuid())
   userId     String?  @map("user_id")
-  action     String   // 'create', 'update', 'delete', 'login', 'logout'
+  action     String // 'create', 'update', 'delete', 'login', 'logout'
   entityType String?  @map("entity_type") // 'post', 'document', 'user', etc.
   entityId   String?  @map("entity_id")
-  changes    Json?    // {before: {...}, after: {...}}
+  changes    Json? // {before: {...}, after: {...}}
   ipAddress  String?  @map("ip_address")
   userAgent  String?  @map("user_agent")
   createdAt  DateTime @default(now()) @map("created_at")
