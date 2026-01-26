@@ -30,6 +30,8 @@ const adminAuthEnvSchema = baseEnvSchema
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
   NEXT_PUBLIC_SITE_URL: z.string().url().default(PUBLIC_SITE_URL_DEFAULT),
+  // API URL for the static web app to call (defaults to admin app URL)
+  NEXT_PUBLIC_API_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
 });
 
 const adminR2EnvSchema = z.object({

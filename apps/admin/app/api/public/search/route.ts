@@ -1,6 +1,9 @@
 import { db } from '@repo/database';
 import { NextResponse } from 'next/server';
 
+import { corsResponse, getCorsHeaders } from '@/lib/cors';
+import { searchLogger } from '@/lib/logger';
+
 interface SearchResult {
   id: string;
   title: string;
@@ -28,14 +31,19 @@ const MAX_RESULTS_PER_TYPE = 5;
 const MAX_TOTAL_RESULTS = 20;
 const MIN_QUERY_LENGTH = 2;
 
+export async function OPTIONS(request: Request) {
+  return corsResponse(request);
+}
+
 export async function GET(request: Request) {
+  const corsHeaders = getCorsHeaders(request);
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q')?.trim();
 
   if (!query || query.length < MIN_QUERY_LENGTH) {
     return NextResponse.json(
       { error: 'Query must be at least 2 characters' },
-      { status: 400 }
+      { status: 400, headers: corsHeaders }
     );
   }
 
@@ -112,12 +120,12 @@ export async function GET(request: Request) {
       query,
     };
 
-    return NextResponse.json(response);
+    return NextResponse.json(response, { headers: corsHeaders });
   } catch (error) {
-    console.error('Search error:', error);
+    searchLogger.error({ error }, 'Search error');
     return NextResponse.json(
       { error: 'Search failed' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

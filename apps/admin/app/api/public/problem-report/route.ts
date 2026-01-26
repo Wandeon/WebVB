@@ -2,13 +2,20 @@ import { problemReportsRepository } from '@repo/database';
 import { problemReportSchema } from '@repo/shared';
 import { NextResponse } from 'next/server';
 
+import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { problemReportsLogger } from '@/lib/logger';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const RATE_LIMIT = 3;
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 
+export async function OPTIONS(request: Request) {
+  return corsResponse(request);
+}
+
 export async function POST(request: Request) {
+  const corsHeaders = getCorsHeaders(request);
+
   try {
     const ip = getClientIp(request);
 
@@ -16,7 +23,7 @@ export async function POST(request: Request) {
     if (!rateCheck.allowed) {
       return NextResponse.json(
         { success: false, error: { code: 'RATE_LIMIT', message: 'Previše zahtjeva. Pokušajte ponovno za sat vremena.' } },
-        { status: 429, headers: { 'Retry-After': String(Math.ceil((rateCheck.resetAt - Date.now()) / 1000)) } }
+        { status: 429, headers: { ...corsHeaders, 'Retry-After': String(Math.ceil((rateCheck.resetAt - Date.now()) / 1000)) } }
       );
     }
 
@@ -33,12 +40,12 @@ export async function POST(request: Request) {
             details: result.error.flatten().fieldErrors,
           },
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     if (result.data.honeypot) {
-      return NextResponse.json({ success: true }); // Silent rejection for bots
+      return NextResponse.json({ success: true }, { headers: corsHeaders }); // Silent rejection for bots
     }
 
     await problemReportsRepository.create({
@@ -56,18 +63,20 @@ export async function POST(request: Request) {
       ipAddress: ip,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        message: 'Vaša prijava je uspješno zaprimljena. Zahvaljujemo na javljanju!',
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          message: 'Vaša prijava je uspješno zaprimljena. Zahvaljujemo na javljanju!',
+        },
       },
-    });
+      { headers: corsHeaders }
+    );
   } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     problemReportsLogger.error({ error }, 'Greška prilikom slanja prijave problema');
     return NextResponse.json(
       { success: false, error: { code: 'SERVER_ERROR', message: 'Došlo je do greške. Pokušajte ponovno.' } },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

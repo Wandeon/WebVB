@@ -12,9 +12,10 @@ import { useSearch } from '../hooks/use-search';
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  apiUrl?: string;
 }
 
-export function SearchModal({ isOpen, onClose }: SearchModalProps) {
+export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const {
@@ -28,7 +29,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     navigateUp,
     navigateDown,
     selectCurrent,
-  } = useSearch();
+  } = useSearch({ apiUrl });
   const { recentSearches, removeRecentSearch, clearRecentSearches } =
     useRecentSearches();
 

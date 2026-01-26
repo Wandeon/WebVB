@@ -29,7 +29,11 @@ export interface SearchResponse {
 
 const DEBOUNCE_MS = 150;
 
-export function useSearch() {
+interface UseSearchOptions {
+  apiUrl?: string;
+}
+
+export function useSearch({ apiUrl = '' }: UseSearchOptions = {}) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GroupedResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +85,7 @@ export function useSearch() {
 
       abortControllerRef.current = new AbortController();
 
-      fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
+      fetch(`${apiUrl}/api/public/search?q=${encodeURIComponent(trimmed)}`, {
         signal: abortControllerRef.current.signal,
       })
         .then((response) => {

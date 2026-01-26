@@ -13,6 +13,8 @@ import { useCallback, useState } from 'react';
 
 import { mainNav } from '../../lib/navigation';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
 export function SiteHeader() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -60,7 +62,7 @@ export function SiteHeader() {
         </div>
       </header>
 
-      <SearchModal isOpen={isSearchOpen} onClose={handleCloseSearch} />
+      <SearchModal isOpen={isSearchOpen} onClose={handleCloseSearch} apiUrl={API_URL} />
     </>
   );
 }

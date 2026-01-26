@@ -107,7 +107,7 @@ export default async function EventDetailPage({
     ...(event.endDate && { endDate: event.endDate.toISOString() }),
     ...(description && { description }),
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/dogadanja/${event.id}`),
-    image: event.posterImage ? [event.posterImage] : undefined,
+    ...(event.posterImage && { image: [event.posterImage] }),
     ...(event.location && {
       location: {
         '@type': 'Place',

@@ -1,15 +1,10 @@
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
-import { ContactForm, ContactInfo, FadeIn, WorkingHours } from '@repo/ui';
-import dynamic from 'next/dynamic';
+import { ContactInfo, FadeIn, WorkingHours } from '@repo/ui';
 
-import type { ContactFormData } from '@repo/shared';
+import { ContactFormWrapper } from './contact-form-wrapper';
+import { LeafletMapWrapper } from './leaflet-map-wrapper';
+
 import type { Metadata } from 'next';
-
-// Dynamic import for Leaflet (no SSR)
-const LeafletMap = dynamic(
-  () => import('@repo/ui').then((mod) => mod.LeafletMap),
-  { ssr: false, loading: () => <div className="h-[350px] animate-pulse rounded-lg bg-neutral-200" /> }
-);
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
@@ -41,28 +36,6 @@ export const metadata: Metadata = {
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/kontakt'),
   },
 };
-
-type ContactApiResponse = {
-  success: boolean;
-  data?: { message?: string };
-  error?: { message?: string };
-};
-
-async function submitContactForm(data: ContactFormData): Promise<{ success: boolean; message?: string; error?: string }> {
-  'use server';
-  const response = await fetch(`${NEXT_PUBLIC_SITE_URL}/api/contact`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  const payload = (await response.json()) as ContactApiResponse;
-  const result: { success: boolean; message?: string; error?: string } = {
-    success: payload.success,
-  };
-  if (payload.data?.message) result.message = payload.data.message;
-  if (payload.error?.message) result.error = payload.error.message;
-  return result;
-}
 
 export default function ContactPage() {
   return (
@@ -97,7 +70,7 @@ export default function ContactPage() {
               </div>
 
               <div className="overflow-hidden rounded-lg border border-neutral-200 shadow-sm">
-                <LeafletMap
+                <LeafletMapWrapper
                   latitude={LOCATION.latitude}
                   longitude={LOCATION.longitude}
                   markerLabel="Općina Veliki Bukovec"
@@ -112,7 +85,7 @@ export default function ContactPage() {
             <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-xl font-semibold">Pošaljite nam poruku</h2>
               <p className="mb-6 text-neutral-600">Ispunite obrazac i odgovorit ćemo vam u najkraćem mogućem roku.</p>
-              <ContactForm onSubmit={submitContactForm} />
+              <ContactFormWrapper />
             </div>
           </FadeIn>
         </div>

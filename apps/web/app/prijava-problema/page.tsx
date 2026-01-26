@@ -1,7 +1,8 @@
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
-import { FadeIn, ProblemReportForm } from '@repo/ui';
+import { FadeIn } from '@repo/ui';
 
-import type { ProblemReportData } from '@repo/shared';
+import { ProblemReportFormWrapper } from './problem-report-form-wrapper';
+
 import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -18,28 +19,6 @@ export const metadata: Metadata = {
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/prijava-problema'),
   },
 };
-
-type ProblemReportApiResponse = {
-  success: boolean;
-  data?: { message?: string };
-  error?: { message?: string };
-};
-
-async function submitProblemReport(data: ProblemReportData): Promise<{ success: boolean; message?: string; error?: string }> {
-  'use server';
-  const response = await fetch(`${NEXT_PUBLIC_SITE_URL}/api/problem-report`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  const payload = (await response.json()) as ProblemReportApiResponse;
-  const result: { success: boolean; message?: string; error?: string } = {
-    success: payload.success,
-  };
-  if (payload.data?.message) result.message = payload.data.message;
-  if (payload.error?.message) result.error = payload.error.message;
-  return result;
-}
 
 export default function ProblemReportPage() {
   return (
@@ -72,7 +51,7 @@ export default function ProblemReportPage() {
 
           <FadeIn delay={0.1}>
             <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-              <ProblemReportForm onSubmit={submitProblemReport} />
+              <ProblemReportFormWrapper />
             </div>
           </FadeIn>
 

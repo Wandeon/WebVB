@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   },
 
   // Transpile workspace packages
-  transpilePackages: ['@repo/ui', '@repo/shared'],
+  transpilePackages: ['@repo/ui', '@repo/shared', '@repo/database'],
 
   // Strict mode for better debugging
   reactStrictMode: true,
