@@ -54,6 +54,9 @@ pnpm --filter @repo/database db:migrate || log "No pending migrations"
 log "Running data migrations..."
 pnpm --filter @repo/database fix-page-slugs || log "Page slug migration completed or skipped"
 
+log "Rebuilding search index..."
+pnpm --filter @repo/database backfill-search || log "Search index rebuild completed or skipped"
+
 log "Building admin app..."
 pnpm --filter @repo/admin build
 
