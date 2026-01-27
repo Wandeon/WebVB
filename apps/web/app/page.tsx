@@ -138,11 +138,11 @@ export default async function HomePage() {
                   </div>
                   {/* Mobile: horizontal scroll */}
                   <div className="mt-6 sm:hidden">
-                    <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                    <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
                       {latestPosts.map((post: PostWithAuthor) => (
                         <div
                           key={post.id}
-                          className="w-[280px] min-w-[280px] snap-start"
+                          className="w-[280px] shrink-0 snap-start"
                         >
                           <PostCard
                             title={post.title}
