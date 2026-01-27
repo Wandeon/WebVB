@@ -1,4 +1,4 @@
-name: Deploy Admin (VPS)
+name: Deploy to VPS
 
 on:
   workflow_dispatch:
@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'apps/admin/**'
+      - 'apps/web/**'
       - 'packages/**'
       - 'scripts/deploy-admin.sh'
 
