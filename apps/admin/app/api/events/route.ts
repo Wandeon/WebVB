@@ -21,14 +21,14 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const queryResult = eventQuerySchema.safeParse({
-      page: searchParams.get('page'),
-      limit: searchParams.get('limit'),
-      search: searchParams.get('search'),
-      from: searchParams.get('from'),
-      to: searchParams.get('to'),
-      upcoming: searchParams.get('upcoming'),
-      sortBy: searchParams.get('sortBy'),
-      sortOrder: searchParams.get('sortOrder'),
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
+      from: searchParams.get('from') ?? undefined,
+      to: searchParams.get('to') ?? undefined,
+      upcoming: searchParams.get('upcoming') ?? undefined,
+      sortBy: searchParams.get('sortBy') ?? undefined,
+      sortOrder: searchParams.get('sortOrder') ?? undefined,
     });
 
     if (!queryResult.success) {

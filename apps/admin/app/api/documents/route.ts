@@ -25,13 +25,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const queryResult = documentQuerySchema.safeParse({
-      page: searchParams.get('page'),
-      limit: searchParams.get('limit'),
-      search: searchParams.get('search'),
-      category: searchParams.get('category'),
-      year: searchParams.get('year'),
-      sortBy: searchParams.get('sortBy'),
-      sortOrder: searchParams.get('sortOrder'),
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
+      category: searchParams.get('category') ?? undefined,
+      year: searchParams.get('year') ?? undefined,
+      sortBy: searchParams.get('sortBy') ?? undefined,
+      sortOrder: searchParams.get('sortOrder') ?? undefined,
     });
 
     if (!queryResult.success) {

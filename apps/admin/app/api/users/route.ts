@@ -23,11 +23,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const queryResult = userQuerySchema.safeParse({
-      page: searchParams.get('page'),
-      limit: searchParams.get('limit'),
-      search: searchParams.get('search'),
-      role: searchParams.get('role'),
-      active: searchParams.get('active'),
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
+      role: searchParams.get('role') ?? undefined,
+      active: searchParams.get('active') ?? undefined,
     });
 
     if (!queryResult.success) {

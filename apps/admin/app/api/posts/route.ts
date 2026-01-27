@@ -23,13 +23,13 @@ export async function GET(request: NextRequest) {
 
     // Parse and validate query params
     const queryResult = postQuerySchema.safeParse({
-      page: searchParams.get('page'),
-      limit: searchParams.get('limit'),
-      search: searchParams.get('search'),
-      category: searchParams.get('category'),
-      status: searchParams.get('status'),
-      sortBy: searchParams.get('sortBy'),
-      sortOrder: searchParams.get('sortOrder'),
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
+      category: searchParams.get('category') ?? undefined,
+      status: searchParams.get('status') ?? undefined,
+      sortBy: searchParams.get('sortBy') ?? undefined,
+      sortOrder: searchParams.get('sortOrder') ?? undefined,
     });
 
     if (!queryResult.success) {
