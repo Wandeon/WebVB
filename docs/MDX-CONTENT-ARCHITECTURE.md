@@ -243,30 +243,40 @@ These cause 404 errors in the main navigation.
 
 | # | File Path | Title | Source | Claimable |
 |---|-----------|-------|--------|-----------|
-| 1 | `organizacija/page.mdx` | Organizacija | Create new | ✅ |
-| 2 | `organizacija/uprava/page.mdx` | Općinska uprava | Create new | ✅ |
-| 3 | `rad-uprave/page.mdx` | Rad uprave | Create new | ✅ |
-| 4 | `rad-uprave/udruge/page.mdx` | Financiranje udruga | `udruge-i-drustva` | ✅ |
-| 5 | `rad-uprave/mjestani/page.mdx` | Kutak za mještane | Create new | ✅ |
-| 6 | `rad-uprave/registri/page.mdx` | Registri i ugovori | Create new | ✅ |
-| 7 | `opcina/page.mdx` | Općina | Create new | ✅ |
-| 8 | `opcina/turizam/page.mdx` | Turizam | Create new + `o-nama` | ✅ |
-| 9 | `opcina/povijest/page.mdx` | Povijest | Extract from `o-nama` | ✅ |
-| 10 | `dokumenti/glasnik/page.mdx` | Službeni glasnik | Create new | ✅ |
-| 11 | `dokumenti/proracun/page.mdx` | Proračun | Create new | ✅ |
-| 12 | `natjecaji/page.mdx` | Natječaji | Create new | ✅ |
+| 1 | `organizacija/page.mdx` | Organizacija | Create new | ✅ Done |
+| 2 | `organizacija/uprava/page.mdx` | Općinska uprava | Create new | ✅ Done |
+| 3 | `rad-uprave/page.mdx` | Rad uprave | Create new | ✅ Done |
+| 4 | `rad-uprave/udruge/page.mdx` | Financiranje udruga | `udruge-i-drustva` | ✅ Done |
+| 5 | `rad-uprave/mjestani/page.mdx` | Kutak za mještane | Create new | ✅ Done |
+| 6 | `rad-uprave/registri/page.mdx` | Registri i ugovori | Create new | ✅ Done |
+| 7 | `opcina/page.mdx` | Općina | Create new | ✅ Done |
+| 8 | `opcina/turizam/page.mdx` | Turizam | Create new + `o-nama` | ✅ Done |
+| 9 | `opcina/povijest/page.mdx` | Povijest | Extract from `o-nama` | ✅ Done |
+| 10 | `dokumenti/glasnik/page.mdx` | Službeni glasnik | Create new | ✅ Done |
+| 11 | `dokumenti/proracun/page.mdx` | Proračun | Create new | ✅ Done |
+| 12 | `natjecaji/page.mdx` | Natječaji | Create new | ✅ Done |
 
 ### Priority 2: Migrate Existing Pages
 
 These exist in database but should become MDX.
 
-| # | File Path | Title | Source in pages.json |
-|---|-----------|-------|---------------------|
-| 13 | `organizacija/vijece/page.mdx` | Općinsko vijeće | `opcinsko-vijece` |
-| 14 | `organizacija/sjednice/page.mdx` | Sjednice vijeća | `zapisnici-sa-sjednica` |
-| 15 | `organizacija/juo/page.mdx` | Jedinstveni upravni odjel | `juo-opcine` |
-| 16 | `rad-uprave/komunalno/page.mdx` | Komunalno gospodarstvo | `raspored-odvoza-otpada` |
-| 17 | `opcina/o-nama/page.mdx` | O općini | `o-nama` (general info only) |
+| # | File Path | Title | Source in pages.json | Claimable |
+|---|-----------|-------|---------------------|-----------|
+| 13 | `organizacija/vijece/page.mdx` | Općinsko vijeće | `opcinsko-vijece` | ✅ Done |
+| 14 | `organizacija/sjednice/page.mdx` | Sjednice vijeća | `zapisnici-sa-sjednica` | ✅ Done |
+| 15 | `organizacija/juo/page.mdx` | Jedinstveni upravni odjel | `juo-opcine` | ✅ Done |
+| 16 | `rad-uprave/komunalno/page.mdx` | Komunalno gospodarstvo | `raspored-odvoza-otpada` | ✅ Done |
+| 17 | `opcina/o-nama/page.mdx` | O općini | `o-nama` (general info only) | ✅ Done |
+
+### Phase 3: Documents & Footer
+*   [x] `dokumenti/prostorni-planovi/page.mdx` - **✅ Done**
+*   [x] `dokumenti/pravo-na-pristup-informacijama/page.mdx` - **✅ Done**
+*   [x] `prijava-problema/page.mdx` - **✅ Done**
+*   [x] `odvoz-otpada/page.mdx` - **✅ Done**
+
+### Phase 4: Cleanup
+*   [x] Remove `[...slug]/page.tsx` - **✅ Done**
+*   [x] Update `sitemap.ts` - **✅ Done**
 
 ---
 

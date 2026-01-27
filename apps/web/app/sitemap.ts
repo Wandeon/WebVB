@@ -1,7 +1,6 @@
 import {
   eventsRepository,
   galleriesRepository,
-  pagesRepository,
   postsRepository,
 } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
@@ -21,14 +20,33 @@ const staticRoutes = [
   '/galerija',
   '/kontakt',
   '/prijava-problema',
+  '/organizacija',
+  '/organizacija/uprava',
+  '/organizacija/vijece',
+  '/organizacija/sjednice',
+  '/organizacija/juo',
+  '/rad-uprave',
+  '/rad-uprave/komunalno',
+  '/rad-uprave/udruge',
+  '/rad-uprave/mjestani',
+  '/rad-uprave/registri',
+  '/opcina',
+  '/opcina/o-nama',
+  '/opcina/turizam',
+  '/opcina/povijest',
+  '/dokumenti/glasnik',
+  '/dokumenti/proracun',
+  '/dokumenti/prostorni-planovi',
+  '/dokumenti/pravo-na-pristup-informacijama',
+  '/natjecaji',
+  '/odvoz-otpada',
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [posts, events, galleries, pages] = await Promise.all([
+  const [posts, events, galleries] = await Promise.all([
     postsRepository.findPublishedForSitemap(),
     eventsRepository.findAllForSitemap(),
     galleriesRepository.findAllForSitemap(),
-    pagesRepository.findPublishedForSitemap(),
   ]);
 
   const staticEntries = staticRoutes.map((path) => ({
@@ -51,16 +69,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: gallery.createdAt,
   }));
 
-  const pageEntries = pages.map((page) => ({
-    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/${page.slug}`),
-    lastModified: page.updatedAt,
-  }));
-
   return [
     ...staticEntries,
     ...postEntries,
     ...eventEntries,
     ...galleryEntries,
-    ...pageEntries,
   ];
 }

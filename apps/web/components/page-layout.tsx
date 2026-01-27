@@ -1,7 +1,5 @@
-'use client';
-
-import { FadeIn } from '@repo/ui';
-import type { ReactNode } from 'react';
+import { FadeIn, PageSidebar } from '@repo/ui';
+import { ReactNode } from 'react';
 
 interface PageLayoutProps {
   title: string;
@@ -9,7 +7,7 @@ interface PageLayoutProps {
   children: ReactNode;
 }
 
-export function PageLayout({ title, children }: PageLayoutProps) {
+export function PageLayout({ title, section, children }: PageLayoutProps) {
   return (
     <>
       <FadeIn>
@@ -21,11 +19,9 @@ export function PageLayout({ title, children }: PageLayoutProps) {
       </FadeIn>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        <FadeIn>
-          <article className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:font-semibold prose-a:text-primary-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg">
-            {children}
-          </article>
-        </FadeIn>
+        <article className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:font-semibold prose-a:text-primary-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg">
+          {children}
+        </article>
       </div>
     </>
   );
