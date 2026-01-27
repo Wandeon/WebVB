@@ -48,7 +48,7 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Post>[] {
         const post = row.original;
         return (
           <Link
-            href={`/posts/${post.id}/edit`}
+            href={`/posts/${post.id}`}
             className="font-medium text-primary-600 hover:underline"
           >
             {post.title}
@@ -112,7 +112,7 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Post>[] {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href={`/posts/${post.id}/edit`}>
+                <Link href={`/posts/${post.id}`}>
                   <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
                   Uredi
                 </Link>
