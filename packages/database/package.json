@@ -15,6 +15,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "backfill-search": "tsx src/scripts/backfill-search-index.ts",
+    "fix-page-slugs": "tsx src/scripts/fix-page-slugs.ts",
     "test": "pnpm exec vitest run",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/ --ignore-pattern '**/*.test.ts'",

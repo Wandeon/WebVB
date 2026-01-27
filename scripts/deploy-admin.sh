@@ -49,7 +49,10 @@ log "Generating Prisma client..."
 pnpm --filter @repo/database db:generate
 
 log "Running database migrations..."
-pnpm --filter @repo/database db:migrate:deploy || log "No pending migrations"
+pnpm --filter @repo/database db:migrate || log "No pending migrations"
+
+log "Running data migrations..."
+pnpm --filter @repo/database fix-page-slugs || log "Page slug migration completed or skipped"
 
 log "Building admin app..."
 pnpm --filter @repo/admin build
