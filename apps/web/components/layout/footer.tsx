@@ -1,5 +1,6 @@
 import { APP_NAME } from '@repo/shared';
 import { Footer } from '@repo/ui';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { footerLinks } from '../../lib/navigation';
@@ -18,7 +19,14 @@ export function SiteFooter() {
             groups={groups}
             copyright={`© ${currentYear} ${APP_NAME}. Sva prava pridržana.`}
             logo={
-                <Link href="/" className="flex items-center space-x-2">
+                <Link href="/" className="flex items-center gap-3">
+                    <Image
+                        src="/images/logo-large.png"
+                        alt="Grb Općine Veliki Bukovec"
+                        width={50}
+                        height={64}
+                        className="h-16 w-auto brightness-0 invert"
+                    />
                     <span className="text-lg font-bold text-white uppercase tracking-wider">
                         {APP_NAME}
                     </span>

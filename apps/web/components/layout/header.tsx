@@ -8,6 +8,7 @@ import {
   SearchTrigger,
   useSearchShortcut,
 } from '@repo/ui';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
@@ -37,12 +38,29 @@ export function SiteHeader() {
             <MobileDrawer
               items={mainNav}
               logo={
-                <span className="text-lg font-bold text-primary-700">
-                  {APP_NAME}
-                </span>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Grb Općine Veliki Bukovec"
+                    width={32}
+                    height={40}
+                    className="h-10 w-auto"
+                  />
+                  <span className="text-lg font-bold text-primary-700">
+                    {APP_NAME}
+                  </span>
+                </div>
               }
             />
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/images/logo.png"
+                alt="Grb Općine Veliki Bukovec"
+                width={32}
+                height={40}
+                className="h-10 w-auto"
+                priority
+              />
               <span className="hidden font-display text-lg font-bold uppercase tracking-tight text-primary-700 md:inline-block">
                 {APP_NAME}
               </span>
