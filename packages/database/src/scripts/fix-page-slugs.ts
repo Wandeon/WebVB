@@ -260,7 +260,7 @@ async function main() {
       });
       console.log(`✓ ${update.oldSlug} => ${update.newSlug}`);
       successCount++;
-    } catch (_error) {
+    } catch {
       console.log(`✗ ${update.oldSlug} => ${update.newSlug} (failed)`);
     }
   }
