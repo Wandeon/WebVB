@@ -42,10 +42,12 @@ git fetch --prune origin
 git reset --hard origin/main
 git clean -fd
 
-log "Cleaning node_modules for fresh install..."
+log "Cleaning build artifacts and node_modules for fresh install..."
 rm -rf node_modules apps/*/node_modules packages/*/node_modules
+rm -rf apps/*/.next apps/web/out .turbo
 
 log "Installing dependencies..."
+pnpm store prune || true
 pnpm install --frozen-lockfile
 
 log "Generating Prisma client..."
