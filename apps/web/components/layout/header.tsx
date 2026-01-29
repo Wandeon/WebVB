@@ -44,7 +44,7 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-white/20 bg-white/70 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-white/60">
+      <header className="sticky top-0 z-50 w-full border-b border-white/30 bg-white/85 shadow-sm backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center px-4">
           {/* Left: Mobile menu (mobile) or Logo (desktop) */}
           <div className="flex items-center gap-2 lg:flex-none">
