@@ -48,7 +48,7 @@ rm -rf apps/*/.next apps/web/out .turbo
 
 log "Installing dependencies (including dev deps for build)..."
 pnpm store prune || true
-pnpm install --frozen-lockfile --prod=false
+NODE_ENV=development pnpm install --frozen-lockfile
 
 log "Generating Prisma client..."
 pnpm --filter @repo/database db:generate
