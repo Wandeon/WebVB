@@ -1,5 +1,5 @@
 import { PageLayout } from '@/components/page-layout';
-import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { BentoCard, BentoGrid } from '@/components/mdx/link-card';
 import { StatsRow } from '@/components/mdx/stats-row';
 import { InfoBox } from '@/components/mdx/info-box';
 import { CTASection } from '@/components/mdx/cta-section';
@@ -26,29 +26,33 @@ export const metadata = {
 
 Općina Veliki Bukovec smještena je na ušću rijeke Plitvice u rijeku Dravu, na krajnjem istoku Varaždinske županije. Poznata po uzgoju cvijeća, bogatoj kulturnoj baštini i baroknom dvorcu obitelji Drašković.
 
-<LinkCardGrid columns={3}>
-  <LinkCard
+## Upoznajte nas
+
+<BentoGrid>
+  <BentoCard
     title="O općini"
-    description="Osnovne informacije o općini, stanovništvu, naseljima i gospodarstvu našeg kraja."
+    description="Osnovne informacije o općini, stanovništvu, naseljima i gospodarstvu našeg kraja. Saznajte sve o životu u Velikom Bukovcu."
     href="/opcina/o-nama"
     icon="building"
+    span="wide"
+    variant="primary"
     delay={0}
   />
-  <LinkCard
+  <BentoCard
     title="Povijest"
-    description="Upoznajte bogatu povijest obitelji Drašković i njihov barokni dvorac iz 18. stoljeća."
+    description="Bogata povijest obitelji Drašković i barokni dvorac iz 18. stoljeća."
     href="/opcina/povijest"
     icon="scroll"
     delay={0.1}
   />
-  <LinkCard
+  <BentoCard
     title="Turizam"
-    description="Otkrijte prirodne ljepote, dvorac, perivoj i znamenitosti Velikog Bukovca."
+    description="Prirodne ljepote, dvorac, perivoj i znamenitosti."
     href="/opcina/turizam"
     icon="map"
     delay={0.2}
   />
-</LinkCardGrid>
+</BentoGrid>
 
 <InfoBox variant="info" title="Cvjećarski kraj">
 

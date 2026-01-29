@@ -1,5 +1,5 @@
 import { PageLayout } from '@/components/page-layout';
-import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { BentoCard, BentoGrid } from '@/components/mdx/link-card';
 import { InfoBox } from '@/components/mdx/info-box';
 import { CTASection } from '@/components/mdx/cta-section';
 
@@ -26,46 +26,48 @@ Za prijavu problema koristimo sustav **Geoforum** koji omogućuje precizno ozna�
 
 ## Vrste problema koje možete prijaviti
 
-<LinkCardGrid columns={3}>
-  <LinkCard
+<BentoGrid>
+  <BentoCard
     title="Javna rasvjeta"
     description="Neispravne lampe, oštećeni stupovi ili nedostatna rasvjeta na javnim površinama."
     href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
     icon="alert"
+    span="wide"
+    variant="primary"
     delay={0}
   />
-  <LinkCard
+  <BentoCard
     title="Oštećenja cesta"
-    description="Rupe na cestama, oštećeni nogostupi, problemi s odvodnjavanjem."
+    description="Rupe, oštećeni nogostupi, problemi s odvodnjavanjem."
     href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
     icon="building"
     delay={0.1}
   />
-  <LinkCard
+  <BentoCard
     title="Nelegalni otpad"
-    description="Divlja odlagališta, nepravilno odbačen otpad ili problemi s kontejnerima."
+    description="Divlja odlagališta i problemi s kontejnerima."
     href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
     icon="tree"
     delay={0.2}
   />
-</LinkCardGrid>
-
-<LinkCardGrid columns={2}>
-  <LinkCard
+  <BentoCard
     title="Zapuštene površine"
     description="Neodržavane javne površine, prerasla vegetacija, oštećene klupe ili igrališta."
     href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
     icon="tree"
+    span="wide"
+    variant="subtle"
     delay={0.3}
   />
-  <LinkCard
+  <BentoCard
     title="Klizišta i opasnosti"
     description="Klizišta, opasna stabla, urušavanja ili druge sigurnosne prijetnje."
     href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
     icon="alert"
+    span="wide"
     delay={0.4}
   />
-</LinkCardGrid>
+</BentoGrid>
 
 ## Kako prijaviti problem?
 

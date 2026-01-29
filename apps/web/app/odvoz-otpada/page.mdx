@@ -1,6 +1,6 @@
 import { PageLayout } from '@/components/page-layout';
 import { InfoBox } from '@/components/mdx/info-box';
-import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { BentoCard, BentoGrid } from '@/components/mdx/link-card';
 import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
@@ -28,22 +28,24 @@ Sakupljanje miješanog komunalnog otpada obavlja davatelj javne usluge prema god
 
 Pravilno razvrstavanje otpada pomaže u recikliranju i smanjenju količine otpada na odlagalištima.
 
-<LinkCardGrid columns={2}>
-  <LinkCard
+<BentoGrid>
+  <BentoCard
     title="Razvrstavanje u kućanstvu"
-    description="Upute kako pravilno razvrstavati otpad kod kuće - papir, plastika, staklo, bio otpad."
+    description="Upute kako pravilno razvrstavati otpad kod kuće - papir, plastika, staklo, bio otpad i više."
     href="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/Letak-za-razvrstavanje-otpada-u-kučanstvu.pdf"
     icon="scroll"
+    span="wide"
+    variant="primary"
     delay={0}
   />
-  <LinkCard
+  <BentoCard
     title="Zeleni otoci"
-    description="Kako koristiti zelene otoke za odlaganje reciklabilnog otpada u vašem susjedstvu."
+    description="Kako koristiti zelene otoke za reciklabilni otpad."
     href="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/LETAK-RAZVRSTAVANJE-OTPADA....pdf"
     icon="tree"
     delay={0.1}
   />
-</LinkCardGrid>
+</BentoGrid>
 
 <InfoBox variant="info" title="Vrste otpada">
 

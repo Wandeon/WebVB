@@ -1,5 +1,5 @@
 import { PageLayout } from '@/components/page-layout';
-import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { BentoCard, BentoGrid } from '@/components/mdx/link-card';
 import { InfoBox } from '@/components/mdx/info-box';
 import { CTASection } from '@/components/mdx/cta-section';
 
@@ -16,36 +16,42 @@ export const metadata = {
 
 Općinska uprava Veliki Bukovec pruža širok spektar usluga za naše građane, udruge i poslovne subjekte.
 
-<LinkCardGrid columns={2}>
-  <LinkCard
+## Brze poveznice
+
+<BentoGrid>
+  <BentoCard
     title="Komunalno gospodarstvo"
-    description="Dimnjačarski poslovi, groblje, komunalna infrastruktura i ostale komunalne usluge."
+    description="Dimnjačarski poslovi, groblje, komunalna infrastruktura i ostale komunalne usluge na području općine."
     href="/rad-uprave/komunalno"
     icon="tree"
+    span="wide"
+    variant="primary"
     delay={0}
   />
-  <LinkCard
+  <BentoCard
     title="Financiranje udruga"
-    description="Javni pozivi, uvjeti financiranja i dokumentacija za udruge civilnog društva."
+    description="Javni pozivi i uvjeti financiranja za udruge civilnog društva."
     href="/rad-uprave/udruge"
     icon="users"
     delay={0.1}
   />
-  <LinkCard
+  <BentoCard
     title="Odvoz otpada"
-    description="Raspored odvoza otpada, reciklažno dvorište i informacije o gospodarenju otpadom."
+    description="Raspored odvoza i reciklažno dvorište."
     href="/odvoz-otpada"
     icon="calendar"
     delay={0.2}
   />
-  <LinkCard
+  <BentoCard
     title="Prijava problema"
-    description="Prijavite komunalne probleme - oštećenja cesta, rasvjete, divlja odlagališta."
+    description="Prijavite komunalne probleme poput oštećenja cesta ili divljih odlagališta."
     href="/prijava-problema"
     icon="alert"
+    span="wide"
+    variant="subtle"
     delay={0.3}
   />
-</LinkCardGrid>
+</BentoGrid>
 
 ## Obrasci i zahtjevi za građane
 

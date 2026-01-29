@@ -1,5 +1,5 @@
 import { PageLayout } from '@/components/page-layout';
-import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { BentoCard, BentoGrid } from '@/components/mdx/link-card';
 import { InfoBox } from '@/components/mdx/info-box';
 import { CTASection } from '@/components/mdx/cta-section';
 
@@ -17,36 +17,42 @@ export const metadata = {
 
 Općina Veliki Bukovec ustrojena je prema Zakonu o lokalnoj i područnoj (regionalnoj) samoupravi. Naša uprava radi transparentno i u službi svih građana.
 
-<LinkCardGrid columns={2}>
-  <LinkCard
+## Struktura općine
+
+<BentoGrid>
+  <BentoCard
     title="Općinska uprava"
-    description="Jedinstveni upravni odjel, djelatnici, kontakt podaci i radno vrijeme."
+    description="Jedinstveni upravni odjel, djelatnici, kontakt podaci i radno vrijeme. Saznajte tko radi za vas."
     href="/organizacija/uprava"
     icon="building"
+    span="wide"
+    variant="primary"
     delay={0}
   />
-  <LinkCard
+  <BentoCard
     title="Općinsko vijeće"
-    description="Predstavničko tijelo građana - članovi vijeća i njihove nadležnosti."
+    description="Predstavničko tijelo građana i njihove nadležnosti."
     href="/organizacija/vijece"
     icon="users"
     delay={0.1}
   />
-  <LinkCard
+  <BentoCard
     title="Sjednice i zapisnici"
-    description="Zapisnici, dnevni redovi i dokumenti sa sjednica Općinskog vijeća."
+    description="Dokumenti sa sjednica Općinskog vijeća."
     href="/dokumenti?kategorija=sjednice"
     icon="calendar"
     delay={0.2}
   />
-  <LinkCard
+  <BentoCard
     title="Svi dokumenti"
-    description="Pristupite svim službenim dokumentima općine - proračun, planovi, odluke."
+    description="Pristupite svim službenim dokumentima općine - proračun, planovi, odluke i ostala dokumentacija."
     href="/dokumenti"
     icon="scroll"
+    span="wide"
+    variant="subtle"
     delay={0.3}
   />
-</LinkCardGrid>
+</BentoGrid>
 
 <InfoBox variant="contact" title="Kontakt">
 

@@ -6,7 +6,7 @@ import { CTASection } from '@/components/mdx/cta-section';
 import { FeatureSection } from '@/components/mdx/feature-section';
 import { HeroBanner } from '@/components/mdx/hero-banner';
 import { InfoBox } from '@/components/mdx/info-box';
-import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { BentoCard, BentoGrid, LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
 import { PhotoShowcase } from '@/components/mdx/photo-showcase';
 import { Stat, StatsRow } from '@/components/mdx/stats-row';
 import { Table } from '@/components/mdx/table';

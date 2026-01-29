@@ -62,7 +62,7 @@ describe('QuickLinkCard bento variant', () => {
     expect(screen.getByText('Test description')).toBeInTheDocument();
   });
 
-  it('renders small bento card without description', () => {
+  it('renders small bento card with description (truncated)', () => {
     render(
       <QuickLinkCard
         title="Test"
@@ -74,6 +74,7 @@ describe('QuickLinkCard bento variant', () => {
       />
     );
 
-    expect(screen.queryByText('Test description')).not.toBeInTheDocument();
+    // Small bento cards now show description (with line-clamp)
+    expect(screen.getByText('Test description')).toBeInTheDocument();
   });
 });
