@@ -45,9 +45,9 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white/80 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-          {/* Left: Mobile menu + Logo */}
-          <div className="flex items-center gap-2">
+        <div className="container mx-auto flex h-16 items-center px-4">
+          {/* Left: Mobile menu (mobile) or Logo (desktop) */}
+          <div className="flex items-center gap-2 lg:flex-none">
             <MobileMenu
               groups={megaNavGroups}
               logo={
@@ -63,7 +63,8 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
                 </div>
               }
             />
-            <Link href="/" className="flex items-center gap-2">
+            {/* Desktop logo */}
+            <Link href="/" className="hidden items-center gap-2 lg:flex">
               <Image
                 src="/images/logo.png"
                 alt="Grb Općine Veliki Bukovec"
@@ -72,22 +73,36 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
                 className="h-10 w-auto"
                 priority
               />
-              <span className="hidden font-display text-lg font-bold uppercase tracking-tight text-primary-700 lg:inline-block">
+              <span className="font-display text-lg font-bold uppercase tracking-tight text-primary-700">
                 {APP_NAME}
-              </span>
-              <span className="font-display text-lg font-bold uppercase tracking-tight text-primary-700 lg:hidden">
-                Veliki Bukovec
               </span>
             </Link>
           </div>
 
-          {/* Center: Live widgets (desktop only) */}
-          <div className="hidden flex-1 items-center justify-center gap-3 lg:flex">
-            <OfficeStatusBadge />
-            <WeatherBadge />
+          {/* Center: Logo on mobile, Live widgets on desktop */}
+          <div className="flex flex-1 items-center justify-center">
+            {/* Mobile centered logo */}
+            <Link href="/" className="flex items-center gap-2 lg:hidden">
+              <Image
+                src="/images/logo.png"
+                alt="Grb Općine Veliki Bukovec"
+                width={32}
+                height={40}
+                className="h-10 w-auto"
+                priority
+              />
+              <span className="font-display text-base font-bold uppercase tracking-tight text-primary-700">
+                Veliki Bukovec
+              </span>
+            </Link>
+            {/* Desktop live widgets */}
+            <div className="hidden items-center gap-3 lg:flex">
+              <OfficeStatusBadge />
+              <WeatherBadge />
+            </div>
           </div>
 
-          {/* Right: Social, Language, Accessibility, Search, Menu */}
+          {/* Right: Search (mobile) or Full widgets (desktop) */}
           <div className="flex items-center gap-2 lg:gap-3">
             <SocialIcons />
             <LanguageSwitcher />
