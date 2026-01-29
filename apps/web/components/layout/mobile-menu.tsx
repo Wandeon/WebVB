@@ -82,7 +82,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
 
       {/* Slide-out Panel */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 flex w-full max-w-sm transform flex-col bg-white shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
+        className={`fixed bottom-0 left-0 top-0 z-50 w-full max-w-sm transform bg-white shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         role="dialog"
@@ -90,7 +90,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
         aria-label="Navigacija"
       >
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 py-4">
+        <div className="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-4">
           {logo && <div>{logo}</div>}
           <button
             onClick={() => setIsOpen(false)}
@@ -101,8 +101,11 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
           </button>
         </div>
 
-        {/* Navigation Groups */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-6">
+        {/* Navigation Groups - scrollable area */}
+        <div
+          className="overflow-y-auto overscroll-contain px-4 py-6"
+          style={{ height: 'calc(100vh - 140px)' }}
+        >
           <div className="space-y-6">
             {groups.map((group) => {
               const Icon = iconMap[group.icon] || Building2;
@@ -127,7 +130,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                             href={item.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-all hover:bg-white hover:text-primary-700 hover:shadow-sm"
+                            className="group flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-all hover:bg-neutral-50 hover:text-primary-700"
                           >
                             {item.title}
                             <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100" />
@@ -138,8 +141,8 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                             onClick={() => setIsOpen(false)}
                             className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                               isActive(item.href)
-                                ? 'bg-primary-100 text-primary-700 shadow-sm'
-                                : 'text-neutral-700 hover:bg-white hover:text-primary-700 hover:shadow-sm'
+                                ? 'bg-primary-100 text-primary-700'
+                                : 'text-neutral-700 hover:bg-neutral-50 hover:text-primary-700'
                             }`}
                             aria-current={isActive(item.href) ? 'page' : undefined}
                           >
@@ -155,8 +158,8 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
           </div>
         </div>
 
-        {/* Contact Footer */}
-        <div className="shrink-0 border-t border-neutral-200 bg-neutral-50 px-4 py-4">
+        {/* Contact Footer - fixed at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 border-t border-neutral-200 bg-neutral-50 px-4 py-4">
           <div className="space-y-2 text-xs text-neutral-600">
             <a
               href="tel:042719033"
