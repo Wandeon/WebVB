@@ -3,7 +3,6 @@
 import { APP_NAME } from '@repo/shared';
 import {
   MobileDrawer,
-  NavMenu,
   SearchModal,
   SearchTrigger,
   useSearchShortcut,
@@ -12,11 +11,26 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
-import { mainNav } from '../../lib/navigation';
+import { mainNav, megaNavGroups } from '../../lib/navigation';
+import { MegaMenu } from './mega-menu';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  latestPost?: {
+    title: string;
+    slug: string;
+    category?: string | undefined;
+    publishedAt?: Date | null | undefined;
+  } | null | undefined;
+  upcomingEvent?: {
+    title: string;
+    id: string;
+    eventDate: Date;
+  } | null | undefined;
+}
+
+export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleOpenSearch = useCallback(() => {
@@ -70,12 +84,17 @@ export function SiteHeader() {
             </Link>
           </div>
 
-          <div className="hidden lg:flex">
-            <NavMenu items={mainNav} />
-          </div>
-
           <div className="flex items-center gap-4">
             <SearchTrigger onOpen={handleOpenSearch} />
+
+            {/* Desktop Mega Menu */}
+            <div className="hidden lg:block">
+              <MegaMenu
+                groups={megaNavGroups}
+                latestPost={latestPost}
+                upcomingEvent={upcomingEvent}
+              />
+            </div>
           </div>
         </div>
       </header>

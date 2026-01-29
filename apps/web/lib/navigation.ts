@@ -1,9 +1,53 @@
 export type NavItem = {
   title: string;
   href: string;
-  items?: { title: string; href: string }[];
+  external?: boolean;
+  items?: { title: string; href: string; external?: boolean }[];
 };
 
+export type NavGroup = {
+  title: string;
+  icon: string;
+  items: { title: string; href: string; external?: boolean }[];
+};
+
+// Grouped navigation for mega menu
+export const megaNavGroups: NavGroup[] = [
+  {
+    title: 'Uprava',
+    icon: 'building',
+    items: [
+      { title: 'Općinska uprava', href: '/organizacija/uprava' },
+      { title: 'Općinsko vijeće', href: '/organizacija/vijece' },
+      { title: 'Komunalno gospodarstvo', href: '/rad-uprave/komunalno' },
+      { title: 'Financiranje udruga', href: '/rad-uprave/udruge' },
+      { title: 'Javna nabava', href: 'https://eojn.nn.hr/', external: true },
+    ],
+  },
+  {
+    title: 'Informacije',
+    icon: 'newspaper',
+    items: [
+      { title: 'Vijesti', href: '/vijesti' },
+      { title: 'Dokumenti', href: '/dokumenti' },
+      { title: 'Proračun', href: '/dokumenti?kategorija=proracun' },
+      { title: 'Sjednice vijeća', href: '/dokumenti?kategorija=sjednice' },
+      { title: 'Pristup informacijama', href: '/dokumenti/pravo-na-pristup-informacijama' },
+    ],
+  },
+  {
+    title: 'Općina',
+    icon: 'home',
+    items: [
+      { title: 'O općini', href: '/opcina/o-nama' },
+      { title: 'Turizam', href: '/opcina/turizam' },
+      { title: 'Povijest', href: '/opcina/povijest' },
+      { title: 'Kontakt', href: '/kontakt' },
+    ],
+  },
+];
+
+// Legacy flat navigation (still used by mobile drawer)
 export const mainNav: NavItem[] = [
   {
     title: 'Naslovnica',
