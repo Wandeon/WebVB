@@ -42,6 +42,9 @@ git fetch --prune origin
 git reset --hard origin/main
 git clean -fd
 
+log "Cleaning node_modules for fresh install..."
+rm -rf node_modules apps/*/node_modules packages/*/node_modules
+
 log "Installing dependencies..."
 pnpm install --frozen-lockfile
 
