@@ -63,8 +63,10 @@ function renderMarks(text: string, marks?: TipTapNode['marks']): string {
         result = `<code>${result}</code>`;
         break;
       case 'link': {
-        const href = mark.attrs?.href ?? '#';
-        const target = mark.attrs?.target ?? '_blank';
+        const rawHref = mark.attrs?.href;
+        const rawTarget = mark.attrs?.target;
+        const href = typeof rawHref === 'string' ? rawHref : '#';
+        const target = typeof rawTarget === 'string' ? rawTarget : '_blank';
         result = `<a href="${href}" target="${target}" rel="noopener noreferrer">${result}</a>`;
         break;
       }
@@ -119,9 +121,12 @@ function nodeToHtml(node: TipTapNode): string {
       return '<br />';
 
     case 'image': {
-      const src = node.attrs?.src ?? '';
-      const alt = node.attrs?.alt ?? '';
-      const title = node.attrs?.title ?? '';
+      const rawSrc = node.attrs?.src;
+      const rawAlt = node.attrs?.alt;
+      const rawTitle = node.attrs?.title;
+      const src = typeof rawSrc === 'string' ? rawSrc : '';
+      const alt = typeof rawAlt === 'string' ? rawAlt : '';
+      const title = typeof rawTitle === 'string' ? rawTitle : '';
       return `<img src="${src}" alt="${alt}" title="${title}" />`;
     }
 
