@@ -21,6 +21,7 @@ import { BarChart3, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 import { siteConfig } from './metadata';
+import { SmartDashboard } from '../components/smart-dashboard';
 import { experienceItems } from '../lib/experience-items';
 import { heroConfig } from '../lib/hero-config';
 import { quickLinks } from '../lib/quick-links';
@@ -82,93 +83,7 @@ export default async function HomePage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-8">
             {/* Left: Smart Municipality Dashboard (hidden on mobile, shown on lg+) */}
             <FadeIn className="hidden lg:block">
-              <div className="relative h-full min-h-[500px] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950">
-                {/* Subtle grid pattern */}
-                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-
-                {/* Decorative elements */}
-                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
-                <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
-
-                {/* Content */}
-                <div className="relative z-10 flex h-full flex-col p-6 text-white">
-
-                  {/* Header */}
-                  <div className="mb-6">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                      Pametna Općina
-                    </span>
-                  </div>
-
-                  {/* Office Status */}
-                  <div className="mb-6 rounded-2xl bg-white/5 p-4 backdrop-blur-sm border border-white/10">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-white/60">Jedinstveni upravni odjel</span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-medium text-emerald-400">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                        Otvoreno
-                      </span>
-                    </div>
-                    <div className="text-sm text-white/80">
-                      <p>Pon - Pet: 07:00 - 15:00</p>
-                      <p className="text-white/50 text-xs mt-1">Trg S. Radića 28, Veliki Bukovec</p>
-                    </div>
-                  </div>
-
-                  {/* AI Assistant Placeholder */}
-                  <div className="flex-1 rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/20 p-4 backdrop-blur-sm border border-white/10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center">
-                        <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-sm">Virtualni asistent</h3>
-                        <p className="text-xs text-white/50">Powered by AI</p>
-                      </div>
-                    </div>
-
-                    {/* Chat preview */}
-                    <div className="space-y-3 mb-4">
-                      <div className="flex gap-2">
-                        <div className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex-shrink-0 flex items-center justify-center">
-                          <span className="text-[10px]">AI</span>
-                        </div>
-                        <div className="rounded-2xl rounded-tl-sm bg-white/10 px-3 py-2 text-sm">
-                          Pozdrav! Kako vam mogu pomoći danas? 👋
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Input placeholder */}
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Postavite pitanje..."
-                        disabled
-                        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm placeholder:text-white/30 cursor-not-allowed"
-                      />
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                        <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">Uskoro</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Emergency Contacts */}
-                  <div className="mt-6 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-4">
-                      <a href="tel:112" className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors">
-                        <span className="text-red-400">●</span> Hitna: 112
-                      </a>
-                      <a href="tel:042719033" className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors">
-                        <span className="text-sky-400">●</span> Općina: 042/719-033
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <SmartDashboard />
             </FadeIn>
 
             {/* Right: Bento Grid */}
