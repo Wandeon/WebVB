@@ -8,28 +8,36 @@ export interface BentoGridProps {
 /**
  * A beautiful bento-style grid layout with explicit positioning
  *
- * Desktop layout (6 items):
+ * Mobile layout (2 columns):
+ * ┌──────────┬──────────┐
+ * │    a     │    a     │  (full width)
+ * ├──────────┼──────────┤
+ * │    b     │    b     │  (full width)
+ * ├──────────┼──────────┤
+ * │    c     │    d     │  (half each)
+ * ├──────────┼──────────┤
+ * │    e     │    f     │  (half each)
+ * └──────────┴──────────┘
+ *
+ * Desktop layout (4 columns):
  * ┌──────────┬──────────┬──────────┬──────────┐
  * │    a     │    a     │    b     │    b     │
- * │  (2x2)   │  (2x2)   │  (2x1)   │  (2x1)   │
  * ├──────────┼──────────┼──────────┼──────────┤
  * │    a     │    a     │    c     │    d     │
- * │  (2x2)   │  (2x2)   │  (1x1)   │  (1x1)   │
  * ├──────────┼──────────┼──────────┼──────────┤
  * │    e     │    e     │    f     │    f     │
- * │  (2x1)   │  (2x1)   │  (2x1)   │  (2x1)   │
  * └──────────┴──────────┴──────────┴──────────┘
  */
 export function BentoGrid({ children, className }: BentoGridProps) {
   return (
     <div
       className={cn(
-        'grid gap-4',
-        // Mobile: single column
-        'grid-cols-1',
-        // Tablet: 2 columns
-        'sm:grid-cols-2',
-        // Desktop: 4 columns with explicit grid areas
+        'grid gap-3 sm:gap-4',
+        // Mobile: 2 columns with explicit areas
+        'grid-cols-2',
+        '[grid-template-areas:"a_a""b_b""c_d""e_f"]',
+        'grid-rows-[minmax(140px,auto)_minmax(100px,auto)_minmax(100px,auto)_minmax(100px,auto)]',
+        // Desktop: 4 columns with different layout
         'lg:grid-cols-4',
         'lg:[grid-template-areas:"a_a_b_b""a_a_c_d""e_e_f_f"]',
         'lg:grid-rows-[minmax(160px,auto)_minmax(160px,auto)_minmax(140px,auto)]',
@@ -45,12 +53,12 @@ export interface BentoGridItemProps {
   children: React.ReactNode;
   /**
    * Grid area for positioning:
-   * - 'a': Large featured (2x2) - top left
-   * - 'b': Wide (2x1) - top right
-   * - 'c': Small (1x1) - middle right-left
-   * - 'd': Small (1x1) - middle right-right
-   * - 'e': Wide (2x1) - bottom left
-   * - 'f': Wide (2x1) - bottom right
+   * - 'a': Large featured - 2x1 mobile, 2x2 desktop
+   * - 'b': Wide - 2x1 on both
+   * - 'c': Small - 1x1 on both
+   * - 'd': Small - 1x1 on both
+   * - 'e': Half on mobile, wide on desktop
+   * - 'f': Half on mobile, wide on desktop
    */
   area?: 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
   className?: string;
@@ -58,17 +66,17 @@ export interface BentoGridItemProps {
 
 // Static mapping for grid areas (Tailwind JIT compatible)
 const areaClasses: Record<string, string> = {
-  a: 'lg:[grid-area:a]',
-  b: 'lg:[grid-area:b]',
-  c: 'lg:[grid-area:c]',
-  d: 'lg:[grid-area:d]',
-  e: 'lg:[grid-area:e]',
-  f: 'lg:[grid-area:f]',
+  a: '[grid-area:a]',
+  b: '[grid-area:b]',
+  c: '[grid-area:c]',
+  d: '[grid-area:d]',
+  e: '[grid-area:e]',
+  f: '[grid-area:f]',
 };
 
 export function BentoGridItem({ children, area, className }: BentoGridItemProps) {
   return (
-    <div className={cn(area && areaClasses[area], 'min-h-[140px]', className)}>
+    <div className={cn(area && areaClasses[area], className)}>
       {children}
     </div>
   );

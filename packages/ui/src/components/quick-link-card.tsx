@@ -143,12 +143,12 @@ export function QuickLinkCard({
 
   // Bento card - all cards get beautiful gradient backgrounds
   const bentoBase = cn(
-    'group relative flex h-full flex-col overflow-hidden rounded-2xl transition-all duration-300',
+    'group relative flex h-full flex-col overflow-hidden rounded-xl sm:rounded-2xl transition-all duration-300',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
     'hover:-translate-y-1 hover:shadow-xl',
     'bg-gradient-to-br text-white shadow-lg',
     colorCfg.gradient,
-    isLarge ? 'p-6 md:p-8' : 'p-5 md:p-6',
+    isLarge ? 'p-4 sm:p-6 md:p-8' : 'p-3 sm:p-4 md:p-5',
     // Focus ring color based on variant
     color === 'sky' && 'focus-visible:ring-sky-500',
     color === 'gold' && 'focus-visible:ring-amber-500',
@@ -165,15 +165,15 @@ export function QuickLinkCard({
           'absolute rounded-full',
           colorCfg.decorCircle1,
           isLarge
-            ? '-right-8 -top-8 h-32 w-32 md:h-48 md:w-48'
-            : '-right-6 -top-6 h-24 w-24 md:h-32 md:w-32'
+            ? '-right-6 -top-6 h-24 w-24 sm:h-32 sm:w-32 md:h-48 md:w-48'
+            : '-right-4 -top-4 h-16 w-16 sm:h-24 sm:w-24 md:h-32 md:w-32'
         )} />
         <div className={cn(
           'absolute rounded-full',
           colorCfg.decorCircle2,
           isLarge
-            ? '-bottom-12 -left-12 h-40 w-40 md:h-56 md:w-56'
-            : '-bottom-8 -left-8 h-28 w-28 md:h-36 md:w-36'
+            ? '-bottom-8 -left-8 h-28 w-28 sm:h-40 sm:w-40 md:h-56 md:w-56'
+            : '-bottom-6 -left-6 h-20 w-20 sm:h-28 sm:w-28 md:h-36 md:w-36'
         )} />
       </div>
 
@@ -181,29 +181,29 @@ export function QuickLinkCard({
         {/* Icon */}
         <div
           className={cn(
-            'flex items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110',
+            'flex items-center justify-center rounded-lg sm:rounded-xl transition-transform duration-300 group-hover:scale-110',
             colorCfg.iconBg,
-            isLarge ? 'mb-4 h-12 w-12 md:mb-5 md:h-14 md:w-14' : 'mb-3 h-10 w-10 md:h-12 md:w-12'
+            isLarge ? 'mb-2 h-10 w-10 sm:mb-4 sm:h-12 sm:w-12 md:mb-5 md:h-14 md:w-14' : 'mb-2 h-8 w-8 sm:mb-3 sm:h-10 sm:w-10 md:h-12 md:w-12'
           )}
         >
-          <Icon className={isLarge ? 'h-6 w-6 md:h-7 md:w-7' : 'h-5 w-5 md:h-6 md:w-6'} />
+          <Icon className={isLarge ? 'h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7' : 'h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6'} />
         </div>
 
         {/* Title */}
         <h3
           className={cn(
             'font-display font-bold text-white',
-            isLarge ? 'text-lg md:text-xl' : 'text-base md:text-lg'
+            isLarge ? 'text-base sm:text-lg md:text-xl' : 'text-sm sm:text-base md:text-lg'
           )}
         >
           {title}
         </h3>
 
-        {/* Description */}
+        {/* Description - hidden on very small screens for non-large cards */}
         <p
           className={cn(
-            'mt-2 flex-1 text-white/85',
-            isLarge ? 'text-sm md:text-base' : 'line-clamp-2 text-sm'
+            'mt-1 sm:mt-2 flex-1 text-white/85',
+            isLarge ? 'text-xs sm:text-sm md:text-base' : 'hidden sm:block line-clamp-2 text-xs sm:text-sm'
           )}
         >
           {description}
@@ -211,13 +211,13 @@ export function QuickLinkCard({
 
         {/* CTA */}
         <div className={cn(
-          'mt-4 flex items-center text-sm font-semibold text-white',
+          'mt-2 sm:mt-4 flex items-center text-xs sm:text-sm font-semibold text-white',
           isLarge ? 'md:mt-5' : ''
         )}>
           <span>Saznaj više</span>
           <ArrowRight
             className={cn(
-              'ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-2',
+              'ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-2',
               isLarge ? 'md:h-5 md:w-5' : ''
             )}
           />
