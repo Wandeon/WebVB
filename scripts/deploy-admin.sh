@@ -46,9 +46,9 @@ log "Cleaning build artifacts and node_modules for fresh install..."
 rm -rf node_modules apps/*/node_modules packages/*/node_modules
 rm -rf apps/*/.next apps/web/out .turbo
 
-log "Installing dependencies..."
+log "Installing dependencies (including dev deps for build)..."
 pnpm store prune || true
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --prod=false
 
 log "Generating Prisma client..."
 pnpm --filter @repo/database db:generate
