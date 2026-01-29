@@ -91,9 +91,9 @@ export function CookieConsent() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-[-50%] bg-gradient-conic from-primary-500 via-amber-400 via-rose-400 via-primary-600 to-primary-500"
+                className="absolute inset-[-50%]"
                 style={{
-                  background: 'conic-gradient(from 0deg, #0ea5e9, #f59e0b, #f43f5e, #6366f1, #0ea5e9)'
+                  background: 'conic-gradient(from 0deg, #10b981, #34d399, #6ee7b7, #a7f3d0, #34d399, #10b981)'
                 }}
               />
             </div>
@@ -105,7 +105,7 @@ export function CookieConsent() {
                 {[...Array(6)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="absolute h-2 w-2 rounded-full bg-amber-400/60"
+                    className="absolute h-2 w-2 rounded-full bg-emerald-400/60"
                     initial={{
                       x: Math.random() * 100 + '%',
                       y: '100%',
@@ -139,9 +139,9 @@ export function CookieConsent() {
                     repeat: Infinity,
                     repeatDelay: 3
                   }}
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-amber-200 shadow-lg"
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 shadow-lg"
                 >
-                  <Cookie className="h-7 w-7 text-amber-600" />
+                  <Cookie className="h-7 w-7 text-emerald-600" />
                 </motion.div>
                 <div className="flex-1">
                   <motion.h3
