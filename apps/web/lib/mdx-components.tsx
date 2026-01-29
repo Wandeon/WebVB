@@ -92,6 +92,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     HeroBanner,
     LinkCard,
     LinkCardGrid,
+    BentoCard,
+    BentoGrid,
     FeatureSection,
     InfoBox,
     StatsRow,
