@@ -42,8 +42,10 @@ git fetch --prune origin
 git reset --hard origin/main
 git clean -fd
 
-log "Cleaning build artifacts..."
+log "Cleaning build artifacts and locks..."
 rm -rf apps/*/.next apps/web/out .turbo
+# Ensure clean directories exist (no stale locks)
+mkdir -p apps/admin/.next apps/web/.next
 
 log "Installing dependencies (including dev deps for build)..."
 NODE_ENV=development pnpm install --no-frozen-lockfile
