@@ -6,21 +6,33 @@ export interface BentoGridProps {
 }
 
 /**
- * A beautiful bento-style grid layout
- * Desktop: 4 columns with visual hierarchy
- * Mobile: Clean stacked layout with featured items spanning full width
+ * A beautiful bento-style grid layout with explicit positioning
+ *
+ * Desktop layout (6 items):
+ * ┌──────────┬──────────┬──────────┬──────────┐
+ * │    a     │    a     │    b     │    b     │
+ * │  (2x2)   │  (2x2)   │  (2x1)   │  (2x1)   │
+ * ├──────────┼──────────┼──────────┼──────────┤
+ * │    a     │    a     │    c     │    d     │
+ * │  (2x2)   │  (2x2)   │  (1x1)   │  (1x1)   │
+ * ├──────────┼──────────┼──────────┼──────────┤
+ * │    e     │    e     │    f     │    f     │
+ * │  (2x1)   │  (2x1)   │  (2x1)   │  (2x1)   │
+ * └──────────┴──────────┴──────────┴──────────┘
  */
 export function BentoGrid({ children, className }: BentoGridProps) {
   return (
     <div
       className={cn(
         'grid gap-4',
-        // Mobile: 2 columns
-        'grid-cols-2',
-        // Tablet: proper 4-column bento
-        'md:grid-cols-4 md:auto-rows-[180px]',
-        // Desktop: taller rows
-        'lg:auto-rows-[200px]',
+        // Mobile: single column
+        'grid-cols-1',
+        // Tablet: 2 columns
+        'sm:grid-cols-2',
+        // Desktop: 4 columns with explicit grid areas
+        'lg:grid-cols-4',
+        'lg:[grid-template-areas:"a_a_b_b""a_a_c_d""e_e_f_f"]',
+        'lg:grid-rows-[minmax(160px,auto)_minmax(160px,auto)_minmax(140px,auto)]',
         className
       )}
     >
@@ -33,35 +45,30 @@ export interface BentoGridItemProps {
   children: React.ReactNode;
   /**
    * Grid area for positioning:
-   * - 'a': Large featured (2x2)
-   * - 'b': Medium wide (2x1)
-   * - 'c', 'd': Small (1x1)
-   * - 'e': Medium wide (2x1)
-   * - 'f': Small (1x1) - optional 6th item
+   * - 'a': Large featured (2x2) - top left
+   * - 'b': Wide (2x1) - top right
+   * - 'c': Small (1x1) - middle right-left
+   * - 'd': Small (1x1) - middle right-right
+   * - 'e': Wide (2x1) - bottom left
+   * - 'f': Wide (2x1) - bottom right
    */
   area?: 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
   className?: string;
 }
 
-export function BentoGridItem({ children, area, className }: BentoGridItemProps) {
-  // Map areas to responsive span classes
-  const areaStyles: Record<string, string> = {
-    // Large featured - 2 cols on mobile, 2x2 on desktop
-    a: 'col-span-2 md:col-span-2 md:row-span-2',
-    // Medium wide - full on mobile, 2x1 on desktop
-    b: 'col-span-2 md:col-span-2 md:row-span-1',
-    // Small - 1 col on mobile, 1x1 on desktop
-    c: 'col-span-1 md:col-span-1 md:row-span-1',
-    // Small - 1 col on mobile, 1x1 on desktop
-    d: 'col-span-1 md:col-span-1 md:row-span-1',
-    // Medium wide - full on mobile, 2x1 on desktop
-    e: 'col-span-2 md:col-span-2 md:row-span-1',
-    // Small - full on mobile (last item), 2x1 on desktop
-    f: 'col-span-2 md:col-span-2 md:row-span-1',
-  };
+// Static mapping for grid areas (Tailwind JIT compatible)
+const areaClasses: Record<string, string> = {
+  a: 'lg:[grid-area:a]',
+  b: 'lg:[grid-area:b]',
+  c: 'lg:[grid-area:c]',
+  d: 'lg:[grid-area:d]',
+  e: 'lg:[grid-area:e]',
+  f: 'lg:[grid-area:f]',
+};
 
+export function BentoGridItem({ children, area, className }: BentoGridItemProps) {
   return (
-    <div className={cn(area && areaStyles[area], className)}>
+    <div className={cn(area && areaClasses[area], 'min-h-[140px]', className)}>
       {children}
     </div>
   );

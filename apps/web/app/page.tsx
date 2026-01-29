@@ -95,6 +95,7 @@ export default async function HomePage() {
                     href={link.href}
                     icon={link.icon}
                     variant="bento"
+                    color={link.color}
                     size={link.size}
                     className="h-full"
                   />
