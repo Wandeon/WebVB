@@ -1,5 +1,6 @@
-import { FadeIn, PageSidebar } from '@repo/ui';
-import { ReactNode } from 'react';
+import { FadeIn } from '@repo/ui';
+
+import type { ReactNode } from 'react';
 
 interface PageLayoutProps {
   title: string;
@@ -7,7 +8,7 @@ interface PageLayoutProps {
   children: ReactNode;
 }
 
-export function PageLayout({ title, section, children }: PageLayoutProps) {
+export function PageLayout({ title, section: _section, children }: PageLayoutProps) {
   return (
     <>
       <FadeIn>
