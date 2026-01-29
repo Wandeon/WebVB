@@ -9,6 +9,7 @@ import { InfoBox } from '@/components/mdx/info-box';
 import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
 import { PhotoShowcase } from '@/components/mdx/photo-showcase';
 import { Stat, StatsRow } from '@/components/mdx/stats-row';
+import { Table } from '@/components/mdx/table';
 import { Timeline, TimelineItem } from '@/components/mdx/timeline';
 
 import type { MDXComponents } from 'mdx/types';
@@ -100,6 +101,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     PhotoShowcase,
     CTASection,
     ContactBlock,
+    Table,
 
     ...components,
   };

@@ -17,15 +17,10 @@ const nextConfig: NextConfig = {
 
   // Enable MDX pages
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
-
-  // Use experimental mdxRs with GFM support for tables
-  experimental: {
-    mdxRs: {
-      mdxType: 'gfm',
-    },
-  },
 };
 
+// Note: remark-gfm doesn't work with Turbopack (not serializable)
+// Tables must use the <Table> component instead of markdown syntax
 const withMDX = createMDX({
   extension: /\.mdx?$/,
 });
