@@ -2,7 +2,6 @@
 
 import { APP_NAME } from '@repo/shared';
 import {
-  MobileDrawer,
   SearchModal,
   SearchTrigger,
   useSearchShortcut,
@@ -11,8 +10,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
-import { mainNav, megaNavGroups } from '../../lib/navigation';
+import { megaNavGroups } from '../../lib/navigation';
 import { MegaMenu } from './mega-menu';
+import { MobileMenu } from './mobile-menu';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -49,8 +49,8 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
       <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white/80 backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <MobileDrawer
-              items={mainNav}
+            <MobileMenu
+              groups={megaNavGroups}
               logo={
                 <div className="flex items-center gap-2">
                   <Image
