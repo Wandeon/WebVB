@@ -1,47 +1,105 @@
 import { PageLayout } from '@/components/page-layout';
+import { FeatureSection } from '@/components/mdx/feature-section';
+import { PhotoShowcase } from '@/components/mdx/photo-showcase';
+import { InfoBox } from '@/components/mdx/info-box';
+import { CTASection } from '@/components/mdx/cta-section';
+import { ContactBlock } from '@/components/mdx/contact-block';
 
 export const metadata = {
   title: 'Turizam',
-  description: 'Turističke atrakcije općine Veliki Bukovec - dvorac, priroda, znamenitosti',
+  description: 'Turističke atrakcije općine Veliki Bukovec - dvorac Drašković, perivoj, prirodne ljepote',
 };
 
-<PageLayout title="Turizam" section="opcina">
+<PageLayout
+  title="Turizam"
+  subtitle="Otkrijte čaroliju baroknog dvorca, stoljetnog perivoja i prirodnih ljepota dravske nizine"
+  section="opcina"
+  heroImage="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp"
+  heroImageAlt="Dvorac Drašković u Velikom Bukovcu"
+>
 
-Dobrodošli u Veliki Bukovec! Naša općina nudi spoj bogate kulturno-povijesne baštine i prirodnih ljepota dravske nizine.
+Dobrodošli u Veliki Bukovec! Naša općina nudi spoj bogate kulturno-povijesne baštine i netaknute prirode. Od baroknog dvorca do mirnih rijeka - ovdje ćete pronaći mir i inspiraciju.
 
-## Dvorac Drašković
+<FeatureSection
+  title="Dvorac Drašković"
+  image="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/Dvorac_Draskovic_Veliki_Bukovac_5.jpg"
+  imageAlt="Unutrašnjost dvorca Drašković"
+  imagePosition="right"
+  background="light"
+>
 
-![Dvorac Drašković](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp)
+Barokni biser sjeverozapadne Hrvatske izgrađen između 1745. i 1755. godine. Dvorac je u privatnom vlasništvu obitelji Drašković, jedne od najstarijih hrvatskih plemićkih obitelji.
 
-Barokni dvorac iz 18. stoljeća, jedna od najljepših građevina sjeverozapadne Hrvatske. Dvorac je u privatnom vlasništvu obitelji Drašković.
+Glavnim je ulazom sa dvorišne (zapadne) strane dok je središnjim (istočnim) pročeljem dvorac okrenut nekadašnjem dekorativnom parternom vrtu. Istočnim pročeljem dominira centralno položeni portal na kojem dva pilastra pridržavaju profilirani vijenac nad segmentno svedenim lukom prolaza.
 
-Glavni je ulaz sa dvorišne (zapadne) strane dok je središnjim (istočnim) pročeljem dvorac okrenut nekadašnjem dekorativnom parternom vrtu. Istočnim pročeljem dominira centralno položeni portal na kojem dva pilastra pridržavaju profilirani vijenac nad segmentno svedenim lukom prolaza.
+[Saznajte više o povijesti dvorca →](/opcina/povijest)
 
-[Saznajte više o povijesti dvorca](/opcina/povijest)
+</FeatureSection>
 
-## Perivoj
+<FeatureSection
+  title="Stoljetni perivoj"
+  image="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/park.webp"
+  imageAlt="Perivoj dvorca Drašković"
+  imagePosition="left"
+>
 
-Perivoj površine 11 hektara počeo se uređivati nakon izgradnje dvorca, a u prvoj fazi je vjerojatno formiran barokni parterni vrt ispred istočnog pročelja dvorca. Konačno je formiran početkom 19. st., a po stilskim obilježjima nalikuje na engleske perivoje.
+Perivoj površine **11 hektara** formiran je početkom 19. stoljeća u stilu engleskih pejzažnih parkova. Nastao je dijelom od postojeće šume hrasta lužnjaka, a dijelom od livadnih površina.
 
-Dijelom je nastao od postojeće šume hrasta lužnjaka s grabom, jasenom i bijelom topolom, a dijelom od livadnih površina. Šumski se potezi nalaze uglavnom na rubnim dijelovima, dok je središnji dio oblikovan od različitih egzotičnih i samoniklih vrsta od kojih su sačuvane virginijska borovica, duglazija, močvarni taksodij, divlji kesten, katalpa, trnovac, tulipanovac i neke druge.
+U perivoju možete pronaći:
+- **Virginijska borovica** i **duglazija**
+- Močvarni **taksodij**
+- **Divlji kesten** i **katalpa**
+- **Tulipanovac** i druge egzotične vrste
+
+Šetnice kroz perivoj nude mir i osvježenje tijekom cijele godine.
+
+</FeatureSection>
 
 ## Prirodne ljepote
 
-### Rijeka Plitvica
-Kroz općinu protječe rijeka Plitvica, koja dijeli selo Dubovica na dva dijela i utječe u rijeku Dravu. Plitvica izvire na području sjeveroistočnih brežuljaka Maceljskog gorja. Duljina toka joj je 65 km.
+<PhotoShowcase
+  layout="featured"
+  images={[
+    {
+      src: "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/plitvica_dubovica-1024x498.jpg",
+      alt: "Rijeka Plitvica kod Dubovice",
+      caption: "Rijeka Plitvica - 65 km dugačak vodotok koji izvire na Maceljskom gorju"
+    },
+    {
+      src: "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp",
+      alt: "Dvorac Drašković",
+      caption: "Barokni dvorac iz 18. stoljeća"
+    },
+    {
+      src: "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/Grb_obitelji_Drašković_Trakošćan.jpg",
+      alt: "Grb obitelji Drašković",
+      caption: "Povijesni grb plemenite obitelji Drašković"
+    }
+  ]}
+/>
 
-![Rijeka Plitvica](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/plitvica_dubovica-1024x498.jpg)
+### Rijeka Plitvica
+
+Kroz općinu protječe rijeka Plitvica koja dijeli selo Dubovica na dva dijela prije utoka u rijeku Dravu. Izvire na području sjeveroistočnih brežuljaka Maceljskog gorja, a duljina toka iznosi impresivnih 65 kilometara.
 
 ### Šuma Križančija
-Velika šuma koja nudi mogućnosti za šetnju i lovni turizam. U šumi se nalazi i kasnobarokna kapela grofova Draškovića.
 
-## Kontakt za turističke informacije
+Prostrana šuma nudi mogućnosti za šetnju, biciklizam i lovni turizam. U srcu šume nalazi se kasnobarokna kapela grofova Drašković - skriveni dragulj ovog kraja.
 
-**Općina Veliki Bukovec**
-Trg svetog Franje 425
-42231 Veliki Bukovec
+<InfoBox variant="info" title="Posjetite nas">
 
-Telefon: 042 719 001
-Email: [opcina@velikibukovec.hr](mailto:opcina@velikibukovec.hr)
+Veliki Bukovec idealan je za jednodnevni izlet iz Varaždina (15 min), Čakovca (20 min) ili Zagreba (90 min). Najbolje vrijeme za posjet je proljeće i jesen kada perivoj odiše posebnim bojama.
+
+</InfoBox>
+
+<CTASection
+  title="Planirate posjet?"
+  description="Kontaktirajte nas za više informacija o turističkim mogućnostima u našoj općini."
+  primaryAction={{ label: "Kontaktirajte nas", href: "/kontakt" }}
+  secondaryAction={{ label: "O općini", href: "/opcina/o-nama" }}
+  variant="primary"
+/>
+
+<ContactBlock showMap />
 
 </PageLayout>

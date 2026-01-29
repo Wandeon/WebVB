@@ -1,36 +1,130 @@
 import { PageLayout } from '@/components/page-layout';
+import { Timeline, TimelineItem } from '@/components/mdx/timeline';
+import { FeatureSection } from '@/components/mdx/feature-section';
+import { PhotoShowcase } from '@/components/mdx/photo-showcase';
+import { StatsRow } from '@/components/mdx/stats-row';
+import { InfoBox } from '@/components/mdx/info-box';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Povijest Velikog Bukovca',
-  description: 'Povijest općine Veliki Bukovec, dvorac Drašković i obitelj Drašković',
+  description: 'Bogata povijest općine Veliki Bukovec - obitelj Drašković, dvorac, kulturna baština',
 };
 
-<PageLayout title="Povijest Velikog Bukovca" section="opcina">
+<PageLayout
+  title="Povijest Velikog Bukovca"
+  subtitle="Putovanje kroz stoljeća bogate kulturne baštine i plemićke tradicije"
+  section="opcina"
+  heroImage="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/Grb_obitelji_Drašković_Trakošćan.jpg"
+  heroImageAlt="Grb obitelji Drašković"
+>
 
-![Grb obitelji Drašković](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/Grb_obitelji_Drašković_Trakošćan.webp)
+<StatsRow stats={[
+  { value: "1643.", label: "Prva poveznica Draškovića" },
+  { value: "1745.", label: "Početak gradnje dvorca" },
+  { value: "11 ha", label: "Površina perivoja" },
+  { value: "270+", label: "Godina tradicije" }
+]} />
 
-## Povijest posjeda i loze Drašković
+Posjed Veliki Bukovec nastao je u 16. stoljeću iz bednjanskog vlastelinstva. U doba stalnih turskih pustošenja, sredinom 16. stoljeća sagrađena je utvrda koja je služila kao utočište okolnom stanovništvu.
 
-Posjed Veliki Bukovec nastao je u 16. stoljeću iz bednjanskog vlastelinstva. Budući da je u ono doba taj kraj bio izložen turskim pustošenjima, već sredinom 16. stoljeća sagrađena je u Velikom Bukovcu utvrda koja je služila kao utočište okolnom stanovništvu. Učestali turski napadi bili su razlog što je na tom području živjelo malo stanovnika. Tek nakon poraza kod Siska 1593. godine turski su napadi sve rjeđi, pa su se 1598. na bukovečkim posjedima počeli pojavljivati novi naseljenici.
+## Obitelj Drašković
 
-U 16. stoljeću vlasnik bednjanskoga vlastelinstva bio je Sigismund Frodnohar, čiji su nasljednici po ženskoj lozi upravljali Velikim Bukovcem do 1555. godine, kada ga je kralj Ferdinand darovao Mihajlu Tinodiu, a on Jakovu Mihajlu Sekelju. U vlasništvu obitelji Sekelj ostao je Veliki Bukovec do 1643., kada je umro Sigismund Fridrik Sekelj, posljednji muški član obitelji. Njegova udovica Barbara Ćrnomeljska pokušala je imanje prenijeti na zeta Petra Keglevića, što vlast nije dopustila, već je kralj Ferdinand III. darovao Veliki Bukovec i sela koja su mu pripadala 1643. godine grofu Ivanu Draškoviću koji je velikobukovečki posjed pretvorio u vlastelinstvo. Vlastelinstvo se sastojalo od plemićke kurije u Velikom Bukovcu, sedam sela (Lunjkovec, Mali Bukovec, Martinić, Novo Selo Podravsko, Selnica Podravska, Sv. Petar Ludbreški i Županec) te velike šume Križančije.
+<FeatureSection
+  title="Plemićka loza"
+  image="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/Grb_obitelji_Drašković_Trakošćan.jpg"
+  imageAlt="Grb obitelji Drašković"
+  imagePosition="right"
+  background="light"
+>
+
+Draškovići potječu od Bartola, sina Draška iz srednjovjekovne obitelji Borovinić. Prezime Drašković prvi put se spominje u ispravi iz 1494. godine.
+
+Jedna je od najvažnijih plemićkih obitelji u hrvatskoj povijesti. Dali su Hrvatskoj brojne:
+- **Banove i generale**
+- **Biskupe i kardinale**
+- **Književnike i mecene**
+
+</FeatureSection>
+
+<Timeline>
+  <TimelineItem year="1643." title="Prvi Drašković u Bukovcu">
+    Ivan Drašković Trakošćanski stječe posjed kupnjom od obitelji Kušlan.
+  </TimelineItem>
+  <TimelineItem year="1745." title="Početak gradnje dvorca">
+    Grof Josip Kazimir Drašković (1716.-1765.) započinje gradnju baroknog dvorca.
+  </TimelineItem>
+  <TimelineItem year="1755." title="Dovršetak dvorca">
+    Završena je gradnja dvorca kakav poznajemo danas - biser barokne arhitekture.
+  </TimelineItem>
+  <TimelineItem year="19. st." title="Formiranje perivoja">
+    Uređen je perivoj od 11 hektara u stilu engleskih pejzažnih parkova.
+  </TimelineItem>
+  <TimelineItem year="1848." title="Ilirski pokret">
+    Obitelj podržava hrvatski narodni preporod i ilirski pokret.
+  </TimelineItem>
+  <TimelineItem year="1990." title="Povrat dvorca">
+    Nakon demokratskih promjena, dvorac se vraća obitelji Drašković.
+  </TimelineItem>
+</Timeline>
 
 ## Dvorac Drašković
 
-![Dvorac Drašković](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp)
+<PhotoShowcase
+  layout="featured"
+  images={[
+    {
+      src: "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp",
+      alt: "Dvorac Drašković - glavni pogled",
+      caption: "Barokni dvorac izgrađen 1745.-1755."
+    },
+    {
+      src: "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/Dvorac_Draskovic_Veliki_Bukovac_5.jpg",
+      alt: "Dvorac Drašković - detalj",
+      caption: "Arhitektonski detalji istočnog pročelja"
+    },
+    {
+      src: "https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/park.webp",
+      alt: "Perivoj dvorca",
+      caption: "Stoljetni perivoj u engleskom stilu"
+    }
+  ]}
+/>
 
-Dvorac u Velikom Bukovcu izgradio je u razdoblju od 1745. do 1755. godine grof Josip Kazimir Drašković (1716.-1765.), tadašnji vlasnik velikobukovečkog vlastelinstva. Za zasluge u brojnim ratovima, osobito s Francuskom i Pruskom, Josip Kazimir je sticao visoke vojne položaje došavši do čina podmaršala. Obavljao je čast velikog župana križevačkog, bio je i carski komornik i tajni carski i kraljevski savjetnik. Veliki Bukovec naslijedio je njegov mladi sin Josip II. Drašković.
+Dvorac je izgrađen u čistom baroknom stilu s karakterističnim elementima tog doba. Glavni ulaz nalazi se na zapadnoj (dvorišnoj) strani, dok je reprezentativno istočno pročelje okrenuto nekadašnjem parternom vrtu.
 
-U prvoj polovici 19. stoljeća Veliki Bukovec je posjedovao grof Karlo Drašković (1807.-1858.) oženjen groficom Elizabetom Batthyany-Strattman. Velikom Bukovcu su tada još pripadali majuri Mali Bukovec, Marindvor i Lizindvor. Karlo je posjedovao i dvorac Bisag. Karlo i Elizabeta imali su pet sinova: Filipa, Ivana, Josipa, Pavla i Jurja. Filip je umro mlad, Ivan IX. je od strica podmaršala Jurja VI. naslijedio Trakošćan, Josip VI. dobio je Bisag, Juraj VII. imanje u Ugarskoj, a Pavao II. naslijedio je Veliki Bukovec.
+Na istočnom pročelju dominira centralno pozicionirani portal s dva pilastra koji pridržavaju profilirani vijenac nad segmentno svedenim lukom prolaza.
 
-Dvorac je u doba ilirskog pokreta bio žarište hrvatskoga duha. Često bi ovamo svraćao grof Janko Drašković, poznati veliki Ilirac. Na nagovor svog strica Janka Draškovića, Karlo je vrlo povoljno prodao 1840. godine tek sagrađenu kuću u Opatičkoj ulici u Zagrebu, koja je pretvorena u Narodni dom iliraca, u kojoj se nalazila Narodna dvorana, čitaonica, knjižnica, muzej i Gospodarsko društvo.
+### Arhitektonske značajke
 
-## 20. stoljeće i povrat imovine
+- **Simetričan tlocrt** - karakterističan za barokne dvorce
+- **Reprezentativna stepeništa** - bogato ukrašena
+- **Prostrane dvorane** - za primanja i svečanosti
+- **Barokni park** - geometrijski parterni vrt
 
-Pavao II. (1846.-1889.), koji je od oca Karla naslijedio Veliki Bukovec, bio je osnivač Gospodarskog društva za kotar Ludbreg. Pavlova supruga grofica Marija Festetić svake je godine školskoj djeci darivala odjevne predmete, što su otada radili svi Draškovići. Pavao i Marija imali su dva sina: Dioniza, koji je nastavio dobro gospodarenje i stekao velike simpatije naroda, ali je umro mlad 1909. godine i Pavla III. koji je naslijedio Veliki Bukovec s majurima.
+<InfoBox variant="info" title="Zanimljivost">
 
-Tijekom Drugoga svjetskog rata Pavle i Eliza su s djecom napustili Veliki Bukovec i odselili u Austriju. Grof Karlo Drašković s obitelji živi u Gussingu (Gradišće) na imanju svojih roditelja, a dvorac u Velikom Bukovcu uspio je vratiti u obiteljsko vlasništvo 1990-ih godina. Bio je to prvi dvorac u Hrvatskoj vraćen vlasnicima nakon Drugoga svjetskoga rata.
+Dvorac Drašković jedan je od rijetkih hrvatskih dvoraca koji je ostao u vlasništvu iste obitelji kroz više od 370 godina. Obitelj Drašković i danas brine o ovom kulturnom blagu.
 
-Veliki Bukovec bio je drago obitavalište grofova Draškovića. Upravo su tu sagradili grobnu kapelu za obiteljsko vječno počivalište.
+</InfoBox>
+
+## Perivoj
+
+Perivoj površine 11 hektara počeo se uređivati nakon izgradnje dvorca. U prvoj fazi formiran je barokni parterni vrt ispred istočnog pročelja, a konačni oblik u stilu engleskih pejzažnih parkova dobio je početkom 19. stoljeća.
+
+Dijelom je nastao od postojeće šume hrasta lužnjaka s grabom, jasenom i bijelom topolom, a dijelom od livadnih površina. U parku se nalaze brojne egzotične vrste:
+
+- Virginijska borovica i duglazija
+- Močvarni taksodij
+- Divlji kesten i katalpa
+- Trnovac i tulipanovac
+
+<CTASection
+  title="Posjetite Veliki Bukovec"
+  description="Doživite ljepotu baroknog dvorca i stoljetnog perivoja. Idealno odredište za ljubitelje povijesti i prirode."
+  primaryAction={{ label: "Turizam", href: "/opcina/turizam" }}
+  secondaryAction={{ label: "Kontakt", href: "/kontakt" }}
+  variant="primary"
+/>
 
 </PageLayout>

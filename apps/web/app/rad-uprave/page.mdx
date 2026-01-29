@@ -1,26 +1,64 @@
 import { PageLayout } from '@/components/page-layout';
+import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { InfoBox } from '@/components/mdx/info-box';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Rad uprave',
-  description: 'Informacije o radu općinske uprave, komunalnom gospodarstvu i uslugama za građane',
+  description: 'Usluge i rad Općinske uprave Veliki Bukovec - komunalno, udruge, javna nabava',
 };
 
-<PageLayout title="Rad uprave" section="rad-uprave">
+<PageLayout
+  title="Rad uprave"
+  subtitle="Usluge i informacije za građane i poslovne subjekte"
+  section="rad-uprave"
+>
 
-Ovdje možete pronaći sve informacije o radu općinske uprave, komunalnim djelatnostima i uslugama namijenjenim građanima.
+Općinska uprava Veliki Bukovec pruža širok spektar usluga za naše građane, udruge i poslovne subjekte. Ovdje možete pronaći informacije o komunalnim uslugama, financiranju udruga, javnoj nabavi i mnogo više.
 
-## Područja rada
+<LinkCardGrid columns={2}>
+  <LinkCard
+    title="Komunalno gospodarstvo"
+    description="Odvoz otpada, održavanje javnih površina, komunalna infrastruktura i ostale komunalne usluge."
+    href="/rad-uprave/komunalno"
+    icon="tree"
+    delay={0}
+  />
+  <LinkCard
+    title="Financiranje udruga"
+    description="Javni pozivi, uvjeti financiranja i dokumentacija za udruge civilnog društva."
+    href="/rad-uprave/udruge"
+    icon="users"
+    delay={0.1}
+  />
+  <LinkCard
+    title="Kutak za mještane"
+    description="Praktične informacije, obrasci i upute za svakodnevne potrebe naših građana."
+    href="/rad-uprave/mjestani"
+    icon="building"
+    delay={0.2}
+  />
+  <LinkCard
+    title="Registri i ugovori"
+    description="Javno dostupni registri, ugovori i drugi dokumenti u skladu sa zakonom."
+    href="/rad-uprave/registri"
+    icon="scroll"
+    delay={0.3}
+  />
+</LinkCardGrid>
 
-### [Komunalno gospodarstvo](/rad-uprave/komunalno)
-Informacije o održavanju komunalne infrastrukture, odvozu otpada i komunalnoj naknadi.
+<InfoBox variant="info" title="Javna nabava">
 
-### [Financiranje udruga](/rad-uprave/udruge)
-Natječaji i informacije vezane uz financiranje projekata i programa udruga civilnog društva.
+Sve informacije o javnoj nabavi Općine Veliki Bukovec dostupne su na portalu [Elektronički oglasnik javne nabave](https://eojn.nn.hr/). Tamo možete pronaći aktualne natječaje, dokumentaciju i rezultate postupaka.
 
-### [Kutak za mještane](/rad-uprave/mjestani)
-Korisne informacije za mještane, uključujući obrasce, zahtjeve i obavijesti.
+</InfoBox>
 
-### [Registri i ugovori](/rad-uprave/registri)
-Pregled registara ugovora i javne nabave te sponzorstava i donacija.
+<CTASection
+  title="Trebate pomoć?"
+  description="Naši djelatnici su vam na raspolaganju za sva pitanja i pomoć oko administrativnih postupaka."
+  primaryAction={{ label: "Kontaktirajte nas", href: "/kontakt" }}
+  secondaryAction={{ label: "Prijava problema", href: "/prijava-problema" }}
+  variant="subtle"
+/>
 
 </PageLayout>
