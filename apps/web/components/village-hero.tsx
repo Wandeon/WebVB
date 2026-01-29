@@ -67,7 +67,7 @@ export function VillageHero() {
   const activeVillage = villages[displayIndex]!;
 
   return (
-    <section className="relative h-[100svh] min-h-[600px] w-full overflow-hidden bg-neutral-900">
+    <section className="relative h-[85svh] min-h-[500px] w-full overflow-hidden bg-neutral-900 lg:h-[100svh] lg:min-h-[600px]">
       {/* Background Images/Videos with Ken Burns */}
       <AnimatePresence mode="sync">
         <motion.div
