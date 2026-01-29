@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
 import { megaNavGroups } from '../../lib/navigation';
+import { AccessibilityWidget } from './accessibility-widget';
 import { LanguageSwitcher, OfficeStatusBadge, SocialIcons, WeatherBadge } from './header-widgets';
 import { MegaMenu } from './mega-menu';
 import { MobileMenu } from './mobile-menu';
@@ -86,10 +87,11 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
             <WeatherBadge />
           </div>
 
-          {/* Right: Social, Language, Search, Menu */}
+          {/* Right: Social, Language, Accessibility, Search, Menu */}
           <div className="flex items-center gap-2 lg:gap-3">
             <SocialIcons />
             <LanguageSwitcher />
+            <AccessibilityWidget />
             <SearchTrigger onOpen={handleOpenSearch} />
 
             {/* Desktop Mega Menu */}

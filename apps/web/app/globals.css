@@ -25,3 +25,42 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Accessibility: High Contrast Mode */
+.high-contrast {
+  --tw-bg-opacity: 1;
+  filter: contrast(1.2);
+}
+
+.high-contrast * {
+  border-color: currentColor !important;
+}
+
+.high-contrast img,
+.high-contrast video {
+  filter: contrast(1.1);
+}
+
+/* Accessibility: Reduce Motion */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Animation delay utilities for particles */
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+.animation-delay-1500 {
+  animation-delay: 1500ms;
+}
+.animation-delay-2000 {
+  animation-delay: 2000ms;
+}
+.animation-delay-3000 {
+  animation-delay: 3000ms;
+}

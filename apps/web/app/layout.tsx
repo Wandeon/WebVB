@@ -2,6 +2,7 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import './globals.css';
 import { baseMetadata } from './metadata';
+import { CookieConsent } from '../components/cookie-consent';
 import { SiteFooter } from '../components/layout/footer';
 import { SiteHeader } from '../components/layout/header';
 
@@ -36,6 +37,7 @@ export default function RootLayout({
         <SiteHeader />
         <main id="main-content" className="flex-1">{children}</main>
         <SiteFooter />
+        <CookieConsent />
       </body>
     </html>
   );
