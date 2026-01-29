@@ -12,7 +12,6 @@ import {
   ExperienceCard,
   FadeIn,
   NewsletterSection,
-  PlaceHero,
   PostCard,
   QuickLinkCard,
   SectionHeader,
@@ -22,8 +21,8 @@ import Link from 'next/link';
 
 import { siteConfig } from './metadata';
 import { SmartDashboard } from '../components/smart-dashboard';
+import { VillageHero } from '../components/village-hero';
 import { experienceItems } from '../lib/experience-items';
-import { heroConfig } from '../lib/hero-config';
 import { quickLinks } from '../lib/quick-links';
 import { transparencyConfig } from '../lib/transparency-config';
 
@@ -66,16 +65,7 @@ export default async function HomePage() {
       <script type="application/ld+json">{JSON.stringify(organizationStructuredData)}</script>
 
       {/* Hero Section */}
-      <PlaceHero
-        imageSrc={heroConfig.imageSrc}
-        videoSrc={heroConfig.videoSrc}
-        videoSrcFallback={heroConfig.videoSrcFallback}
-        headline={heroConfig.headline}
-        subline={heroConfig.subline}
-        primaryCta={heroConfig.primaryCta}
-        secondaryCta={heroConfig.secondaryCta}
-        trustLine={heroConfig.trustLine}
-      />
+      <VillageHero />
 
       {/* Bento Quick Links with Visual Panel */}
       <section className="py-12 md:py-16 lg:py-20">
