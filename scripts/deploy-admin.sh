@@ -66,6 +66,10 @@ log "Building admin app..."
 pnpm --filter @repo/admin build
 
 log "Building web app (static export)..."
+# Ensure NEXT_PUBLIC_API_URL is set for client-side API calls
+export NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL:-http://100.120.125.83:3001}"
+export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-http://100.120.125.83}"
+log "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL"
 pnpm --filter @repo/web build
 
 log "Reloading PM2 process..."

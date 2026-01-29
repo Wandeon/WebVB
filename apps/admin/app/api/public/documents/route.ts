@@ -1,11 +1,10 @@
 import { documentsRepository, type DocumentWithUploader } from '@repo/database';
 import { DOCUMENT_CATEGORIES } from '@repo/shared';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { documentsLogger } from '@/lib/logger';
-
-import type { NextRequest } from 'next/server';
 
 const categoryKeys = Object.keys(DOCUMENT_CATEGORIES) as [
   keyof typeof DOCUMENT_CATEGORIES,
@@ -27,7 +26,14 @@ const mapDocument = (doc: DocumentWithUploader) => ({
   createdAt: doc.createdAt,
 });
 
-export async function GET(request: NextRequest) {
+// Handle CORS preflight
+export function OPTIONS(request: Request) {
+  return corsResponse(request);
+}
+
+export async function GET(request: Request) {
+  const corsHeaders = getCorsHeaders(request);
+
   try {
     const { searchParams } = new URL(request.url);
     const queryResult = publicDocumentsQuerySchema.safeParse({
@@ -38,10 +44,9 @@ export async function GET(request: NextRequest) {
     });
 
     if (!queryResult.success) {
-      return apiError(
-        ErrorCodes.VALIDATION_ERROR,
-        'Nevaljani parametri upita',
-        400
+      return NextResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'Nevaljani parametri upita' } },
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -53,18 +58,23 @@ export async function GET(request: NextRequest) {
       documentsRepository.getCategoryCounts(year),
     ]);
 
-    return apiSuccess({
-      documents: documentsResult.documents.map(mapDocument),
-      pagination: documentsResult.pagination,
-      years,
-      counts,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          documents: documentsResult.documents.map(mapDocument),
+          pagination: documentsResult.pagination,
+          years,
+          counts,
+        },
+      },
+      { headers: corsHeaders }
+    );
   } catch (error) {
     documentsLogger.error({ error }, 'Greška prilikom dohvaćanja dokumenata');
-    return apiError(
-      ErrorCodes.INTERNAL_ERROR,
-      'Greška prilikom dohvaćanja dokumenata',
-      500
+    return NextResponse.json(
+      { success: false, error: { code: 'INTERNAL_ERROR', message: 'Greška prilikom dohvaćanja dokumenata' } },
+      { status: 500, headers: corsHeaders }
     );
   }
 }

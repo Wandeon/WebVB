@@ -98,9 +98,11 @@ export function DocumentsPageClient({ initialData }: DocumentsPageClientProps) {
   const rawPage = pageParam ? parseInt(pageParam, 10) : 1;
   const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
 
+  // Only use initial data if we have documents AND we're on page 1 with no filters
+  // For static export, initialData is empty, so we always fetch from API
   const shouldUseInitialData = useMemo(
-    () => page === 1 && !category && !year,
-    [category, page, year]
+    () => page === 1 && !category && !year && initialData.documents.length > 0,
+    [category, page, year, initialData.documents.length]
   );
 
   useEffect(() => {

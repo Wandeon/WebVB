@@ -1,4 +1,3 @@
-import { documentsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
@@ -41,33 +40,19 @@ function DocumentsPageFallback() {
   );
 }
 
-async function getInitialDocumentsData(): Promise<DocumentsPageInitialData> {
-  const [documentsResult, years, counts] = await Promise.all([
-    documentsRepository.findAll({ page: 1, limit: 20 }),
-    documentsRepository.getDistinctYears(),
-    documentsRepository.getCategoryCounts(),
-  ]);
+// For static export, we provide empty initial data
+// DocumentsPageClient will fetch from the admin API client-side
+const emptyInitialData: DocumentsPageInitialData = {
+  documents: [],
+  pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+  years: [],
+  counts: {},
+};
 
-  return {
-    documents: documentsResult.documents.map((doc) => ({
-      id: doc.id,
-      title: doc.title,
-      fileUrl: doc.fileUrl,
-      fileSize: doc.fileSize ?? 0,
-      createdAt: doc.createdAt.toISOString(),
-    })),
-    pagination: documentsResult.pagination,
-    years,
-    counts,
-  };
-}
-
-export default async function DocumentsPage() {
-  const initialData = await getInitialDocumentsData();
-
+export default function DocumentsPage() {
   return (
     <Suspense fallback={<DocumentsPageFallback />}>
-      <DocumentsPageClient initialData={initialData} />
+      <DocumentsPageClient initialData={emptyInitialData} />
     </Suspense>
   );
 }
