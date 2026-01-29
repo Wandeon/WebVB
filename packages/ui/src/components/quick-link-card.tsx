@@ -1,18 +1,38 @@
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  CalendarDays,
+  FileSearch,
+  FileText,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 
 import { cn } from '../lib/utils';
 
 import type { LucideIcon } from 'lucide-react';
 
+// Icon map for string-based icon names
+const iconMap: Record<string, LucideIcon> = {
+  alertTriangle: AlertTriangle,
+  calendarDays: CalendarDays,
+  fileSearch: FileSearch,
+  fileText: FileText,
+  trash2: Trash2,
+  users: Users,
+};
+
+export type QuickLinkIconName = keyof typeof iconMap;
 
 export interface QuickLinkCardProps {
   title: string;
   description: string;
   href: string;
-  icon: LucideIcon;
+  /** Icon name string (for server components) or direct icon component */
+  icon: QuickLinkIconName | LucideIcon;
   variant?: 'standard' | 'bento';
   size?: 'small' | 'large';
   className?: string;
@@ -22,7 +42,7 @@ export function QuickLinkCard({
   title,
   description,
   href,
-  icon: Icon,
+  icon,
   variant = 'standard',
   size = 'large',
   className,
@@ -30,6 +50,9 @@ export function QuickLinkCard({
   const isExternal = href.startsWith('http');
   const isBento = variant === 'bento';
   const isLarge = size === 'large';
+
+  // Resolve icon - can be a string name or direct component
+  const Icon = typeof icon === 'string' ? iconMap[icon] || FileText : icon;
 
   // Standard card styles (non-bento)
   if (!isBento) {

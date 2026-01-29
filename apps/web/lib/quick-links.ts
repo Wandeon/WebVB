@@ -1,19 +1,10 @@
-import {
-  AlertTriangle,
-  CalendarDays,
-  FileSearch,
-  FileText,
-  Trash2,
-  Users,
-} from 'lucide-react';
-
-import type { LucideIcon } from 'lucide-react';
+import type { QuickLinkIconName } from '@repo/ui';
 
 export interface QuickLink {
   title: string;
   description: string;
   href: string;
-  icon: LucideIcon;
+  icon: QuickLinkIconName;
   size: 'large' | 'small';
 }
 
@@ -39,42 +30,42 @@ export const quickLinks: QuickLink[] = [
     title: 'Prijava problema',
     description: 'Prijavite komunalne probleme brzo i jednostavno. Pratite status vaše prijave u realnom vremenu.',
     href: '/prijava-problema',
-    icon: AlertTriangle,
+    icon: 'alertTriangle',
     size: 'large',
   },
   {
     title: 'Odvoz otpada',
     description: 'Raspored odvoza i upute za razvrstavanje',
     href: '/odvoz-otpada',
-    icon: Trash2,
+    icon: 'trash2',
     size: 'large',
   },
   {
     title: 'Dokumenti',
     description: 'Službeni dokumenti i obrasci',
     href: '/dokumenti',
-    icon: FileSearch,
+    icon: 'fileSearch',
     size: 'small',
   },
   {
     title: 'Događanja',
     description: 'Kalendar događanja',
     href: '/dogadanja',
-    icon: CalendarDays,
+    icon: 'calendarDays',
     size: 'small',
   },
   {
     title: 'Natječaji',
     description: 'Aktivni natječaji i javni pozivi',
     href: '/natjecaji',
-    icon: FileText,
+    icon: 'fileText',
     size: 'small',
   },
   {
     title: 'Financiranje udruga',
     description: 'Podrška udrugama civilnog društva',
     href: '/rad-uprave/udruge',
-    icon: Users,
+    icon: 'users',
     size: 'small',
   },
 ];
