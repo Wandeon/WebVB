@@ -1,35 +1,67 @@
 import { PageLayout } from '@/components/page-layout';
+import { InfoBox } from '@/components/mdx/info-box';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Financiranje udruga',
   description: 'Informacije o financiranju programa i projekata udruga od interesa za opće dobro',
 };
 
-<PageLayout title="Financiranje udruga" section="rad-uprave">
+<PageLayout
+  title="Financiranje udruga"
+  subtitle="Podrška udrugama civilnog društva"
+  section="rad-uprave"
+>
 
 Općina Veliki Bukovec redovito raspisuje javne natječaje za financiranje programa i projekata udruga koje su od interesa za opće dobro na području Općine.
+
+<InfoBox variant="info" title="Aktualni natječaji">
+
+Aktualni natječaji za financiranje udruga objavljuju se u sekciji [Natječaji](/natjecaji). Pratite objave kako ne biste propustili rok za prijavu!
+
+</InfoBox>
 
 ## Ciljevi financiranja
 
 Financijska sredstva dodjeljuju se udrugama koje svojim radom doprinose:
-- Unapređenju kvalitete života mještana
-- Očuvanju tradicije i kulturne baštine
-- Razvoju sporta i rekreacije
-- Zaštiti okoliša
-- Humanitarnom djelovanju
 
-## Dokumentacija
+- **Unapređenju kvalitete života** mještana
+- **Očuvanju tradicije** i kulturne baštine
+- **Razvoju sporta** i rekreacije
+- **Zaštiti okoliša** i održivom razvoju
+- **Humanitarnom djelovanju** i socijalnoj skrbi
+
+## Potrebna dokumentacija
 
 Za prijavu na natječaj potrebno je dostaviti:
-1. Ispunjen obrazac prijave
-2. Detaljan opis programa/projekta
-3. Financijski plan
-4. Dokaz o registraciji udruge
 
-*Napomena: Aktualni natječaji objavljuju se u sekciji [Natječaji](/natjecaji).*
+| Br. | Dokument |
+|-----|----------|
+| 1. | Ispunjen obrazac prijave |
+| 2. | Detaljan opis programa/projekta |
+| 3. | Financijski plan s razradom troškova |
+| 4. | Dokaz o registraciji udruge (izvadak iz registra) |
+| 5. | Potvrda o nekažnjavanju odgovorne osobe |
 
-## Izvještavanje
+<InfoBox variant="warning" title="Izvještavanje">
 
-Korisnici sredstava dužni su Općini dostaviti izvješće o potrošnji sredstava i provedbi projekta u ugovorenom roku.
+Korisnici sredstava dužni su Općini dostaviti **izvješće o potrošnji sredstava** i provedbi projekta u ugovorenom roku. Neispunjavanje obveze izvještavanja može utjecati na buduće financiranje.
+
+</InfoBox>
+
+## Postupak prijave
+
+1. **Pratite objave** - Natječaji se objavljuju na stranici [Natječaji](/natjecaji)
+2. **Preuzmite dokumentaciju** - Obrasci su dostupni uz tekst natječaja
+3. **Pripremite prijavu** - Ispunite sve potrebne dokumente
+4. **Predajte prijavu** - U roku navedenom u natječaju
+
+<CTASection
+  title="Imate pitanja?"
+  description="Za sve informacije o financiranju udruga obratite se Jedinstvenom upravnom odjelu."
+  primaryAction={{ label: "Kontaktirajte nas", href: "/kontakt" }}
+  secondaryAction={{ label: "Natječaji", href: "/natjecaji" }}
+  variant="subtle"
+/>
 
 </PageLayout>
