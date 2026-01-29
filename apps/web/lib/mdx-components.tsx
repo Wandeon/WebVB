@@ -12,7 +12,14 @@ import { Stat, StatsRow } from '@/components/mdx/stats-row';
 import { Timeline, TimelineItem } from '@/components/mdx/timeline';
 
 import type { MDXComponents } from 'mdx/types';
-import type { AnchorHTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react';
+import type {
+  AnchorHTMLAttributes,
+  HTMLAttributes,
+  ImgHTMLAttributes,
+  ReactNode,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from 'react';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -38,6 +45,46 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         height={450}
         className="rounded-xl shadow-lg"
       />
+    ),
+
+    // Table styling
+    table: ({ children, ...props }: HTMLAttributes<HTMLTableElement>) => (
+      <div className="my-6 overflow-x-auto rounded-lg border border-neutral-200">
+        <table
+          className="w-full border-collapse text-left text-sm"
+          {...props}
+        >
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children, ...props }: HTMLAttributes<HTMLTableSectionElement>) => (
+      <thead className="bg-neutral-50" {...props}>
+        {children}
+      </thead>
+    ),
+    tbody: ({ children, ...props }: HTMLAttributes<HTMLTableSectionElement>) => (
+      <tbody className="divide-y divide-neutral-200" {...props}>
+        {children}
+      </tbody>
+    ),
+    tr: ({ children, ...props }: HTMLAttributes<HTMLTableRowElement>) => (
+      <tr className="hover:bg-neutral-50 transition-colors" {...props}>
+        {children}
+      </tr>
+    ),
+    th: ({ children, ...props }: ThHTMLAttributes<HTMLTableCellElement>) => (
+      <th
+        className="px-4 py-3 font-semibold text-neutral-900 border-b border-neutral-200"
+        {...props}
+      >
+        {children}
+      </th>
+    ),
+    td: ({ children, ...props }: TdHTMLAttributes<HTMLTableCellElement>) => (
+      <td className="px-4 py-3 text-neutral-600" {...props}>
+        {children}
+      </td>
     ),
 
     // Custom MDX Components - Import these in MDX files
