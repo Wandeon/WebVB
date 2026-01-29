@@ -107,7 +107,7 @@ export default async function HomePage() {
       </section>
 
       {/* News + Events Strip */}
-      <section className="bg-neutral-100 py-12 md:py-16">
+      <section className="overflow-x-hidden bg-neutral-100 py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 lg:grid-cols-[1fr_minmax(320px,380px)]">
             {/* News Column */}
