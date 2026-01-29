@@ -5,7 +5,7 @@ import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Rad uprave',
-  description: 'Usluge i rad Općinske uprave Veliki Bukovec - komunalno, udruge, javna nabava',
+  description: 'Usluge i rad Općinske uprave Veliki Bukovec - komunalno, udruge, javna nabava, obrasci',
 };
 
 <PageLayout
@@ -14,12 +14,12 @@ export const metadata = {
   section="rad-uprave"
 >
 
-Općinska uprava Veliki Bukovec pruža širok spektar usluga za naše građane, udruge i poslovne subjekte. Ovdje možete pronaći informacije o komunalnim uslugama, financiranju udruga, javnoj nabavi i mnogo više.
+Općinska uprava Veliki Bukovec pruža širok spektar usluga za naše građane, udruge i poslovne subjekte.
 
 <LinkCardGrid columns={2}>
   <LinkCard
     title="Komunalno gospodarstvo"
-    description="Odvoz otpada, održavanje javnih površina, komunalna infrastruktura i ostale komunalne usluge."
+    description="Dimnjačarski poslovi, groblje, komunalna infrastruktura i ostale komunalne usluge."
     href="/rad-uprave/komunalno"
     icon="tree"
     delay={0}
@@ -32,26 +32,68 @@ Općinska uprava Veliki Bukovec pruža širok spektar usluga za naše građane, 
     delay={0.1}
   />
   <LinkCard
-    title="Kutak za mještane"
-    description="Praktične informacije, obrasci i upute za svakodnevne potrebe naših građana."
-    href="/rad-uprave/mjestani"
-    icon="building"
+    title="Odvoz otpada"
+    description="Raspored odvoza otpada, reciklažno dvorište i informacije o gospodarenju otpadom."
+    href="/odvoz-otpada"
+    icon="calendar"
     delay={0.2}
   />
   <LinkCard
-    title="Registri i ugovori"
-    description="Javno dostupni registri, ugovori i drugi dokumenti u skladu sa zakonom."
-    href="/rad-uprave/registri"
-    icon="scroll"
+    title="Prijava problema"
+    description="Prijavite komunalne probleme - oštećenja cesta, rasvjete, divlja odlagališta."
+    href="/prijava-problema"
+    icon="alert"
     delay={0.3}
   />
 </LinkCardGrid>
 
-<InfoBox variant="info" title="Javna nabava">
+## Obrasci i zahtjevi za građane
 
-Sve informacije o javnoj nabavi Općine Veliki Bukovec dostupne su na portalu [Elektronički oglasnik javne nabave](https://eojn.nn.hr/). Tamo možete pronaći aktualne natječaje, dokumentaciju i rezultate postupaka.
+Ovdje možete pronaći informacije o najčešćim zahtjevima i obrascima.
+
+### Komunalno
+- Zahtjev za priključenje na komunalnu infrastrukturu
+- Prijava komunalnog nereda
+- Zahtjev za korištenje javne površine
+
+### Socijalna skrb
+- Zahtjev za jednokratnu novčanu pomoć
+- Zahtjev za sufinanciranje troškova stanovanja (ogrjev)
+- Zahtjev za naknadu za novorođenčad
+
+### Ostalo
+- Zahtjev za izdavanje potvrda
+- [Pristup informacijama](/dokumenti/pravo-na-pristup-informacijama)
+
+<InfoBox variant="info" title="Preuzimanje obrazaca">
+
+Za preuzimanje obrazaca i podnošenje zahtjeva posjetite stranicu [Pristup informacijama](/dokumenti/pravo-na-pristup-informacijama) ili nas kontaktirajte direktno.
 
 </InfoBox>
+
+## Javna nabava i transparentnost
+
+<InfoBox variant="info" title="Elektronički oglasnik javne nabave">
+
+Sve informacije o javnoj nabavi Općine Veliki Bukovec dostupne su na portalu [Elektronički oglasnik javne nabave (EOJN)](https://eojn.nn.hr/). Tamo možete pronaći aktualne natječaje, dokumentaciju i rezultate postupaka.
+
+</InfoBox>
+
+U svrhu transparentnosti rada objavljujemo:
+- **Plan nabave** - dostupan u [proračunskim dokumentima](/dokumenti?kategorija=proracun)
+- **Registar ugovora** - popis sklopljenih ugovora
+- **Sponzorstva i donacije** - isplate udrugama i korisnicima proračunskih sredstava
+
+## Česta pitanja
+
+**Kako mogu prijaviti komunalni problem?**
+Koristite obrazac za [prijavu problema](/prijava-problema) ili nas kontaktirajte telefonom na 042 719 001.
+
+**Gdje mogu dobiti potvrdu o prebivalištu?**
+Potvrde o prebivalištu izdaje Policijska postaja Ludbreg.
+
+**Koje je radno vrijeme Općine?**
+Ponedjeljak - Petak, 07:00 - 15:00 sati.
 
 <CTASection
   title="Trebate pomoć?"
