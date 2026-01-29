@@ -1,28 +1,75 @@
 import { PageLayout } from '@/components/page-layout';
+import { InfoBox } from '@/components/mdx/info-box';
+import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Odvoz otpada',
   description: 'Raspored i informacije o odvozu otpada na području Općine Veliki Bukovec',
 };
 
-<PageLayout title="Odvoz otpada">
+<PageLayout
+  title="Odvoz otpada"
+  subtitle="Gospodarenje otpadom na području Općine"
+  section="rad-uprave"
+>
 
-Informacije o gospodarenju otpadom na području Općine Veliki Bukovec.
+Pravilno gospodarenje otpadom ključno je za očuvanje okoliša. Ovdje možete pronaći sve potrebne informacije o odvozu otpada, razvrstavanju i recikliranju.
 
-## Raspored odvoza
+<InfoBox variant="warning" title="Raspored odvoza">
 
-Sakupljanje miješanog komunalnog otpada obavlja davatelj javne usluge prema godišnjem rasporedu.
+Sakupljanje miješanog komunalnog otpada obavlja davatelj javne usluge prema godišnjem rasporedu. Za aktualan raspored kontaktirajte Općinu.
 
-*   [Raspored odvoza otpada za 2022. godinu (PDF)](https://velikibukovec.hr/raspored-odvoza-otpada-za-2022-godinu/) (Vanjska poveznica - Provjerite s općinom za noviji raspored)
+[Provjeri raspored (vanjska poveznica) →](https://velikibukovec.hr/raspored-odvoza-otpada-za-2022-godinu/)
+
+</InfoBox>
 
 ## Razvrstavanje otpada
 
-*   [Letak - Razvrstavanje otpada u kućanstvu (PDF)](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/Letak-za-razvrstavanje-otpada-u-kučanstvu.pdf)
-*   [Razvrstavanje otpada u zelene otoke (PDF)](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/LETAK-RAZVRSTAVANJE-OTPADA....pdf)
+Pravilno razvrstavanje otpada pomaže u recikliranju i smanjenju količine otpada na odlagalištima.
 
-## Dokumenti
+<LinkCardGrid columns={2}>
+  <LinkCard
+    title="Razvrstavanje u kućanstvu"
+    description="Upute kako pravilno razvrstavati otpad kod kuće - papir, plastika, staklo, bio otpad."
+    href="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/Letak-za-razvrstavanje-otpada-u-kučanstvu.pdf"
+    icon="scroll"
+    delay={0}
+  />
+  <LinkCard
+    title="Zeleni otoci"
+    description="Kako koristiti zelene otoke za odlaganje reciklabilnog otpada u vašem susjedstvu."
+    href="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/LETAK-RAZVRSTAVANJE-OTPADA....pdf"
+    icon="tree"
+    delay={0.1}
+  />
+</LinkCardGrid>
 
-*   [Plan gospodarenja otpadom Općine Veliki Bukovec za razdoblje 2017.-2023. (PDF)](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/Plan-gospodarenja-otpadom-u-opcini-veliki-bukovec-za-razdoblje-2017-2023.pdf)
-*   [Odluka o dodjeli obavljanja javne usluge prikupljanja miješanog komunalnog otpada (PDF)](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/Odluka-o-dodjeli-obavljanja-javne-usluge-prikupljanja-miješanog-komunalnog-otpada-na-području-Općine-Veliki-Bukovec.pdf)
+<InfoBox variant="info" title="Vrste otpada">
+
+| Vrsta otpada | Boja posude | Primjeri |
+|--------------|-------------|----------|
+| **Papir i karton** | Plava | Novine, kutije, časopisi |
+| **Plastika** | Žuta | Boce, folije, plastična ambalaža |
+| **Staklo** | Zelena | Boce, staklenke (bez poklopaca) |
+| **Bio otpad** | Smeđa | Ostaci hrane, vrtni otpad |
+| **Miješani otpad** | Crna/siva | Ostali nereciklabilni otpad |
+
+</InfoBox>
+
+## Dokumenti i propisi
+
+| Dokument | Preuzimanje |
+|----------|-------------|
+| Plan gospodarenja otpadom 2017.-2023. | [PDF](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/Plan-gospodarenja-otpadom-u-opcini-veliki-bukovec-za-razdoblje-2017-2023.pdf) |
+| Odluka o dodjeli javne usluge prikupljanja otpada | [PDF](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/Odluka-o-dodjeli-obavljanja-javne-usluge-prikupljanja-miješanog-komunalnog-otpada-na-području-Općine-Veliki-Bukovec.pdf) |
+
+<CTASection
+  title="Imate pitanja o odvozu otpada?"
+  description="Kontaktirajte nas za informacije o rasporedu, razvrstavanju ili prijavite problem s odvozom."
+  primaryAction={{ label: "Kontaktirajte nas", href: "/kontakt" }}
+  secondaryAction={{ label: "Prijavi problem", href: "/prijava-problema" }}
+  variant="subtle"
+/>
 
 </PageLayout>

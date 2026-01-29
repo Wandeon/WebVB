@@ -1,28 +1,70 @@
 import { PageLayout } from '@/components/page-layout';
+import { InfoBox } from '@/components/mdx/info-box';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Natječaji',
   description: 'Aktualni natječaji i javni pozivi Općine Veliki Bukovec',
 };
 
-<PageLayout title="Natječaji" section="natjecaji">
+<PageLayout
+  title="Natječaji"
+  subtitle="Javni pozivi, natječaji i obavijesti"
+  section="natjecaji"
+>
 
-Pregled aktualnih natječaja, javnih poziva i obavijesti Općine Veliki Bukovec.
+Pratite aktualne natječaje i javne pozive Općine Veliki Bukovec. Ovdje objavljujemo sve mogućnosti financiranja, zapošljavanja i suradnje.
 
-## Aktualni natječaji
+<InfoBox variant="warning" title="Aktualni natječaji">
 
-*Trenutno nema aktivnih natječaja.*
+**Trenutno nema aktivnih natječaja.**
 
-## Zatvoreni natječaji (Arhiva)
+Pratite ovu stranicu za nove objave ili se pretplatite na obavijesti putem emaila.
+
+</InfoBox>
+
+## Vrste natječaja
+
+| Vrsta | Opis | Obično raspisano |
+|-------|------|------------------|
+| **Financiranje udruga** | Javni pozivi za projekte udruga civilnog društva | Početak godine |
+| **Studentske stipendije** | Natječaj za dodjelu stipendija studentima | Rujan/Listopad |
+| **Prodaja nekretnina** | Natječaji za prodaju općinske imovine | Po potrebi |
+| **Sufinanciranje obnova** | Potpore za energetsku obnovu kuća | Proljeće |
+
+<InfoBox variant="info" title="Kako se prijaviti?">
+
+1. Pročitajte uvjete natječaja
+2. Preuzmite obrasce za prijavu
+3. Pripremite potrebnu dokumentaciju
+4. Predajte prijavu u navedenom roku
+
+Za pitanja o natječajima kontaktirajte Jedinstveni upravni odjel.
+
+</InfoBox>
+
+## Arhiva natječaja
 
 ### 2025.
 
-- Javni poziv za financiranje programa udruga
-- Natječaj za dodjelu studentskih stipendija
+| Natječaj | Status |
+|----------|--------|
+| Javni poziv za financiranje programa udruga | Završen |
+| Natječaj za dodjelu studentskih stipendija | Završen |
 
 ### 2024.
 
-- Natječaj za prodaju nekretnina u vlasništvu Općine
-- Javni poziv za sufinanciranje energetske obnove obiteljskih kuća
+| Natječaj | Status |
+|----------|--------|
+| Natječaj za prodaju nekretnina u vlasništvu Općine | Završen |
+| Javni poziv za sufinanciranje energetske obnove obiteljskih kuća | Završen |
+
+<CTASection
+  title="Imate pitanja o natječajima?"
+  description="Kontaktirajte nas za dodatne informacije o uvjetima, dokumentaciji i rokovima prijave."
+  primaryAction={{ label: "Kontaktirajte nas", href: "/kontakt" }}
+  secondaryAction={{ label: "Financiranje udruga", href: "/rad-uprave/udruge" }}
+  variant="subtle"
+/>
 
 </PageLayout>

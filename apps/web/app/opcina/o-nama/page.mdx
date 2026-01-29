@@ -1,35 +1,79 @@
 import { PageLayout } from '@/components/page-layout';
+import { StatsRow } from '@/components/mdx/stats-row';
+import { InfoBox } from '@/components/mdx/info-box';
+import { FeatureSection } from '@/components/mdx/feature-section';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'O općini',
   description: 'Opće informacije o Općini Veliki Bukovec',
 };
 
-<PageLayout title="O općini" section="opcina">
+<PageLayout
+  title="O općini"
+  subtitle="Upoznajte Općinu Veliki Bukovec"
+  section="opcina"
+>
 
-Općina Veliki Bukovec smještena je na ušću rijeke Plitvice u rijeku Dravu, na krajnjem istoku Varaždinske županije. Zauzima površinu od **26,17 km²** i broji **1358 stanovnika** (prema popisu iz 2021. godine).
+<StatsRow stats={[
+  { value: "1358", label: "Stanovnika" },
+  { value: "26,17 km²", label: "Površina" },
+  { value: "3", label: "Naselja" },
+  { value: "4. lis.", label: "Dan Općine" }
+]} />
 
-Općina se sastoji od tri naselja:
-- **Veliki Bukovec** (sjedište općine)
-- **Dubovica**
-- **Kapela Podravska**
+Općina Veliki Bukovec smještena je na ušću rijeke Plitvice u rijeku Dravu, na krajnjem istoku Varaždinske županije. Poznata po cvjećarstvu i bogatoj kulturnoj baštini, naša općina spaja tradiciju s modernim načinom života.
 
-## Zemljopisni položaj
+## Naselja
 
-Područje općine nalazi se u nizinskom dijelu Podravine, karakterističnom po plodnom tlu i blizini rijeke Drave, što je kroz povijest oblikovalo način života i gospodarstvo ovog kraja. Rijeka Plitvica, koja protječe kroz općinu, dijeli selo Dubovica na dva dijela i ulijeva se u Dravu nedaleko od Velikog Bukovca.
+| Naselje | Opis |
+|---------|------|
+| **Veliki Bukovec** | Sjedište općine, dom baroknog dvorca Drašković |
+| **Dubovica** | Podijeljena rijekom Plitvica na dva dijela |
+| **Kapela Podravska** | Mirno podravsko selo s poljoprivrednom tradicijom |
 
-## Stanovništvo
+<FeatureSection
+  title="Zemljopisni položaj"
+  image="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/plitvica_dubovica-1024x498.jpg"
+  imageAlt="Rijeka Plitvica kod Dubovice"
+  imagePosition="right"
+  background="light"
+>
 
-Prema popisu stanovništva iz 2021. godine, Općina Veliki Bukovec ima 1358 stanovnika. Stanovništvo se pretežito bavi poljoprivredom, posebice cvjećarstvom, po čemu je ovaj kraj poznat u cijeloj Hrvatskoj i šire.
+Područje općine nalazi se u nizinskom dijelu Podravine, karakterističnom po plodnom tlu i blizini rijeke Drave. Rijeka Plitvica, koja protječe kroz općinu, dijeli selo Dubovica na dva dijela i ulijeva se u Dravu nedaleko od Velikog Bukovca.
 
-## Gospodarstvo
+**Geografske značajke:**
+- Nizinski dio Podravine
+- Plodno poljoprivredno tlo
+- Blizina rijeke Drave
+- Rijeka Plitvica (65 km dugačka)
 
-Gospodarstvo općine temelji se na poljoprivrednoj proizvodnji. Plodno tlo i povoljni klimatski uvjeti omogućili su razvoj **cvjećarstva**, koje je danas zaštitni znak ovog kraja. Uzgoj cvijeća i ukrasnog bilja najvažnija je gospodarska grana koja zapošljava značajan dio stanovništva.
+</FeatureSection>
 
-Uz poljoprivredu, razvija se i malo poduzetništvo te obrtništvo.
+## Stanovništvo i gospodarstvo
 
-## Dan Općine
+Prema popisu stanovništva iz 2021. godine, Općina Veliki Bukovec ima **1358 stanovnika**. Stanovništvo se pretežito bavi poljoprivredom, posebice cvjećarstvom.
 
-Dan Općine Veliki Bukovec slavi se **4. listopada**, na blagdan svetog Franje Asiškog, zaštitnika župe Veliki Bukovec.
+<InfoBox variant="info" title="Cvjećarstvo - zaštitni znak">
+
+Gospodarstvo općine temelji se na **cvjećarstvu** - uzgoju cvijeća i ukrasnog bilja. Ova tradicija traje više od stoljeća i čini Veliki Bukovec prepoznatljivim diljem Hrvatske i šire. Plodno tlo i povoljni klimatski uvjeti idealni su za ovu djelatnost.
+
+</InfoBox>
+
+Uz cvjećarstvo, razvija se i malo poduzetništvo te obrtništvo.
+
+<InfoBox variant="warning" title="Dan Općine - 4. listopada">
+
+Dan Općine Veliki Bukovec slavi se **4. listopada**, na blagdan **svetog Franje Asiškog**, zaštitnika župe Veliki Bukovec. Toga dana organiziraju se svečane manifestacije i kulturni programi.
+
+</InfoBox>
+
+<CTASection
+  title="Želite saznati više?"
+  description="Istražite bogatu povijest našeg kraja ili otkrijte turističke znamenitosti."
+  primaryAction={{ label: "Povijest", href: "/opcina/povijest" }}
+  secondaryAction={{ label: "Turizam", href: "/opcina/turizam" }}
+  variant="subtle"
+/>
 
 </PageLayout>

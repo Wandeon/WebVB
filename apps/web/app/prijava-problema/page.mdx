@@ -1,23 +1,96 @@
 import { PageLayout } from '@/components/page-layout';
+import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { InfoBox } from '@/components/mdx/info-box';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Prijavite problem',
   description: 'Prijavite komunalne probleme na području Općine Veliki Bukovec',
 };
 
-<PageLayout title="Prijavite problem">
+<PageLayout
+  title="Prijavite problem"
+  subtitle="Pomozite nam održati našu općinu urednom i sigurnom"
+  section="rad-uprave"
+>
 
-Poštovani stanovnici Općine Veliki Bukovec,
+Vaše prijave pomažu nam brže reagirati na komunalne probleme. Putem online sustava možete jednostavno prijaviti probleme i pratiti njihovo rješavanje.
 
-Na sljedećem linku možete prijaviti:
-*   Kvarove na javnoj rasvjeti
-*   Klizišta
-*   Oštećenja na cestama
-*   Zapuštene površine
-*   Nelegalni otpad
+<InfoBox variant="info" title="Online sustav prijave">
 
-[PRIJAVA PROBLEMA (Geoforum)](http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems)
+Za prijavu problema koristimo sustav **Geoforum** koji omogućuje precizno označavanje lokacije i praćenje statusa vaše prijave.
 
-[Upute za korištenje (PDF)](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/LOCALIS_Geoforum_korisnik.pdf)
+[Prijavite problem (Geoforum) →](http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems)
+
+</InfoBox>
+
+## Vrste problema koje možete prijaviti
+
+<LinkCardGrid columns={3}>
+  <LinkCard
+    title="Javna rasvjeta"
+    description="Neispravne lampe, oštećeni stupovi ili nedostatna rasvjeta na javnim površinama."
+    href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
+    icon="alert"
+    delay={0}
+  />
+  <LinkCard
+    title="Oštećenja cesta"
+    description="Rupe na cestama, oštećeni nogostupi, problemi s odvodnjavanjem."
+    href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
+    icon="building"
+    delay={0.1}
+  />
+  <LinkCard
+    title="Nelegalni otpad"
+    description="Divlja odlagališta, nepravilno odbačen otpad ili problemi s kontejnerima."
+    href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
+    icon="tree"
+    delay={0.2}
+  />
+</LinkCardGrid>
+
+<LinkCardGrid columns={2}>
+  <LinkCard
+    title="Zapuštene površine"
+    description="Neodržavane javne površine, prerasla vegetacija, oštećene klupe ili igrališta."
+    href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
+    icon="tree"
+    delay={0.3}
+  />
+  <LinkCard
+    title="Klizišta i opasnosti"
+    description="Klizišta, opasna stabla, urušavanja ili druge sigurnosne prijetnje."
+    href="http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems"
+    icon="alert"
+    delay={0.4}
+  />
+</LinkCardGrid>
+
+## Kako prijaviti problem?
+
+| Korak | Opis |
+|-------|------|
+| **1.** | Otvorite [Geoforum sustav](http://localismarket.gdi.net/Forum/opcina-veliki-bukovec/Issues#/allItems) |
+| **2.** | Označite lokaciju problema na karti |
+| **3.** | Odaberite vrstu problema |
+| **4.** | Opišite problem i priložite fotografiju (opcionalno) |
+| **5.** | Pošaljite prijavu |
+
+<InfoBox variant="warning" title="Upute za korištenje">
+
+Detaljne upute za korištenje sustava Geoforum možete preuzeti u PDF formatu.
+
+[Preuzmite upute (PDF) →](https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/LOCALIS_Geoforum_korisnik.pdf)
+
+</InfoBox>
+
+<CTASection
+  title="Hitni problemi?"
+  description="Za hitne komunalne probleme možete nas kontaktirati i telefonom."
+  primaryAction={{ label: "Kontaktirajte nas", href: "/kontakt" }}
+  secondaryAction={{ label: "Komunalno", href: "/rad-uprave/komunalno" }}
+  variant="subtle"
+/>
 
 </PageLayout>

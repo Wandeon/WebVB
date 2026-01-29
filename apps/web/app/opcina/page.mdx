@@ -1,23 +1,67 @@
 import { PageLayout } from '@/components/page-layout';
+import { LinkCard, LinkCardGrid } from '@/components/mdx/link-card';
+import { StatsRow } from '@/components/mdx/stats-row';
+import { InfoBox } from '@/components/mdx/info-box';
+import { CTASection } from '@/components/mdx/cta-section';
 
 export const metadata = {
   title: 'Općina',
   description: 'Općina Veliki Bukovec - o nama, povijest i turizam',
 };
 
-<PageLayout title="Općina Veliki Bukovec" section="opcina">
+<PageLayout
+  title="Općina Veliki Bukovec"
+  subtitle="Dobrodošli u srce podravskog cvjećarstva"
+  section="opcina"
+  heroImage="https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp"
+  heroImageAlt="Dvorac Drašković u Velikom Bukovcu"
+>
 
-Dobrodošli na službene stranice Općine Veliki Bukovec. U ovom odjeljku možete saznati više o našoj općini, njezinoj bogatoj povijesti i turističkoj ponudi.
+<StatsRow stats={[
+  { value: "1358", label: "Stanovnika" },
+  { value: "26 km²", label: "Površina" },
+  { value: "3", label: "Naselja" },
+  { value: "270+", label: "Godina tradicije" }
+]} />
 
-## Upoznajte Općinu
+Općina Veliki Bukovec smještena je na ušću rijeke Plitvice u rijeku Dravu, na krajnjem istoku Varaždinske županije. Poznata po uzgoju cvijeća, bogatoj kulturnoj baštini i baroknom dvorcu obitelji Drašković.
 
-### [O općini](/opcina/o-nama)
-Osnovne informacije o općini, stanovništvu i naseljima.
+<LinkCardGrid columns={3}>
+  <LinkCard
+    title="O općini"
+    description="Osnovne informacije o općini, stanovništvu, naseljima i gospodarstvu našeg kraja."
+    href="/opcina/o-nama"
+    icon="building"
+    delay={0}
+  />
+  <LinkCard
+    title="Povijest"
+    description="Upoznajte bogatu povijest obitelji Drašković i njihov barokni dvorac iz 18. stoljeća."
+    href="/opcina/povijest"
+    icon="scroll"
+    delay={0.1}
+  />
+  <LinkCard
+    title="Turizam"
+    description="Otkrijte prirodne ljepote, dvorac, perivoj i znamenitosti Velikog Bukovca."
+    href="/opcina/turizam"
+    icon="map"
+    delay={0.2}
+  />
+</LinkCardGrid>
 
-### [Povijest](/opcina/povijest)
-Saznajte više o povijesti našeg kraja, obitelji Drašković i dvorcu.
+<InfoBox variant="info" title="Cvjećarski kraj">
 
-### [Turizam](/opcina/turizam)
-Otkrijte prirodne ljepote i znamenitosti Velikog Bukovca.
+Veliki Bukovec poznat je kao **centar hrvatskog cvjećarstva**. Plodno tlo i povoljni klimatski uvjeti omogućili su razvoj ove tradicije koja traje već više od stoljeća.
+
+</InfoBox>
+
+<CTASection
+  title="Posjetite nas"
+  description="Doživite spoj bogate povijesti, prirodnih ljepota i gostoljubivosti podravskog kraja."
+  primaryAction={{ label: "Kontaktirajte nas", href: "/kontakt" }}
+  secondaryAction={{ label: "Turizam", href: "/opcina/turizam" }}
+  variant="primary"
+/>
 
 </PageLayout>
