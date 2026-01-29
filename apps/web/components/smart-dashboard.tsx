@@ -1,6 +1,6 @@
 'use client';
 
-import { Cloud, CloudRain, CloudSun, MessageCircle, Phone, Sun } from 'lucide-react';
+import { CloudRain, CloudSun, MessageCircle, Phone, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 function LiveClock() {
