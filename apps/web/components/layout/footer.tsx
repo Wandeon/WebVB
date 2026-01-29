@@ -21,11 +21,11 @@ export function SiteFooter() {
             logo={
                 <Link href="/" className="flex items-center gap-3">
                     <Image
-                        src="/images/logo-large.png"
+                        src="/images/logo.png"
                         alt="Grb Općine Veliki Bukovec"
                         width={50}
                         height={64}
-                        className="h-16 w-auto brightness-0 invert"
+                        className="h-16 w-auto"
                     />
                     <span className="text-lg font-bold text-white uppercase tracking-wider">
                         {APP_NAME}

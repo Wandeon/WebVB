@@ -82,7 +82,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
 
       {/* Slide-out Panel */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-full max-w-sm transform bg-gradient-to-b from-white via-sky-50/50 to-blue-50/50 shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-full max-w-sm transform flex-col bg-white shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         role="dialog"
@@ -90,7 +90,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
         aria-label="Navigacija"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-sky-100 bg-white/80 px-4 py-4 backdrop-blur-sm">
+        <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 py-4">
           {logo && <div>{logo}</div>}
           <button
             onClick={() => setIsOpen(false)}
@@ -102,7 +102,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
         </div>
 
         {/* Navigation Groups */}
-        <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-6">
           <div className="space-y-6">
             {groups.map((group) => {
               const Icon = iconMap[group.icon] || Building2;
@@ -156,7 +156,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
         </div>
 
         {/* Contact Footer */}
-        <div className="border-t border-sky-100 bg-white/80 px-4 py-4 backdrop-blur-sm">
+        <div className="shrink-0 border-t border-neutral-200 bg-neutral-50 px-4 py-4">
           <div className="space-y-2 text-xs text-neutral-600">
             <a
               href="tel:042719033"

@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 interface Village {
@@ -178,28 +177,6 @@ export function VillageHero() {
             Tri sela. Jedna općina. Otkrijte ljepote Podravine.
           </motion.p>
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-            className={`mt-8 flex flex-wrap justify-center gap-4 transition-all duration-500 ${
-              hoveredIndex !== null ? 'opacity-0 pointer-events-none' : ''
-            }`}
-          >
-            <Link
-              href="/prijava-problema"
-              className="rounded-full bg-white px-8 py-3 font-semibold text-neutral-900 shadow-lg transition-all hover:bg-primary-50 hover:scale-105 hover:shadow-xl"
-            >
-              Prijava problema
-            </Link>
-            <Link
-              href="/dogadanja"
-              className="rounded-full border-2 border-white/80 px-8 py-3 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:scale-105"
-            >
-              Događanja
-            </Link>
-          </motion.div>
         </div>
 
         {/* Bottom: Village Cards */}
