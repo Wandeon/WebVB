@@ -68,3 +68,17 @@ export {
   type ProblemReportImage,
   type ProblemReportRecord,
 } from './problem-reports';
+
+export {
+  announcementsRepository,
+  type AnnouncementWithAuthor,
+  type AnnouncementWithAttachmentCount,
+  type FindAllAnnouncementsOptions,
+  type FindAllAnnouncementsResult,
+  type CreateAnnouncementData,
+  type UpdateAnnouncementData,
+  type AddAttachmentData,
+  type FindPublishedAnnouncementsOptions,
+  type FindPublishedAnnouncementsResult,
+  type PublishedAnnouncementSitemapEntry,
+} from './announcements';

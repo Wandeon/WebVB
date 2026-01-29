@@ -29,6 +29,7 @@ export const megaNavGroups: NavGroup[] = [
     icon: 'newspaper',
     items: [
       { title: 'Vijesti', href: '/vijesti' },
+      { title: 'Obavijesti', href: '/obavijesti' },
       { title: 'Dokumenti', href: '/dokumenti' },
       { title: 'Proračun', href: '/dokumenti?kategorija=proracun' },
       { title: 'Sjednice vijeća', href: '/dokumenti?kategorija=sjednice' },
@@ -82,6 +83,16 @@ export const mainNav: NavItem[] = [
     ],
   },
   {
+    title: 'Obavijesti',
+    href: '/obavijesti',
+    items: [
+      { title: 'Sve obavijesti', href: '/obavijesti' },
+      { title: 'Natječaji', href: '/obavijesti?kategorija=natjecaj' },
+      { title: 'Oglasi', href: '/obavijesti?kategorija=oglas' },
+      { title: 'Javni pozivi', href: '/obavijesti?kategorija=poziv' },
+    ],
+  },
+  {
     title: 'Dokumenti',
     href: '/dokumenti',
     items: [
@@ -111,7 +122,8 @@ export const footerLinks = [
   {
     title: 'Brze poveznice',
     items: [
-      { title: 'Natječaji', href: '/natjecaji' },
+      { title: 'Obavijesti', href: '/obavijesti' },
+      { title: 'Natječaji', href: '/obavijesti?kategorija=natjecaj' },
       { title: 'Prijava problema', href: '/prijava-problema' },
       { title: 'Odvoz otpada', href: '/odvoz-otpada' },
       { title: 'Pristup informacijama', href: '/dokumenti/pravo-na-pristup-informacijama' },

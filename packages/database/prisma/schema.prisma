@@ -36,8 +36,9 @@ model User {
   twoFactor TwoFactor?
 
   // Content relations
-  posts     Post[]
-  documents Document[]
+  posts         Post[]
+  documents     Document[]
+  announcements Announcement[]
 
   // Communication relations
   contactReplies     ContactMessage[] @relation("RepliedBy")
@@ -394,4 +395,48 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([createdAt(sort: Desc)])
   @@map("audit_log")
+}
+
+// ============================================================================
+// ANNOUNCEMENTS (OBAVIJESTI)
+// ============================================================================
+
+model Announcement {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String    @unique
+  content     String?   @db.Text
+  excerpt     String?
+  category    String    @default("obavijest") // 'natjecaj', 'oglas', 'poziv', 'obavijest'
+  validFrom   DateTime? @map("valid_from")
+  validUntil  DateTime? @map("valid_until")
+  publishedAt DateTime? @map("published_at")
+  authorId    String?   @map("author_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  author      User?                    @relation(fields: [authorId], references: [id])
+  attachments AnnouncementAttachment[]
+
+  @@index([category])
+  @@index([publishedAt(sort: Desc)])
+  @@index([validUntil])
+  @@index([authorId])
+  @@map("announcements")
+}
+
+model AnnouncementAttachment {
+  id             String   @id @default(uuid())
+  announcementId String   @map("announcement_id")
+  fileName       String   @map("file_name")
+  fileUrl        String   @map("file_url") // R2 URL
+  fileSize       Int      @map("file_size")
+  mimeType       String   @default("application/pdf") @map("mime_type")
+  sortOrder      Int      @default(0) @map("sort_order")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@index([announcementId, sortOrder])
+  @@map("announcement_attachments")
 }

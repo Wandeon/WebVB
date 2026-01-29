@@ -21,6 +21,20 @@ export {
 // Re-export post categories from dedicated file
 export { POST_CATEGORIES, POST_CATEGORY_OPTIONS, type PostCategory } from './categories';
 
+// Announcement categories
+export const ANNOUNCEMENT_CATEGORIES = {
+  natjecaj: 'Natječaj',
+  oglas: 'Oglas',
+  poziv: 'Javni poziv',
+  obavijest: 'Obavijest',
+} as const;
+
+export type AnnouncementCategory = keyof typeof ANNOUNCEMENT_CATEGORIES;
+
+export const ANNOUNCEMENT_CATEGORY_OPTIONS = Object.entries(ANNOUNCEMENT_CATEGORIES).map(
+  ([value, label]) => ({ value, label })
+);
+
 export const PROBLEM_TYPES = [
   'cesta',
   'rasvjeta',

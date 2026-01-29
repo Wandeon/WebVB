@@ -7,6 +7,7 @@ export const AUDIT_ACTIONS = {
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
 
 export const AUDIT_ENTITY_TYPES = {
+  ANNOUNCEMENT: 'announcement',
   DOCUMENT: 'document',
   EVENT: 'event',
   GALLERY: 'gallery',

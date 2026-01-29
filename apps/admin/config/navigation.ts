@@ -1,4 +1,5 @@
 import {
+  Bell,
   CalendarDays,
   FileText,
   Image,
@@ -45,6 +46,11 @@ export const adminNavigation: NavSection[] = [
         title: 'Objave',
         href: '/posts',
         icon: icon(FileText),
+      },
+      {
+        title: 'Obavijesti',
+        href: '/announcements',
+        icon: icon(Bell),
       },
       {
         title: 'Stranice',
