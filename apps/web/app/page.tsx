@@ -76,33 +76,90 @@ export default async function HomePage() {
         trustLine={heroConfig.trustLine}
       />
 
-      {/* Bento Quick Links */}
-      <section className="py-12 md:py-16">
+      {/* Bento Quick Links with Visual Panel */}
+      <section className="py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
-          <FadeIn>
-            <SectionHeader
-              title="Brze poveznice"
-              description="Pristupite najčešće korištenim uslugama"
-            />
-          </FadeIn>
-          <BentoGrid className="mt-6">
-            {quickLinks.slice(0, 6).map((link, index) => (
-              <BentoGridItem key={link.href} area={gridAreas[index] as 'a' | 'b' | 'c' | 'd' | 'e' | 'f'}>
-                <FadeIn delay={index * 0.05}>
-                  <QuickLinkCard
-                    title={link.title}
-                    description={link.description}
-                    href={link.href}
-                    icon={link.icon}
-                    variant="bento"
-                    color={link.color}
-                    size={link.size}
-                    className="h-full"
-                  />
-                </FadeIn>
-              </BentoGridItem>
-            ))}
-          </BentoGrid>
+          <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-8">
+            {/* Left: Visual Panel (hidden on mobile, shown on lg+) */}
+            <FadeIn className="hidden lg:block">
+              <div className="relative h-full min-h-[500px] overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 via-sky-600 to-sky-800">
+                {/* Background image with overlay */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
+                  style={{ backgroundImage: 'url(https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp)' }}
+                />
+                {/* Decorative circles */}
+                <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10" />
+                <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-white/5" />
+                <div className="absolute right-10 top-1/2 h-40 w-40 rounded-full bg-amber-400/20" />
+
+                {/* Content */}
+                <div className="relative z-10 flex h-full flex-col justify-between p-8 text-white">
+                  <div>
+                    <span className="inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
+                      Općina Veliki Bukovec
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h2 className="font-display text-4xl font-bold leading-tight xl:text-5xl">
+                      Brze<br />
+                      <span className="text-amber-300">poveznice</span>
+                    </h2>
+                    <p className="max-w-sm text-lg text-white/80">
+                      Pristupite najčešće korištenim uslugama i informacijama brzo i jednostavno.
+                    </p>
+                    <div className="flex items-center gap-4 pt-4">
+                      <div className="flex -space-x-2">
+                        <div className="h-10 w-10 rounded-full border-2 border-white bg-emerald-500 flex items-center justify-center text-xs font-bold">24h</div>
+                        <div className="h-10 w-10 rounded-full border-2 border-white bg-amber-500 flex items-center justify-center text-xs font-bold">7d</div>
+                        <div className="h-10 w-10 rounded-full border-2 border-white bg-rose-500 flex items-center justify-center text-xs font-bold">365</div>
+                      </div>
+                      <span className="text-sm text-white/70">Dostupno non-stop</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-white/60">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Varaždinska županija, Hrvatska</span>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Right: Bento Grid */}
+            <div>
+              {/* Mobile header (hidden on lg+) */}
+              <FadeIn className="mb-6 lg:hidden">
+                <SectionHeader
+                  title="Brze poveznice"
+                  description="Pristupite najčešće korištenim uslugama"
+                />
+              </FadeIn>
+
+              <BentoGrid>
+                {quickLinks.slice(0, 6).map((link, index) => (
+                  <BentoGridItem key={link.href} area={gridAreas[index] as 'a' | 'b' | 'c' | 'd' | 'e' | 'f'}>
+                    <FadeIn delay={index * 0.05} className="h-full flex-1">
+                      <QuickLinkCard
+                        title={link.title}
+                        description={link.description}
+                        href={link.href}
+                        icon={link.icon}
+                        variant="bento"
+                        color={link.color}
+                        size={link.size}
+                        className="h-full"
+                      />
+                    </FadeIn>
+                  </BentoGridItem>
+                ))}
+              </BentoGrid>
+            </div>
+          </div>
         </div>
       </section>
 

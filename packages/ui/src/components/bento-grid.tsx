@@ -76,7 +76,7 @@ const areaClasses: Record<string, string> = {
 
 export function BentoGridItem({ children, area, className }: BentoGridItemProps) {
   return (
-    <div className={cn(area && areaClasses[area], className)}>
+    <div className={cn(area && areaClasses[area], 'flex flex-col', className)}>
       {children}
     </div>
   );
