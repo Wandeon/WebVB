@@ -80,51 +80,92 @@ export default async function HomePage() {
       <section className="py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
           <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-8">
-            {/* Left: Visual Panel (hidden on mobile, shown on lg+) */}
+            {/* Left: Smart Municipality Dashboard (hidden on mobile, shown on lg+) */}
             <FadeIn className="hidden lg:block">
-              <div className="relative h-full min-h-[500px] overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 via-sky-600 to-sky-800">
-                {/* Background image with overlay */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
-                  style={{ backgroundImage: 'url(https://pub-920c291ea0c74945936ae9819993768a.r2.dev/migration/2015/02/dvorac-025.webp)' }}
-                />
-                {/* Decorative circles */}
-                <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10" />
-                <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-white/5" />
-                <div className="absolute right-10 top-1/2 h-40 w-40 rounded-full bg-amber-400/20" />
+              <div className="relative h-full min-h-[500px] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950">
+                {/* Subtle grid pattern */}
+                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
+
+                {/* Decorative elements */}
+                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
+                <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
 
                 {/* Content */}
-                <div className="relative z-10 flex h-full flex-col justify-between p-8 text-white">
-                  <div>
-                    <span className="inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
-                      Općina Veliki Bukovec
+                <div className="relative z-10 flex h-full flex-col p-6 text-white">
+
+                  {/* Header */}
+                  <div className="mb-6">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Pametna Općina
                     </span>
                   </div>
 
-                  <div className="space-y-4">
-                    <h2 className="font-display text-4xl font-bold leading-tight xl:text-5xl">
-                      Brze<br />
-                      <span className="text-amber-300">poveznice</span>
-                    </h2>
-                    <p className="max-w-sm text-lg text-white/80">
-                      Pristupite najčešće korištenim uslugama i informacijama brzo i jednostavno.
-                    </p>
-                    <div className="flex items-center gap-4 pt-4">
-                      <div className="flex -space-x-2">
-                        <div className="h-10 w-10 rounded-full border-2 border-white bg-emerald-500 flex items-center justify-center text-xs font-bold">24h</div>
-                        <div className="h-10 w-10 rounded-full border-2 border-white bg-amber-500 flex items-center justify-center text-xs font-bold">7d</div>
-                        <div className="h-10 w-10 rounded-full border-2 border-white bg-rose-500 flex items-center justify-center text-xs font-bold">365</div>
-                      </div>
-                      <span className="text-sm text-white/70">Dostupno non-stop</span>
+                  {/* Office Status */}
+                  <div className="mb-6 rounded-2xl bg-white/5 p-4 backdrop-blur-sm border border-white/10">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm text-white/60">Jedinstveni upravni odjel</span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-medium text-emerald-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        Otvoreno
+                      </span>
+                    </div>
+                    <div className="text-sm text-white/80">
+                      <p>Pon - Pet: 07:00 - 15:00</p>
+                      <p className="text-white/50 text-xs mt-1">Trg S. Radića 28, Veliki Bukovec</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-white/60">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span>Varaždinska županija, Hrvatska</span>
+                  {/* AI Assistant Placeholder */}
+                  <div className="flex-1 rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/20 p-4 backdrop-blur-sm border border-white/10">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center">
+                        <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm">Virtualni asistent</h3>
+                        <p className="text-xs text-white/50">Powered by AI</p>
+                      </div>
+                    </div>
+
+                    {/* Chat preview */}
+                    <div className="space-y-3 mb-4">
+                      <div className="flex gap-2">
+                        <div className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex-shrink-0 flex items-center justify-center">
+                          <span className="text-[10px]">AI</span>
+                        </div>
+                        <div className="rounded-2xl rounded-tl-sm bg-white/10 px-3 py-2 text-sm">
+                          Pozdrav! Kako vam mogu pomoći danas? 👋
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Input placeholder */}
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Postavite pitanje..."
+                        disabled
+                        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm placeholder:text-white/30 cursor-not-allowed"
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">Uskoro</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Emergency Contacts */}
+                  <div className="mt-6 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-4">
+                      <a href="tel:112" className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors">
+                        <span className="text-red-400">●</span> Hitna: 112
+                      </a>
+                      <a href="tel:042719033" className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors">
+                        <span className="text-sky-400">●</span> Općina: 042/719-033
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
