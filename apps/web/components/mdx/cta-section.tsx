@@ -48,7 +48,7 @@ export function CTASection({
 
   return (
     <FadeIn>
-      <div className={`my-8 rounded-2xl border p-8 text-center md:p-12 ${variantStyles[variant]}`}>
+      <div className={`not-prose my-8 rounded-2xl border p-8 text-center md:p-12 ${variantStyles[variant]}`}>
         <h3 className={`font-display text-2xl font-bold ${styles.title}`}>{title}</h3>
         {description && (
           <p className={`mx-auto mt-3 max-w-2xl ${styles.desc}`}>{description}</p>
