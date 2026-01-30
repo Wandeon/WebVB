@@ -21,7 +21,6 @@ import {
   FadeIn,
   FeaturedPostCard,
   GalleryShowcase,
-  NewsletterSection,
   PostCard,
   QuickLinkCard,
   SectionHeader,
@@ -30,6 +29,7 @@ import { ArrowRight, BarChart3, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 import { siteConfig } from './metadata';
+import { NewsletterSectionWithApi } from '../components/newsletter-section-with-api';
 import { SmartDashboard } from '../components/smart-dashboard';
 import { VillageHero } from '../components/village-hero';
 import { experienceItems } from '../lib/experience-items';
@@ -398,7 +398,7 @@ export default async function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <NewsletterSection />
+      <NewsletterSectionWithApi />
     </>
   );
 }
