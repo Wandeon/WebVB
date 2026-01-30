@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** Phase 4 Complete - Ready for Phase 5/6/7
-**Overall Progress:** 46/71 sprints (Phase 0-4 complete)
+**Active Sprint:** Sprint 6.4 (Self-Review Pipeline)
+**Overall Progress:** 58/67 sprints (87%) - Phase 0-5 complete, 6.1-6.3 done, 7.1+7.5 done
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -582,16 +582,22 @@ Gate: pnpm migrate:parse produces valid JSON
 ---
 
 ## Phase 5: Communication Features
-**Status:** Not Started | **Progress:** 0/6 | **Track:** A
+**Status:** Complete | **Progress:** 6/6 | **Track:** A
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 5.1 ⬜ | Contact form backend | No | Phase 1 | Form submits, stored in DB, email sent |
-| 5.2 ⬜ | Problem reports | 🔀 | 5.1 | Submit with images, status workflow |
-| 5.3 ⬜ | Admin inbox | 🔗 | 5.1, 5.2 | View messages, update status |
-| 5.4 ⬜ | Newsletter subscribe | 🔀 | Phase 2 | Double opt-in, stored in DB |
-| 5.5 ⬜ | Newsletter send | 🔗 | 5.4 | Manual + weekly automated |
-| 5.6 ⬜ | Email templates | 🔗 | 5.1-5.5 | Croatian, responsive HTML |
+| 5.1 ✅ | Contact form backend | No | Phase 1 | Form submits, stored in DB, email sent |
+| 5.2 ✅ | Problem reports | 🔀 | 5.1 | Submit with images, status workflow |
+| 5.3 ✅ | Admin inbox | 🔗 | 5.1, 5.2 | View messages, update status |
+| 5.4 ✅ | Newsletter subscribe | 🔀 | Phase 2 | Double opt-in, stored in DB |
+| 5.5 ✅ | Newsletter send | 🔗 | 5.4 | Manual + weekly automated |
+| 5.6 ✅ | Email templates | 🔗 | 5.1-5.5 | Croatian, responsive HTML |
+
+Recent updates:
+- Sprint 5.5 completed: Newsletter compose page with preview, batch sending, progress tracking, add-to-newsletter buttons.
+- Sprint 5.4 completed: Newsletter subscribe with double opt-in, confirmation emails, unsubscribe flow.
+- Sprint 5.3 completed: Admin inbox for messages and problem reports with status workflow.
+- Sprint 5.1-5.2 completed: Contact form and problem reports with rate limiting, honeypot protection.
 
 ### Sprint 5.1: Contact Form Backend
 ```
@@ -612,17 +618,21 @@ Gate: Submit form, appears in DB, emails received
 ---
 
 ## Phase 6: AI Integration
-**Status:** Not Started | **Progress:** 0/7 | **Track:** D (Last)
+**Status:** In Progress | **Progress:** 3/4 | **Track:** D (Last)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 6.1 ⬜ | Ollama Cloud connection | No | Phase 3 | API responds, model works |
-| 6.2 ⬜ | AI queue system | 🔗 | 6.1 | Queue table, worker processes |
-| 6.3 ⬜ | Google Search integration | 🔀 | 6.1 | Context gathering works |
-| 6.4 ⬜ | Content generation | 🔗 | 6.2, 6.3 | Generate draft from input |
-| 6.5 ⬜ | Self-review step | 🔗 | 6.4 | AI checks for "slop" |
-| 6.6 ⬜ | Generation UI | 🔗 | 6.5 | Admin UI for AI flow |
-| 6.7 ⬜ | Facebook posting | 🔀 | Phase 1 | Post to page from admin |
+| 6.1 ✅ | Ollama Cloud connection | No | Phase 3 | API responds, model works |
+| 6.2 ✅ | AI queue system | 🔗 | 6.1 | Queue table, worker processes |
+| 6.3 ✅ | AI Post Generation | 🔗 | 6.2 | Generate article from instructions + document |
+| 6.4 ⬜ | Self-review pipeline | 🔗 | 6.3 | REVIEW → REWRITE → POLISH stages |
+
+Note: Google Search removed (Ollama has web_search). Facebook posting deferred to post-launch.
+
+Recent updates:
+- Sprint 6.3 completed: AI post generation with document parsing (PDF, DOCX, OCR), queue integration, and admin UI dialog.
+- Sprint 6.2 completed: AI queue system with ai_queue table, background worker, retry logic, rate limit handling, and admin status page.
+- Sprint 6.1 completed: Ollama Cloud connection with generate API, typed responses, error handling.
 
 ### Sprint 6.2: AI Queue System
 ```
@@ -657,18 +667,22 @@ Gate: Input notes about road repair, get coherent Croatian article
 ---
 
 ## Phase 7: Chatbot & Polish
-**Status:** Not Started | **Progress:** 0/8 | **Track:** D
+**Status:** In Progress | **Progress:** 2/8 | **Track:** D
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 7.1 ⬜ | Embedding pipeline | No | Phase 3 | Content → embeddings → pgvector |
+| 7.1 ✅ | Embedding pipeline | No | Phase 3 | Content → embeddings → pgvector |
 | 7.2 ⬜ | RAG retrieval | 🔗 | 7.1 | Query → relevant chunks |
 | 7.3 ⬜ | Chatbot API | 🔗 | 7.2 | Question → answer with sources |
 | 7.4 ⬜ | Chatbot UI | 🔗 | 7.3 | Floating widget, conversation |
-| 7.5 ⬜ | Semantic search upgrade | 🔗 | 7.1 | Hybrid search (keyword + vector) |
+| 7.5 ✅ | Semantic search upgrade | 🔗 | 7.1 | Hybrid search (keyword + vector) |
 | 7.6 ⬜ | Performance optimization | 🔀 | Phase 2 | Lighthouse > 90 all pages |
 | 7.7 ⬜ | Accessibility audit | 🔀 | Phase 2 | WCAG AA compliance |
 | 7.8 ⬜ | Security audit | 🔀 | All | NIS2 checklist passes |
+
+Recent updates:
+- Sprint 7.5 completed: Hybrid search with keyword (40%), fuzzy (20%), and semantic/vector (40%) scoring.
+- Sprint 7.1 completed: Embedding pipeline with nomic-embed-text, search_index table with pgvector.
 
 ### Sprint 7.1: Embedding Pipeline
 ```
@@ -763,10 +777,10 @@ Gate: https://velikibukovec.hr shows new site
 | 3 | 9 | Infrastructure (VPS, R2, deploys) |
 | 4 | 7 | Migration (WordPress → new) |
 | 5 | 6 | Communication (forms, newsletter) |
-| 6 | 7 | AI Integration (generation, queue) |
+| 6 | 4 | AI Integration (generation, queue, review) |
 | 7 | 8 | Chatbot & Polish (RAG, perf, a11y) |
 | 8 | 8 | Launch (E2E, training, go-live) |
-| **Total** | **71** | |
+| **Total** | **67** | |
 
 ---
 
@@ -842,3 +856,11 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-26 | Sprint 2.12 follow-up: Merged public API endpoints with tests, withStaticParams utility, initial data hydration |
 | 2026-01-26 | Staging deployed: Frontend (Caddy) at :80, Admin (PM2) at :3001 on VPS via Tailscale |
 | 2026-01-26 | Phase 4 Content Migration complete: 302 posts (234 with R2 images), 82 pages (74 with content), 1450 documents, 17 galleries (108 images), 26 events migrated from WordPress |
+| 2026-01-30 | Announcements system completed: Full CRUD, PDF attachments, validity dates, migration script |
+| 2026-01-30 | Phase 5 completed: Contact form, problem reports, admin inbox, newsletter subscribe/send, email templates |
+| 2026-01-30 | Sprint 6.1 completed: Ollama Cloud connection with typed API, error handling, rate limit detection |
+| 2026-01-30 | Sprint 6.2 completed: AI queue system with ai_queue table, background worker, retry logic, admin status page |
+| 2026-01-30 | Sprint 6.3 completed: AI post generation with document parsing (PDF, DOCX, OCR), generate-post API, dialog UI |
+| 2026-01-30 | Sprint 6.4 (Google Search) removed: Ollama Cloud now has built-in web_search API |
+| 2026-01-30 | Sprint 7.1 completed: Embedding pipeline with nomic-embed-text and pgvector search_index |
+| 2026-01-30 | Sprint 7.5 completed: Hybrid search with keyword + fuzzy + semantic scoring |
