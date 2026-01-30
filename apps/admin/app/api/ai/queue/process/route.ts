@@ -1,6 +1,6 @@
+import { triggerProcessing, isOllamaCloudConfigured } from '@/lib/ai';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
-import { triggerProcessing, isOllamaCloudConfigured } from '@/lib/ai';
 import { aiLogger } from '@/lib/logger';
 
 import type { NextRequest } from 'next/server';
