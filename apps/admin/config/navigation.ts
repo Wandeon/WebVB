@@ -1,5 +1,6 @@
 import {
   Bell,
+  Brain,
   CalendarDays,
   FileText,
   Image,
@@ -92,6 +93,16 @@ export const adminNavigation: NavSection[] = [
         title: 'Newsletter',
         href: '/newsletter',
         icon: icon(Mail),
+      },
+    ],
+  },
+  {
+    title: 'AI',
+    items: [
+      {
+        title: 'AI Sustav',
+        href: '/ai',
+        icon: icon(Brain),
       },
     ],
   },
