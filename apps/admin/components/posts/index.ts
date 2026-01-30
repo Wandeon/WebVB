@@ -4,3 +4,4 @@ export { DataTablePagination } from './data-table-pagination';
 export { DataTableToolbar } from './data-table-toolbar';
 export { PostForm } from './post-form';
 export { DeleteDialog } from './delete-dialog';
+export { AiGenerateDialog } from './ai-generate-dialog';
