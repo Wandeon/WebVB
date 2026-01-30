@@ -111,3 +111,14 @@ export {
   type NewsletterSendRecord,
   type CreateNewsletterSendData,
 } from './newsletter-send';
+
+export {
+  aiQueueRepository,
+  type AiQueueStatus,
+  type AiRequestType,
+  type AiQueueRecord,
+  type CreateAiQueueData,
+  type FindAllAiQueueOptions,
+  type FindAllAiQueueResult,
+  type AiQueueStats,
+} from './ai-queue';
