@@ -1,22 +1,29 @@
 import {
+  announcementsRepository,
+  documentsRepository,
   eventsRepository,
   postsRepository,
+  type AnnouncementWithAuthor,
+  type DocumentWithUploader,
   type Event,
   type PostWithAuthor,
 } from '@repo/database';
 import { createOrganizationJsonLd, getPublicEnv } from '@repo/shared';
 import {
+  AnnouncementCompactCard,
   BentoGrid,
   BentoGridItem,
+  DocumentListItem,
   EventCard,
   ExperienceCard,
   FadeIn,
+  FeaturedPostCard,
   NewsletterSection,
   PostCard,
   QuickLinkCard,
   SectionHeader,
 } from '@repo/ui';
-import { BarChart3, ExternalLink } from 'lucide-react';
+import { ArrowRight, BarChart3, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 import { siteConfig } from './metadata';
@@ -29,16 +36,18 @@ import { transparencyConfig } from '../lib/transparency-config';
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 async function getHomepageData() {
-  const [latestPosts, upcomingEvents] = await Promise.all([
-    postsRepository.getLatestPosts(4),
+  const [latestPosts, upcomingEvents, latestAnnouncements, latestDocuments] = await Promise.all([
+    postsRepository.getLatestPosts(3),
     eventsRepository.getUpcomingEvents(3),
+    announcementsRepository.getLatestActive(4),
+    documentsRepository.getLatestDocuments(4),
   ]);
 
-  return { latestPosts, upcomingEvents };
+  return { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments };
 }
 
 export default async function HomePage() {
-  const { latestPosts, upcomingEvents } = await getHomepageData();
+  const { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments } = await getHomepageData();
   const organizationStructuredData = createOrganizationJsonLd({
     name: siteConfig.name,
     url: NEXT_PUBLIC_SITE_URL,
@@ -109,45 +118,38 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* News + Events Strip */}
-      <section className="overflow-x-hidden bg-neutral-100 py-12 md:py-16">
+      {/* News Portal Section */}
+      <section className="overflow-x-hidden bg-neutral-100 py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
-          <div className="grid gap-8 lg:grid-cols-[1fr_minmax(320px,380px)]">
-            {/* News Column */}
+          <FadeIn>
+            <SectionHeader
+              title="Vijesti i obavijesti"
+              description="Pratite najnovije informacije iz općine"
+            />
+          </FadeIn>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_340px] lg:gap-8">
+            {/* Main News Column */}
             <div>
-              <FadeIn>
-                <SectionHeader
-                  title="Najnovije vijesti"
-                  linkText="Sve vijesti"
-                  linkHref="/vijesti"
-                />
-              </FadeIn>
-              {latestPosts.length > 0 ? (
-                <>
-                  {/* Desktop: 2x2 grid */}
-                  <div className="mt-6 hidden gap-4 sm:grid sm:grid-cols-2">
-                    {latestPosts.map((post: PostWithAuthor, index: number) => (
-                      <FadeIn key={post.id} delay={index * 0.05}>
-                        <PostCard
-                          title={post.title}
-                          excerpt={post.excerpt}
-                          slug={post.slug}
-                          category={post.category}
-                          featuredImage={post.featuredImage}
-                          publishedAt={post.publishedAt}
-                          className="h-full"
-                        />
-                      </FadeIn>
-                    ))}
-                  </div>
-                  {/* Mobile: horizontal scroll */}
-                  <div className="mt-6 sm:hidden">
-                    <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
-                      {latestPosts.map((post: PostWithAuthor) => (
-                        <div
-                          key={post.id}
-                          className="w-[280px] shrink-0 snap-start"
-                        >
+              {latestPosts.length > 0 && latestPosts[0] ? (
+                <div className="space-y-4">
+                  {/* Featured Post */}
+                  <FadeIn>
+                    <FeaturedPostCard
+                      title={latestPosts[0].title}
+                      excerpt={latestPosts[0].excerpt}
+                      slug={latestPosts[0].slug}
+                      category={latestPosts[0].category}
+                      featuredImage={latestPosts[0].featuredImage}
+                      publishedAt={latestPosts[0].publishedAt}
+                    />
+                  </FadeIn>
+
+                  {/* Secondary Posts */}
+                  {latestPosts.length > 1 && (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {latestPosts.slice(1, 3).map((post: PostWithAuthor, index: number) => (
+                        <FadeIn key={post.id} delay={(index + 1) * 0.05}>
                           <PostCard
                             title={post.title}
                             excerpt={post.excerpt}
@@ -155,61 +157,149 @@ export default async function HomePage() {
                             category={post.category}
                             featuredImage={post.featuredImage}
                             publishedAt={post.publishedAt}
+                            className="h-full"
                           />
-                        </div>
+                        </FadeIn>
                       ))}
                     </div>
-                  </div>
-                </>
+                  )}
+
+                  {/* View All Link */}
+                  <FadeIn delay={0.15}>
+                    <Link
+                      href="/vijesti"
+                      className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
+                    >
+                      Sve vijesti
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </FadeIn>
+                </div>
               ) : (
                 <FadeIn>
-                  <p className="mt-6 text-neutral-600">
-                    Trenutno nema objavljenih vijesti.{' '}
-                    <Link href="/vijesti" className="text-primary-600 hover:underline">
-                      Pogledajte arhivu
-                    </Link>
-                  </p>
+                  <div className="rounded-xl bg-white p-8 text-center">
+                    <p className="text-neutral-600">
+                      Trenutno nema objavljenih vijesti.{' '}
+                      <Link href="/vijesti" className="text-primary-600 hover:underline">
+                        Pogledajte arhivu
+                      </Link>
+                    </p>
+                  </div>
                 </FadeIn>
               )}
             </div>
 
-            {/* Events Column */}
-            <div>
-              <FadeIn>
-                <SectionHeader
-                  title="Nadolazeća događanja"
-                  linkText="Kalendar"
-                  linkHref="/dogadanja"
-                />
-              </FadeIn>
-              {upcomingEvents.length > 0 ? (
-                <div className="mt-6 space-y-4">
-                  {upcomingEvents.map((event: Event, index: number) => (
-                    <FadeIn key={event.id} delay={index * 0.05} direction="left">
-                      <EventCard
-                        id={event.id}
-                        title={event.title}
-                        description={event.description}
-                        eventDate={event.eventDate}
-                        eventTime={event.eventTime}
-                        location={event.location}
-                        posterImage={event.posterImage}
-                      />
-                    </FadeIn>
-                  ))}
-                </div>
-              ) : (
-                <FadeIn>
-                  <p className="mt-6 text-neutral-600">
-                    Nema nadolazećih događanja.{' '}
-                    <Link href="/dogadanja" className="text-primary-600 hover:underline">
-                      Pogledajte kalendar
+            {/* Sidebar - Announcements & Documents */}
+            <div className="space-y-6">
+              {/* Announcements */}
+              <FadeIn direction="left">
+                <div className="rounded-xl bg-white p-4 shadow-sm">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="font-display text-lg font-semibold text-neutral-900">
+                      Obavijesti
+                    </h3>
+                    <Link
+                      href="/obavijesti"
+                      className="text-xs font-medium text-primary-600 hover:text-primary-700"
+                    >
+                      Sve obavijesti
                     </Link>
-                  </p>
-                </FadeIn>
-              )}
+                  </div>
+                  {latestAnnouncements.length > 0 ? (
+                    <div className="space-y-2">
+                      {latestAnnouncements.map((announcement: AnnouncementWithAuthor) => (
+                        <AnnouncementCompactCard
+                          key={announcement.id}
+                          title={announcement.title}
+                          slug={announcement.slug}
+                          category={announcement.category}
+                          publishedAt={announcement.publishedAt}
+                          attachmentCount={announcement.attachments?.length ?? 0}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="py-4 text-center text-sm text-neutral-500">
+                      Nema aktivnih obavijesti
+                    </p>
+                  )}
+                </div>
+              </FadeIn>
+
+              {/* Latest Documents */}
+              <FadeIn direction="left" delay={0.1}>
+                <div className="rounded-xl bg-white p-4 shadow-sm">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="font-display text-lg font-semibold text-neutral-900">
+                      Dokumenti
+                    </h3>
+                    <Link
+                      href="/dokumenti"
+                      className="text-xs font-medium text-primary-600 hover:text-primary-700"
+                    >
+                      Svi dokumenti
+                    </Link>
+                  </div>
+                  {latestDocuments.length > 0 ? (
+                    <div className="-mx-2">
+                      {latestDocuments.map((doc: DocumentWithUploader) => (
+                        <DocumentListItem
+                          key={doc.id}
+                          title={doc.title}
+                          category={doc.category}
+                          fileUrl={doc.fileUrl}
+                          fileSize={doc.fileSize}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="py-4 text-center text-sm text-neutral-500">
+                      Nema dokumenata
+                    </p>
+                  )}
+                </div>
+              </FadeIn>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Upcoming Events */}
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          <FadeIn>
+            <SectionHeader
+              title="Nadolazeća događanja"
+              linkText="Kalendar"
+              linkHref="/dogadanja"
+            />
+          </FadeIn>
+          {upcomingEvents.length > 0 ? (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {upcomingEvents.map((event: Event, index: number) => (
+                <FadeIn key={event.id} delay={index * 0.05}>
+                  <EventCard
+                    id={event.id}
+                    title={event.title}
+                    description={event.description}
+                    eventDate={event.eventDate}
+                    eventTime={event.eventTime}
+                    location={event.location}
+                    posterImage={event.posterImage}
+                  />
+                </FadeIn>
+              ))}
+            </div>
+          ) : (
+            <FadeIn>
+              <p className="mt-6 text-neutral-600">
+                Nema nadolazećih događanja.{' '}
+                <Link href="/dogadanja" className="text-primary-600 hover:underline">
+                  Pogledajte kalendar
+                </Link>
+              </p>
+            </FadeIn>
+          )}
         </div>
       </section>
 

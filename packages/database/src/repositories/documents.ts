@@ -187,4 +187,19 @@ export const documentsRepository = {
       results.map((r) => [r.category, r._count.id])
     );
   },
+
+  /**
+   * Get latest documents (for homepage)
+   */
+  async getLatestDocuments(limit: number = 5): Promise<DocumentWithUploader[]> {
+    return db.document.findMany({
+      include: {
+        uploader: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+  },
 };
