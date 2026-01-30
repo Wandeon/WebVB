@@ -3,6 +3,7 @@ import { getAdminEmail, getEmailTransporter, getSmtpFrom, isEmailConfigured } fr
 import { contactConfirmationTemplate } from './templates/contact-confirmation';
 import { contactNotificationTemplate } from './templates/contact-notification';
 import { newsletterConfirmationTemplate } from './templates/newsletter-confirmation';
+import { newsletterDigestTemplate } from './templates/newsletter-digest';
 import { problemConfirmationTemplate } from './templates/problem-confirmation';
 import { problemNotificationTemplate } from './templates/problem-notification';
 
@@ -226,4 +227,109 @@ export function sendNewsletterConfirmation(email: string, confirmUrl: string): v
     .catch((error: unknown) => {
       contactLogger.error({ error, to: email }, 'Failed to send newsletter confirmation email');
     });
+}
+
+// =============================================================================
+// Newsletter Digest Sending
+// =============================================================================
+
+export interface NewsletterDigestItem {
+  type: 'post' | 'announcement' | 'event';
+  id: string;
+  title: string;
+  excerpt: string | null;
+  url: string;
+  date?: string;
+  location?: string;
+}
+
+export interface SendNewsletterDigestOptions {
+  introText: string | null;
+  items: NewsletterDigestItem[];
+  subscribers: { id: string; email: string }[];
+  siteUrl: string;
+  onProgress?: (sent: number, total: number) => void;
+}
+
+export interface SendNewsletterDigestResult {
+  success: boolean;
+  sent: number;
+  failed: number;
+  subject: string;
+  contentHtml: string;
+  contentText: string;
+}
+
+/**
+ * Send newsletter digest to all subscribers
+ * Sends in batches with delay to avoid spam flags
+ */
+export async function sendNewsletterDigest(
+  options: SendNewsletterDigestOptions
+): Promise<SendNewsletterDigestResult> {
+  const { introText, items, subscribers, siteUrl, onProgress } = options;
+
+  if (!isEmailConfigured()) {
+    contactLogger.warn('Email not configured, cannot send newsletter');
+    throw new Error('Email is not configured');
+  }
+
+  const transporter = getEmailTransporter();
+  const from = getSmtpFrom();
+
+  if (!transporter || !from) {
+    throw new Error('Email transporter not available');
+  }
+
+  let sent = 0;
+  let failed = 0;
+  let templateResult: { subject: string; html: string; text: string } | null = null;
+
+  for (const subscriber of subscribers) {
+    const unsubscribeUrl = `${siteUrl}/newsletter/odjava?id=${subscriber.id}`;
+
+    const template = newsletterDigestTemplate({
+      introText,
+      items,
+      unsubscribeUrl,
+      siteUrl,
+    });
+
+    // Store template for return (same for all subscribers except unsubscribe URL)
+    if (!templateResult) {
+      templateResult = template;
+    }
+
+    try {
+      await transporter.sendMail({
+        from,
+        to: subscriber.email,
+        subject: template.subject,
+        text: template.text,
+        html: template.html,
+      });
+
+      sent++;
+      contactLogger.info({ to: subscriber.email }, 'Newsletter digest sent');
+    } catch (error) {
+      failed++;
+      contactLogger.error({ error, to: subscriber.email }, 'Failed to send newsletter digest');
+    }
+
+    onProgress?.(sent + failed, subscribers.length);
+
+    // Small delay between emails to avoid spam flags (100ms)
+    if (sent + failed < subscribers.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
+  return {
+    success: failed === 0,
+    sent,
+    failed,
+    subject: templateResult?.subject || 'Newsletter - Općina Veliki Bukovec',
+    contentHtml: templateResult?.html || '',
+    contentText: templateResult?.text || '',
+  };
 }
