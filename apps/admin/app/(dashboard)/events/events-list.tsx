@@ -106,6 +106,32 @@ export function EventsList() {
     void fetchEvents();
   }, [fetchEvents]);
 
+  // Handle add to newsletter
+  const handleAddToNewsletter = useCallback(async (event: Event) => {
+    try {
+      const response = await fetch('/api/newsletter/draft/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'event', id: event.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add to newsletter');
+      }
+
+      toast({
+        title: 'Dodano u newsletter',
+        description: `"${event.title}" je dodano u newsletter.`,
+      });
+    } catch {
+      toast({
+        title: 'Greška',
+        description: 'Nije moguće dodati u newsletter.',
+        variant: 'destructive',
+      });
+    }
+  }, []);
+
   // Handle delete
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -140,8 +166,8 @@ export function EventsList() {
   };
 
   const columns = useMemo(
-    () => getColumns({ onDelete: setDeleteTarget }),
-    []
+    () => getColumns({ onDelete: setDeleteTarget, onAddToNewsletter: handleAddToNewsletter }),
+    [handleAddToNewsletter]
   );
 
   return (

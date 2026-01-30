@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@repo/ui';
-import { Calendar, ImageIcon, MapPin, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, ImageIcon, Mail, MapPin, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -30,6 +30,7 @@ export interface Event {
 
 interface GetColumnsOptions {
   onDelete: (event: Event) => void;
+  onAddToNewsletter: (event: Event) => void;
 }
 
 function formatEventDate(event: Event): string {
@@ -70,7 +71,7 @@ function isPastEvent(event: Event): boolean {
   return eventDate < today;
 }
 
-export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Event>[] {
+export function getColumns({ onDelete, onAddToNewsletter }: GetColumnsOptions): ColumnDef<Event>[] {
   return [
     {
       accessorKey: 'posterImage',
@@ -164,6 +165,10 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Event>[] 
                   <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
                   Uredi
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddToNewsletter(event)}>
+                <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
+                Dodaj u newsletter
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
