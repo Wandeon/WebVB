@@ -26,3 +26,4 @@ export const contactLogger = logger.child({ module: 'contact' });
 export const problemReportsLogger = logger.child({ module: 'problem-reports' });
 export const searchLogger = logger.child({ module: 'search' });
 export const announcementsLogger = logger.child({ module: 'announcements' });
+export const newsletterLogger = logger.child({ module: 'newsletter' });
