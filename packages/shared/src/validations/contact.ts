@@ -42,3 +42,10 @@ export const problemReportSchema = z.object({
 });
 
 export type ProblemReportData = z.infer<typeof problemReportSchema>;
+
+export const newsletterSubscribeSchema = z.object({
+  email: z.string().email('Unesite ispravnu email adresu'),
+  honeypot: z.string().max(0).optional(),
+});
+
+export type NewsletterSubscribeData = z.infer<typeof newsletterSubscribeSchema>;

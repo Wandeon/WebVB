@@ -11,8 +11,10 @@ export * from './build-utils';
 export {
   contactFormSchema,
   problemReportSchema,
+  newsletterSubscribeSchema,
   PROBLEM_TYPES,
   problemTypeValues,
   type ContactFormData,
   type ProblemReportData,
+  type NewsletterSubscribeData,
 } from './validations/contact';
