@@ -98,3 +98,10 @@ export {
   type FindAllSubscribersOptions,
   type FindAllSubscribersResult,
 } from './newsletter';
+
+export {
+  newsletterDraftRepository,
+  type NewsletterItemType,
+  type NewsletterDraftItem,
+  type NewsletterDraftRecord,
+} from './newsletter-draft';
