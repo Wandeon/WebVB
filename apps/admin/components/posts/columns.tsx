@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@repo/ui';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Mail, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 import type { PostCategory } from '@repo/shared';
@@ -37,9 +37,10 @@ export interface Post {
 
 interface GetColumnsOptions {
   onDelete: (post: Post) => void;
+  onAddToNewsletter: (post: Post) => void;
 }
 
-export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Post>[] {
+export function getColumns({ onDelete, onAddToNewsletter }: GetColumnsOptions): ColumnDef<Post>[] {
   return [
     {
       accessorKey: 'title',
@@ -116,6 +117,10 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Post>[] {
                   <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
                   Uredi
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddToNewsletter(post)}>
+                <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
+                Dodaj u newsletter
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
