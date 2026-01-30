@@ -60,6 +60,10 @@ export {
   contactMessagesRepository,
   type CreateContactMessageData,
   type ContactMessageRecord,
+  type FindAllContactMessagesOptions,
+  type FindAllContactMessagesResult,
+  type CountContactMessagesOptions,
+  type ContactMessageStatus,
 } from './contact-messages';
 
 export {
@@ -67,6 +71,10 @@ export {
   type CreateProblemReportData,
   type ProblemReportImage,
   type ProblemReportRecord,
+  type FindAllProblemReportsOptions,
+  type FindAllProblemReportsResult,
+  type CountProblemReportsOptions,
+  type ProblemReportStatus,
 } from './problem-reports';
 
 export {
@@ -82,3 +90,11 @@ export {
   type FindPublishedAnnouncementsResult,
   type PublishedAnnouncementSitemapEntry,
 } from './announcements';
+
+export {
+  newsletterRepository,
+  type NewsletterSubscriberRecord,
+  type CreateSubscriberData,
+  type FindAllSubscribersOptions,
+  type FindAllSubscribersResult,
+} from './newsletter';
