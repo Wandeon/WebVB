@@ -447,7 +447,7 @@ describe('queue-worker', () => {
       );
       expect(mockAiLogger.info).toHaveBeenCalledWith(
         { jobId: 'job-post-gen' },
-        'Successfully parsed post generation result'
+        'Running article through quality pipeline'
       );
     });
 
