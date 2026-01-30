@@ -2,6 +2,7 @@
  * AI services module
  * - Ollama Cloud: LLM text generation (Llama 3.1 70B)
  * - Local Ollama: Embeddings (nomic-embed-text) - handled separately in search
+ * - Queue Worker: Background job processing
  */
 
 // Ollama Cloud client
@@ -12,6 +13,14 @@ export {
   generate,
   checkHealth,
 } from './ollama-cloud';
+
+// Queue Worker
+export {
+  startQueueWorker,
+  stopQueueWorker,
+  isWorkerRunning,
+  triggerProcessing,
+} from './queue-worker';
 
 // Types
 export type {
