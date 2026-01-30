@@ -48,9 +48,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Debug: log the query
-    console.log('[Search] Query:', query);
-
     // Use raw SQL for full-text search with ts_rank and ts_headline
     const results = await db.$queryRaw<
       {
@@ -86,18 +83,20 @@ export async function GET(request: Request) {
       LIMIT ${MAX_TOTAL_RESULTS}
     `;
 
-    // Debug: log raw results
-    console.log('[Search] Raw results count:', results.length);
-    if (results.length > 0) {
-      console.log('[Search] First result:', results[0]);
-    }
-
     // Group results by source type
     const grouped: GroupedResults = {
       posts: [],
       documents: [],
       pages: [],
       events: [],
+    };
+
+    // Map singular source_type to plural keys
+    const typeMapping: Record<string, keyof GroupedResults> = {
+      post: 'posts',
+      document: 'documents',
+      page: 'pages',
+      event: 'events',
     };
 
     for (const row of results) {
@@ -111,8 +110,8 @@ export async function GET(request: Request) {
         sourceType: row.source_type,
       };
 
-      const type = row.source_type as keyof GroupedResults;
-      if (type in grouped && grouped[type].length < MAX_RESULTS_PER_TYPE) {
+      const type = typeMapping[row.source_type];
+      if (type && grouped[type].length < MAX_RESULTS_PER_TYPE) {
         grouped[type].push(result);
       }
     }
