@@ -11,6 +11,16 @@ import { generate, isOllamaCloudConfigured } from './ollama-cloud';
 import type { AiQueueRecord } from '@repo/database';
 
 // =============================================================================
+// Types
+// =============================================================================
+
+interface PostGenerationResult {
+  title: string;
+  content: string;
+  excerpt: string;
+}
+
+// =============================================================================
 // Configuration
 // =============================================================================
 
@@ -23,6 +33,43 @@ const WORKER_ENABLED = process.env.AI_WORKER_ENABLED !== 'false';
 
 let workerInterval: ReturnType<typeof setInterval> | null = null;
 let isProcessing = false;
+
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+/**
+ * Parse post generation result from AI response
+ * Extracts JSON from the response and validates structure
+ * Returns null if parsing fails
+ */
+function parsePostGenerationResult(response: string): PostGenerationResult | null {
+  try {
+    // Try to extract JSON from the response (AI might include extra text)
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+
+    const parsed = JSON.parse(jsonMatch[0]) as unknown;
+
+    // Validate structure
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      'title' in parsed &&
+      'content' in parsed &&
+      'excerpt' in parsed &&
+      typeof (parsed as PostGenerationResult).title === 'string' &&
+      typeof (parsed as PostGenerationResult).content === 'string' &&
+      typeof (parsed as PostGenerationResult).excerpt === 'string'
+    ) {
+      return parsed as PostGenerationResult;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 // =============================================================================
 // Job Processing
@@ -67,7 +114,8 @@ async function processJob(job: AiQueueRecord): Promise<void> {
       'AI queue job completed successfully'
     );
 
-    await aiQueueRepository.markCompleted(job.id, {
+    // Build result data
+    const resultData: Record<string, unknown> = {
       response: result.data.response,
       model: result.data.model,
       promptTokens: result.data.prompt_eval_count,
@@ -75,7 +123,28 @@ async function processJob(job: AiQueueRecord): Promise<void> {
       totalDurationMs: result.data.total_duration
         ? result.data.total_duration / 1_000_000
         : null,
-    });
+    };
+
+    // For post_generation jobs, parse the response and extract structured data
+    if (job.requestType === 'post_generation') {
+      const parsedResult = parsePostGenerationResult(result.data.response);
+      if (parsedResult) {
+        aiLogger.info(
+          { jobId: job.id },
+          'Successfully parsed post generation result'
+        );
+        resultData.title = parsedResult.title;
+        resultData.content = parsedResult.content;
+        resultData.excerpt = parsedResult.excerpt;
+      } else {
+        aiLogger.warn(
+          { jobId: job.id },
+          'Failed to parse post generation result, storing raw response'
+        );
+      }
+    }
+
+    await aiQueueRepository.markCompleted(job.id, resultData);
   } else {
     // Failure - check if we should retry
     const errorMessage = result.error.message;

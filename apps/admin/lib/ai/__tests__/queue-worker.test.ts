@@ -402,4 +402,236 @@ describe('queue-worker', () => {
       expect(isWorkerRunning()).toBe(false);
     });
   });
+
+  describe('post_generation parsing', () => {
+    it('parses valid JSON response for post_generation jobs', async () => {
+      const mockJob = createMockJob({
+        id: 'job-post-gen',
+        requestType: 'post_generation',
+        inputData: { prompt: 'Generate a post about...' },
+        attempts: 0,
+        maxAttempts: 3,
+      });
+
+      const validResponse = JSON.stringify({
+        title: 'Test Title',
+        content: 'Test content paragraph.',
+        excerpt: 'Short excerpt',
+      });
+
+      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
+      mockAiQueueRepository.markProcessing.mockResolvedValue(
+        createMockJob({
+          ...mockJob,
+          attempts: 1,
+        })
+      );
+      mockGenerate.mockResolvedValue({
+        success: true,
+        data: createMockGenerateResponse({
+          response: validResponse,
+        }),
+      });
+
+      const result = await triggerProcessing();
+
+      expect(result).toEqual({ processed: true, jobId: 'job-post-gen' });
+      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+        'job-post-gen',
+        expect.objectContaining({
+          response: validResponse,
+          title: 'Test Title',
+          content: 'Test content paragraph.',
+          excerpt: 'Short excerpt',
+        })
+      );
+      expect(mockAiLogger.info).toHaveBeenCalledWith(
+        { jobId: 'job-post-gen' },
+        'Successfully parsed post generation result'
+      );
+    });
+
+    it('parses JSON embedded in extra text for post_generation jobs', async () => {
+      const mockJob = createMockJob({
+        id: 'job-post-gen-2',
+        requestType: 'post_generation',
+        inputData: { prompt: 'Generate a post about...' },
+        attempts: 0,
+        maxAttempts: 3,
+      });
+
+      const responseWithExtraText = `Here is the generated post:
+{
+  "title": "Embedded Title",
+  "content": "Embedded content here.",
+  "excerpt": "Brief summary"
+}
+I hope this helps!`;
+
+      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
+      mockAiQueueRepository.markProcessing.mockResolvedValue(
+        createMockJob({
+          ...mockJob,
+          attempts: 1,
+        })
+      );
+      mockGenerate.mockResolvedValue({
+        success: true,
+        data: createMockGenerateResponse({
+          response: responseWithExtraText,
+        }),
+      });
+
+      const result = await triggerProcessing();
+
+      expect(result).toEqual({ processed: true, jobId: 'job-post-gen-2' });
+      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+        'job-post-gen-2',
+        expect.objectContaining({
+          title: 'Embedded Title',
+          content: 'Embedded content here.',
+          excerpt: 'Brief summary',
+        })
+      );
+    });
+
+    it('stores raw response when JSON parsing fails for post_generation jobs', async () => {
+      const mockJob = createMockJob({
+        id: 'job-post-gen-fail',
+        requestType: 'post_generation',
+        inputData: { prompt: 'Generate a post about...' },
+        attempts: 0,
+        maxAttempts: 3,
+      });
+
+      const invalidResponse = 'This is just plain text without any JSON';
+
+      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
+      mockAiQueueRepository.markProcessing.mockResolvedValue(
+        createMockJob({
+          ...mockJob,
+          attempts: 1,
+        })
+      );
+      mockGenerate.mockResolvedValue({
+        success: true,
+        data: createMockGenerateResponse({
+          response: invalidResponse,
+        }),
+      });
+
+      const result = await triggerProcessing();
+
+      expect(result).toEqual({ processed: true, jobId: 'job-post-gen-fail' });
+      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+        'job-post-gen-fail',
+        expect.objectContaining({
+          response: invalidResponse,
+        })
+      );
+      // Should NOT include parsed fields
+      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+        'job-post-gen-fail',
+        expect.not.objectContaining({
+          title: expect.any(String),
+        })
+      );
+      expect(mockAiLogger.warn).toHaveBeenCalledWith(
+        { jobId: 'job-post-gen-fail' },
+        'Failed to parse post generation result, storing raw response'
+      );
+    });
+
+    it('handles JSON with missing required fields for post_generation jobs', async () => {
+      const mockJob = createMockJob({
+        id: 'job-post-gen-incomplete',
+        requestType: 'post_generation',
+        inputData: { prompt: 'Generate a post about...' },
+        attempts: 0,
+        maxAttempts: 3,
+      });
+
+      const incompleteResponse = JSON.stringify({
+        title: 'Only Title',
+        // Missing content and excerpt
+      });
+
+      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
+      mockAiQueueRepository.markProcessing.mockResolvedValue(
+        createMockJob({
+          ...mockJob,
+          attempts: 1,
+        })
+      );
+      mockGenerate.mockResolvedValue({
+        success: true,
+        data: createMockGenerateResponse({
+          response: incompleteResponse,
+        }),
+      });
+
+      const result = await triggerProcessing();
+
+      expect(result).toEqual({
+        processed: true,
+        jobId: 'job-post-gen-incomplete',
+      });
+      // Should store raw response but not parsed fields
+      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+        'job-post-gen-incomplete',
+        expect.objectContaining({
+          response: incompleteResponse,
+        })
+      );
+      expect(mockAiLogger.warn).toHaveBeenCalledWith(
+        { jobId: 'job-post-gen-incomplete' },
+        'Failed to parse post generation result, storing raw response'
+      );
+    });
+
+    it('does not parse response for non-post_generation jobs', async () => {
+      const mockJob = createMockJob({
+        id: 'job-other-type',
+        requestType: 'generate',
+        inputData: { prompt: 'Regular generation' },
+        attempts: 0,
+        maxAttempts: 3,
+      });
+
+      const jsonResponse = JSON.stringify({
+        title: 'Some Title',
+        content: 'Some content',
+        excerpt: 'Some excerpt',
+      });
+
+      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
+      mockAiQueueRepository.markProcessing.mockResolvedValue(
+        createMockJob({
+          ...mockJob,
+          attempts: 1,
+        })
+      );
+      mockGenerate.mockResolvedValue({
+        success: true,
+        data: createMockGenerateResponse({
+          response: jsonResponse,
+        }),
+      });
+
+      const result = await triggerProcessing();
+
+      expect(result).toEqual({ processed: true, jobId: 'job-other-type' });
+      // Should NOT include parsed fields since it's not a post_generation job
+      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+        'job-other-type',
+        expect.not.objectContaining({
+          title: expect.any(String),
+        })
+      );
+      expect(mockAiLogger.info).not.toHaveBeenCalledWith(
+        expect.objectContaining({ jobId: 'job-other-type' }),
+        'Successfully parsed post generation result'
+      );
+    });
+  });
 });
