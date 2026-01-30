@@ -26,6 +26,8 @@ import { useForm } from 'react-hook-form';
 
 import { postSchema } from '@/lib/validations/post';
 
+import { AiGenerateButton } from './ai-generate-button';
+
 import type { z } from 'zod';
 
 
@@ -153,6 +155,19 @@ export function PostForm({ initialData }: PostFormProps) {
             <CardTitle>Sadržaj</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* AI Generate Button */}
+            <div className="flex justify-end">
+              <AiGenerateButton
+                category={category}
+                disabled={isSubmitting}
+                onGenerated={(result) => {
+                  setValue('title', result.title, { shouldValidate: true });
+                  setValue('content', result.content, { shouldValidate: true });
+                  setValue('excerpt', result.excerpt, { shouldValidate: true });
+                }}
+              />
+            </div>
+
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title" required>
