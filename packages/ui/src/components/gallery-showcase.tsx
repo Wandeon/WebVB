@@ -96,7 +96,7 @@ function ScrollingRow({ items, direction, speed = 30 }: ScrollingRowProps) {
             onMouseLeave={() => setHoveredIndex(null)}
           >
             <motion.div
-              className="relative h-48 w-72 overflow-hidden rounded-xl shadow-lg md:h-56 md:w-80 lg:h-64 lg:w-96"
+              className="relative h-40 w-60 overflow-hidden rounded-xl shadow-lg sm:h-48 sm:w-72 md:h-56 md:w-80 lg:h-64 lg:w-96"
               animate={{
                 scale: hoveredIndex === index ? 1.05 : 1,
                 rotateY: hoveredIndex === index ? 5 : 0,
@@ -169,9 +169,9 @@ export function GalleryShowcase({ galleries, className }: GalleryShowcaseProps) 
 
   return (
     <div className={cn('relative overflow-hidden py-8', className)}>
-      {/* Fade edges */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-white to-transparent md:w-32" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-white to-transparent md:w-32" />
+      {/* Fade edges - smaller on mobile */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white to-transparent sm:w-16 md:w-24" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-white to-transparent sm:w-16 md:w-24" />
 
       <div className="space-y-4">
         {/* Top row - scrolls left */}

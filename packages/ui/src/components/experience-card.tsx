@@ -1,6 +1,9 @@
-import { ArrowRight } from 'lucide-react';
+'use client';
+
+import { ArrowRight, Camera, Landmark, Mountain, Music } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { cn } from '../lib/utils';
 
@@ -13,6 +16,18 @@ export interface ExperienceCardProps {
   className?: string;
 }
 
+const placeholderIcons: Record<string, React.ReactNode> = {
+  znamenitosti: <Landmark className="h-12 w-12" />,
+  priroda: <Mountain className="h-12 w-12" />,
+  kultura: <Music className="h-12 w-12" />,
+};
+
+const placeholderGradients: Record<string, string> = {
+  znamenitosti: 'from-amber-500 to-orange-600',
+  priroda: 'from-emerald-500 to-teal-600',
+  kultura: 'from-violet-500 to-purple-600',
+};
+
 export function ExperienceCard({
   title,
   description,
@@ -21,6 +36,13 @@ export function ExperienceCard({
   href,
   className,
 }: ExperienceCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  // Extract category from href for placeholder styling
+  const category = href.split('/').pop() ?? 'default';
+  const icon = placeholderIcons[category] ?? <Camera className="h-12 w-12" />;
+  const gradient = placeholderGradients[category] ?? 'from-primary-500 to-primary-700';
+
   return (
     <Link
       href={href}
@@ -32,13 +54,23 @@ export function ExperienceCard({
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <Image
-          src={image}
-          alt={imageAlt}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+        {!imageError ? (
+          <Image
+            src={image}
+            alt={imageAlt}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className={cn(
+            'flex h-full w-full items-center justify-center bg-gradient-to-br text-white/90',
+            gradient
+          )}>
+            {icon}
+          </div>
+        )}
       </div>
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
