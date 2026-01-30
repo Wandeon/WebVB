@@ -68,7 +68,7 @@ describe('ollama-cloud', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.models).toHaveLength(1);
-        expect(result.data.models[0].name).toBe('llama3.1:70b');
+        expect(result.data.models[0]?.name).toBe('llama3.1:70b');
       }
     });
 
