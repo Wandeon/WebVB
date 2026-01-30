@@ -49,7 +49,7 @@ function ScrollingRow({ items, direction, speed = 30 }: ScrollingRowProps) {
     const endX = direction === 'left' ? -contentWidth : 0;
 
     if (!isPaused) {
-      controls.start({
+      void controls.start({
         x: endX,
         transition: {
           duration,

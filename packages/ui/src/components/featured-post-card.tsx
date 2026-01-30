@@ -1,6 +1,5 @@
-import Link from 'next/link';
-
 import { POST_CATEGORIES, type PostCategory } from '@repo/shared';
+import Link from 'next/link';
 
 import { cn } from '../lib/utils';
 import { Badge } from '../primitives/badge';

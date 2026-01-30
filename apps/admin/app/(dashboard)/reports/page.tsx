@@ -1,6 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui';
+import { Toaster } from '@repo/ui';
+import { Suspense } from 'react';
 
 import { Breadcrumbs } from '@/components/layout';
+
+import { ReportsList } from './reports-list';
+
+function ReportsListSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="h-12 w-full animate-pulse rounded-md bg-neutral-200" />
+      <div className="h-64 w-full animate-pulse rounded-md bg-neutral-200" />
+    </div>
+  );
+}
 
 export default function ReportsPage() {
   return (
@@ -11,14 +23,12 @@ export default function ReportsPage() {
         </h1>
         <Breadcrumbs items={[{ label: 'Prijave problema' }]} className="mt-1" />
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Prijave problema</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-neutral-600">Upravljanje prijavama dolazi u Fazi 5.</p>
-        </CardContent>
-      </Card>
+
+      <Suspense fallback={<ReportsListSkeleton />}>
+        <ReportsList />
+      </Suspense>
+
+      <Toaster />
     </div>
   );
 }

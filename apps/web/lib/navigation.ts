@@ -17,10 +17,9 @@ export const megaNavGroups: NavGroup[] = [
     title: 'Uprava',
     icon: 'building',
     items: [
-      { title: 'Općinska uprava', href: '/organizacija/uprava' },
-      { title: 'Općinsko vijeće', href: '/organizacija/vijece' },
-      { title: 'Komunalno gospodarstvo', href: '/rad-uprave/komunalno' },
-      { title: 'Financiranje udruga', href: '/rad-uprave/udruge' },
+      { title: 'Organizacija', href: '/organizacija' },
+      { title: 'Usluge', href: '/usluge' },
+      { title: 'Dokumenti', href: '/dokumenti' },
       { title: 'Javna nabava', href: 'https://eojn.nn.hr/', external: true },
     ],
   },
@@ -30,87 +29,70 @@ export const megaNavGroups: NavGroup[] = [
     items: [
       { title: 'Vijesti', href: '/vijesti' },
       { title: 'Obavijesti', href: '/obavijesti' },
-      { title: 'Dokumenti', href: '/dokumenti' },
-      { title: 'Proračun', href: '/dokumenti?kategorija=proracun' },
-      { title: 'Sjednice vijeća', href: '/dokumenti?kategorija=sjednice' },
-      { title: 'Pristup informacijama', href: '/dokumenti/pravo-na-pristup-informacijama' },
+      { title: 'Galerija', href: '/galerija' },
+      { title: 'Izbori', href: '/izbori' },
     ],
   },
   {
     title: 'Općina',
     icon: 'home',
     items: [
-      { title: 'O općini', href: '/opcina/o-nama' },
-      { title: 'Turizam', href: '/opcina/turizam' },
-      { title: 'Povijest', href: '/opcina/povijest' },
+      { title: 'O općini', href: '/opcina' },
+      { title: 'Naselja', href: '/opcina/naselja' },
+      { title: 'Udruge i društva', href: '/opcina/udruge' },
       { title: 'Kontakt', href: '/kontakt' },
     ],
   },
 ];
 
-// Legacy flat navigation (still used by mobile drawer)
+// Mobile navigation
 export const mainNav: NavItem[] = [
   {
     title: 'Naslovnica',
     href: '/',
   },
   {
-    title: 'Organizacija',
-    href: '/organizacija',
+    title: 'Općina',
+    href: '/opcina',
     items: [
-      { title: 'Općinska uprava', href: '/organizacija/uprava' },
-      { title: 'Općinsko vijeće', href: '/organizacija/vijece' },
+      { title: 'O općini', href: '/opcina' },
+      { title: 'Naselja', href: '/opcina/naselja' },
+      { title: 'Udruge', href: '/opcina/udruge' },
     ],
   },
   {
-    title: 'Rad uprave',
-    href: '/rad-uprave',
+    title: 'Organizacija',
+    href: '/organizacija',
+  },
+  {
+    title: 'Usluge',
+    href: '/usluge',
     items: [
-      { title: 'Komunalno gospodarstvo', href: '/rad-uprave/komunalno' },
-      { title: 'Financiranje udruga', href: '/rad-uprave/udruge' },
-      { title: 'Javna nabava', href: 'https://eojn.nn.hr/' },
+      { title: 'Komunalno', href: '/usluge' },
+      { title: 'Financije', href: '/usluge' },
+      { title: 'Za građane', href: '/usluge' },
+      { title: 'Udruge', href: '/usluge' },
     ],
   },
   {
     title: 'Vijesti',
     href: '/vijesti',
-    items: [
-      { title: 'Sve vijesti', href: '/vijesti' },
-      { title: 'Aktualnosti', href: '/vijesti?kategorija=aktualnosti' },
-      { title: 'Gospodarstvo', href: '/vijesti?kategorija=gospodarstvo' },
-      { title: 'Sport', href: '/vijesti?kategorija=sport' },
-      { title: 'Kultura', href: '/vijesti?kategorija=kultura' },
-    ],
   },
   {
     title: 'Obavijesti',
     href: '/obavijesti',
-    items: [
-      { title: 'Sve obavijesti', href: '/obavijesti' },
-      { title: 'Natječaji', href: '/obavijesti?kategorija=natjecaj' },
-      { title: 'Oglasi', href: '/obavijesti?kategorija=oglas' },
-      { title: 'Javni pozivi', href: '/obavijesti?kategorija=poziv' },
-    ],
   },
   {
     title: 'Dokumenti',
     href: '/dokumenti',
-    items: [
-      { title: 'Svi dokumenti', href: '/dokumenti' },
-      { title: 'Sjednice vijeća', href: '/dokumenti?kategorija=sjednice' },
-      { title: 'Proračun', href: '/dokumenti?kategorija=proracun' },
-      { title: 'Prostorni planovi', href: '/dokumenti?kategorija=planovi' },
-      { title: 'Pristup informacijama', href: '/dokumenti/pravo-na-pristup-informacijama' },
-    ],
   },
   {
-    title: 'Općina',
-    href: '/opcina',
-    items: [
-      { title: 'O općini', href: '/opcina/o-nama' },
-      { title: 'Turizam', href: '/opcina/turizam' },
-      { title: 'Povijest', href: '/opcina/povijest' },
-    ],
+    title: 'Galerija',
+    href: '/galerija',
+  },
+  {
+    title: 'Izbori',
+    href: '/izbori',
   },
   {
     title: 'Kontakt',
@@ -122,11 +104,11 @@ export const footerLinks = [
   {
     title: 'Brze poveznice',
     items: [
+      { title: 'Vijesti', href: '/vijesti' },
       { title: 'Obavijesti', href: '/obavijesti' },
-      { title: 'Natječaji', href: '/obavijesti?kategorija=natjecaj' },
+      { title: 'Dokumenti', href: '/dokumenti' },
+      { title: 'Usluge', href: '/usluge' },
       { title: 'Prijava problema', href: '/prijava-problema' },
-      { title: 'Odvoz otpada', href: '/odvoz-otpada' },
-      { title: 'Pristup informacijama', href: '/dokumenti/pravo-na-pristup-informacijama' },
     ],
   },
   {

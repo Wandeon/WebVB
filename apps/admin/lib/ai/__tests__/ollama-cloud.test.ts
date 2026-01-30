@@ -21,7 +21,7 @@ describe('ollama-cloud', () => {
       ...originalEnv,
       OLLAMA_CLOUD_API_KEY: 'test-api-key',
       OLLAMA_CLOUD_URL: 'https://api.ollama.com',
-      OLLAMA_CLOUD_MODEL: 'llama3.1:70b',
+      OLLAMA_CLOUD_MODEL: 'deepseek-v3.2',
     };
   });
 
@@ -42,12 +42,12 @@ describe('ollama-cloud', () => {
 
   describe('getConfiguredModel', () => {
     it('returns configured model', () => {
-      expect(getConfiguredModel()).toBe('llama3.1:70b');
+      expect(getConfiguredModel()).toBe('deepseek-v3.2');
     });
 
     it('returns default model when not configured', () => {
       delete process.env.OLLAMA_CLOUD_MODEL;
-      expect(getConfiguredModel()).toBe('llama3.1:70b');
+      expect(getConfiguredModel()).toBe('deepseek-v3.2');
     });
   });
 
@@ -58,7 +58,7 @@ describe('ollama-cloud', () => {
         status: 200,
         json: async () => ({
           models: [
-            { name: 'llama3.1:70b', modified_at: '2024-01-01', size: 1000 },
+            { name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 },
           ],
         }),
       });
@@ -68,7 +68,7 @@ describe('ollama-cloud', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.models).toHaveLength(1);
-        expect(result.data.models[0]?.name).toBe('llama3.1:70b');
+        expect(result.data.models[0]?.name).toBe('deepseek-v3.2');
       }
     });
 
@@ -109,7 +109,7 @@ describe('ollama-cloud', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          model: 'llama3.1:70b',
+          model: 'deepseek-v3.2',
           created_at: '2024-01-01T00:00:00Z',
           response: 'Generated text here',
           done: true,
@@ -133,7 +133,7 @@ describe('ollama-cloud', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          model: 'llama3.1:70b',
+          model: 'deepseek-v3.2',
           response: 'Generated text',
           done: true,
         }),
@@ -182,7 +182,7 @@ describe('ollama-cloud', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          models: [{ name: 'llama3.1:70b', modified_at: '2024-01-01', size: 1000 }],
+          models: [{ name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 }],
         }),
       });
 

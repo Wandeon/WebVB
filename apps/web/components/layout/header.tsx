@@ -6,11 +6,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
-import { megaNavGroups } from '../../lib/navigation';
 import { AccessibilityWidget } from './accessibility-widget';
 import { LanguageSwitcher, OfficeStatusBadge, SocialIcons, WeatherBadge } from './header-widgets';
 import { MegaMenu } from './mega-menu';
 import { MobileMenu } from './mobile-menu';
+
+import { megaNavGroups } from '../../lib/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 

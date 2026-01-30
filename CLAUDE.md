@@ -343,6 +343,40 @@ POST   /api/posts/:id/publish → Custom action
 
 ## Project-Specific Context
 
+### Site Architecture (Updated 2025-01-30)
+
+The public website uses a **consolidated page pattern** to reduce friction and improve UX:
+
+```
+/                      → Homepage
+├── /opcina            → Consolidated (tabs: O nama, Turizam, Povijest)
+│   ├── /naselja       → Consolidated (tabs: Veliki Bukovec, Dubovica, Kapela)
+│   └── /udruge        → Consolidated (filters: Vatrogasci, Sport, Ostale)
+├── /organizacija      → Consolidated (tabs: Načelnik, Vijeće, Uprava)
+├── /usluge            → Consolidated (tabs: Komunalno, Financije, Građani, Udruge)
+├── /izbori            → Consolidated (filters: Lokalni, Parlamentarni, Predsjednički, EU)
+├── /vijesti           → Dynamic list from database
+├── /obavijesti        → Dynamic list from database
+├── /dokumenti         → Dynamic list from database
+├── /galerija          → Dynamic list from database
+├── /dogadanja         → Dynamic list from database
+├── /kontakt           → Static contact page
+├── /prijava-problema  → Problem report form
+└── /[...slug]         → Catch-all for legacy database pages
+```
+
+**Consolidated Page Pattern:**
+- Use Framer Motion tabs with `AnimatePresence` for smooth transitions
+- Sticky tab bar at top for easy navigation
+- Hero section with animated content swap
+- Each tab contains complete content (no additional navigation needed)
+- Mobile-responsive with same tab pattern
+
+**When adding new content:**
+1. First check if it belongs in an existing consolidated page
+2. If creating new page, consider if it should be consolidated with related content
+3. Avoid creating single-purpose pages that fragment the user experience
+
 ### Language
 - All user-facing text in **Croatian**
 - Code comments in English
@@ -428,17 +462,55 @@ logger.info({ password, token }); // NEVER DO THIS
 - `info`: Normal operations (use sparingly)
 - `debug`: Development only, never in prod
 
-## VPS Access
+## VPS Infrastructure
 
-Always use Tailscale for VPS access:
+### Tailscale Access
 ```bash
-# SSH via Tailscale IP, never public IP
-ssh deploy@100.x.x.x
+# VPS Tailscale IP
+100.120.125.83
 
-# Database access (only if absolutely needed)
-psql -h 100.x.x.x -U deploy -d velikibukovec
+# SSH access
+ssh deploy@100.120.125.83
 
-# Never expose services to public
+# Never expose services to public internet
+```
+
+### Services on VPS
+```
+Caddy (port 80)     → serves /home/deploy/apps/web-static (static web app)
+Admin App (port 3001) → pm2 process "vb-admin", runs from /home/deploy/apps/admin-repo/apps/admin
+PostgreSQL (port 5432) → listens on localhost AND Tailscale IP
+Ollama (port 11434) → local embeddings with nomic-embed-text model
+```
+
+### Database
+```bash
+# Connection string (from VPS or via Tailscale)
+postgresql://velikibukovec:<password>@100.120.125.83:5432/velikibukovec
+
+# Password is in /home/deploy/apps/admin-repo/.env on VPS
+```
+
+### Deployment
+```bash
+# Build web app locally (needs DB access via Tailscale)
+cd /home/wandeon/WebVB
+echo 'NEXT_PUBLIC_API_URL=http://100.120.125.83:3001' > apps/web/.env.local
+echo 'DATABASE_URL="postgresql://velikibukovec:<password>@100.120.125.83:5432/velikibukovec"' >> apps/web/.env.local
+pnpm build --filter=@repo/web
+
+# Deploy to VPS
+scp -r apps/web/out/* deploy@100.120.125.83:~/apps/web-static/
+
+# Reload Caddy if needed
+ssh deploy@100.120.125.83 "sudo systemctl reload caddy"
+```
+
+### PM2 Commands
+```bash
+ssh deploy@100.120.125.83 "pm2 list"           # Check status
+ssh deploy@100.120.125.83 "pm2 restart vb-admin" # Restart admin app
+ssh deploy@100.120.125.83 "pm2 logs vb-admin"    # View logs
 ```
 
 ## Environment Variables

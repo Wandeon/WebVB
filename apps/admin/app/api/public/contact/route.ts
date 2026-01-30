@@ -3,6 +3,7 @@ import { contactFormSchema } from '@repo/shared';
 import { NextResponse } from 'next/server';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
+import { sendContactConfirmation, sendContactNotification } from '@/lib/email';
 import { contactLogger } from '@/lib/logger';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
@@ -48,14 +49,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true }, { headers: corsHeaders }); // Silent rejection for bots
     }
 
-    await contactMessagesRepository.create({
+    const contactData = {
       name: result.data.name,
       email: result.data.email,
       subject: result.data.subject || null,
       message: result.data.message,
+    };
+
+    await contactMessagesRepository.create({
+      ...contactData,
       status: 'new',
       ipAddress: ip,
     });
+
+    // Send email notifications (fire-and-forget, errors are logged but don't fail the request)
+    sendContactNotification({ ...contactData, createdAt: new Date() });
+    sendContactConfirmation(contactData);
 
     return NextResponse.json(
       {

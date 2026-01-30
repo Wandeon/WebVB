@@ -30,7 +30,7 @@ export interface Event {
 
 interface GetColumnsOptions {
   onDelete: (event: Event) => void;
-  onAddToNewsletter: (event: Event) => void;
+  onAddToNewsletter: (event: Event) => void | Promise<void>;
 }
 
 function formatEventDate(event: Event): string {
@@ -166,7 +166,7 @@ export function getColumns({ onDelete, onAddToNewsletter }: GetColumnsOptions): 
                   Uredi
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onAddToNewsletter(event)}>
+              <DropdownMenuItem onClick={() => void onAddToNewsletter(event)}>
                 <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
                 Dodaj u newsletter
               </DropdownMenuItem>

@@ -1,9 +1,10 @@
 // apps/web/app/newsletter/potvrda/page.tsx
 import { Loader2 } from 'lucide-react';
-import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { ConfirmationClient } from './confirmation-client';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Potvrda pretplate - Newsletter | Općina Veliki Bukovec',

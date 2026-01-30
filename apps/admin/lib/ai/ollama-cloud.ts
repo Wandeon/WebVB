@@ -20,7 +20,7 @@ import type {
 
 const DEFAULT_CONFIG: Omit<OllamaCloudConfig, 'apiKey'> = {
   baseUrl: 'https://api.ollama.com',
-  model: 'llama3.1:70b',
+  model: 'deepseek-v3.2',
   maxRetries: 3,
   retryDelayMs: 30000, // 30 seconds base delay
 };

@@ -3,6 +3,7 @@ import { problemReportSchema } from '@repo/shared';
 import { NextResponse } from 'next/server';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
+import { sendProblemConfirmation, sendProblemNotification } from '@/lib/email';
 import { problemReportsLogger } from '@/lib/logger';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true }, { headers: corsHeaders }); // Silent rejection for bots
     }
 
-    await problemReportsRepository.create({
+    const reportData = {
       problemType: result.data.problemType,
       location: result.data.location,
       description: result.data.description,
@@ -59,9 +60,17 @@ export async function POST(request: Request) {
         url: img.url,
         caption: img.caption ?? null,
       })) ?? null,
+    };
+
+    await problemReportsRepository.create({
+      ...reportData,
       status: 'new',
       ipAddress: ip,
     });
+
+    // Send email notifications (fire-and-forget, errors are logged but don't fail the request)
+    sendProblemNotification({ ...reportData, createdAt: new Date() });
+    sendProblemConfirmation(reportData); // Only sends if reporterEmail is provided
 
     return NextResponse.json(
       {

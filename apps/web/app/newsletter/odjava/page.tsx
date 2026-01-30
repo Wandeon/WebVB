@@ -1,9 +1,10 @@
 // apps/web/app/newsletter/odjava/page.tsx
 import { Loader2 } from 'lucide-react';
-import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { UnsubscribeClient } from './unsubscribe-client';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Odjava s newslettera | Općina Veliki Bukovec',

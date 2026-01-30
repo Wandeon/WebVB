@@ -37,7 +37,7 @@ export interface Post {
 
 interface GetColumnsOptions {
   onDelete: (post: Post) => void;
-  onAddToNewsletter: (post: Post) => void;
+  onAddToNewsletter: (post: Post) => void | Promise<void>;
 }
 
 export function getColumns({ onDelete, onAddToNewsletter }: GetColumnsOptions): ColumnDef<Post>[] {
@@ -118,7 +118,7 @@ export function getColumns({ onDelete, onAddToNewsletter }: GetColumnsOptions): 
                   Uredi
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onAddToNewsletter(post)}>
+              <DropdownMenuItem onClick={() => void onAddToNewsletter(post)}>
                 <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
                 Dodaj u newsletter
               </DropdownMenuItem>

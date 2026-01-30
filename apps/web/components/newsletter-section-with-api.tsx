@@ -4,6 +4,13 @@ import { NewsletterSection } from '@repo/ui';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+interface SubscribeResponse {
+  success: boolean;
+  error?: {
+    message: string;
+  };
+}
+
 async function handleNewsletterSubmit(email: string): Promise<void> {
   const response = await fetch(`${API_URL}/api/public/newsletter/subscribe`, {
     method: 'POST',
@@ -11,10 +18,10 @@ async function handleNewsletterSubmit(email: string): Promise<void> {
     body: JSON.stringify({ email }),
   });
 
-  const data = await response.json();
+  const data = (await response.json()) as SubscribeResponse;
 
   if (!response.ok || !data.success) {
-    throw new Error(data.error?.message || 'Subscription failed');
+    throw new Error(data.error?.message ?? 'Subscription failed');
   }
 }
 

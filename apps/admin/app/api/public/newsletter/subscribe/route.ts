@@ -1,6 +1,7 @@
+import { randomUUID } from 'node:crypto';
+
 import { newsletterRepository } from '@repo/database';
 import { newsletterSubscribeSchema } from '@repo/shared';
-import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';

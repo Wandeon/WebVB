@@ -24,13 +24,15 @@ export function ConfirmationClient() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+  // Derive initial state from token parameter to avoid setState in effect
+  const initialStatus = token ? 'loading' : 'error';
+  const initialMessage = token ? '' : 'Nevažeći link za potvrdu.';
+
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(initialStatus);
+  const [message, setMessage] = useState(initialMessage);
 
   useEffect(() => {
     if (!token) {
-      setStatus('error');
-      setMessage('Nevažeći link za potvrdu.');
       return;
     }
 

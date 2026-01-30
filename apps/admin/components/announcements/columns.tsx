@@ -40,7 +40,7 @@ export interface Announcement {
 
 interface GetColumnsOptions {
   onDelete: (announcement: Announcement) => void;
-  onAddToNewsletter: (announcement: Announcement) => void;
+  onAddToNewsletter: (announcement: Announcement) => void | Promise<void>;
 }
 
 function getValidityStatus(validFrom: string | null, validUntil: string | null): {
@@ -155,7 +155,7 @@ export function getColumns({ onDelete, onAddToNewsletter }: GetColumnsOptions): 
                   Uredi
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onAddToNewsletter(announcement)}>
+              <DropdownMenuItem onClick={() => void onAddToNewsletter(announcement)}>
                 <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
                 Dodaj u newsletter
               </DropdownMenuItem>

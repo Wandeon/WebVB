@@ -1,6 +1,6 @@
-import { Prisma } from '@prisma/client';
-
 import { db } from '../client';
+
+import type { Prisma } from '@prisma/client';
 
 export type NewsletterItemType = 'post' | 'announcement' | 'event';
 

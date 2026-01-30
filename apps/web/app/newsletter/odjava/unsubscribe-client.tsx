@@ -23,13 +23,15 @@ export function UnsubscribeClient() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
 
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+  // Derive initial state from id parameter to avoid setState in effect
+  const initialStatus = id ? 'loading' : 'error';
+  const initialMessage = id ? '' : 'Nevažeći link za odjavu.';
+
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(initialStatus);
+  const [message, setMessage] = useState(initialMessage);
 
   useEffect(() => {
     if (!id) {
-      setStatus('error');
-      setMessage('Nevažeći link za odjavu.');
       return;
     }
 
