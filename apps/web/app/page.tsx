@@ -2,10 +2,12 @@ import {
   announcementsRepository,
   documentsRepository,
   eventsRepository,
+  galleriesRepository,
   postsRepository,
   type AnnouncementWithAuthor,
   type DocumentWithUploader,
   type Event,
+  type GalleryWithCount,
   type PostWithAuthor,
 } from '@repo/database';
 import { createOrganizationJsonLd, getPublicEnv } from '@repo/shared';
@@ -18,6 +20,7 @@ import {
   ExperienceCard,
   FadeIn,
   FeaturedPostCard,
+  GalleryShowcase,
   NewsletterSection,
   PostCard,
   QuickLinkCard,
@@ -36,18 +39,19 @@ import { transparencyConfig } from '../lib/transparency-config';
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 async function getHomepageData() {
-  const [latestPosts, upcomingEvents, latestAnnouncements, latestDocuments] = await Promise.all([
+  const [latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries] = await Promise.all([
     postsRepository.getLatestPosts(3),
     eventsRepository.getUpcomingEvents(3),
     announcementsRepository.getLatestActive(4),
     documentsRepository.getLatestDocuments(4),
+    galleriesRepository.getFeaturedForHomepage(12),
   ]);
 
-  return { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments };
+  return { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries };
 }
 
 export default async function HomePage() {
-  const { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments } = await getHomepageData();
+  const { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries } = await getHomepageData();
   const organizationStructuredData = createOrganizationJsonLd({
     name: siteConfig.name,
     url: NEXT_PUBLIC_SITE_URL,
@@ -327,6 +331,34 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Gallery Showcase */}
+      {featuredGalleries.length > 0 && (
+        <section className="py-12 md:py-16 lg:py-20">
+          <div className="container mx-auto px-4">
+            <FadeIn>
+              <SectionHeader
+                title="Galerija"
+                description="Pogledajte fotografije iz života naše općine"
+                linkText="Sve galerije"
+                linkHref="/galerija"
+              />
+            </FadeIn>
+          </div>
+          <div className="mt-8">
+            <GalleryShowcase
+              galleries={featuredGalleries
+                .filter((g: GalleryWithCount) => g.coverImage)
+                .map((g: GalleryWithCount) => ({
+                  name: g.name,
+                  slug: g.slug,
+                  coverImage: g.coverImage as string,
+                  imageCount: g._count.images,
+                }))}
+            />
+          </div>
+        </section>
+      )}
 
       {/* Transparency */}
       <section className="bg-neutral-50 py-12 md:py-16">

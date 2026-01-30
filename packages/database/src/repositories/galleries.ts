@@ -249,4 +249,19 @@ export const galleriesRepository = {
       orderBy: { eventDate: 'desc' },
     });
   },
+
+  /**
+   * Get featured galleries for homepage showcase (galleries with cover images)
+   */
+  async getFeaturedForHomepage(limit: number = 12): Promise<GalleryWithCount[]> {
+    return db.gallery.findMany({
+      where: {
+        coverImage: { not: null },
+        images: { some: {} },
+      },
+      include: { _count: { select: { images: true } } },
+      orderBy: { eventDate: 'desc' },
+      take: limit,
+    });
+  },
 };
