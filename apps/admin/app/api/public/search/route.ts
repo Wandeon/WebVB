@@ -48,7 +48,23 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Use raw SQL for full-text search with ts_rank and ts_headline
+    // Build prefix search query: "zvon" -> "zvon:*", "veliki bukovec" -> "veliki:* & bukovec:*"
+    const prefixQuery = query
+      .toLowerCase()
+      .replace(/[&|!():*<>]/g, ' ') // Remove tsquery special chars
+      .split(/\s+/)
+      .filter(word => word.length >= 2)
+      .map(word => `${word}:*`)
+      .join(' & ');
+
+    if (!prefixQuery) {
+      return NextResponse.json(
+        { results: { posts: [], documents: [], pages: [], events: [] }, totalCount: 0, query },
+        { headers: corsHeaders }
+      );
+    }
+
+    // Use raw SQL for full-text search with prefix matching
     const results = await db.$queryRaw<
       {
         id: string;
@@ -70,15 +86,15 @@ export async function GET(request: Request) {
         url,
         category,
         published_at,
-        ts_rank(search_vector, plainto_tsquery('simple', ${query})) as rank,
+        ts_rank(search_vector, to_tsquery('simple', ${prefixQuery})) as rank,
         ts_headline(
           'simple',
           content_text,
-          plainto_tsquery('simple', ${query}),
+          to_tsquery('simple', ${prefixQuery}),
           'MaxWords=25, MinWords=15, StartSel=<mark>, StopSel=</mark>'
         ) as headline
       FROM search_index
-      WHERE search_vector @@ plainto_tsquery('simple', ${query})
+      WHERE search_vector @@ to_tsquery('simple', ${prefixQuery})
       ORDER BY rank DESC
       LIMIT ${MAX_TOTAL_RESULTS}
     `;

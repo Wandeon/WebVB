@@ -27,7 +27,7 @@ export interface SearchResponse {
   query: string;
 }
 
-const DEBOUNCE_MS = 150;
+const DEBOUNCE_MS = 250;
 
 interface UseSearchOptions {
   apiUrl?: string;
