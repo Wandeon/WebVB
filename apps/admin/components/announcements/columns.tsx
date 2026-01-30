@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@repo/ui';
-import { MoreHorizontal, Paperclip, Pencil, Trash2 } from 'lucide-react';
+import { Mail, MoreHorizontal, Paperclip, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 import type { AnnouncementCategory } from '@repo/shared';
@@ -40,6 +40,7 @@ export interface Announcement {
 
 interface GetColumnsOptions {
   onDelete: (announcement: Announcement) => void;
+  onAddToNewsletter: (announcement: Announcement) => void;
 }
 
 function getValidityStatus(validFrom: string | null, validUntil: string | null): {
@@ -65,7 +66,7 @@ function getValidityStatus(validFrom: string | null, validUntil: string | null):
   return { label: 'Aktivno', variant: 'success' };
 }
 
-export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Announcement>[] {
+export function getColumns({ onDelete, onAddToNewsletter }: GetColumnsOptions): ColumnDef<Announcement>[] {
   return [
     {
       accessorKey: 'title',
@@ -153,6 +154,10 @@ export function getColumns({ onDelete }: GetColumnsOptions): ColumnDef<Announcem
                   <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
                   Uredi
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddToNewsletter(announcement)}>
+                <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
+                Dodaj u newsletter
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
