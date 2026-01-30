@@ -48,3 +48,8 @@ export type {
   ParseFailureResult,
   SupportedMimeType,
 } from './document-parser';
+
+// Pipeline
+export { runArticlePipeline } from './pipeline';
+export type { ReviewResult, ReviewScores, ReviewIssue } from './prompts';
+export { PIPELINE_CONFIG } from './prompts';
