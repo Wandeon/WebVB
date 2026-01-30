@@ -130,7 +130,7 @@ export default async function HomePage() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_340px] lg:gap-8">
             {/* Main News Column */}
-            <div>
+            <div className="min-w-0">
               {latestPosts.length > 0 && latestPosts[0] ? (
                 <div className="space-y-4">
                   {/* Featured Post */}
@@ -190,9 +190,9 @@ export default async function HomePage() {
             </div>
 
             {/* Sidebar - Announcements & Documents */}
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               {/* Announcements */}
-              <FadeIn direction="left">
+              <FadeIn>
                 <div className="rounded-xl bg-white p-4 shadow-sm">
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-display text-lg font-semibold text-neutral-900">
@@ -227,7 +227,7 @@ export default async function HomePage() {
               </FadeIn>
 
               {/* Latest Documents */}
-              <FadeIn direction="left" delay={0.1}>
+              <FadeIn delay={0.1}>
                 <div className="rounded-xl bg-white p-4 shadow-sm">
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-display text-lg font-semibold text-neutral-900">
