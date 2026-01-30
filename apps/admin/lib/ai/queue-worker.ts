@@ -7,6 +7,7 @@ import { aiQueueRepository } from '@repo/database';
 
 import { aiLogger } from '../logger';
 import { generate, isOllamaCloudConfigured } from './ollama-cloud';
+import { runArticlePipeline } from './pipeline';
 
 import type { AiQueueRecord } from '@repo/database';
 
@@ -125,17 +126,31 @@ async function processJob(job: AiQueueRecord): Promise<void> {
         : null,
     };
 
-    // For post_generation jobs, parse the response and extract structured data
+    // For post_generation jobs, parse the response and run through pipeline
     if (job.requestType === 'post_generation') {
       const parsedResult = parsePostGenerationResult(result.data.response);
       if (parsedResult) {
+        aiLogger.info({ jobId: job.id }, 'Running article through quality pipeline');
+
+        // Run through REVIEW → REWRITE → POLISH pipeline
+        const pipelineResult = await runArticlePipeline(parsedResult);
+
         aiLogger.info(
-          { jobId: job.id },
-          'Successfully parsed post generation result'
+          {
+            jobId: job.id,
+            finalScore: pipelineResult.finalScore,
+            passed: pipelineResult.passed,
+            rewriteCount: pipelineResult.rewriteCount,
+          },
+          'Article pipeline completed'
         );
-        resultData.title = parsedResult.title;
-        resultData.content = parsedResult.content;
-        resultData.excerpt = parsedResult.excerpt;
+
+        resultData.title = pipelineResult.article.title;
+        resultData.content = pipelineResult.article.content;
+        resultData.excerpt = pipelineResult.article.excerpt;
+        resultData.pipelineScore = pipelineResult.finalScore;
+        resultData.pipelinePassed = pipelineResult.passed;
+        resultData.pipelineRewriteCount = pipelineResult.rewriteCount;
       } else {
         aiLogger.warn(
           { jobId: job.id },
