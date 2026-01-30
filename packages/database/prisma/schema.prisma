@@ -317,6 +317,16 @@ model NewsletterSend {
   @@map("newsletter_sends")
 }
 
+model NewsletterDraft {
+  id        String   @id @default("singleton")
+  introText String?  @map("intro_text") @db.Text
+  items     Json     @default("[]") // [{type: 'post'|'announcement'|'event', id: string, addedAt: string}]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("newsletter_drafts")
+}
+
 // ============================================================================
 // SYSTEM TABLES
 // ============================================================================
