@@ -48,6 +48,9 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Debug: log the query
+    console.log('[Search] Query:', query);
+
     // Use raw SQL for full-text search with ts_rank and ts_headline
     const results = await db.$queryRaw<
       {
@@ -82,6 +85,12 @@ export async function GET(request: Request) {
       ORDER BY rank DESC
       LIMIT ${MAX_TOTAL_RESULTS}
     `;
+
+    // Debug: log raw results
+    console.log('[Search] Raw results count:', results.length);
+    if (results.length > 0) {
+      console.log('[Search] First result:', results[0]);
+    }
 
     // Group results by source type
     const grouped: GroupedResults = {
