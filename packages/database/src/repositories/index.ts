@@ -105,3 +105,9 @@ export {
   type NewsletterDraftItem,
   type NewsletterDraftRecord,
 } from './newsletter-draft';
+
+export {
+  newsletterSendRepository,
+  type NewsletterSendRecord,
+  type CreateNewsletterSendData,
+} from './newsletter-send';
