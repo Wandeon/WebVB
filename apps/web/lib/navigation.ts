@@ -151,7 +151,6 @@ export const footerLinks = [
       { title: 'Dokumenti', href: '/dokumenti' },
       { title: 'Usluge', href: '/usluge' },
       { title: 'Prijava problema', href: '/prijava-problema' },
-      { title: 'Izjava o pristupačnosti', href: '/pristupacnost' },
     ],
   },
   {
@@ -161,6 +160,14 @@ export const footerLinks = [
       { title: 'Trg svetog Franje 425', href: 'https://maps.google.com' },
       { title: '42231 Veliki Bukovec', href: '/kontakt' },
       { title: 'opcina@velikibukovec.hr', href: 'mailto:opcina@velikibukovec.hr' },
+    ],
+  },
+  {
+    title: 'Pravne informacije',
+    items: [
+      { title: 'Politika privatnosti', href: '/privatnost' },
+      { title: 'Uvjeti korištenja', href: '/uvjeti-koristenja' },
+      { title: 'Izjava o pristupačnosti', href: '/izjava-o-pristupacnosti' },
     ],
   },
 ];

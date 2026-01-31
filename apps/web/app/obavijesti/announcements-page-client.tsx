@@ -3,6 +3,7 @@
 import { ANNOUNCEMENT_CATEGORIES, ANNOUNCEMENT_CATEGORY_OPTIONS } from '@repo/shared';
 import {
   CategoryFilter,
+  ContentTypeSwitcher,
   FadeIn,
   Pagination,
   SectionHeader,
@@ -164,22 +165,24 @@ export function AnnouncementsPageClient({ initialData }: AnnouncementsPageClient
   }, [category, page, initialData, shouldUseInitialData]);
 
   return (
-    <div className="py-8 md:py-12">
-      <div className="container mx-auto px-4">
-        <FadeIn>
-          <SectionHeader
-            title="Obavijesti"
-            description="Natječaji, oglasi, javni pozivi i službene obavijesti Općine Veliki Bukovec"
-          />
-        </FadeIn>
+    <>
+      <ContentTypeSwitcher />
 
-        <FadeIn>
+      <div className="py-8 pb-24 sm:pb-12 md:py-12">
+        <div className="container mx-auto px-4">
+          <FadeIn>
+            <SectionHeader
+              title="Obavijesti"
+              description="Natječaji, oglasi, javni pozivi i službene obavijesti Općine Veliki Bukovec"
+            />
+          </FadeIn>
+
           <CategoryFilter
             categories={ANNOUNCEMENT_CATEGORY_OPTIONS}
             allLabel="Sve obavijesti"
             className="mb-8"
+            sticky
           />
-        </FadeIn>
 
         {errorMessage ? (
           <FadeIn>
@@ -232,5 +235,6 @@ export function AnnouncementsPageClient({ initialData }: AnnouncementsPageClient
         )}
       </div>
     </div>
+    </>
   );
 }

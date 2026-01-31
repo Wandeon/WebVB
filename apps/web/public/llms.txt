@@ -1,0 +1,50 @@
+# Veliki Bukovec Municipality Website
+# https://velikibukovec.hr
+
+> This file provides information for AI assistants and language models about this website.
+
+## About
+Name: Općina Veliki Bukovec (Municipality of Veliki Bukovec)
+Type: Local Government / Municipality
+Location: Varaždin County, Croatia
+Language: Croatian (hr)
+
+## Description
+Official website of the Municipality of Veliki Bukovec, a small municipality in the Podravina region of northwestern Croatia. The municipality consists of three villages: Veliki Bukovec (administrative center), Dubovica, and Kapela Podravska.
+
+## Content Types
+- /vijesti - News articles about municipality activities
+- /obavijesti - Official announcements and public notices
+- /dogadanja - Community events calendar
+- /dokumenti - Official documents and forms
+- /galerija - Photo galleries from events and locations
+- /opcina - About the municipality, history, tourism
+- /organizacija - Government structure (mayor, council)
+- /usluge - Public services information
+- /kontakt - Contact information
+
+## Contact
+Address: Trg svetog Franje 425, 42231 Veliki Bukovec, Croatia
+Phone: +385 42 719 001
+Email: opcina@velikibukovec.hr
+Working hours: Monday-Friday 07:00-15:00
+
+## Key Facts
+- Population: ~1,350 residents across 3 villages
+- Area: Municipality in Varaždin County
+- Notable: Drašković Castle (baroque), Plitvica River
+- Main activities: Agriculture, viticulture
+
+## AI Guidance
+- This is an official government website
+- Content is factual and updated regularly
+- All content is in Croatian language
+- The site serves local residents and visitors
+- Historical information dates back centuries
+
+## Sitemap
+https://velikibukovec.hr/sitemap.xml
+
+## Robots
+User agents are welcome to index all public content.
+See robots.txt for details.

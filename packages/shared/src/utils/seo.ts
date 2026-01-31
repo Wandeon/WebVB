@@ -59,6 +59,63 @@ export type EventJsonLd = {
   };
 };
 
+export type BreadcrumbItem = {
+  name: string;
+  url: string;
+};
+
+export type BreadcrumbListJsonLd = {
+  '@context': 'https://schema.org';
+  '@type': 'BreadcrumbList';
+  itemListElement: Array<{
+    '@type': 'ListItem';
+    position: number;
+    name: string;
+    item: string;
+  }>;
+};
+
+export type LocalBusinessJsonLd = {
+  '@context': 'https://schema.org';
+  '@type': 'GovernmentOffice';
+  name: string;
+  url: string;
+  logo?: string;
+  image?: string;
+  description?: string;
+  address: {
+    '@type': 'PostalAddress';
+    streetAddress: string;
+    addressLocality: string;
+    postalCode: string;
+    addressCountry: string;
+  };
+  geo?: {
+    '@type': 'GeoCoordinates';
+    latitude: number;
+    longitude: number;
+  };
+  telephone?: string;
+  email?: string;
+  openingHoursSpecification?: Array<{
+    '@type': 'OpeningHoursSpecification';
+    dayOfWeek: string[];
+    opens: string;
+    closes: string;
+  }>;
+};
+
+export type ImageGalleryJsonLd = {
+  '@context': 'https://schema.org';
+  '@type': 'ImageGallery';
+  name: string;
+  description?: string;
+  url: string;
+  dateCreated?: string;
+  numberOfItems: number;
+  image?: string[];
+};
+
 export type OrganizationJsonLdInput = Omit<OrganizationJsonLd, '@context' | '@type'>;
 export type ArticleJsonLdInput = Omit<ArticleJsonLd, '@context' | '@type'>;
 export type EventJsonLdInput = Omit<EventJsonLd, '@context' | '@type'>;
@@ -99,6 +156,41 @@ export function createEventJsonLd(input: EventJsonLdInput): EventJsonLd {
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
+    ...input,
+  };
+}
+
+export function createBreadcrumbListJsonLd(
+  items: BreadcrumbItem[]
+): BreadcrumbListJsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+export function createLocalBusinessJsonLd(
+  input: Omit<LocalBusinessJsonLd, '@context' | '@type'>
+): LocalBusinessJsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'GovernmentOffice',
+    ...input,
+  };
+}
+
+export function createImageGalleryJsonLd(
+  input: Omit<ImageGalleryJsonLd, '@context' | '@type'>
+): ImageGalleryJsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
     ...input,
   };
 }

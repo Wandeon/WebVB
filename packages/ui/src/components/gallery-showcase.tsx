@@ -11,6 +11,7 @@ export interface GalleryShowcaseItem {
   slug: string;
   coverImage: string;
   imageCount: number;
+  eventDate?: Date | null;
 }
 
 export interface GalleryShowcaseProps {
@@ -119,23 +120,27 @@ function ScrollingRow({ items, direction, speed = 30 }: ScrollingRowProps) {
                 "opacity-60 transition-opacity duration-300 group-hover:opacity-90"
               )} />
 
-              {/* Content overlay */}
-              <motion.div
-                className="absolute inset-x-0 bottom-0 p-4"
-                initial={{ y: 10, opacity: 0 }}
-                animate={{
-                  y: hoveredIndex === index ? 0 : 10,
-                  opacity: hoveredIndex === index ? 1 : 0
-                }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="font-display text-lg font-semibold text-white drop-shadow-lg">
+              {/* Content overlay - always visible */}
+              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                <h3 className="font-display text-sm font-semibold text-white drop-shadow-lg sm:text-base lg:text-lg line-clamp-1">
                   {gallery.name}
                 </h3>
-                <p className="mt-1 text-sm text-white/80">
-                  {gallery.imageCount} fotografija
-                </p>
-              </motion.div>
+                <div className="mt-1 flex items-center gap-2 text-xs text-white/80 sm:text-sm">
+                  {gallery.eventDate && (
+                    <>
+                      <span>
+                        {new Date(gallery.eventDate).toLocaleDateString('hr-HR', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </span>
+                      <span className="text-white/50">•</span>
+                    </>
+                  )}
+                  <span>{gallery.imageCount} foto</span>
+                </div>
+              </div>
 
               {/* Shine effect on hover */}
               <motion.div

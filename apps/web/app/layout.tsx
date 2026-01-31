@@ -27,6 +27,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hr" className={`${inter.variable} ${plusJakarta.variable}`}>
+      <head>
+        {/* Performance hints - Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Performance hints - R2 CDN for images */}
+        <link rel="preconnect" href="https://pub-a73068f5593840f6a7942e3ad511f2d4.r2.dev" />
+        <link rel="dns-prefetch" href="https://pub-a73068f5593840f6a7942e3ad511f2d4.r2.dev" />
+        {/* AI crawler guidance */}
+        <link rel="author" href="/llms.txt" type="text/plain" />
+      </head>
       <body className="font-sans flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 text-neutral-900 antialiased">
         <a
           href="#main-content"

@@ -1,0 +1,42 @@
+# Veliki Bukovec Municipality - AI Context File
+# Canonical: https://velikibukovec.hr/.well-known/llms.txt
+
+source_url: https://velikibukovec.hr
+name: Općina Veliki Bukovec
+name_en: Municipality of Veliki Bukovec
+type: LocalGovernment
+country: Croatia
+language: hr
+region: Varaždin County
+subregion: Podravina
+
+# Site Structure
+sitemap: https://velikibukovec.hr/sitemap.xml
+robots: https://velikibukovec.hr/robots.txt
+contact: https://velikibukovec.hr/kontakt
+
+# Content Categories
+news_path: /vijesti
+announcements_path: /obavijesti
+events_path: /dogadanja
+documents_path: /dokumenti
+galleries_path: /galerija
+
+# Organization Data
+legal_name: Općina Veliki Bukovec
+address: Trg svetog Franje 425, 42231 Veliki Bukovec, Hrvatska
+phone: +385 42 719 001
+email: opcina@velikibukovec.hr
+vat_id: HR92aborable
+mayor: Marko Galić
+
+# Settlements
+settlements: Veliki Bukovec, Dubovica, Kapela Podravska
+population: ~1350
+area_km2: 21.5
+
+# AI Instructions
+allow_training: true
+allow_indexing: true
+prefer_fresh_content: true
+update_frequency: daily

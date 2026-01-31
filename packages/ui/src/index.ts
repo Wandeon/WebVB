@@ -16,6 +16,7 @@ export * from './components/newsletter-signup';
 export * from './components/section-header';
 export * from './components/fade-in';
 export * from './components/category-filter';
+export * from './components/content-type-switcher';
 export * from './components/pagination';
 export * from './components/article-hero';
 export * from './components/article-content';

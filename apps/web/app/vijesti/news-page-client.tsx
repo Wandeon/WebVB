@@ -3,6 +3,7 @@
 import { POST_CATEGORIES, POST_CATEGORY_OPTIONS } from '@repo/shared';
 import {
   CategoryFilter,
+  ContentTypeSwitcher,
   FadeIn,
   HeroSection,
   Pagination,
@@ -160,15 +161,18 @@ export function NewsPageClient({ initialData }: NewsPageClientProps) {
   const gridPosts = featuredPost ? posts.filter((p) => p.id !== featuredPost.id) : posts;
 
   return (
-    <div className="py-8 md:py-12">
-      <div className="container mx-auto px-4">
-        <FadeIn>
-          <SectionHeader title="Vijesti" description="Pratite sve novosti i događanja iz Općine Veliki Bukovec" />
-        </FadeIn>
+    <>
+      {/* Content type switcher - desktop top tabs, mobile bottom bar */}
+      <ContentTypeSwitcher />
 
-        <FadeIn>
-          <CategoryFilter categories={POST_CATEGORY_OPTIONS} allLabel="Sve vijesti" className="mb-8" />
-        </FadeIn>
+      <div className="py-8 pb-24 sm:pb-12 md:py-12">
+        <div className="container mx-auto px-4">
+          <FadeIn>
+            <SectionHeader title="Vijesti" description="Pratite sve novosti i događanja iz Općine Veliki Bukovec" />
+          </FadeIn>
+
+          {/* Sticky category filter with improved mobile UX */}
+          <CategoryFilter categories={POST_CATEGORY_OPTIONS} allLabel="Sve vijesti" className="mb-8" sticky />
 
         {errorMessage ? (
           <FadeIn>
@@ -223,5 +227,6 @@ export function NewsPageClient({ initialData }: NewsPageClientProps) {
         )}
       </div>
     </div>
+    </>
   );
 }

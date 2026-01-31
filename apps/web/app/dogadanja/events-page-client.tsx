@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  ContentTypeSwitcher,
   EventCalendar,
   EventCard,
   EventTabs,
@@ -240,6 +241,8 @@ export function EventsPageClient({ initialData }: EventsPageClientProps) {
 
   return (
     <>
+      <ContentTypeSwitcher />
+
       {/* Back link */}
       <div className="container mx-auto px-4 py-4">
         <Link
@@ -264,7 +267,7 @@ export function EventsPageClient({ initialData }: EventsPageClientProps) {
       </div>
 
       {/* Main content */}
-      <div className="container mx-auto px-4 pb-12">
+      <div className="container mx-auto px-4 pb-24 sm:pb-12">
         {/* Tabs */}
         <FadeIn>
           <EventTabs className="mb-6" />

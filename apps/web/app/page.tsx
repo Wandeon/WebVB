@@ -10,7 +10,7 @@ import {
   type GalleryWithCount,
   type PostWithAuthor,
 } from '@repo/database';
-import { createOrganizationJsonLd, getPublicEnv } from '@repo/shared';
+import { createOrganizationJsonLd, createLocalBusinessJsonLd, getPublicEnv } from '@repo/shared';
 import {
   AnnouncementCompactCard,
   BentoGrid,
@@ -71,11 +71,41 @@ export default async function HomePage() {
     },
   });
 
+  const localBusinessStructuredData = createLocalBusinessJsonLd({
+    name: siteConfig.name,
+    url: NEXT_PUBLIC_SITE_URL,
+    logo: siteConfig.logo,
+    description: 'Službena stranica Općine Veliki Bukovec - lokalna samouprava u Varaždinskoj županiji, Hrvatska.',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: siteConfig.address.streetAddress,
+      addressLocality: siteConfig.address.addressLocality,
+      postalCode: siteConfig.address.postalCode,
+      addressCountry: siteConfig.address.addressCountry,
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 46.2833,
+      longitude: 16.7667,
+    },
+    telephone: siteConfig.contactPoint.telephone,
+    email: siteConfig.contactPoint.email,
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '07:00',
+        closes: '15:00',
+      },
+    ],
+  });
+
   const gridAreas = ['a', 'b', 'c', 'd', 'e', 'f'] as const;
 
   return (
     <>
       <script type="application/ld+json">{JSON.stringify(organizationStructuredData)}</script>
+      <script type="application/ld+json">{JSON.stringify(localBusinessStructuredData)}</script>
 
       {/* Hero Section */}
       <VillageHero />
@@ -354,6 +384,7 @@ export default async function HomePage() {
                   slug: g.slug,
                   coverImage: g.coverImage as string,
                   imageCount: g._count.images,
+                  eventDate: g.eventDate,
                 }))}
             />
           </div>

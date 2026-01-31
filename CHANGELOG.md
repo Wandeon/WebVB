@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## UX, SEO & Performance Improvements (2026-01-31)
+
+### Added - Legal Pages
+- `/privatnost` - GDPR-compliant privacy policy page
+- `/izjava-o-pristupacnosti` - EU accessibility statement (WCAG 2.1 AA)
+- `/uvjeti-koristenja` - Terms of service with AI content disclosure
+- Footer links to legal pages in new "Pravne informacije" section
+
+### Added - UI Components
+- `ContentTypeSwitcher` - Bottom bar (mobile) / top tabs (desktop) for Vijesti/Obavijesti/Događanja
+- `Typewriter` component - Animated text effect with cursor
+- Enhanced `VillageHero` - Typewriter animation for village names and facts, grb image on desktop
+- Enhanced `CategoryFilter` - Sticky header with horizontal scroll on mobile
+
+### Added - SEO & AI Optimization
+- `/llms.txt` and `/.well-known/llms.txt` - AI crawler guidance files
+- `LocalBusiness` (GovernmentOffice) schema on homepage with geo coordinates and opening hours
+- `ImageGallery` schema on gallery detail pages
+- `BreadcrumbList` schema on gallery pages
+- Preconnect hints for Google Fonts CDN
+
+### Added - Page Speed
+- WebP image variants for hero images (33-42% smaller)
+- WebP grb image (71% smaller: 185KB → 53KB)
+- Caddy caching headers: 1 year for static assets, 10 min for HTML
+- Gzip/Zstd compression enabled
+- Security headers (XSS, Permissions-Policy)
+
+### Changed
+- Gallery names normalized with proper Croatian diacritics
+- Merged duplicate galleries, deleted test gallery
+- Mobile menu: Logo now links to home, added Kontakt button
+- Gallery showcase: Name, date, and photo count always visible (not just on hover)
+
+### Database
+- Normalized 13 gallery names (e.g., "Vjezba" → "Vatrogasna vježba")
+- Added event date to "Događanja - Travanj 2017" gallery
+- Merged 2 duplicate "DVD Dubovica" galleries into one (13 images)
+- Deleted empty "Test galerija"
+
+---
+
 ## Navigation Redesign Follow-up (2026-01-31)
 
 ### Added

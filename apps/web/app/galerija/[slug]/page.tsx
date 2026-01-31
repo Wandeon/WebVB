@@ -1,5 +1,5 @@
 import { galleriesRepository } from '@repo/database';
-import { buildCanonicalUrl, getPublicEnv, withStaticParams } from '@repo/shared';
+import { buildCanonicalUrl, createBreadcrumbListJsonLd, createImageGalleryJsonLd, getPublicEnv, withStaticParams } from '@repo/shared';
 import { FadeIn, PhotoGrid } from '@repo/ui';
 import { ArrowLeft, Calendar, Images } from 'lucide-react';
 import Link from 'next/link';
@@ -75,8 +75,28 @@ export default async function GalleryDetailPage({
       }).format(new Date(gallery.eventDate))
     : null;
 
+  const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/galerija/${gallery.slug}`);
+
+  const breadcrumbData = createBreadcrumbListJsonLd([
+    { name: 'Početna', url: NEXT_PUBLIC_SITE_URL },
+    { name: 'Galerija', url: `${NEXT_PUBLIC_SITE_URL}/galerija` },
+    { name: gallery.name, url: canonicalUrl },
+  ]);
+
+  const gallerySchemaData = createImageGalleryJsonLd({
+    name: gallery.name,
+    ...(gallery.description && { description: gallery.description }),
+    url: canonicalUrl,
+    dateCreated: gallery.eventDate?.toISOString() ?? gallery.createdAt.toISOString(),
+    numberOfItems: gallery._count.images,
+    image: gallery.images.slice(0, 5).map((img) => img.imageUrl),
+  });
+
   return (
     <>
+      <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
+      <script type="application/ld+json">{JSON.stringify(gallerySchemaData)}</script>
+
       {/* Back link */}
       <div className="container mx-auto px-4 py-4">
         <Link

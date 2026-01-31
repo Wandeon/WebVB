@@ -357,7 +357,7 @@ export default function VjecePage() {
           <p className="mt-1 text-sm text-amber-700">
             Lokalna politika u Velikom Bukovcu dominirana je{' '}
             <strong>pragmatizmom</strong>, ne ideologijom. Vijece se bavi
-            konkretnimproblema: odvodnjavanjem kanala, odvozom otpada,
+            konkretnim problemima: odvodnjavanjem kanala, odvozom otpada,
             financiranjem traktorskih putova. Kada zajednica osjeti pritisak
             izvana, vijecnici se udruzuju bez obzira na stranku.
           </p>

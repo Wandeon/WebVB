@@ -205,7 +205,11 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                 backgroundColor: '#ffffff',
               }}
             >
-              {logo && <div>{logo}</div>}
+              {logo && (
+                <Link href="/" onClick={() => setIsOpen(false)} style={{ textDecoration: 'none' }}>
+                  {logo}
+                </Link>
+              )}
               <button
                 ref={closeButtonRef}
                 onClick={() => setIsOpen(false)}
@@ -308,6 +312,29 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                 <span style={{ color: '#a3a3a3' }}>|</span>
                 <span style={{ color: '#737373' }}>EN</span>
               </button>
+
+              {/* Kontakt */}
+              <Link
+                href="/kontakt"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  height: '38px',
+                  padding: '0 14px',
+                  borderRadius: '10px',
+                  background: '#16a34a',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                }}
+              >
+                <Phone style={{ width: 14, height: 14 }} />
+                Kontakt
+              </Link>
 
               {/* Accessibility */}
               <button
