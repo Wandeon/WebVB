@@ -200,6 +200,18 @@ export const pagesRepository = {
     });
   },
 
+  async findBySlugPrefix(prefix: string): Promise<Pick<Page, 'id' | 'slug' | 'title' | 'content'>[]> {
+    return db.page.findMany({
+      where: {
+        slug: {
+          startsWith: prefix + '/',
+        },
+      },
+      select: { id: true, slug: true, title: true, content: true },
+      orderBy: { menuOrder: 'asc' },
+    });
+  },
+
   async findSiblingsBySlug(slug: string): Promise<Pick<Page, 'id' | 'slug' | 'title' | 'menuOrder'>[]> {
     if (!isValidPageSlug(slug)) {
       return [];

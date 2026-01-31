@@ -40,6 +40,8 @@ export const megaNavGroups: NavGroup[] = [
       { title: 'O općini', href: '/opcina' },
       { title: 'Naselja', href: '/opcina/naselja' },
       { title: 'Udruge i društva', href: '/opcina/udruge' },
+      { title: 'Župa', href: '/opcina/zupa' },
+      { title: 'Ustanove', href: '/opcina/ustanove' },
       { title: 'Kontakt', href: '/kontakt' },
     ],
   },
@@ -58,6 +60,8 @@ export const mainNav: NavItem[] = [
       { title: 'O općini', href: '/opcina' },
       { title: 'Naselja', href: '/opcina/naselja' },
       { title: 'Udruge', href: '/opcina/udruge' },
+      { title: 'Župa', href: '/opcina/zupa' },
+      { title: 'Ustanove', href: '/opcina/ustanove' },
     ],
   },
   {

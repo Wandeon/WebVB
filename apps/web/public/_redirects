@@ -375,5 +375,18 @@
 /rodiljne-i-roditeljske-potpore /vijesti/rodiljne-i-roditeljske-potpore 301
 /ulaganje-u-objekt-djecjeg-vrtica-krijesnica-podruznica-veliki-bukovec /vijesti/ulaganje-u-objekt-djecjeg-vrtica-krijesnica-podruznica-veliki-bukovec 301
 
+# Consolidated page redirects (Sprint 4.5.2 - Navigation fix)
+/zupa-svetog-franje-asiskog /opcina/zupa 301
+/crkve-i-kapelice /opcina/zupa 301
+/zupni-dvor /opcina/zupa 301
+/mjesna-groblja /opcina/zupa 301
+/skola /opcina/ustanove 301
+/opcina/znamenitosti/zupa /opcina/zupa 301
+/opcina/znamenitosti/crkve /opcina/zupa 301
+/opcina/znamenitosti/zupni-dvor /opcina/zupa 301
+/opcina/znamenitosti/groblja /opcina/zupa 301
+/opcina/znamenitosti/opcinsko-groblje /opcina/zupa 301
+/opcina/ustanove/skola /opcina/ustanove 301
+
 # Note: Cloudflare Pages handles trailing slashes automatically
-# Total redirects: 372
+# Total redirects: 383
