@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
 
   // Enable MDX pages
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
+
+  // Performance optimizations
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion', '@repo/ui'],
+  },
 };
 
 // Note: remark-gfm doesn't work with Turbopack (not serializable)
