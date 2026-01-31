@@ -37,7 +37,16 @@ export default function KapelaPage() {
 
       <section id="znamenitosti">
         <h2>Znamenitosti</h2>
-        <p>Znamenitosti i kulturna baština sela...</p>
+        <h3>Rijeka Bednja</h3>
+        <p>
+          Rijeka Bednja protječe kroz selo i čini važan element krajolika.
+          Uz rijeku su se kroz stoljeća razvijale mlinarske tradicije i poljoprivreda.
+        </p>
+        <h3>Seoski centar</h3>
+        <p>
+          Središte sela s tradicionalnom arhitekturom svjedoči o bogatoj prošlosti
+          ovoga kraja i solidarnosti mještana kroz generacije.
+        </p>
       </section>
 
       <section id="galerija">

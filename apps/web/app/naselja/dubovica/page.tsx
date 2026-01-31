@@ -28,6 +28,10 @@ export default function DubovicaPage() {
           Dubovica je mirno selo u sastavu Općine Veliki Bukovec. Poznato je po
           poljoprivrednoj tradiciji i živoj seoskoj zajednici.
         </p>
+        <p>
+          Selo ima bogatu tradiciju zajedničkog rada na seoskim projektima.
+          Mještani su poznati po gostoljubivosti i očuvanju običaja svojih predaka.
+        </p>
       </section>
 
       <section id="znamenitosti">
