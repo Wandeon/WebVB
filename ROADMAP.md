@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** Sprint 7.6-7.8 (Performance, Accessibility, Security)
-**Overall Progress:** 64/72 sprints (89%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5 done
+**Active Sprint:** Phase 8 (Testing & Launch)
+**Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
 **Recent:** UX, SEO & Performance improvements - legal pages, gallery showcase, page speed
 **Target Launch:** Domain setup pending
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
@@ -836,7 +836,7 @@ Gate: Generate article, pipeline runs REVIEW → REWRITE → POLISH, quality sco
 ---
 
 ## Phase 7: Chatbot & Polish
-**Status:** In Progress | **Progress:** 2/8 | **Track:** D
+**Status:** In Progress | **Progress:** 5/8 | **Track:** D
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
@@ -845,9 +845,9 @@ Gate: Generate article, pipeline runs REVIEW → REWRITE → POLISH, quality sco
 | 7.3 ⬜ | Chatbot API | 🔗 | 7.2 | Question → answer with sources |
 | 7.4 ⬜ | Chatbot UI | 🔗 | 7.3 | Floating widget, conversation |
 | 7.5 ✅ | Semantic search upgrade | 🔗 | 7.1 | Hybrid search (keyword + vector) |
-| 7.6 ⬜ | Performance optimization | 🔀 | Phase 2 | Lighthouse > 90 all pages |
-| 7.7 ⬜ | Accessibility audit | 🔀 | Phase 2 | WCAG AA compliance |
-| 7.8 ⬜ | Security audit | 🔀 | All | NIS2 checklist passes |
+| 7.6 ✅ | Performance optimization | 🔀 | Phase 2 | Lighthouse > 90 all pages |
+| 7.7 ✅ | Accessibility audit | 🔀 | Phase 2 | WCAG AA compliance |
+| 7.8 ✅ | Security audit | 🔀 | All | NIS2 checklist passes |
 
 Recent updates:
 - Sprint 7.5 completed: Hybrid search with keyword (40%), fuzzy (20%), and semantic/vector (40%) scoring.
