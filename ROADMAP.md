@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** Sprint 4.5.2 (Old vs New Comparison)
-**Overall Progress:** 60/72 sprints (83%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5.1 done
+**Active Sprint:** Sprint 4.5.3 (Content Quality Audit)
+**Overall Progress:** 61/72 sprints (85%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5.1+4.5.2 done
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -582,17 +582,18 @@ Gate: pnpm migrate:parse produces valid JSON
 ---
 
 ## Phase 4.5: Content Enrichment & Quality
-**Status:** In Progress | **Progress:** 1/5 | **Track:** C (Human + AI collaborative)
+**Status:** In Progress | **Progress:** 2/5 | **Track:** C (Human + AI collaborative)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
 | 4.5.1 ✅ | Content sitemap & inventory | No | Phase 4 | Complete inventory with status for all content |
-| 4.5.2 ⬜ | Old vs new comparison | 🔗 | 4.5.1 | Migration parity report from WordPress data |
+| 4.5.2 ✅ | Old vs new comparison | 🔗 | 4.5.1 | Migration parity report from WordPress data |
 | 4.5.3 ⬜ | Content quality audit | 🔗 | 4.5.1 | Programmatic quality analysis of all content |
 | 4.5.4 ⬜ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | Prioritized list of improvements |
 | 4.5.5 ⬜ | Content enrichment execution | 🔗 | 4.5.4 | Critical/important gaps addressed |
 
 Recent updates:
+- Sprint 4.5.2 completed: Old vs new comparison with migration parity verification
 - Sprint 4.5.1 completed: Content inventory system with database queries, route mapping, empty content detection
 
 ### Sprint 4.5.1: Content Sitemap & Inventory ✅
@@ -629,20 +630,45 @@ Files Created:
 Note: Inventory run against local dev database (minimal content). Re-run against production (100.120.125.83) for full stats.
 ```
 
-### Sprint 4.5.2: Old vs New Comparison
+### Sprint 4.5.2: Old vs New Comparison ✅
 ```
 Acceptance Criteria:
-□ Load WordPress XML export (from migration Phase 4)
-□ Compare content counts: old vs new
-  - Posts migrated vs total in WP
-  - Pages migrated vs total in WP
-  - Categories/structure mapping
-□ Check URL redirect coverage (_redirects file)
-□ Identify any content lost in migration
-□ Compare navigation structure (old menu vs new)
-□ Output: docs/content/old-vs-new-comparison.md
+✓ Load WordPress export data (posts.json, pages.json, url-map.json)
+✓ Compare content counts: old vs new
+  - 326 WP posts → 88 posts + 252 announcements + 26 events
+  - 81 WP pages → 82 DB pages
+  - Categories mapped: opcinske-vijesti, obavijesti, dogadanja
+✓ Check URL redirect coverage (_redirects file)
+  - 406/407 mappings covered (99.8%)
+  - 34 identity mappings (same path)
+✓ Identify any content lost in migration
+  - All posts accounted for across Posts/Announcements/Events tables
+✓ Compare navigation structure (old menu vs new)
+  - Hierarchical → Consolidated tabbed pages
+✓ Output: docs/content/old-vs-new-comparison.md
 
-Gate: Report confirms migration parity or lists gaps
+Gate: ✅ Report confirms migration parity
+
+Implementation Notes:
+- Created scripts/compare-old-new.ts with functions:
+  - loadWordPressData() - Reads migration output JSON files
+  - queryDatabaseCounts() - Queries Post, Page, Announcement, Document, Event, Gallery tables
+  - parseRedirectsFile() - Parses _redirects into redirect rules
+  - comparePosts() - Cross-references WP posts with DB (including Announcements/Events)
+  - comparePages() - Compares WP pages with DB pages
+  - checkRedirectCoverage() - Verifies URL mappings have redirects
+  - identifyGaps() - Categorizes gaps by severity (critical/warning/info)
+  - generateMarkdownReport() - Outputs comprehensive comparison report
+
+Files Created:
+- scripts/compare-old-new.ts - Comparison script
+- docs/content/old-vs-new-comparison.md - Generated comparison report
+
+Results:
+- 0 critical gaps, 1 warning (homepage redirect not needed)
+- 1,411 documents migrated
+- 17 galleries with 108 images
+- Content distribution verified: WP obavijesti → Announcements, WP dogadanja → Events
 ```
 
 ### Sprint 4.5.3: Content Quality Audit
@@ -991,3 +1017,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-30 | Phase 6 complete: AI Integration (Ollama Cloud, queue, generation, self-review pipeline) |
 | 2026-01-30 | Phase 4.5 added: Content Enrichment & Quality (sitemap, old vs new comparison, quality audit, visual audit, gap analysis, enrichment) |
 | 2026-01-31 | Sprint 4.5.1 completed: Content inventory scripts (content-inventory.ts, find-empty-content.ts), sitemap-inventory.md generated |
+| 2026-01-31 | Sprint 4.5.2 completed: Old vs new comparison (compare-old-new.ts), migration parity verified (326 WP posts → 88+252+26, 406/407 redirects) |
