@@ -6,12 +6,12 @@
 
 ## Current Status
 
-**Active Sprint:** Sprint 4.5.4 (Gap Analysis & Enrichment Plan)
-**Overall Progress:** 62/72 sprints (86%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5.1-4.5.3 done
-**Recent:** Navigation redesign follow-up complete - /vijece, /zupa, /skola pages; /opcina and /usluge migrated to PageLayoutV2
-**Target Launch:** TBD
+**Active Sprint:** Sprint 4.5.5 (Content Enrichment Execution) / Phase 8 prep
+**Overall Progress:** 63/72 sprints (88%) - Phase 0-6 complete; 7.1+7.5 done; 4.5.1-4.5.4 done
+**Recent:** UX, SEO & Performance improvements - legal pages, gallery showcase, page speed
+**Target Launch:** Domain setup pending
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
-**Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
+**Staging:** Frontend at http://100.120.125.83/ (public: 159.195.61.215) | Admin at http://100.120.125.83:3001/
 
 ---
 
@@ -591,7 +591,7 @@ Gate: pnpm migrate:parse produces valid JSON
 | 4.5.2 ✅ | Old vs new comparison | 🔗 | 4.5.1 | Migration parity report from WordPress data |
 | 4.5.3 ✅ | Content quality audit | 🔗 | 4.5.1 | Programmatic quality analysis of all content |
 | 4.5.4 ✅ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | Prioritized list of improvements |
-| 4.5.5 ⬜ | Content enrichment execution | 🔗 | 4.5.4 | Critical/important gaps addressed |
+| 4.5.5 🔄 | Content enrichment execution | 🔗 | 4.5.4 | Critical/important gaps addressed |
 
 Recent updates:
 - Sprint 4.5.3 completed: Content quality audit with 947 issues identified
@@ -1042,3 +1042,10 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-31 | Sprint 4.5.3 completed: Content quality audit (content-quality-audit.ts), 947 issues identified (2 critical, 892 warnings, 53 info) |
 | 2026-01-31 | Navigation fix: Created /opcina/zupa and /opcina/ustanove pages, added redirects for legacy rad-uprave/* URLs |
 | 2026-01-31 | Navigation redesign implemented: 11 tasks completed - sidebar navigation, mobile bottom sheet, PageLayoutV2, SmallHero, Kontakt button, Načelnik page, Naselja landing + 3 village subpages |
+| 2026-01-31 | Sprint 4.5.4 completed: Gap analysis & enrichment plan with prioritized issues (2 critical, 67 high, 121 medium) |
+| 2026-01-31 | Legal pages added: /privatnost (GDPR), /izjava-o-pristupacnosti (EU accessibility), /uvjeti-koristenja (AI disclosure) |
+| 2026-01-31 | UI components added: ContentTypeSwitcher (mobile bottom bar / desktop tabs), Typewriter animation, enhanced VillageHero with grb |
+| 2026-01-31 | SEO enhanced: llms.txt for AI crawlers, LocalBusiness schema, ImageGallery schema, BreadcrumbList, Google Fonts preconnect |
+| 2026-01-31 | Page speed optimized: Hero images converted to WebP (33-42% smaller), grb WebP (71% smaller), Caddy caching (1yr static, 10min HTML), gzip/zstd compression |
+| 2026-01-31 | Gallery data normalized: 13 galleries renamed with proper Croatian diacritics, duplicates merged, test gallery deleted |
+| 2026-01-31 | Mobile UX improved: Menu logo links to home, Kontakt button added, CategoryFilter sticky with horizontal scroll |
