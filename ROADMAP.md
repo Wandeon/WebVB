@@ -7,7 +7,7 @@
 ## Current Status
 
 **Active Sprint:** Sprint 4.5.1 (Content Sitemap & Inventory)
-**Overall Progress:** 59/73 sprints (81%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5 pending
+**Overall Progress:** 59/72 sprints (82%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5 pending
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -582,102 +582,104 @@ Gate: pnpm migrate:parse produces valid JSON
 ---
 
 ## Phase 4.5: Content Enrichment & Quality
-**Status:** Not Started | **Progress:** 0/6 | **Track:** C (Human + AI collaborative)
+**Status:** Not Started | **Progress:** 0/5 | **Track:** C (Human + AI collaborative)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 4.5.1 ⬜ | Content sitemap & inventory | No | Phase 4 | Complete sitemap with all pages documented |
-| 4.5.2 ⬜ | Old vs new comparison | 🔗 | 4.5.1 | Side-by-side comparison report |
-| 4.5.3 ⬜ | Content quality audit | 🔗 | 4.5.1 | Quality scores for each section (1-10) |
-| 4.5.4 ⬜ | Visual/UX audit | 🔀 | 4.5.1 | Appearance ratings, screenshot comparisons |
-| 4.5.5 ⬜ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | List of content to add/improve |
-| 4.5.6 ⬜ | Content enrichment execution | 🔗 | 4.5.5 | All identified gaps filled |
+| 4.5.1 ⬜ | Content sitemap & inventory | No | Phase 4 | Complete inventory with status for all content |
+| 4.5.2 ⬜ | Old vs new comparison | 🔗 | 4.5.1 | Migration parity report from WordPress data |
+| 4.5.3 ⬜ | Content quality audit | 🔗 | 4.5.1 | Programmatic quality analysis of all content |
+| 4.5.4 ⬜ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | Prioritized list of improvements |
+| 4.5.5 ⬜ | Content enrichment execution | 🔗 | 4.5.4 | Critical/important gaps addressed |
 
 ### Sprint 4.5.1: Content Sitemap & Inventory
 ```
 Acceptance Criteria:
-□ Complete sitemap of all pages (public + admin)
-□ Document page purpose and content type
-□ List all sections within each page
-□ Note content source (migrated, new, static)
-□ Mark pages as: complete, partial, empty, needs-review
+□ Query database for all content counts:
+  - Posts (by category, by status)
+  - Pages (static pages with content status)
+  - Documents (by category)
+  - Events (upcoming vs past)
+  - Galleries (with image counts)
+  - Announcements
+□ Map all routes from codebase (app/*/page.tsx)
+□ Cross-reference: which routes have content, which are empty
+□ Mark each as: complete, partial, placeholder, empty
 □ Output: docs/content/sitemap-inventory.md
 
-Gate: Every page on the site is documented with status
+Gate: Complete inventory with counts and status for every content type
 ```
 
 ### Sprint 4.5.2: Old vs New Comparison
 ```
 Acceptance Criteria:
-□ Side-by-side comparison for each major section
-□ Screenshot comparisons (old WordPress vs new)
-□ Content parity check (nothing lost in migration)
-□ Feature comparison (what's new, what's changed)
-□ Navigation structure comparison
+□ Load WordPress XML export (from migration Phase 4)
+□ Compare content counts: old vs new
+  - Posts migrated vs total in WP
+  - Pages migrated vs total in WP
+  - Categories/structure mapping
+□ Check URL redirect coverage (_redirects file)
+□ Identify any content lost in migration
+□ Compare navigation structure (old menu vs new)
 □ Output: docs/content/old-vs-new-comparison.md
 
-Gate: Stakeholder can see what changed and why
+Gate: Report confirms migration parity or lists gaps
 ```
 
 ### Sprint 4.5.3: Content Quality Audit
 ```
 Acceptance Criteria:
-□ Rate each page/section on 1-10 scale:
-  - Completeness (is all info present?)
-  - Accuracy (is info correct and current?)
-  - Clarity (is it easy to understand?)
-  - Usefulness (does it help citizens?)
-□ Identify outdated content
-□ Flag placeholder/lorem ipsum text
-□ Note missing images or broken links
+□ Programmatic analysis of all content:
+  - Word count per post/page (flag < 100 words)
+  - Detect placeholder text ("Lorem", "TODO", "TBD")
+  - Check for empty required fields
+  - Verify images exist (R2 URLs valid)
+  - Check internal links (do target pages exist?)
+□ AI-assisted quality scoring:
+  - Run sample content through review pipeline
+  - Score clarity, completeness, local relevance
+□ Flag outdated content (dates, references)
 □ Output: docs/content/quality-audit.md
 
-Gate: Every section has quality scores with notes
+Gate: Every content item analyzed with issues flagged
 ```
 
-### Sprint 4.5.4: Visual/UX Audit
+### Sprint 4.5.4: Gap Analysis & Enrichment Plan
 ```
 Acceptance Criteria:
-□ Screenshot each major page (mobile + desktop)
-□ Rate visual appearance (1-10):
-  - Layout consistency
-  - Typography readability
-  - Image quality
-  - Mobile responsiveness
-□ Check accessibility basics (contrast, alt text)
-□ Note any UI/UX issues
-□ Output: docs/content/visual-audit.md
-
-Gate: Visual report with scores and screenshots
-```
-
-### Sprint 4.5.5: Gap Analysis & Enrichment Plan
-```
-Acceptance Criteria:
-□ Compile findings from 4.5.2, 4.5.3, 4.5.4
-□ Prioritize gaps (critical, important, nice-to-have)
-□ Create actionable improvement tasks
-□ Estimate effort for each task
-□ Assign responsibility (human vs AI-assisted)
+□ Compile findings from 4.5.1, 4.5.2, 4.5.3
+□ Categorize issues:
+  - Missing content (pages exist but empty)
+  - Thin content (< 100 words, needs expansion)
+  - Broken references (dead links, missing images)
+  - Outdated info (old dates, stale announcements)
+  - Migration gaps (content in WP but not migrated)
+□ Prioritize: critical (blocks launch), important, nice-to-have
+□ For each gap: suggest fix (AI-generate, human-write, delete)
 □ Output: docs/content/enrichment-plan.md
 
-Gate: Prioritized list of content improvements ready
+Gate: Actionable prioritized list ready for execution
 ```
 
-### Sprint 4.5.6: Content Enrichment Execution
+### Sprint 4.5.5: Content Enrichment Execution
 ```
 Acceptance Criteria:
-□ Execute critical improvements from plan
-□ Execute important improvements
-□ Use AI generation for new content where appropriate
-□ Human review and approval for all changes
-□ Update quality scores post-enrichment
-□ Output: Updated content, revised quality-audit.md
+□ Fix critical issues first:
+  - Fill empty required pages
+  - Fix broken links/images
+  - Remove placeholder text
+□ Address important issues:
+  - Expand thin content (AI-assisted)
+  - Update outdated information
+  - Add missing migrated content
+□ Human review for all AI-generated content
+□ Re-run quality audit to verify improvements
+□ Output: Updated content, revised quality scores
 
-Gate: All critical/important gaps addressed, quality scores improved
+Gate: Zero critical issues, important issues resolved
 ```
 
-**Phase 4.5 Deliverable:** Comprehensive content audit with quality improvements applied
+**Phase 4.5 Deliverable:** Verified content quality with all critical gaps filled
 
 ---
 
@@ -877,12 +879,12 @@ Gate: https://velikibukovec.hr shows new site
 | 2 | 12 | Public Website (pages, search, SEO) |
 | 3 | 9 | Infrastructure (VPS, R2, deploys) |
 | 4 | 7 | Migration (WordPress → new) |
-| 4.5 | 6 | Content Enrichment (audit, compare, improve) |
+| 4.5 | 5 | Content Enrichment (inventory, compare, audit, enrich) |
 | 5 | 6 | Communication (forms, newsletter) |
 | 6 | 4 | AI Integration (generation, queue, review) |
 | 7 | 8 | Chatbot & Polish (RAG, perf, a11y) |
 | 8 | 8 | Launch (E2E, training, go-live) |
-| **Total** | **73** | |
+| **Total** | **72** | |
 
 ---
 
