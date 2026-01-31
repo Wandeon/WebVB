@@ -95,16 +95,24 @@ export const BANNED_PHRASES = [
 // =============================================================================
 
 /**
- * Check if text contains any banned words
- * Returns array of found banned words
+ * Escape special regex characters in a string
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Find banned words in text
+ * Returns array of banned words found
  */
 export function findBannedWords(text: string): string[] {
   const lowerText = text.toLowerCase();
   const found: string[] = [];
 
   for (const word of BANNED_WORDS) {
-    // Use word boundary to match whole words only
-    const regex = new RegExp(`\\b${word.toLowerCase()}\\b`, 'i');
+    // Escape special regex characters and use word boundary to match whole words only
+    const escaped = escapeRegex(word.toLowerCase());
+    const regex = new RegExp(`\\b${escaped}\\b`);
     if (regex.test(lowerText)) {
       found.push(word);
     }
