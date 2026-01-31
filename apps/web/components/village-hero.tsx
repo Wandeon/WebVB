@@ -280,7 +280,7 @@ export function VillageHero() {
             </motion.p>
           </div>
 
-          {/* Right: Gonfalon/Grb - Desktop only */}
+          {/* Right: Gonfalon - Desktop only */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, x: 50 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -291,14 +291,14 @@ export function VillageHero() {
               {/* Glow effect */}
               <div className="absolute -inset-4 rounded-full bg-primary-500/20 blur-2xl" />
 
-              {/* Grb image */}
-              <div className="relative h-64 w-48 xl:h-80 xl:w-60">
+              {/* Gonfalon image */}
+              <div className="relative h-72 w-40 xl:h-96 xl:w-52">
                 <Image
-                  src="/images/grb-veliki-bukovec.webp"
-                  alt="Grb Općine Veliki Bukovec"
+                  src="/images/gonfalon.webp"
+                  alt="Gonfalon Općine Veliki Bukovec"
                   fill
                   className="object-contain drop-shadow-2xl"
-                  sizes="(max-width: 1280px) 192px, 240px"
+                  sizes="(max-width: 1280px) 160px, 208px"
                 />
               </div>
             </div>
