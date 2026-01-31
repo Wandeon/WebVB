@@ -60,6 +60,7 @@ export function SidebarItem({
       {/* Main item link */}
       <Link
         href={item.href}
+        aria-current={isActive ? 'page' : undefined}
         {...linkProps}
         className={`
           group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all
@@ -81,13 +82,19 @@ export function SidebarItem({
 
         <span className="flex-1">{item.label}</span>
 
-        {item.external && <ExternalLink className="h-3 w-3 text-neutral-400" />}
+        {item.external && (
+          <ExternalLink
+            className="h-3 w-3 text-neutral-400"
+            aria-label="Otvara se u novom prozoru"
+          />
+        )}
 
         {(hasChildren || (isActive && hasSections)) && (
           <ChevronRight
             className={`h-4 w-4 text-neutral-400 transition-transform ${
               isExpanded ? 'rotate-90' : ''
             }`}
+            aria-hidden="true"
           />
         )}
       </Link>
