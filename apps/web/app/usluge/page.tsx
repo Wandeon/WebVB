@@ -1,47 +1,109 @@
-'use client';
-
-import { motion, AnimatePresence } from 'framer-motion';
+// apps/web/app/usluge/page.tsx
 import {
-  Truck,
-  Landmark,
-  Users2,
-  Heart,
-  Flame,
-  FileText,
-  Phone,
-  Mail,
-  ExternalLink,
-  ChevronDown,
   Building,
-  Leaf,
-  Receipt,
-  HandHeart,
   ClipboardList,
+  ExternalLink,
+  FileText,
+  Flame,
+  HandHeart,
+  Heart,
+  Landmark,
+  Leaf,
+  Phone,
+  Receipt,
   Shield,
+  Truck,
+  Users2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 
-interface Section {
-  id: string;
+import { PageLayoutV2 } from '../../components/page-layout-v2';
+
+import type { PageSection } from '../../lib/navigation';
+import type { LucideIcon } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Usluge | Općina Veliki Bukovec',
+  description:
+    'Sve usluge Općine Veliki Bukovec na jednom mjestu - komunalno gospodarstvo, financije, usluge za građane i podrška udrugama.',
+  openGraph: {
+    title: 'Usluge | Općina Veliki Bukovec',
+    description:
+      'Sve usluge Općine Veliki Bukovec na jednom mjestu - komunalno gospodarstvo, financije, usluge za građane i podrška udrugama.',
+    images: ['/images/hero/veliki-bukovec-hero-1.jpg'],
+  },
+};
+
+const pageSections: PageSection[] = [
+  { id: 'komunalno', label: 'Komunalno' },
+  { id: 'financije', label: 'Financije' },
+  { id: 'gradani', label: 'Za građane' },
+  { id: 'udruge', label: 'Udruge' },
+];
+
+interface ServiceCardProps {
+  icon: LucideIcon;
   title: string;
-  icon: typeof Truck;
-  content: React.ReactNode;
+  description: string;
+  details?: string;
+  link?: string;
+  linkText?: string;
+  external?: boolean;
 }
 
-const sections: Section[] = [
-  {
-    id: 'komunalno',
-    title: 'Komunalno',
-    icon: Truck,
-    content: (
-      <>
-        <p className="text-lg leading-relaxed text-neutral-700">
+function ServiceCard({
+  icon: Icon,
+  title,
+  description,
+  details,
+  link,
+  linkText,
+  external,
+}: ServiceCardProps) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 transition-shadow hover:shadow-md">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+        <Icon className="h-5 w-5" />
+      </div>
+      <h3 className="font-semibold text-neutral-900">{title}</h3>
+      <p className="mt-1 text-sm text-neutral-600">{description}</p>
+      {details && <p className="mt-2 text-xs text-neutral-500">{details}</p>}
+      {link && linkText && (
+        <Link
+          href={link}
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noopener noreferrer' : undefined}
+          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
+        >
+          {linkText}
+          {external && <ExternalLink className="h-3 w-3" />}
+        </Link>
+      )}
+    </div>
+  );
+}
+
+export default function UslugePage() {
+  return (
+    <PageLayoutV2
+      title="Usluge"
+      subtitle="Sve usluge Općine Veliki Bukovec na jednom mjestu"
+      heroImage="/images/hero/veliki-bukovec-hero-1.jpg"
+      sections={pageSections}
+    >
+      {/* Komunalno Section */}
+      <section id="komunalno" className="scroll-mt-24">
+        <h2 className="flex items-center gap-2">
+          <Truck className="h-5 w-5 text-primary-600" />
+          Komunalno
+        </h2>
+        <p className="text-lg leading-relaxed">
           Komunalno gospodarstvo brine se za održavanje javnih površina,
           infrastrukture i kvalitetu života u našoj općini.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="not-prose mt-8 grid gap-4 sm:grid-cols-2">
           <ServiceCard
             icon={Truck}
             title="Odvoz otpada"
@@ -67,7 +129,7 @@ const sections: Section[] = [
           />
         </div>
 
-        <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
+        <div className="not-prose mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
           <h4 className="flex items-center gap-2 font-semibold text-amber-900">
             <Phone className="h-4 w-4" />
             Prijava komunalnog problema
@@ -83,21 +145,20 @@ const sections: Section[] = [
             Prijavite problem →
           </Link>
         </div>
-      </>
-    ),
-  },
-  {
-    id: 'financije',
-    title: 'Financije',
-    icon: Landmark,
-    content: (
-      <>
-        <p className="text-lg leading-relaxed text-neutral-700">
+      </section>
+
+      {/* Financije Section */}
+      <section id="financije" className="scroll-mt-24">
+        <h2 className="flex items-center gap-2">
+          <Landmark className="h-5 w-5 text-primary-600" />
+          Financije
+        </h2>
+        <p className="text-lg leading-relaxed">
           Transparentno upravljanje javnim sredstvima - proračun, izvještaji i
           financijski dokumenti dostupni svim građanima.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="not-prose mt-8 grid gap-4 sm:grid-cols-2">
           <ServiceCard
             icon={Receipt}
             title="Proračun"
@@ -127,7 +188,7 @@ const sections: Section[] = [
           />
         </div>
 
-        <div className="mt-8 rounded-xl border border-neutral-200 bg-neutral-50 p-5">
+        <div className="not-prose mt-8 rounded-xl border border-neutral-200 bg-neutral-50 p-5">
           <h4 className="font-semibold text-neutral-900">
             Sudjelovanje građana u planiranju proračuna
           </h4>
@@ -137,21 +198,20 @@ const sections: Section[] = [
             osobno u općinskoj upravi.
           </p>
         </div>
-      </>
-    ),
-  },
-  {
-    id: 'gradani',
-    title: 'Za građane',
-    icon: Users2,
-    content: (
-      <>
-        <p className="text-lg leading-relaxed text-neutral-700">
+      </section>
+
+      {/* Za građane Section */}
+      <section id="gradani" className="scroll-mt-24">
+        <h2 className="flex items-center gap-2">
+          <Users2 className="h-5 w-5 text-primary-600" />
+          Za građane
+        </h2>
+        <p className="text-lg leading-relaxed">
           Sve što vam treba na jednom mjestu - obrasci, zahtjevi i informacije
           za građane.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="not-prose mt-8 grid gap-4 sm:grid-cols-2">
           <ServiceCard
             icon={FileText}
             title="Obrasci i zahtjevi"
@@ -179,7 +239,7 @@ const sections: Section[] = [
           />
         </div>
 
-        <div className="mt-8 rounded-xl border border-primary-200 bg-primary-50 p-5">
+        <div className="not-prose mt-8 rounded-xl border border-primary-200 bg-primary-50 p-5">
           <h4 className="flex items-center gap-2 font-semibold text-primary-900">
             <Phone className="h-4 w-4" />
             Radno vrijeme za stranke
@@ -190,21 +250,20 @@ const sections: Section[] = [
             <p>Email: opcina@velikibukovec.hr</p>
           </div>
         </div>
-      </>
-    ),
-  },
-  {
-    id: 'udruge',
-    title: 'Udruge',
-    icon: Heart,
-    content: (
-      <>
-        <p className="text-lg leading-relaxed text-neutral-700">
+      </section>
+
+      {/* Udruge Section */}
+      <section id="udruge" className="scroll-mt-24">
+        <h2 className="flex items-center gap-2">
+          <Heart className="h-5 w-5 text-primary-600" />
+          Udruge
+        </h2>
+        <p className="text-lg leading-relaxed">
           Općina podržava rad udruga civilnog društva kroz financiranje programa
           i projekata od interesa za opće dobro.
         </p>
 
-        <div className="mt-8 space-y-6">
+        <div className="not-prose mt-8 space-y-6">
           <div className="rounded-xl border border-neutral-200 bg-white p-5">
             <h3 className="font-semibold text-neutral-900">
               Javni natječaj za udruge
@@ -260,7 +319,7 @@ const sections: Section[] = [
           </div>
         </div>
 
-        <div className="mt-8">
+        <div className="not-prose mt-8">
           <Link
             href="/opcina/udruge"
             className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2.5 font-medium text-white transition-colors hover:bg-primary-700"
@@ -269,184 +328,7 @@ const sections: Section[] = [
             Pogledaj sve udruge
           </Link>
         </div>
-      </>
-    ),
-  },
-];
-
-function ServiceCard({
-  icon: Icon,
-  title,
-  description,
-  details,
-  link,
-  linkText,
-  external,
-}: {
-  icon: typeof Truck;
-  title: string;
-  description: string;
-  details?: string;
-  link?: string;
-  linkText?: string;
-  external?: boolean;
-}) {
-  return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-5 transition-shadow hover:shadow-md">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
-        <Icon className="h-5 w-5" />
-      </div>
-      <h3 className="font-semibold text-neutral-900">{title}</h3>
-      <p className="mt-1 text-sm text-neutral-600">{description}</p>
-      {details && (
-        <p className="mt-2 text-xs text-neutral-500">{details}</p>
-      )}
-      {link && linkText && (
-        <Link
-          href={link}
-          target={external ? '_blank' : undefined}
-          rel={external ? 'noopener noreferrer' : undefined}
-          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
-        >
-          {linkText}
-          {external && <ExternalLink className="h-3 w-3" />}
-        </Link>
-      )}
-    </div>
-  );
-}
-
-export default function UslugePage() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const activeSection = sections[activeIndex]!;
-
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Tab Bar - Sticky */}
-      <div className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center">
-            {sections.map((section, index) => {
-              const Icon = section.icon;
-              return (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveIndex(index)}
-                  className="relative flex items-center gap-2 px-3 py-4 text-sm font-medium transition-colors sm:px-5 sm:text-base"
-                >
-                  <Icon
-                    className={`h-4 w-4 ${
-                      activeIndex === index
-                        ? 'text-primary-600'
-                        : 'text-neutral-400'
-                    }`}
-                  />
-                  <span
-                    className={
-                      activeIndex === index
-                        ? 'text-primary-700'
-                        : 'text-neutral-600 hover:text-neutral-900'
-                    }
-                  >
-                    {section.title}
-                  </span>
-                  {activeIndex === index && (
-                    <motion.div
-                      layoutId="activeUslugeTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500"
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary-700 to-primary-900 py-16 sm:py-20">
-        <div className="absolute inset-0 opacity-10">
-          <div
-            className="h-full w-full"
-            style={{
-              backgroundImage:
-                'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-            }}
-          />
-        </div>
-        <div className="container relative mx-auto px-4">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSection.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="text-center"
-            >
-              <h1 className="font-display text-3xl font-bold text-white sm:text-4xl md:text-5xl">
-                {activeSection.title}
-              </h1>
-              <p className="mt-3 text-lg text-white/80">
-                Usluge Općine Veliki Bukovec
-              </p>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <ChevronDown className="h-6 w-6 text-white/60" />
-        </motion.div>
-      </div>
-
-      {/* Content Section */}
-      <div className="container mx-auto px-4 py-12 sm:py-16">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeSection.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="mx-auto max-w-3xl"
-          >
-            {activeSection.content}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Contact CTA */}
-      <div className="border-t border-neutral-100 bg-neutral-50 py-12">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-xl font-semibold text-neutral-900">
-            Trebate pomoć?
-          </h2>
-          <p className="mt-2 text-neutral-600">
-            Kontaktirajte nas za sve upite vezane uz usluge općine.
-          </p>
-          <div className="mt-4 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/kontakt"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2.5 font-medium text-white transition-colors hover:bg-primary-700"
-            >
-              <Mail className="h-4 w-4" />
-              Kontaktirajte nas
-            </Link>
-            <Link
-              href="/prijava-problema"
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-300 bg-white px-5 py-2.5 font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-            >
-              Prijava problema
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
+      </section>
+    </PageLayoutV2>
   );
 }
