@@ -72,6 +72,18 @@ export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-http://100.120.125.83}"
 log "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL"
 pnpm --filter @repo/web build
 
+log "Deploying static web files..."
+WEB_OUT_DIR="$APP_DIR/apps/web/out"
+WEB_STATIC_DIR="/home/deploy/apps/web-static"
+if [[ -d "$WEB_OUT_DIR" ]]; then
+  # Clear old static files and copy new ones
+  rm -rf "$WEB_STATIC_DIR"/*
+  cp -r "$WEB_OUT_DIR"/* "$WEB_STATIC_DIR/"
+  log "Static files deployed to $WEB_STATIC_DIR ($(ls -1 "$WEB_STATIC_DIR"/*.html 2>/dev/null | wc -l) HTML files)"
+else
+  error "Web output directory not found: $WEB_OUT_DIR"
+fi
+
 log "Reloading PM2 process..."
 if pm2 describe "$PM2_APP_NAME" > /dev/null 2>&1; then
   pm2 reload "$PM2_APP_NAME"
