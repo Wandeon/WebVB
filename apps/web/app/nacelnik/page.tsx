@@ -27,10 +27,9 @@ export default function NacelnikPage() {
       <section id="o-nacelniku">
         <h2>O načelniku</h2>
         <div className="not-prose mb-6 flex flex-col gap-6 sm:flex-row">
-          <div className="h-48 w-40 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-200">
-            {/* Photo placeholder - add actual image */}
-            <div className="flex h-full items-center justify-center text-neutral-400">
-              Fotografija
+          <div className="h-48 w-40 flex-shrink-0 overflow-hidden rounded-xl bg-primary-100">
+            <div className="flex h-full items-center justify-center text-3xl font-semibold text-primary-600">
+              IM
             </div>
           </div>
           <div>
@@ -71,28 +70,32 @@ export default function NacelnikPage() {
         <h2>Dokumenti</h2>
         <div className="not-prose grid gap-4 sm:grid-cols-2">
           <a
-            href="#"
+            href="/dokumenti"
+            aria-label="Izjava o imovinskom stanju - otvori stranicu dokumenata"
             className="rounded-lg border border-neutral-200 p-4 transition-colors hover:border-primary-300 hover:bg-primary-50"
           >
             <div className="font-medium text-neutral-900">Izjava o imovinskom stanju</div>
             <div className="mt-1 text-sm text-neutral-500">PDF dokument</div>
           </a>
           <a
-            href="#"
+            href="/dokumenti"
+            aria-label="Program rada 2025-2029 - otvori stranicu dokumenata"
             className="rounded-lg border border-neutral-200 p-4 transition-colors hover:border-primary-300 hover:bg-primary-50"
           >
             <div className="font-medium text-neutral-900">Program rada 2025-2029</div>
             <div className="mt-1 text-sm text-neutral-500">PDF dokument</div>
           </a>
           <a
-            href="#"
+            href="/dokumenti"
+            aria-label="Godišnji plan rada - otvori stranicu dokumenata"
             className="rounded-lg border border-neutral-200 p-4 transition-colors hover:border-primary-300 hover:bg-primary-50"
           >
             <div className="font-medium text-neutral-900">Godišnji plan rada</div>
             <div className="mt-1 text-sm text-neutral-500">PDF dokument</div>
           </a>
           <a
-            href="#"
+            href="/dokumenti"
+            aria-label="Izvješće o radu - otvori stranicu dokumenata"
             className="rounded-lg border border-neutral-200 p-4 transition-colors hover:border-primary-300 hover:bg-primary-50"
           >
             <div className="font-medium text-neutral-900">Izvješće o radu</div>
