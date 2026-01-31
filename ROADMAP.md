@@ -2,12 +2,12 @@
 
 > AI-agent optimized roadmap with clear gates and parallel tracks.
 > Each sprint is independently completable with defined acceptance criteria.
-> Last updated: 2026-01-26
+> Last updated: 2026-01-30
 
 ## Current Status
 
-**Active Sprint:** Sprint 6.4 (Self-Review Pipeline)
-**Overall Progress:** 58/67 sprints (87%) - Phase 0-5 complete, 6.1-6.3 done, 7.1+7.5 done
+**Active Sprint:** Sprint 7.2 (RAG Retrieval)
+**Overall Progress:** 59/67 sprints (88%) - Phase 0-6 complete, 7.1+7.5 done
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -618,18 +618,19 @@ Gate: Submit form, appears in DB, emails received
 ---
 
 ## Phase 6: AI Integration
-**Status:** In Progress | **Progress:** 3/4 | **Track:** D (Last)
+**Status:** Complete | **Progress:** 4/4 | **Track:** D (Last)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
 | 6.1 ✅ | Ollama Cloud connection | No | Phase 3 | API responds, model works |
 | 6.2 ✅ | AI queue system | 🔗 | 6.1 | Queue table, worker processes |
 | 6.3 ✅ | AI Post Generation | 🔗 | 6.2 | Generate article from instructions + document |
-| 6.4 ⬜ | Self-review pipeline | 🔗 | 6.3 | REVIEW → REWRITE → POLISH stages |
+| 6.4 ✅ | Self-review pipeline | 🔗 | 6.3 | REVIEW → REWRITE → POLISH stages |
 
 Note: Google Search removed (Ollama has web_search). Facebook posting deferred to post-launch.
 
 Recent updates:
+- Sprint 6.4 completed: AI self-review pipeline with Croatian banned words, quality scoring (clarity, localRelevance, slopScore, flow), rewrite loop (max 2x), and polish stage.
 - Sprint 6.3 completed: AI post generation with document parsing (PDF, DOCX, OCR), queue integration, and admin UI dialog.
 - Sprint 6.2 completed: AI queue system with ai_queue table, background worker, retry logic, rate limit handling, and admin status page.
 - Sprint 6.1 completed: Ollama Cloud connection with generate API, typed responses, error handling.
@@ -648,18 +649,18 @@ Acceptance Criteria:
 Gate: Submit job, hit rate limit, auto-retry succeeds
 ```
 
-### Sprint 6.4: Content Generation
+### Sprint 6.4: Self-Review Pipeline
 ```
 Acceptance Criteria:
-□ Input: photos + notes
-□ Step 1: Extract context from images (if supported)
-□ Step 2: Google Search for additional context
-□ Step 3: Generate article with Llama 3.1 70B
-□ Croatian formal tone
-□ Proper structure (title, intro, body)
-□ Output: Draft ready for review
+✓ Croatian banned words list (AI buzzwords, filler phrases)
+✓ Review prompt with quality scoring (clarity, localRelevance, slopScore, flow)
+✓ Rewrite prompt for fixing identified issues
+✓ Polish prompt for final grammar/spelling pass
+✓ Pipeline processor: REVIEW → REWRITE (max 2x) → POLISH
+✓ Queue worker integration with pipeline metrics
+✓ Tests for banned words detection and review parsing
 
-Gate: Input notes about road repair, get coherent Croatian article
+Gate: Generate article, pipeline runs REVIEW → REWRITE → POLISH, quality score stored
 ```
 
 **Phase 6 Deliverable:** AI-powered content generation working
@@ -864,3 +865,5 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-30 | Sprint 6.4 (Google Search) removed: Ollama Cloud now has built-in web_search API |
 | 2026-01-30 | Sprint 7.1 completed: Embedding pipeline with nomic-embed-text and pgvector search_index |
 | 2026-01-30 | Sprint 7.5 completed: Hybrid search with keyword + fuzzy + semantic scoring |
+| 2026-01-30 | Sprint 6.4 completed: AI self-review pipeline with REVIEW → REWRITE → POLISH stages, banned words detection |
+| 2026-01-30 | Phase 6 complete: AI Integration (Ollama Cloud, queue, generation, self-review pipeline) |
