@@ -61,20 +61,23 @@ export function Footer({ groups, logo, copyright, className, socialLinks }: Foot
 
                 <div className="flex flex-col items-center justify-between gap-4 text-xs text-neutral-500 md:flex-row">
                     <p>{copyright}</p>
-                    <div className="flex flex-wrap items-center justify-center gap-4 md:justify-end">
-                        <Link href="/izjava-o-pristupacnosti" className="hover:text-neutral-300">Izjava o pristupačnosti</Link>
-                        <Link href="/privatnost" className="hover:text-neutral-300">Politika privatnosti</Link>
-                        <Link
-                            href="/sigurnost"
-                            className="inline-flex items-center gap-1.5 rounded border border-neutral-700 px-2 py-1 text-neutral-400 transition-colors hover:border-neutral-600 hover:text-neutral-300"
-                            title="NIS2 sigurnosna arhitektura"
-                        >
-                            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            </svg>
-                            <span>NIS2</span>
+                    <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-neutral-400 md:justify-end">
+                        <Link href="/privatnost" className="hover:text-neutral-300" title="GDPR načela primijenjena">
+                            Privatnost
                         </Link>
-                    </div>
+                        <span className="hidden text-neutral-600 md:inline">·</span>
+                        <Link href="/izjava-o-pristupacnosti" className="hover:text-neutral-300" title="WCAG načela primijenjena">
+                            Pristupačnost
+                        </Link>
+                        <span className="hidden text-neutral-600 md:inline">·</span>
+                        <Link href="/sigurnost" className="hover:text-neutral-300" title="NIS2 načela primijenjena">
+                            Sigurnost
+                        </Link>
+                        <span className="hidden text-neutral-600 md:inline">·</span>
+                        <Link href="/transparentnost" className="hover:text-neutral-300" title="Javne informacije">
+                            Transparentnost
+                        </Link>
+                    </nav>
                 </div>
             </div>
         </footer>

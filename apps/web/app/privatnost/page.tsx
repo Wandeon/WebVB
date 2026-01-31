@@ -288,29 +288,40 @@ export default function PrivatnostPage() {
         </div>
       </section>
 
-      {/* Kolačići */}
+      {/* Kolačići i praćenje */}
       <section id="kolacici" className="scroll-mt-24">
         <h2 className="mb-6 flex items-center gap-3 text-2xl font-bold text-neutral-900">
           <Database className="h-7 w-7 text-primary-600" />
-          Kolačići
+          Kolačići i praćenje
         </h2>
 
+        <div className="mb-6 rounded-xl border border-green-200 bg-green-50 p-6">
+          <h3 className="mb-2 text-lg font-semibold text-green-900">Bez praćenja trećih strana</h3>
+          <p className="text-green-800">
+            Ova web stranica <strong>ne koristi</strong> Google Analytics, Facebook Pixel,
+            marketinške piksele niti druge alate za praćenje trećih strana. Ne prodajemo niti
+            dijelimo vaše podatke s oglašivačima.
+          </p>
+        </div>
+
         <p className="mb-6 text-lg text-neutral-700">
-          Naša web stranica koristi kolačiće kako bi vam pružila bolje korisničko iskustvo.
+          Koristimo minimalne kolačiće potrebne za funkcioniranje stranice:
         </p>
 
         <div className="space-y-4">
           <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
             <h3 className="mb-2 font-semibold text-neutral-900">Neophodni kolačići</h3>
             <p className="text-sm text-neutral-600">
-              Potrebni za osnovne funkcije stranice. Ne možete ih isključiti.
+              Potrebni za osnovne funkcije stranice (npr. pamćenje vašeg izbora o kolačićima).
+              Ne možete ih isključiti.
             </p>
           </div>
           <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-2 font-semibold text-neutral-900">Analitički kolačići</h3>
+            <h3 className="mb-2 font-semibold text-neutral-900">Cloudflare analitika</h3>
             <p className="text-sm text-neutral-600">
-              Pomažu nam razumjeti kako koristite stranicu. Možete ih isključiti u postavkama
-              preglednika.
+              Cloudflare pruža osnovne podatke o prometu (broj posjeta, geografska distribucija)
+              bez identificiranja pojedinačnih korisnika. Ovi podaci ne napuštaju Cloudflare
+              infrastrukturu.
             </p>
           </div>
         </div>
