@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## Navigation Redesign (2026-01-31)
+
+### Added
+- New sidebar navigation system with accordion behavior and scroll spy
+- `useScrollSpy` hook for tracking active section during scroll
+- `SidebarNav` and `SidebarItem` components with spring animations
+- `MobileNavPill` - sticky bottom pill showing current page (mobile)
+- `MobileNavSheet` - bottom sheet navigation with swipe gestures (mobile)
+- `SmallHero` component - contained hero (200-250px) with gradient overlay
+- `PageLayoutV2` - new page layout combining sidebar + hero + content
+- Visible Kontakt button in header (desktop)
+- `/nacelnik` page - Mayor's page with sections (O načelniku, Program rada, Dokumenti, Kontakt)
+- `/naselja` landing page with village cards
+- `/naselja/veliki-bukovec` - Village page with castle and church info
+- `/naselja/dubovica` - Village page with chapel history
+- `/naselja/kapela` - Village page with river and flood history
+
+### Changed
+- Updated navigation data structure to 3 groups (Naš Kraj, Uprava, Aktualno)
+- Homepage village names: centered on mobile, left-aligned on desktop
+- Header now includes prominent Kontakt button with Mail icon
+
+### Technical Details
+- Spring animations: stiffness 400/300, damping 30
+- Staggered section reveals: 0.05s delay between items
+- Active indicator uses `layoutId` for smooth transitions
+- Scroll spy offset: 120px for proper anchor tracking
+- Mobile sheet uses body scroll lock and escape key handling
+
 ## Sprint 2.12 - Static Export Verify (Completed)
 
 ### Added

@@ -8,6 +8,7 @@
 
 **Active Sprint:** Sprint 4.5.4 (Gap Analysis & Enrichment Plan)
 **Overall Progress:** 62/72 sprints (86%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5.1-4.5.3 done
+**Recent:** Navigation redesign (11 tasks) - sidebar nav, mobile bottom sheet, PageLayoutV2, new pages
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -1040,3 +1041,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-31 | Sprint 4.5.2 completed: Old vs new comparison (compare-old-new.ts), migration parity verified (326 WP posts → 88+252+26, 406/407 redirects) |
 | 2026-01-31 | Sprint 4.5.3 completed: Content quality audit (content-quality-audit.ts), 947 issues identified (2 critical, 892 warnings, 53 info) |
 | 2026-01-31 | Navigation fix: Created /opcina/zupa and /opcina/ustanove pages, added redirects for legacy rad-uprave/* URLs |
+| 2026-01-31 | Navigation redesign implemented: 11 tasks completed - sidebar navigation, mobile bottom sheet, PageLayoutV2, SmallHero, Kontakt button, Načelnik page, Naselja landing + 3 village subpages |
