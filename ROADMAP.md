@@ -2,12 +2,12 @@
 
 > AI-agent optimized roadmap with clear gates and parallel tracks.
 > Each sprint is independently completable with defined acceptance criteria.
-> Last updated: 2026-01-30
+> Last updated: 2026-01-31
 
 ## Current Status
 
-**Active Sprint:** Sprint 4.5.1 (Content Sitemap & Inventory)
-**Overall Progress:** 59/72 sprints (82%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5 pending
+**Active Sprint:** Sprint 4.5.2 (Old vs New Comparison)
+**Overall Progress:** 60/72 sprints (83%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5.1 done
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -582,32 +582,51 @@ Gate: pnpm migrate:parse produces valid JSON
 ---
 
 ## Phase 4.5: Content Enrichment & Quality
-**Status:** Not Started | **Progress:** 0/5 | **Track:** C (Human + AI collaborative)
+**Status:** In Progress | **Progress:** 1/5 | **Track:** C (Human + AI collaborative)
 
 | Sprint | Task | Parallel | Depends | Gate |
 |--------|------|----------|---------|------|
-| 4.5.1 ⬜ | Content sitemap & inventory | No | Phase 4 | Complete inventory with status for all content |
+| 4.5.1 ✅ | Content sitemap & inventory | No | Phase 4 | Complete inventory with status for all content |
 | 4.5.2 ⬜ | Old vs new comparison | 🔗 | 4.5.1 | Migration parity report from WordPress data |
 | 4.5.3 ⬜ | Content quality audit | 🔗 | 4.5.1 | Programmatic quality analysis of all content |
 | 4.5.4 ⬜ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | Prioritized list of improvements |
 | 4.5.5 ⬜ | Content enrichment execution | 🔗 | 4.5.4 | Critical/important gaps addressed |
 
-### Sprint 4.5.1: Content Sitemap & Inventory
+Recent updates:
+- Sprint 4.5.1 completed: Content inventory system with database queries, route mapping, empty content detection
+
+### Sprint 4.5.1: Content Sitemap & Inventory ✅
 ```
 Acceptance Criteria:
-□ Query database for all content counts:
+✓ Query database for all content counts:
   - Posts (by category, by status)
   - Pages (static pages with content status)
   - Documents (by category)
   - Events (upcoming vs past)
   - Galleries (with image counts)
   - Announcements
-□ Map all routes from codebase (app/*/page.tsx)
-□ Cross-reference: which routes have content, which are empty
-□ Mark each as: complete, partial, placeholder, empty
-□ Output: docs/content/sitemap-inventory.md
+✓ Map all routes from codebase (app/*/page.tsx)
+✓ Cross-reference: which routes have content, which are empty
+✓ Mark each as: complete, partial, placeholder, empty
+✓ Output: docs/content/sitemap-inventory.md
 
-Gate: Complete inventory with counts and status for every content type
+Gate: ✅ Complete inventory with counts and status for every content type
+
+Implementation Notes:
+- Created scripts/content-inventory.ts - Queries all database tables, generates markdown inventory
+- Created scripts/find-empty-content.ts - Detects empty (<50 words), thin, and placeholder content
+- Placeholder detection: lorem ipsum, todo, tbd, placeholder, coming soon, uskoro, u izradi
+- Output: docs/content/sitemap-inventory.md with executive summary, content breakdown, route mapping
+- Empty content detection appends "Content Quality Analysis" section to inventory
+- Scripts use tsx runner, added as devDependency
+
+Files Created:
+- docs/content/README.md - Directory index for content audits
+- docs/content/sitemap-inventory.md - Full content inventory
+- scripts/content-inventory.ts - Database query script (queries posts, pages, documents, events, galleries, announcements, users, newsletters, contact messages, problem reports)
+- scripts/find-empty-content.ts - Empty/placeholder detection script
+
+Note: Inventory run against local dev database (minimal content). Re-run against production (100.120.125.83) for full stats.
 ```
 
 ### Sprint 4.5.2: Old vs New Comparison
@@ -971,3 +990,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-30 | Sprint 6.4 completed: AI self-review pipeline with REVIEW → REWRITE → POLISH stages, banned words detection |
 | 2026-01-30 | Phase 6 complete: AI Integration (Ollama Cloud, queue, generation, self-review pipeline) |
 | 2026-01-30 | Phase 4.5 added: Content Enrichment & Quality (sitemap, old vs new comparison, quality audit, visual audit, gap analysis, enrichment) |
+| 2026-01-31 | Sprint 4.5.1 completed: Content inventory scripts (content-inventory.ts, find-empty-content.ts), sitemap-inventory.md generated |
