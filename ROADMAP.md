@@ -6,8 +6,8 @@
 
 ## Current Status
 
-**Active Sprint:** Sprint 7.2 (RAG Retrieval)
-**Overall Progress:** 59/67 sprints (88%) - Phase 0-6 complete, 7.1+7.5 done
+**Active Sprint:** Sprint 4.5.1 (Content Sitemap & Inventory)
+**Overall Progress:** 59/73 sprints (81%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5 pending
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -581,6 +581,106 @@ Gate: pnpm migrate:parse produces valid JSON
 
 ---
 
+## Phase 4.5: Content Enrichment & Quality
+**Status:** Not Started | **Progress:** 0/6 | **Track:** C (Human + AI collaborative)
+
+| Sprint | Task | Parallel | Depends | Gate |
+|--------|------|----------|---------|------|
+| 4.5.1 ⬜ | Content sitemap & inventory | No | Phase 4 | Complete sitemap with all pages documented |
+| 4.5.2 ⬜ | Old vs new comparison | 🔗 | 4.5.1 | Side-by-side comparison report |
+| 4.5.3 ⬜ | Content quality audit | 🔗 | 4.5.1 | Quality scores for each section (1-10) |
+| 4.5.4 ⬜ | Visual/UX audit | 🔀 | 4.5.1 | Appearance ratings, screenshot comparisons |
+| 4.5.5 ⬜ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | List of content to add/improve |
+| 4.5.6 ⬜ | Content enrichment execution | 🔗 | 4.5.5 | All identified gaps filled |
+
+### Sprint 4.5.1: Content Sitemap & Inventory
+```
+Acceptance Criteria:
+□ Complete sitemap of all pages (public + admin)
+□ Document page purpose and content type
+□ List all sections within each page
+□ Note content source (migrated, new, static)
+□ Mark pages as: complete, partial, empty, needs-review
+□ Output: docs/content/sitemap-inventory.md
+
+Gate: Every page on the site is documented with status
+```
+
+### Sprint 4.5.2: Old vs New Comparison
+```
+Acceptance Criteria:
+□ Side-by-side comparison for each major section
+□ Screenshot comparisons (old WordPress vs new)
+□ Content parity check (nothing lost in migration)
+□ Feature comparison (what's new, what's changed)
+□ Navigation structure comparison
+□ Output: docs/content/old-vs-new-comparison.md
+
+Gate: Stakeholder can see what changed and why
+```
+
+### Sprint 4.5.3: Content Quality Audit
+```
+Acceptance Criteria:
+□ Rate each page/section on 1-10 scale:
+  - Completeness (is all info present?)
+  - Accuracy (is info correct and current?)
+  - Clarity (is it easy to understand?)
+  - Usefulness (does it help citizens?)
+□ Identify outdated content
+□ Flag placeholder/lorem ipsum text
+□ Note missing images or broken links
+□ Output: docs/content/quality-audit.md
+
+Gate: Every section has quality scores with notes
+```
+
+### Sprint 4.5.4: Visual/UX Audit
+```
+Acceptance Criteria:
+□ Screenshot each major page (mobile + desktop)
+□ Rate visual appearance (1-10):
+  - Layout consistency
+  - Typography readability
+  - Image quality
+  - Mobile responsiveness
+□ Check accessibility basics (contrast, alt text)
+□ Note any UI/UX issues
+□ Output: docs/content/visual-audit.md
+
+Gate: Visual report with scores and screenshots
+```
+
+### Sprint 4.5.5: Gap Analysis & Enrichment Plan
+```
+Acceptance Criteria:
+□ Compile findings from 4.5.2, 4.5.3, 4.5.4
+□ Prioritize gaps (critical, important, nice-to-have)
+□ Create actionable improvement tasks
+□ Estimate effort for each task
+□ Assign responsibility (human vs AI-assisted)
+□ Output: docs/content/enrichment-plan.md
+
+Gate: Prioritized list of content improvements ready
+```
+
+### Sprint 4.5.6: Content Enrichment Execution
+```
+Acceptance Criteria:
+□ Execute critical improvements from plan
+□ Execute important improvements
+□ Use AI generation for new content where appropriate
+□ Human review and approval for all changes
+□ Update quality scores post-enrichment
+□ Output: Updated content, revised quality-audit.md
+
+Gate: All critical/important gaps addressed, quality scores improved
+```
+
+**Phase 4.5 Deliverable:** Comprehensive content audit with quality improvements applied
+
+---
+
 ## Phase 5: Communication Features
 **Status:** Complete | **Progress:** 6/6 | **Track:** A
 
@@ -777,11 +877,12 @@ Gate: https://velikibukovec.hr shows new site
 | 2 | 12 | Public Website (pages, search, SEO) |
 | 3 | 9 | Infrastructure (VPS, R2, deploys) |
 | 4 | 7 | Migration (WordPress → new) |
+| 4.5 | 6 | Content Enrichment (audit, compare, improve) |
 | 5 | 6 | Communication (forms, newsletter) |
 | 6 | 4 | AI Integration (generation, queue, review) |
 | 7 | 8 | Chatbot & Polish (RAG, perf, a11y) |
 | 8 | 8 | Launch (E2E, training, go-live) |
-| **Total** | **67** | |
+| **Total** | **73** | |
 
 ---
 
@@ -867,3 +968,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-30 | Sprint 7.5 completed: Hybrid search with keyword + fuzzy + semantic scoring |
 | 2026-01-30 | Sprint 6.4 completed: AI self-review pipeline with REVIEW → REWRITE → POLISH stages, banned words detection |
 | 2026-01-30 | Phase 6 complete: AI Integration (Ollama Cloud, queue, generation, self-review pipeline) |
+| 2026-01-30 | Phase 4.5 added: Content Enrichment & Quality (sitemap, old vs new comparison, quality audit, visual audit, gap analysis, enrichment) |
