@@ -2,7 +2,7 @@
 
 > Master index for Veliki Bukovec municipality website project.
 > For detailed specifications, see domain-specific documents in `docs/` folder.
-> Last updated: 2026-01-23
+> Last updated: 2026-01-31
 
 ## Quick Links
 
@@ -141,6 +141,62 @@ Resolved all open questions:
 #### Document Reorganization
 - **Problem:** DECISIONS.md grew to 3000+ lines
 - **Solution:** Split into 6 domain-specific files in `docs/`
+
+### Session 4 - 2026-01-31 (Navigation Redesign)
+
+#### Problem
+The original navigation had several UX issues:
+- Confusing nested tabs (`/opcina` had 3 tabs AND child pages with more tabs)
+- Tab bar looked like generic WordPress plugin
+- Huge hero photos wasted viewport space
+- Tab bar disappeared on scroll, losing navigation context
+- No persistent wayfinding
+- Missing pages (Župa, Škola) in navigation
+
+#### Solution: Sidebar + Bottom Sheet Pattern
+
+**Desktop Layout:**
+- 280px sticky sidebar with accordion navigation
+- Scroll spy integration for active section tracking
+- Small hero (200-250px) instead of full-viewport heroes
+- Prose styling for content area
+
+**Mobile Layout:**
+- Sticky bottom pill showing current page
+- Bottom sheet navigation (swipe up to access)
+- Same accordion behavior as desktop sidebar
+
+**New Components Created:**
+```
+apps/web/
+├── hooks/
+│   └── use-scroll-spy.ts           # Scroll position tracking hook
+├── components/
+│   ├── navigation/
+│   │   ├── sidebar-nav.tsx         # Desktop accordion sidebar
+│   │   ├── sidebar-item.tsx        # Individual nav item with sections
+│   │   ├── mobile-nav-pill.tsx     # Sticky bottom pill (mobile)
+│   │   └── mobile-nav-sheet.tsx    # Bottom sheet navigation
+│   ├── small-hero.tsx              # Contained hero (200-250px)
+│   └── page-layout-v2.tsx          # New page layout with sidebar
+└── lib/
+    └── navigation.ts               # Updated nav structure (3 groups)
+```
+
+**Animation Specifications:**
+- Spring physics: stiffness 400, damping 30
+- Staggered section reveals: 0.05s delay between items
+- Active indicator with `layoutId` for smooth transitions
+
+**Pages Migrated:**
+- `/nacelnik` - Mayor's page (standalone)
+- `/naselja` - Landing page with village cards
+- `/naselja/veliki-bukovec` - Village subpage
+- `/naselja/dubovica` - Village subpage
+- `/naselja/kapela` - Village subpage
+
+**Design document:** `docs/plans/2026-01-31-navigation-redesign.md`
+**Implementation plan:** `docs/plans/2026-01-31-navigation-redesign-implementation.md`
 
 ### Session 3 - 2026-01-23 (Tech Stack Audit)
 

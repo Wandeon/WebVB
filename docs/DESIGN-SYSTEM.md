@@ -1,7 +1,7 @@
 # DESIGN-SYSTEM.md - UI/UX Specification
 
 > Design tokens, components, animations, and page templates.
-> Last updated: 2026-01-23
+> Last updated: 2026-01-31
 
 ## Table of Contents
 
@@ -185,6 +185,11 @@ boxShadow: {
 │  LAYOUTS (templates) - Page structure                           │
 │  └── PublicLayout, AdminLayout, AuthLayout                      │
 │      PageHeader, Sidebar, Footer                                │
+│      PageLayoutV2 (sidebar + content), SmallHero                │
+│                                                                 │
+│  NAVIGATION (2026-01-31) - New sidebar navigation system        │
+│  └── SidebarNav, SidebarItem (accordion with scroll spy)        │
+│      MobileNavPill, MobileNavSheet (bottom sheet pattern)       │
 │                                                                 │
 │  PAGES - Full page compositions                                 │
 │  └── Homepage, NewsPage, PostDetailPage, AdminDashboard         │
@@ -260,6 +265,20 @@ const buttonVariants = cva(
 - Main Content + Sub-navigation
 - Footer
 
+**Sidebar Layout Page (PageLayoutV2):** *(Added 2026-01-31)*
+- Header with Kontakt button
+- Two-column layout:
+  - Left: 280px sticky sidebar (accordion navigation with scroll spy)
+  - Right: Small hero (200-250px) + prose content
+- Mobile: Sticky bottom pill → Bottom sheet navigation
+- Pages using this: `/nacelnik`, `/naselja/*`
+
+**Small Hero:**
+- Height: 200-250px (not full viewport)
+- Rounded corners, contained within content area
+- Optional background image with gradient overlay
+- Title + subtitle animated on mount
+
 ### Admin Templates
 
 **Admin Layout:**
@@ -332,6 +351,35 @@ export const scaleIn = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
   exit: { opacity: 0, scale: 0.95 },
+
+// Navigation animations (added 2026-01-31)
+export const sidebarItemVariants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: { opacity: 1, x: 0 },
+};
+
+export const sidebarContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+export const springTransition = {
+  type: "spring",
+  stiffness: 400,
+  damping: 30,
+};
+
+export const bottomSheetTransition = {
+  type: "spring",
+  stiffness: 300,
+  damping: 30,
+};
   transition: { duration: 0.2 }
 };
 
