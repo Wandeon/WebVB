@@ -253,7 +253,7 @@ export function VillageHero() {
                   )}
 
                   {/* Village name */}
-                  <div className="absolute inset-x-0 bottom-0 p-3 text-center">
+                  <div className="absolute inset-x-0 bottom-0 p-3 text-center lg:text-left">
                     <span className="text-xs font-bold uppercase tracking-wider text-white drop-shadow-lg md:text-sm">
                       {village.name}
                     </span>
