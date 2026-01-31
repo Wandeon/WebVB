@@ -113,6 +113,7 @@ export const footerLinks = [
       { title: 'Dokumenti', href: '/dokumenti' },
       { title: 'Usluge', href: '/usluge' },
       { title: 'Prijava problema', href: '/prijava-problema' },
+      { title: 'Izjava o pristupačnosti', href: '/pristupacnost' },
     ],
   },
   {

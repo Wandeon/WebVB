@@ -375,6 +375,25 @@
 /rodiljne-i-roditeljske-potpore /vijesti/rodiljne-i-roditeljske-potpore 301
 /ulaganje-u-objekt-djecjeg-vrtica-krijesnica-podruznica-veliki-bukovec /vijesti/ulaganje-u-objekt-djecjeg-vrtica-krijesnica-podruznica-veliki-bukovec 301
 
+# Legacy rad-uprave -> usluge redirects
+/rad-uprave /usluge 301
+/rad-uprave/komunalno /usluge 301
+/rad-uprave/financije /usluge 301
+/rad-uprave/financijski-dokumenti /usluge 301
+/rad-uprave/javna-nabava /usluge 301
+/rad-uprave/javna-nabava-dokumenti /usluge 301
+/rad-uprave/civilna-zastita /usluge 301
+/rad-uprave/dimnjacari /usluge 301
+/rad-uprave/donacije /usluge 301
+/rad-uprave/drustveni-domovi /usluge 301
+/rad-uprave/odvoz-otpada /odvoz-otpada 301
+/rad-uprave/otvoreni-podaci /usluge 301
+/rad-uprave/pristup-informacijama /usluge 301
+/rad-uprave/projekti /usluge 301
+/rad-uprave/sudjelovanje-gradana /usluge 301
+/rad-uprave/covid-19 /usluge 301
+/rad-uprave/propusnice-covid /usluge 301
+
 # Consolidated page redirects (Sprint 4.5.2 - Navigation fix)
 /zupa-svetog-franje-asiskog /opcina/zupa 301
 /crkve-i-kapelice /opcina/zupa 301
@@ -388,5 +407,10 @@
 /opcina/znamenitosti/opcinsko-groblje /opcina/zupa 301
 /opcina/ustanove/skola /opcina/ustanove 301
 
+# Legacy page redirects
+/o-opcini /opcina 301
+/juo-opcine /organizacija 301
+/novosti /vijesti 301
+
 # Note: Cloudflare Pages handles trailing slashes automatically
-# Total redirects: 383
+# Total redirects: 403
