@@ -271,7 +271,7 @@ const buttonVariants = cva(
   - Left: 280px sticky sidebar (accordion navigation with scroll spy)
   - Right: Small hero (200-250px) + prose content
 - Mobile: Sticky bottom pill → Bottom sheet navigation
-- Pages using this: `/nacelnik`, `/naselja/*`
+- Pages using this: `/nacelnik`, `/vijece`, `/zupa`, `/skola`, `/opcina`, `/usluge`, `/naselja/*`
 
 **Small Hero:**
 - Height: 200-250px (not full viewport)

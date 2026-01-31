@@ -8,7 +8,7 @@
 
 **Active Sprint:** Sprint 4.5.4 (Gap Analysis & Enrichment Plan)
 **Overall Progress:** 62/72 sprints (86%) - Phase 0-4, 5, 6 complete; 7.1+7.5 done; 4.5.1-4.5.3 done
-**Recent:** Navigation redesign (11 tasks) - sidebar nav, mobile bottom sheet, PageLayoutV2, new pages
+**Recent:** Navigation redesign follow-up complete - /vijece, /zupa, /skola pages; /opcina and /usluge migrated to PageLayoutV2
 **Target Launch:** TBD
 **Latest Audit:** Phase 0/1/4 system audit in `docs/audits/PHASE-0-1-4-SYSTEM-AUDIT.md`
 **Staging:** Frontend at http://100.120.125.83/ | Admin at http://100.120.125.83:3001/
@@ -590,7 +590,7 @@ Gate: pnpm migrate:parse produces valid JSON
 | 4.5.1 ✅ | Content sitemap & inventory | No | Phase 4 | Complete inventory with status for all content |
 | 4.5.2 ✅ | Old vs new comparison | 🔗 | 4.5.1 | Migration parity report from WordPress data |
 | 4.5.3 ✅ | Content quality audit | 🔗 | 4.5.1 | Programmatic quality analysis of all content |
-| 4.5.4 ⬜ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | Prioritized list of improvements |
+| 4.5.4 ✅ | Gap analysis & enrichment plan | 🔗 | 4.5.2, 4.5.3 | Prioritized list of improvements |
 | 4.5.5 ⬜ | Content enrichment execution | 🔗 | 4.5.4 | Critical/important gaps addressed |
 
 Recent updates:

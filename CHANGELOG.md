@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## Navigation Redesign Follow-up (2026-01-31)
+
+### Added
+- `/vijece` page - Municipal council page with members list, meeting info, documents
+- `/zupa` page - Parish page with dynamic content from database (crkva, kapelice, ured, groblja)
+- `/skola` page - School page with database content or fallback static content
+
+### Changed
+- Migrated `/opcina` from tabbed layout to PageLayoutV2 with 3 scroll sections (O nama, Turizam, Povijest)
+- Migrated `/usluge` from tabbed layout to PageLayoutV2 with 4 scroll sections (Komunalno, Financije, Za građane, Udruge)
+- `/opcina/zupa` now redirects to `/zupa`
+- `/opcina/ustanove` now redirects to `/skola`
+
+### Removed
+- Tabbed navigation from /opcina and /usluge pages
+- Old ZupaClient and UstanoveClient components (replaced by standalone pages)
+
+---
+
 ## Navigation Redesign (2026-01-31)
 
 ### Added
