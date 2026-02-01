@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 02 - Data Access & Validation (2026-02-03)
+
+### Changed
+- Enforced strict schema validation across admin and shared inputs to reject unknown fields
+- Added consistent date/time validation for events and galleries, including ISO date coercion for posts/announcements
+- Normalized pagination limits in repositories to prevent unbounded queries
+- Validated UUID route parameters before database access
+- Moved public search query execution into the database repository layer
+
 ## Security Hardening (2026-02-02)
 
 ### Changed

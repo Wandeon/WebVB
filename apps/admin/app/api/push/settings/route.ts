@@ -14,16 +14,21 @@ const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
-const settingsSchema = z.object({
-  endpoint: z.string().url(),
-  p256dh: z.string().min(1),
-  auth: z.string().min(1),
-  topics: z.array(z.enum(['all', 'waste', 'news', 'events', 'announcements'])).min(1),
-  preferences: z.object({
-    quietHoursStart: z.string().regex(timeRegex, 'Neispravan format vremena (HH:MM)').optional(),
-    quietHoursEnd: z.string().regex(timeRegex, 'Neispravan format vremena (HH:MM)').optional(),
-  }).optional(),
-});
+const settingsSchema = z
+  .object({
+    endpoint: z.string().url(),
+    p256dh: z.string().min(1),
+    auth: z.string().min(1),
+    topics: z.array(z.enum(['all', 'waste', 'news', 'events', 'announcements'])).min(1),
+    preferences: z
+      .object({
+        quietHoursStart: z.string().regex(timeRegex, 'Neispravan format vremena (HH:MM)').optional(),
+        quietHoursEnd: z.string().regex(timeRegex, 'Neispravan format vremena (HH:MM)').optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
 
 export function OPTIONS(request: Request) {
   return corsResponse(request);

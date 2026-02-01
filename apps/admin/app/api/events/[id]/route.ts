@@ -6,6 +6,7 @@ import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { eventsLogger } from '@/lib/logger';
 import { deleteImageVariantsFromUrl } from '@/lib/r2';
+import { parseUuidParam } from '@/lib/request-validation';
 import { updateEventSchema } from '@/lib/validations/event';
 
 import type { NextRequest } from 'next/server';
@@ -18,13 +19,18 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const eventId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const event = await eventsRepository.findById(id);
+    const event = await eventsRepository.findById(eventId);
 
     if (!event) {
       return apiError(ErrorCodes.NOT_FOUND, 'Događaj nije pronađen', 404);
@@ -45,6 +51,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const eventId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -55,7 +66,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const validationResult = updateEventSchema.safeParse({
       ...(body as Record<string, unknown>),
-      id,
+      id: eventId,
     });
 
     if (!validationResult.success) {
@@ -65,7 +76,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.VALIDATION_ERROR, errorMessage, 400);
     }
 
-    const existingEvent = await eventsRepository.findById(id);
+    const existingEvent = await eventsRepository.findById(eventId);
 
     if (!existingEvent) {
       return apiError(ErrorCodes.NOT_FOUND, 'Događaj nije pronađen', 404);
@@ -109,12 +120,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         try {
           await deleteImageVariantsFromUrl(existingEvent.posterImage);
           eventsLogger.info(
-            { eventId: id },
+            { eventId },
             'Stara slika plakata obrisana iz R2'
           );
         } catch (r2Error) {
           eventsLogger.error(
-            { eventId: id, error: r2Error },
+            { eventId, error: r2Error },
             'Nije uspjelo brisanje stare slike plakata iz R2'
           );
         }
@@ -122,7 +133,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       updateData.posterImage = posterImage;
     }
 
-    const event = await eventsRepository.update(id, updateData);
+    const event = await eventsRepository.update(eventId, updateData);
 
     await createAuditLog({
       request,
@@ -145,7 +156,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       location: event.location,
     });
 
-    eventsLogger.info({ eventId: id }, 'Događaj uspješno ažuriran');
+    eventsLogger.info({ eventId }, 'Događaj uspješno ažuriran');
 
     return apiSuccess(event);
   } catch (error) {
@@ -162,13 +173,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const eventId = idResult.id;
     const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const existingEvent = await eventsRepository.findById(id);
+    const existingEvent = await eventsRepository.findById(eventId);
 
     if (!existingEvent) {
       return apiError(
@@ -179,10 +195,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Delete from DB first
-    const deletedEvent = await eventsRepository.delete(id);
+    const deletedEvent = await eventsRepository.delete(eventId);
 
     // Remove from search index
-    await removeFromIndex('event', id);
+    await removeFromIndex('event', eventId);
 
     await createAuditLog({
       request,
@@ -200,19 +216,19 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       try {
         await deleteImageVariantsFromUrl(existingEvent.posterImage);
         eventsLogger.info(
-          { eventId: id },
+          { eventId },
           'Slika plakata obrisana iz R2'
         );
       } catch (r2Error) {
         eventsLogger.error(
-          { eventId: id, error: r2Error },
+          { eventId, error: r2Error },
           'Nije uspjelo brisanje slike plakata iz R2 (DB zapis već obrisan)'
         );
       }
     }
 
     eventsLogger.info(
-      { eventId: id, title: deletedEvent.title },
+      { eventId, title: deletedEvent.title },
       'Događaj uspješno obrisan'
     );
 

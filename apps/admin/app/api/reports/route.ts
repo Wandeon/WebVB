@@ -8,15 +8,17 @@ import { problemReportsLogger } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 
 // Query parameters validation schema
-const reportQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
-  status: z.enum(['new', 'in_progress', 'resolved', 'rejected']).optional(),
-  problemType: z.string().max(50).optional(),
-  search: z.string().max(200).optional(),
-  sortBy: z.enum(['createdAt', 'status', 'problemType']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-});
+const reportQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    status: z.enum(['new', 'in_progress', 'resolved', 'rejected']).optional(),
+    problemType: z.string().max(50).optional(),
+    search: z.string().max(200).optional(),
+    sortBy: z.enum(['createdAt', 'status', 'problemType']).default('createdAt'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  })
+  .strict();
 
 // GET /api/reports - List problem reports with filtering, pagination, sorting
 export async function GET(request: NextRequest) {

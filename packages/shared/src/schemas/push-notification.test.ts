@@ -109,6 +109,19 @@ describe('push notification schemas', () => {
 
       expect(result.success).toBe(true);
     });
+
+    it('rejects unknown fields', () => {
+      const data = {
+        endpoint: 'https://push.example.com/endpoint/123',
+        p256dh: 'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlU',
+        auth: 'auth_secret_here',
+        extra: 'unexpected',
+      };
+
+      const result = CreatePushSubscriptionSchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+    });
   });
 
   describe('SendNotificationSchema', () => {

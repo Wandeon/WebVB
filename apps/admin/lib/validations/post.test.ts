@@ -81,6 +81,18 @@ describe('postSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects unknown fields', () => {
+    const result = postSchema.safeParse({
+      title: 'Test naslov',
+      content: 'Test sadržaj',
+      category: 'aktualnosti',
+      isFeatured: false,
+      unexpected: 'value',
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('accepts valid categories', () => {
     const categories = [
       'aktualnosti',
@@ -169,6 +181,21 @@ describe('postSchema', () => {
       });
       expect(result.success).toBe(false);
     });
+  });
+
+  it('accepts ISO date strings for publishedAt', () => {
+    const result = createPostSchema.safeParse({
+      title: 'Test naslov',
+      content: '<p>Content</p>',
+      category: 'aktualnosti',
+      isFeatured: false,
+      publishedAt: '2026-02-01T10:00:00.000Z',
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.publishedAt).toBeInstanceOf(Date);
+    }
   });
 
   describe('content with HTML', () => {

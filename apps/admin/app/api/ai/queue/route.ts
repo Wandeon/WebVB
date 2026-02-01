@@ -12,19 +12,23 @@ import type { NextRequest } from 'next/server';
 // Validation
 // =============================================================================
 
-const createJobSchema = z.object({
-  requestType: z.enum(['post_generation', 'newsletter_intro', 'content_summary']),
-  prompt: z.string().min(1, 'Prompt je obavezan'),
-  system: z.string().optional(),
-  context: z.record(z.string(), z.unknown()).optional(),
-});
+const createJobSchema = z
+  .object({
+    requestType: z.enum(['post_generation', 'newsletter_intro', 'content_summary']),
+    prompt: z.string().min(1, 'Prompt je obavezan'),
+    system: z.string().optional(),
+    context: z.record(z.string(), z.unknown()).optional(),
+  })
+  .strict();
 
-const listQuerySchema = z.object({
-  status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
-  requestType: z.enum(['post_generation', 'newsletter_intro', 'content_summary']).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-});
+const listQuerySchema = z
+  .object({
+    status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
+    requestType: z.enum(['post_generation', 'newsletter_intro', 'content_summary']).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
 
 // =============================================================================
 // POST /api/ai/queue - Submit new job

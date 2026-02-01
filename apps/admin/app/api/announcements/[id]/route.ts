@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
 import { updateAnnouncementSchema } from '@/lib/validations/announcement';
 
@@ -18,13 +19,18 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const announcementId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const announcement = await announcementsRepository.findById(id);
+    const announcement = await announcementsRepository.findById(announcementId);
 
     if (!announcement) {
       return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
@@ -45,6 +51,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const announcementId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -56,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Validate request body
     const validationResult = updateAnnouncementSchema.safeParse({
       ...(body as Record<string, unknown>),
-      id,
+      id: announcementId,
     });
 
     if (!validationResult.success) {
@@ -67,7 +78,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if announcement exists
-    const existingAnnouncement = await announcementsRepository.findById(id);
+    const existingAnnouncement = await announcementsRepository.findById(announcementId);
 
     if (!existingAnnouncement) {
       return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
@@ -95,7 +106,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         let slugSuffix = 1;
 
         // Check for existing slug (excluding current announcement) and make it unique
-        while (await announcementsRepository.slugExists(slug, id)) {
+        while (await announcementsRepository.slugExists(slug, announcementId)) {
           slug = `${generateSlug(title)}-${slugSuffix}`;
           slugSuffix++;
         }
@@ -111,7 +122,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (publishedAt !== undefined) updateData.publishedAt = publishedAt;
 
     // Update announcement
-    const announcement = await announcementsRepository.update(id, updateData);
+    const announcement = await announcementsRepository.update(announcementId, updateData);
 
     await createAuditLog({
       request,
@@ -125,7 +136,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    announcementsLogger.info({ announcementId: id }, 'Obavijest uspješno ažurirana');
+    announcementsLogger.info({ announcementId }, 'Obavijest uspješno ažurirana');
 
     return apiSuccess(announcement);
   } catch (error) {
@@ -142,6 +153,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const announcementId = idResult.id;
     const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
@@ -149,13 +165,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if announcement exists
-    const existingAnnouncement = await announcementsRepository.findById(id);
+    const existingAnnouncement = await announcementsRepository.findById(announcementId);
 
     if (!existingAnnouncement) {
       return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
     }
 
-    await announcementsRepository.delete(id);
+    await announcementsRepository.delete(announcementId);
 
     await createAuditLog({
       request,
@@ -168,7 +184,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    announcementsLogger.info({ announcementId: id }, 'Obavijest uspješno obrisana');
+    announcementsLogger.info({ announcementId }, 'Obavijest uspješno obrisana');
 
     return apiSuccess({ deleted: true });
   } catch (error) {

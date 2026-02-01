@@ -40,13 +40,15 @@ VAŽNO: Ne dodaj nikakav tekst prije ili nakon JSON objekta.`;
 // Validation
 // =============================================================================
 
-const requestSchema = z.object({
-  instructions: z
-    .string()
-    .min(1, 'Upute su obavezne')
-    .max(MAX_INSTRUCTIONS_LENGTH, `Upute mogu imati maksimalno ${MAX_INSTRUCTIONS_LENGTH} znakova`),
-  category: z.string().min(1, 'Kategorija je obavezna'),
-});
+const requestSchema = z
+  .object({
+    instructions: z
+      .string()
+      .min(1, 'Upute su obavezne')
+      .max(MAX_INSTRUCTIONS_LENGTH, `Upute mogu imati maksimalno ${MAX_INSTRUCTIONS_LENGTH} znakova`),
+    category: z.string().min(1, 'Kategorija je obavezna'),
+  })
+  .strict();
 
 // =============================================================================
 // Helpers

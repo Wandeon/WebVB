@@ -12,11 +12,13 @@ const categoryKeys = Object.keys(POST_CATEGORIES) as [
   ...Array<keyof typeof POST_CATEGORIES>,
 ];
 
-const publicPostsQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(12),
-  category: z.enum(categoryKeys).optional(),
-});
+const publicPostsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(12),
+    category: z.enum(categoryKeys).optional(),
+  })
+  .strict();
 
 const mapPost = (post: PostWithAuthor) => ({
   id: post.id,

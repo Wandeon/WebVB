@@ -6,10 +6,12 @@ import { eventsLogger } from '@/lib/logger';
 
 import type { NextRequest } from 'next/server';
 
-const calendarQuerySchema = z.object({
-  year: z.coerce.number().int().min(2000),
-  month: z.coerce.number().int().min(1).max(12),
-});
+const calendarQuerySchema = z
+  .object({
+    year: z.coerce.number().int().min(2000),
+    month: z.coerce.number().int().min(1).max(12),
+  })
+  .strict();
 
 export async function GET(request: NextRequest) {
   try {

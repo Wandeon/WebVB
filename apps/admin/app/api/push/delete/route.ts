@@ -10,11 +10,13 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 const RATE_LIMIT = 5;
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 
-const deleteSchema = z.object({
-  endpoint: z.string().url(),
-  p256dh: z.string().min(1),
-  auth: z.string().min(1),
-});
+const deleteSchema = z
+  .object({
+    endpoint: z.string().url(),
+    p256dh: z.string().min(1),
+    auth: z.string().min(1),
+  })
+  .strict();
 
 export function OPTIONS(request: Request) {
   return corsResponse(request);

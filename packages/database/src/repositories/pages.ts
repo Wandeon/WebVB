@@ -1,6 +1,7 @@
 import { isValidPageSlug } from '@repo/shared';
 
 import { db } from '../client';
+import { normalizePagination } from './pagination';
 
 import type { Prisma, Page } from '@prisma/client';
 
@@ -78,6 +79,11 @@ export const pagesRepository = {
       sortBy = 'menuOrder',
       sortOrder = 'asc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 20,
+    });
 
     const where: Prisma.PageWhereInput = {};
 
@@ -99,18 +105,18 @@ export const pagesRepository = {
         where,
         include: relationsSelect,
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       pages,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },

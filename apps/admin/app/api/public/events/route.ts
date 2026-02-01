@@ -17,12 +17,14 @@ const booleanParamSchema = z
     value === 'true' ? true : value === 'false' ? false : undefined
   );
 
-const publicEventsQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(10),
-  upcoming: booleanParamSchema,
-  past: booleanParamSchema,
-});
+const publicEventsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(10),
+    upcoming: booleanParamSchema,
+    past: booleanParamSchema,
+  })
+  .strict();
 
 const mapEvent = (event: Event) => ({
   id: event.id,

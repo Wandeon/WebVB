@@ -111,6 +111,17 @@ describe('contactFormSchema', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('rejects unknown fields', () => {
+    const result = contactFormSchema.safeParse({
+      name: 'Ivan Horvat',
+      email: 'ivan.horvat@example.com',
+      message: 'Ovo je poruka s dovoljnim brojem znakova.',
+      extra: 'nepoznato',
+    });
+
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('problemReportSchema', () => {
@@ -184,6 +195,17 @@ describe('problemReportSchema', () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe('Odaberite vrstu problema');
     }
+  });
+
+  it('rejects unknown fields', () => {
+    const result = problemReportSchema.safeParse({
+      problemType: 'cesta',
+      location: 'Ulica kralja Tomislava 15',
+      description: 'Opis problema s najmanje deset znakova.',
+      extra: 'nepoznato',
+    });
+
+    expect(result.success).toBe(false);
   });
 
   it('rejects more than 5 images', () => {

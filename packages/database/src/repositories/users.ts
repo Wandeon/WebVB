@@ -1,4 +1,5 @@
 import { db } from '../client';
+import { normalizePagination } from './pagination';
 
 import type { Prisma } from '@prisma/client';
 
@@ -43,7 +44,11 @@ const userSelect = {
 export const usersRepository = {
   async findMany(options: UsersQueryOptions = {}) {
     const { page = 1, limit = 10, search, role, active } = options;
-    const skip = (page - 1) * limit;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 10,
+    });
 
     const where: Prisma.UserWhereInput = {};
 
@@ -68,7 +73,7 @@ export const usersRepository = {
         select: userSelect,
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
+        take: safeLimit,
       }),
       db.user.count({ where }),
     ]);
@@ -76,10 +81,10 @@ export const usersRepository = {
     return {
       users,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },

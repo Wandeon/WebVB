@@ -4,10 +4,10 @@
 
 import { eventsRepository, pushSubscriptionsRepository, isInQuietHours } from '@repo/database';
 import { isPushConfigured } from '@repo/shared';
-import webpush from 'web-push';
 
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { contactLogger } from '@/lib/logger';
+import { isWebPushError, webpush } from '@/lib/web-push';
 
 import type { PushTopic, PushSubscriptionWithPreferences } from '@repo/database';
 import type { NextRequest } from 'next/server';
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
         successCount++;
       } catch (error) {
         failureCount++;
-        if (error instanceof webpush.WebPushError) {
+        if (isWebPushError(error)) {
           if (error.statusCode === 410 || error.statusCode === 404) {
             await pushSubscriptionsRepository.markGone(sub.endpoint);
           } else {

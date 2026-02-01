@@ -1,4 +1,5 @@
 import { db } from '../client';
+import { clampLimit, normalizePagination } from './pagination';
 
 import type { Gallery, GalleryImage, Prisma } from '@prisma/client';
 
@@ -65,6 +66,11 @@ export const galleriesRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 20,
+    });
 
     const where: Prisma.GalleryWhereInput = {};
 
@@ -81,18 +87,18 @@ export const galleriesRepository = {
         where,
         include: { _count: { select: { images: true } } },
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       galleries,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },
@@ -214,8 +220,11 @@ export const galleriesRepository = {
 
   async findPublished(options: { page?: number; limit?: number } = {}): Promise<FindAllGalleriesResult> {
     const { page = 1, limit = 12 } = options;
-    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
-    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 12;
+    const { page: safePage, limit: safeLimit } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 12,
+    });
     const where: Prisma.GalleryWhereInput = { images: { some: {} } };
 
     const total = await db.gallery.count({ where });
@@ -254,6 +263,7 @@ export const galleriesRepository = {
    * Get featured galleries for homepage showcase (galleries with cover images)
    */
   async getFeaturedForHomepage(limit: number = 12): Promise<GalleryWithCount[]> {
+    const safeLimit = clampLimit(limit, 12);
     return db.gallery.findMany({
       where: {
         coverImage: { not: null },
@@ -261,7 +271,7 @@ export const galleriesRepository = {
       },
       include: { _count: { select: { images: true } } },
       orderBy: { eventDate: 'desc' },
-      take: limit,
+      take: safeLimit,
     });
   },
 };

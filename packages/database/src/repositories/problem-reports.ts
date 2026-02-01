@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { db } from '../client';
+import { normalizePagination } from './pagination';
 
 export interface ProblemReportImage {
   url: string;
@@ -105,6 +106,11 @@ export const problemReportsRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 20,
+    });
 
     // Build where clause
     const where: Prisma.ProblemReportWhereInput = {};
@@ -129,8 +135,8 @@ export const problemReportsRepository = {
       db.problemReport.findMany({
         where,
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
@@ -140,10 +146,10 @@ export const problemReportsRepository = {
         images: report.images as ProblemReportImage[] | null,
       })),
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },

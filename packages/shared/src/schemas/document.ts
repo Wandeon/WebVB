@@ -9,7 +9,8 @@ const categoryKeys = Object.keys(DOCUMENT_CATEGORIES) as [
 
 const currentYear = new Date().getFullYear();
 
-export const documentSchema = z.object({
+export const documentSchema = z
+  .object({
   title: z
     .string()
     .min(3, 'Naslov mora imati najmanje 3 znaka')
@@ -25,7 +26,8 @@ export const documentSchema = z.object({
     .max(currentYear + 1, 'Godina mora biti između 1990 i sljedeće godine')
     .nullable()
     .optional(),
-});
+})
+  .strict();
 
 export const createDocumentSchema = documentSchema.extend({
   fileSize: z
@@ -36,21 +38,26 @@ export const createDocumentSchema = documentSchema.extend({
   fileUrl: z.string().url(),
 });
 
-export const updateDocumentSchema = documentSchema.partial().extend({
-  id: z.string().uuid(),
-});
+export const updateDocumentSchema = documentSchema
+  .partial()
+  .extend({
+    id: z.string().uuid(),
+  })
+  .strict();
 
 export type CreateDocumentInput = z.infer<typeof createDocumentSchema>;
 export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>;
 
-export const documentQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
-  search: z.string().max(200).optional(),
-  category: z.enum(categoryKeys).optional(),
-  year: z.coerce.number().int().optional(),
-  sortBy: z.enum(['createdAt', 'title', 'year', 'fileSize']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-});
+export const documentQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    search: z.string().max(200).optional(),
+    category: z.enum(categoryKeys).optional(),
+    year: z.coerce.number().int().optional(),
+    sortBy: z.enum(['createdAt', 'title', 'year', 'fileSize']).default('createdAt'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  })
+  .strict();
 
 export type DocumentQueryInput = z.infer<typeof documentQuerySchema>;

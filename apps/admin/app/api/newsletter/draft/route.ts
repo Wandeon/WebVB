@@ -7,9 +7,11 @@ import { newsletterLogger } from '@/lib/logger';
 
 import type { NextRequest } from 'next/server';
 
-const updateIntroSchema = z.object({
-  introText: z.string().nullable().optional(),
-});
+const updateIntroSchema = z
+  .object({
+    introText: z.string().nullable().optional(),
+  })
+  .strict();
 
 // GET /api/newsletter/draft - Get current draft
 export async function GET(request: NextRequest) {

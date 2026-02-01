@@ -1,4 +1,5 @@
 import { db } from '../client';
+import { clampLimit, normalizePagination } from './pagination';
 
 import type { Prisma, Announcement, AnnouncementAttachment } from '@prisma/client';
 
@@ -120,6 +121,11 @@ export const announcementsRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 10,
+    });
 
     const now = new Date();
     const where: Prisma.AnnouncementWhereInput = {};
@@ -168,18 +174,18 @@ export const announcementsRepository = {
           _count: { select: { attachments: true } },
         },
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       announcements,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },
@@ -365,7 +371,11 @@ export const announcementsRepository = {
     options: FindPublishedAnnouncementsOptions = {}
   ): Promise<FindPublishedAnnouncementsResult> {
     const { page = 1, limit = 12, category, activeOnly = true } = options;
-    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const { page: safePage, limit: safeLimit } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 12,
+    });
     const now = new Date();
 
     const where: Prisma.AnnouncementWhereInput = {
@@ -384,7 +394,7 @@ export const announcementsRepository = {
     }
 
     const total = await db.announcement.count({ where });
-    const totalPages = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / safeLimit);
     const clampedPage = totalPages > 0 ? Math.min(safePage, totalPages) : 1;
     const announcements = await db.announcement.findMany({
       where,
@@ -393,15 +403,15 @@ export const announcementsRepository = {
         attachments: { orderBy: { sortOrder: 'asc' } },
       },
       orderBy: { publishedAt: 'desc' },
-      skip: (clampedPage - 1) * limit,
-      take: limit,
+      skip: (clampedPage - 1) * safeLimit,
+      take: safeLimit,
     });
 
     return {
       announcements,
       pagination: {
         page: clampedPage,
-        limit,
+        limit: safeLimit,
         total,
         totalPages,
       },
@@ -423,6 +433,7 @@ export const announcementsRepository = {
    * Get latest active announcements (for homepage or sidebar)
    */
   async getLatestActive(limit: number = 5): Promise<AnnouncementWithAuthor[]> {
+    const safeLimit = clampLimit(limit, 5);
     const now = new Date();
 
     return db.announcement.findMany({
@@ -438,7 +449,7 @@ export const announcementsRepository = {
         attachments: { orderBy: { sortOrder: 'asc' } },
       },
       orderBy: { publishedAt: 'desc' },
-      take: limit,
+      take: safeLimit,
     });
   },
 
@@ -450,6 +461,7 @@ export const announcementsRepository = {
     category: string,
     limit: number = 3
   ): Promise<AnnouncementWithAuthor[]> {
+    const safeLimit = clampLimit(limit, 3);
     const now = new Date();
 
     return db.announcement.findMany({
@@ -467,7 +479,7 @@ export const announcementsRepository = {
         attachments: { orderBy: { sortOrder: 'asc' } },
       },
       orderBy: { publishedAt: 'desc' },
-      take: limit,
+      take: safeLimit,
     });
   },
 };

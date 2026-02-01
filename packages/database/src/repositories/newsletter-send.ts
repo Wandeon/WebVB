@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { db } from '../client';
+import { clampLimit } from './pagination';
 
 export interface NewsletterSendRecord {
   id: string;
@@ -56,9 +57,10 @@ export const newsletterSendRepository = {
    * Get recent sends for history display
    */
   async findRecent(limit: number = 10): Promise<NewsletterSendRecord[]> {
+    const safeLimit = clampLimit(limit, 10);
     const records = await db.newsletterSend.findMany({
       orderBy: { sentAt: 'desc' },
-      take: limit,
+      take: safeLimit,
     });
 
     return records.map(record => ({

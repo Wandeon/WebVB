@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const updateProfileSchema = z.object({
+export const updateProfileSchema = z
+  .object({
   name: z
     .string()
     .min(2, 'Ime mora imati najmanje 2 znaka')
@@ -10,7 +11,8 @@ export const updateProfileSchema = z.object({
     .url('Neispravan URL slike')
     .nullable()
     .optional(),
-});
+})
+  .strict();
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
@@ -33,24 +35,30 @@ export const changePasswordSchema = z
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
-export const enable2FASchema = z.object({
-  password: z.string().min(1, 'Lozinka je obavezna za omogućavanje 2FA'),
-});
+export const enable2FASchema = z
+  .object({
+    password: z.string().min(1, 'Lozinka je obavezna za omogućavanje 2FA'),
+  })
+  .strict();
 
 export type Enable2FAInput = z.infer<typeof enable2FASchema>;
 
-export const verify2FASchema = z.object({
-  code: z
-    .string()
-    .length(6, 'Kod mora imati točno 6 znamenki')
-    .regex(/^\d+$/, 'Kod smije sadržavati samo brojeve'),
-  password: z.string().min(1, 'Lozinka je obavezna za generiranje rezervnih kodova'),
-});
+export const verify2FASchema = z
+  .object({
+    code: z
+      .string()
+      .length(6, 'Kod mora imati točno 6 znamenki')
+      .regex(/^\d+$/, 'Kod smije sadržavati samo brojeve'),
+    password: z.string().min(1, 'Lozinka je obavezna za generiranje rezervnih kodova'),
+  })
+  .strict();
 
 export type Verify2FAInput = z.infer<typeof verify2FASchema>;
 
-export const disable2FASchema = z.object({
-  password: z.string().min(1, 'Lozinka je obavezna za onemogućavanje 2FA'),
-});
+export const disable2FASchema = z
+  .object({
+    password: z.string().min(1, 'Lozinka je obavezna za onemogućavanje 2FA'),
+  })
+  .strict();
 
 export type Disable2FAInput = z.infer<typeof disable2FASchema>;
