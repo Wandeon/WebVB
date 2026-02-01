@@ -28,7 +28,6 @@ export interface ProblemReport {
   resolutionNotes: string | null;
   resolvedAt: string | null;
   resolvedBy: string | null;
-  ipAddress: string | null;
   createdAt: string;
 }
 

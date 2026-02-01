@@ -273,6 +273,9 @@ export function ProblemReportForm({ onSubmit, onImageUpload, className }: Proble
       {/* Optional Contact Info */}
       <fieldset className="space-y-4 rounded-md border border-neutral-200 p-4">
         <legend className="px-2 text-sm font-medium text-neutral-700">Kontakt podaci (opcionalno)</legend>
+        <p className="text-xs text-neutral-500">
+          Kontakt podatke koristimo samo ako trebamo dodatne informacije ili vas želimo obavijestiti o rješenju.
+        </p>
 
         <div className="space-y-2">
           <Label htmlFor="reporterName">Ime i prezime</Label>
@@ -315,6 +318,13 @@ export function ProblemReportForm({ onSubmit, onImageUpload, className }: Proble
       <Button type="submit" disabled={status === 'loading'} className="w-full">
         {status === 'loading' ? 'Slanje...' : 'Pošalji prijavu'}
       </Button>
+      <p className="text-xs text-neutral-500">
+        Prijavu možete poslati i anonimno. Lokaciju i opis problema koristimo isključivo za rješavanje prijave. Više u{' '}
+        <a href="/privatnost" className="text-primary-600 hover:underline">
+          Politici privatnosti
+        </a>
+        .
+      </p>
     </form>
   );
 }

@@ -30,4 +30,11 @@ describe('NewsletterSignup', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Pretplati se' })).toBeDisabled();
   });
+
+  it('shows privacy policy link', () => {
+    render(<NewsletterSignup />);
+
+    const link = screen.getByRole('link', { name: 'Politika privatnosti' });
+    expect(link).toHaveAttribute('href', '/privatnost');
+  });
 });

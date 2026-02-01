@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 14 - Privacy, GDPR, Data Protection, and Legal-Tech Compliance (2026-02-06)
+
+### Changed
+- Redacted sensitive fields in audit logs and anonymized stored audit IP metadata
+- Removed IP addresses from admin contact/problem report API responses and added GDPR delete endpoints
+- Redacted search query logging to hashed summaries and added privacy notices to contact, problem report, and newsletter forms
+- Updated privacy policy to reflect actual data collection, retention, and local search processing
+
 ## Audit 04 - Public Website Rendering & Accessibility (2026-02-01)
 
 ### Changed

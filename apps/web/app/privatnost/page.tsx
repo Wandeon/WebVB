@@ -151,11 +151,11 @@ export default function PrivatnostPage() {
             <ul className="space-y-2 text-neutral-700">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                IP adresu (anonimiziranu za analitiku)
+                Anonimiziranu IP adresu kod slanja obrazaca (za zaštitu od zlouporabe)
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                Vrstu preglednika i uređaja
+                Vrstu preglednika i uređaja (za osnovnu statistiku posjeta)
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
@@ -178,15 +178,23 @@ export default function PrivatnostPage() {
             <ul className="space-y-2 text-neutral-700">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                Ime i prezime
+                Ime i prezime (kontakt forma ili opcionalno uz prijavu problema)
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                Adresu e-pošte i broj telefona
+                Adresu e-pošte i broj telefona (opcionalno, radi povratne informacije)
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                Adresu stanovanja
+                Lokaciju i opis problema u prijavama
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                Fotografije problema (ako ih priložite)
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                Email adresu za newsletter pretplatu
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
@@ -216,6 +224,10 @@ export default function PrivatnostPage() {
                 Ispunjavanje zakonskih obveza
               </li>
             </ul>
+            <p className="mt-4 text-sm text-neutral-600">
+              Upite za pretraživanje obrađujemo lokalno na našoj infrastrukturi i ne pohranjujemo
+              sadržaj upita niti ga šaljemo trećim stranama.
+            </p>
           </div>
         </div>
       </section>
@@ -414,32 +426,10 @@ export default function PrivatnostPage() {
           <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-neutral-900">Rok čuvanja podataka</h3>
             <p className="text-neutral-700">
-              Vaše podatke o pretplati na obavijesti čuvamo dok je pretplata aktivna. Podaci se
-              automatski brišu:
+              Vaše podatke o pretplati na obavijesti čuvamo dok je pretplata aktivna ili dok ne
+              zatražite brisanje. Pretplata se deaktivira kada preglednik javi da je postala
+              nevažeća, a podatke tada možemo trajno ukloniti.
             </p>
-            <ul className="mt-4 space-y-2 text-neutral-700">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                <span>
-                  <strong>Odmah</strong> - kada zatražite brisanje ili se odjavite
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                <span>
-                  <strong>Nakon 30 dana neaktivnosti</strong> - ako više ne koristite uslugu
-                  (npr. deinstalirali ste aplikaciju ili onemogućili obavijesti u pregledniku)
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                <span>
-                  <strong>Kada pretplata istekne</strong> - kada vaš preglednik obavijesti
-                  poslužitelj da je pretplata nevažeća (npr. ručno ste je izbrisali u postavkama
-                  preglednika)
-                </span>
-              </li>
-            </ul>
           </div>
 
           <div className="rounded-xl border border-red-100 bg-red-50 p-6">

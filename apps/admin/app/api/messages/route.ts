@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     });
 
     return apiSuccess({
-      messages: result.messages,
+      messages: result.messages.map(({ ipAddress, ...message }) => message),
       pagination: result.pagination,
     });
   } catch (error) {

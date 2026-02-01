@@ -293,4 +293,13 @@ export const problemReportsRepository = {
       images: result.images as ProblemReportImage[] | null,
     };
   },
+
+  /**
+   * Delete a problem report by ID
+   */
+  async deleteById(id: string): Promise<void> {
+    await db.problemReport.delete({
+      where: { id },
+    });
+  },
 };
