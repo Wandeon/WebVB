@@ -129,14 +129,10 @@ jobs:
           cp -r apps/admin/.next/static/* apps/admin/.next/standalone/.next/static/
           [ -d apps/admin/public ] && cp -r apps/admin/public apps/admin/.next/standalone/ || true
 
-          # Copy Prisma engine binaries (required for standalone)
-          mkdir -p apps/admin/.next/standalone/node_modules/.prisma/client
-          cp node_modules/.pnpm/@prisma+client*/node_modules/.prisma/client/libquery_engine-* \
-             apps/admin/.next/standalone/node_modules/.prisma/client/ 2>/dev/null || \
-          cp packages/database/node_modules/.prisma/client/libquery_engine-* \
-             apps/admin/.next/standalone/node_modules/.prisma/client/ 2>/dev/null || true
-          cp node_modules/.pnpm/@prisma+client*/node_modules/.prisma/client/schema.prisma \
-             apps/admin/.next/standalone/node_modules/.prisma/client/ 2>/dev/null || true
+          # Copy Prisma schema (required for prisma generate on VPS)
+          mkdir -p apps/admin/.next/standalone/packages/database/prisma
+          cp packages/database/prisma/schema.prisma \
+             apps/admin/.next/standalone/packages/database/prisma/
 
           # Deploy everything in one rsync
           rsync -avz --delete \
@@ -150,8 +146,12 @@ jobs:
             cd ~/apps/admin-standalone
 
             # Generate Prisma client for this platform
+            # First, ensure we have the schema from the source repo
+            if [ ! -f packages/database/prisma/schema.prisma ]; then
+              cp ~/apps/admin-repo/packages/database/prisma/schema.prisma packages/database/prisma/
+            fi
             cd packages/database
-            npx prisma generate
+            npx prisma generate --schema=prisma/schema.prisma
             cd ~/apps/admin-standalone
 
             # Copy env file if not exists
