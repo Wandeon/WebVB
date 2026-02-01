@@ -5,6 +5,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { twoFactor } from 'better-auth/plugins';
 
 const authEnv = getAdminAuthEnv();
+const isProduction = authEnv.NODE_ENV === 'production';
 
 export const auth = betterAuth({
   appName: 'Veliki Bukovec Admin',
@@ -17,7 +18,10 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
+    disableSignUp: true,
     requireEmailVerification: false, // Disable for now, enable in production
+    minPasswordLength: 12,
+    revokeSessionsOnPasswordReset: true,
   },
 
   socialProviders: {
@@ -35,6 +39,26 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 60 * 5, // 5 minutes
     },
+  },
+
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 120,
+    customRules: {
+      '/sign-in/*': { window: 60, max: 5 },
+      '/sign-in/email': { window: 60, max: 5 },
+      '/sign-in/social': { window: 60, max: 10 },
+      '/request-password-reset': { window: 60 * 60, max: 3 },
+    },
+  },
+
+  trustedOrigins: [authEnv.BETTER_AUTH_URL],
+
+  defaultCookieAttributes: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: isProduction,
   },
 
   user: {
@@ -61,6 +85,10 @@ export const auth = betterAuth({
   },
 
   plugins: [twoFactor({ issuer: 'Veliki Bukovec Admin' })],
+
+  advanced: {
+    useSecureCookies: isProduction,
+  },
 
   databaseHooks: {
     session: {

@@ -19,11 +19,11 @@ export const changePasswordSchema = z
     currentPassword: z.string().min(1, 'Trenutna lozinka je obavezna'),
     newPassword: z
       .string()
-      .min(8, 'Nova lozinka mora imati najmanje 8 znakova')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Lozinka mora sadržavati malo slovo, veliko slovo i broj'
-      ),
+      .min(12, 'Nova lozinka mora imati najmanje 12 znakova')
+      .regex(/[a-z]/, 'Lozinka mora sadržavati malo slovo')
+      .regex(/[A-Z]/, 'Lozinka mora sadržavati veliko slovo')
+      .regex(/\d/, 'Lozinka mora sadržavati broj')
+      .regex(/[^A-Za-z0-9]/, 'Lozinka mora sadržavati poseban znak'),
     confirmPassword: z.string().min(1, 'Potvrda lozinke je obavezna'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

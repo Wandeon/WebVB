@@ -45,8 +45,8 @@ describe('Settings Validation Schemas', () => {
     it('accepts valid password change', () => {
       const result = changePasswordSchema.safeParse({
         currentPassword: 'oldpass123',
-        newPassword: 'NewPass123',
-        confirmPassword: 'NewPass123',
+        newPassword: 'NewPass123!A',
+        confirmPassword: 'NewPass123!A',
       });
       expect(result.success).toBe(true);
     });
@@ -54,8 +54,8 @@ describe('Settings Validation Schemas', () => {
     it('rejects mismatched passwords', () => {
       const result = changePasswordSchema.safeParse({
         currentPassword: 'oldpass123',
-        newPassword: 'NewPass123',
-        confirmPassword: 'DifferentPass123',
+        newPassword: 'NewPass123!A',
+        confirmPassword: 'DifferentPass123!A',
       });
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -66,8 +66,8 @@ describe('Settings Validation Schemas', () => {
     it('rejects weak password without uppercase', () => {
       const result = changePasswordSchema.safeParse({
         currentPassword: 'oldpass123',
-        newPassword: 'newpass123',
-        confirmPassword: 'newpass123',
+        newPassword: 'newpass123!',
+        confirmPassword: 'newpass123!',
       });
       expect(result.success).toBe(false);
     });
@@ -75,17 +75,26 @@ describe('Settings Validation Schemas', () => {
     it('rejects weak password without number', () => {
       const result = changePasswordSchema.safeParse({
         currentPassword: 'oldpass123',
-        newPassword: 'NewPassword',
-        confirmPassword: 'NewPassword',
+        newPassword: 'NewPassword!',
+        confirmPassword: 'NewPassword!',
       });
       expect(result.success).toBe(false);
     });
 
-    it('rejects password shorter than 8 characters', () => {
+    it('rejects password shorter than 12 characters', () => {
       const result = changePasswordSchema.safeParse({
         currentPassword: 'oldpass123',
-        newPassword: 'New1',
-        confirmPassword: 'New1',
+        newPassword: 'NewPass1!',
+        confirmPassword: 'NewPass1!',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects weak password without special character', () => {
+      const result = changePasswordSchema.safeParse({
+        currentPassword: 'oldpass123',
+        newPassword: 'NewPassword123',
+        confirmPassword: 'NewPassword123',
       });
       expect(result.success).toBe(false);
     });

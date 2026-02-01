@@ -11,7 +11,7 @@ describe('createUserSchema', () => {
     const validUser = {
       name: 'Ivan Horvat',
       email: 'ivan.horvat@example.com',
-      password: 'sigurna123',
+      password: 'SigurnaLozinka123!',
       role: 'admin',
     };
 
@@ -23,7 +23,7 @@ describe('createUserSchema', () => {
     const invalidUser = {
       name: 'I',
       email: 'ivan.horvat@example.com',
-      password: 'sigurna123',
+      password: 'SigurnaLozinka123!',
       role: 'admin',
     };
 
@@ -40,7 +40,7 @@ describe('createUserSchema', () => {
     const invalidUser = {
       name: 'Ivan Horvat',
       email: 'not-an-email',
-      password: 'sigurna123',
+      password: 'SigurnaLozinka123!',
       role: 'admin',
     };
 
@@ -53,11 +53,11 @@ describe('createUserSchema', () => {
     }
   });
 
-  it('rejects password shorter than 8 characters', () => {
+  it('rejects password shorter than 12 characters', () => {
     const invalidUser = {
       name: 'Ivan Horvat',
       email: 'ivan.horvat@example.com',
-      password: 'short',
+      password: 'Kratka1!',
       role: 'admin',
     };
 
@@ -65,7 +65,24 @@ describe('createUserSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe(
-        'Lozinka mora imati najmanje 8 znakova'
+        'Lozinka mora imati najmanje 12 znakova'
+      );
+    }
+  });
+
+  it('rejects password without special character', () => {
+    const invalidUser = {
+      name: 'Ivan Horvat',
+      email: 'ivan.horvat@example.com',
+      password: 'SigurnaLozinka123',
+      role: 'admin',
+    };
+
+    const result = createUserSchema.safeParse(invalidUser);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(
+        'Lozinka mora sadržavati poseban znak'
       );
     }
   });
@@ -74,7 +91,7 @@ describe('createUserSchema', () => {
     const invalidUser = {
       name: 'Ivan Horvat',
       email: 'ivan.horvat@example.com',
-      password: 'sigurna123',
+      password: 'SigurnaLozinka123!',
       role: 'invalid_role',
     };
 
@@ -93,7 +110,7 @@ describe('createUserSchema', () => {
       const user = {
         name: 'Ivan Horvat',
         email: 'ivan.horvat@example.com',
-        password: 'sigurna123',
+        password: 'SigurnaLozinka123!',
         role,
       };
 

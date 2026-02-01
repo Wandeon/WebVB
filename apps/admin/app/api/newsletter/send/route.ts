@@ -19,7 +19,7 @@ const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || 'https://velikibukovec.hr
 
 // POST /api/newsletter/send - Send the newsletter
 export async function POST(request: NextRequest) {
-  const authResult = await requireAuth(request);
+  const authResult = await requireAuth(request, { requireAdmin: true });
 
   if ('response' in authResult) {
     return authResult.response;

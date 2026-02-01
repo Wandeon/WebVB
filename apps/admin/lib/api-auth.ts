@@ -1,3 +1,4 @@
+import { usersRepository } from '@repo/database';
 import { USER_ROLES } from '@repo/shared';
 
 import { apiError, ErrorCodes } from '@/lib/api-response';
@@ -19,6 +20,33 @@ export interface AuthContext {
   session: AuthSession;
   role: Role;
   userId: string;
+}
+
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+function isSafeMethod(method: string): boolean {
+  return SAFE_METHODS.has(method.toUpperCase());
+}
+
+function isSameOriginRequest(request: Request): boolean {
+  const origin = request.headers.get('origin');
+
+  if (origin) {
+    if (origin === 'null') {
+      return false;
+    }
+
+    const requestOrigin = new URL(request.url).origin;
+    return origin === requestOrigin;
+  }
+
+  const fetchSite = request.headers.get('sec-fetch-site');
+
+  if (fetchSite) {
+    return fetchSite === 'same-origin' || fetchSite === 'same-site';
+  }
+
+  return true;
 }
 
 function isAuthSession(value: unknown): value is AuthSession {
@@ -43,7 +71,35 @@ export async function requireAuth(
     };
   }
 
-  const role = normalizeRole(session.user.role);
+  if (!isSafeMethod(request.method) && !isSameOriginRequest(request)) {
+    return {
+      response: apiError(
+        ErrorCodes.FORBIDDEN,
+        'Neispravan zahtjev',
+        403
+      ),
+    };
+  }
+
+  const user = await usersRepository.findById(session.user.id);
+
+  if (!user) {
+    return {
+      response: apiError(ErrorCodes.UNAUTHORIZED, 'Niste prijavljeni', 401),
+    };
+  }
+
+  if (!user.active) {
+    return {
+      response: apiError(
+        ErrorCodes.FORBIDDEN,
+        'Vaš račun je deaktiviran. Kontaktirajte administratora.',
+        403
+      ),
+    };
+  }
+
+  const role = normalizeRole(user.role);
 
   if (options.requireSuperAdmin && role !== USER_ROLES.SUPER_ADMIN) {
     return {
@@ -69,7 +125,7 @@ export async function requireAuth(
     context: {
       session,
       role,
-      userId: session.user.id,
+      userId: user.id,
     },
   };
 }

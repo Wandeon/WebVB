@@ -310,7 +310,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New User',
           email: 'new@example.com',
-          password: 'password123',
+          password: 'StrongPass123!',
           role: 'staff',
         }),
       });
@@ -337,7 +337,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New User',
           email: 'new@example.com',
-          password: 'password123',
+          password: 'StrongPass123!',
           role: 'staff',
         }),
       });
@@ -364,7 +364,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New Super Admin',
           email: 'newsuperadmin@example.com',
-          password: 'password123',
+          password: 'StrongPass123!',
           role: 'super_admin',
         }),
       });
@@ -392,7 +392,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New Admin',
           email: 'newadmin@example.com',
-          password: 'password123',
+          password: 'StrongPass123!',
           role: 'admin',
         }),
       });
@@ -433,7 +433,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New Staff',
           email: 'newstaff@example.com',
-          password: 'password123',
+          password: 'StrongPass123!',
           role: 'staff',
         }),
       });
@@ -493,7 +493,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New Admin',
           email: 'newadmin@example.com',
-          password: 'password123',
+          password: 'StrongPass123!',
           role: 'admin',
         }),
       });
@@ -523,7 +523,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'Duplicate User',
           email: 'test@example.com',
-          password: 'password123',
+          password: 'StrongPass123!',
           role: 'staff',
         }),
       });
@@ -585,7 +585,7 @@ describe('Users API', () => {
       expect(response.status).toBe(400);
       expect(data.success).toBe(false);
       expect(data.error?.code).toBe('VALIDATION_ERROR');
-      expect(data.error?.message).toContain('8');
+      expect(data.error?.message).toContain('12');
     });
   });
 });

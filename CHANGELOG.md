@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Security Hardening (2026-02-02)
+
+### Changed
+- Locked down Better Auth configuration with signup disabled, stronger password rules, and explicit rate limiting
+- Enforced same-origin checks and active-user verification for admin API requests
+- Restricted newsletter sending and admin-only gallery image deletion to admin roles
+- Added authentication guards for admin-only page parent lookups and gallery image endpoints
+- Strengthened password validation and UI guidance for admin user creation and password changes
+
 ## Security Hardening (2026-02-01)
 
 ### Changed

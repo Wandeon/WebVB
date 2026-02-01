@@ -1,5 +1,6 @@
 import { pagesRepository } from '@repo/database';
 
+import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { pagesLogger } from '@/lib/logger';
 
@@ -7,6 +8,12 @@ import type { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request);
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url);
     const excludeId = searchParams.get('excludeId') ?? undefined;
 
