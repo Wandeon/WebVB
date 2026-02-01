@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 10 - Infrastructure Hardening (2026-02-05)
+
+### Changed
+- Added database-aware readiness checks to `/api/healthz` and tests for the new health behavior
+- Added database repository health probe with test coverage
+- Hardened deployment script to bind admin to localhost, require explicit public URLs, and verify health after restart
+- Strengthened staging/production reverse proxy guidance with HTTPS redirects, strict headers, and admin reverse proxying
+
 ## Audit 08 - AI Generation Pipeline Hardening (2026-02-04)
 
 ### Changed

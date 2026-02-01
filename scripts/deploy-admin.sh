@@ -9,6 +9,8 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/home/deploy/apps/admin-repo}"
 PM2_APP_NAME="${PM2_APP_NAME:-vb-admin}"
+ADMIN_HOST="${ADMIN_HOST:-127.0.0.1}"
+ADMIN_PORT="${ADMIN_PORT:-3001}"
 
 log() {
   printf '[%s] %s\n' "$(date +"%Y-%m-%d %H:%M:%S")" "$1"
@@ -67,8 +69,22 @@ pnpm --filter @repo/admin build
 
 log "Building web app (static export)..."
 # Ensure NEXT_PUBLIC_API_URL is set for client-side API calls
-export NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL:-http://100.120.125.83:3001}"
-export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-http://100.120.125.83}"
+if [[ -z "${NEXT_PUBLIC_API_URL:-}" ]]; then
+  if [[ "$ADMIN_HOST" == "127.0.0.1" || "$ADMIN_HOST" == "localhost" ]]; then
+    export NEXT_PUBLIC_API_URL="http://${ADMIN_HOST}:${ADMIN_PORT}"
+  else
+    error "NEXT_PUBLIC_API_URL must be set explicitly for non-local deployments"
+  fi
+fi
+
+if [[ -z "${NEXT_PUBLIC_SITE_URL:-}" ]]; then
+  if [[ "$ADMIN_HOST" == "127.0.0.1" || "$ADMIN_HOST" == "localhost" ]]; then
+    export NEXT_PUBLIC_SITE_URL="http://${ADMIN_HOST}"
+  else
+    error "NEXT_PUBLIC_SITE_URL must be set explicitly for non-local deployments"
+  fi
+fi
+
 log "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL"
 pnpm --filter @repo/web build
 
@@ -86,14 +102,16 @@ fi
 
 log "Reloading PM2 process..."
 if pm2 describe "$PM2_APP_NAME" > /dev/null 2>&1; then
-  pm2 reload "$PM2_APP_NAME"
+  pm2 reload "$PM2_APP_NAME" --update-env
 else
   log "PM2 process not found, starting..."
-  pm2 start pnpm --name "$PM2_APP_NAME" -- --filter @repo/admin start
+  HOSTNAME="$ADMIN_HOST" PORT="$ADMIN_PORT" pm2 start pnpm --name "$PM2_APP_NAME" -- --filter @repo/admin start -- --hostname "$ADMIN_HOST" --port "$ADMIN_PORT"
   pm2 save
 fi
 
-log "Deployment completed."
-log "Admin: http://100.120.125.83:3001/"
-log "Web:   http://100.120.125.83/"
+log "Health check (admin)..."
+curl --fail --silent "http://${ADMIN_HOST}:${ADMIN_PORT}/api/healthz" > /dev/null
 
+log "Deployment completed."
+log "Admin: http://${ADMIN_HOST}:${ADMIN_PORT}/"
+log "Web:   http://${ADMIN_HOST}/"

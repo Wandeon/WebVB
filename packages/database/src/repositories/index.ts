@@ -135,3 +135,5 @@ export type {
   PushSubscriptionWithPreferences,
   CreateNotificationSendData,
 } from './push-subscriptions';
+
+export { checkDatabaseHealth, type DatabaseHealth } from './health';

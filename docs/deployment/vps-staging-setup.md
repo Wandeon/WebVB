@@ -7,8 +7,8 @@ Deploy both admin (backend) and web (static frontend) to VPS with Tailscale acce
 | Service | URL | Status |
 |---------|-----|--------|
 | Frontend | http://100.120.125.83/ | ✅ Live |
-| Admin | http://100.120.125.83:3001/ | ✅ Live |
-| Admin API | http://100.120.125.83:3001/api/ | ✅ Live |
+| Admin (Tailscale only) | http://127.0.0.1:3001/ | ✅ Live |
+| Admin API (Tailscale only) | http://127.0.0.1:3001/api/ | ✅ Live |
 
 ## Architecture
 
@@ -17,8 +17,9 @@ Deploy both admin (backend) and web (static frontend) to VPS with Tailscale acce
 │                    VPS (Tailscale)                      │
 │                                                         │
 │   :80 ──► Caddy ──► static files (web/out)             │
+│   :443 ──► Caddy ──► admin.velikibukovec.hr → 127.0.0.1 │
 │                                                         │
-│   :3001 ──► PM2/Next.js (admin app)                    │
+│   :3001 ──► PM2/Next.js (admin app, localhost only)    │
 │                                                         │
 │   :5432 ──► PostgreSQL (localhost only)                │
 │                                                         │
@@ -77,6 +78,10 @@ tailscale ssh deploy@v2202601269591428137 << 'DEPLOY'
 cd /home/deploy/apps/admin-repo
 git pull origin main
 export DATABASE_URL='postgresql://velikibukovec:PASSWORD@localhost:5432/velikibukovec'
+export ADMIN_HOST='127.0.0.1'
+export ADMIN_PORT='3001'
+export NEXT_PUBLIC_API_URL='https://admin.velikibukovec.hr'
+export NEXT_PUBLIC_SITE_URL='https://velikibukovec.hr'
 pnpm install
 pnpm --filter @repo/database db:generate
 pnpm --filter @repo/admin build
@@ -85,6 +90,8 @@ pm2 restart vb-admin
 echo "Deploy complete!"
 DEPLOY
 ```
+
+> **Staging override:** For Tailscale-only testing, set `NEXT_PUBLIC_API_URL`/`NEXT_PUBLIC_SITE_URL` to `http://127.0.0.1:3001` and `http://127.0.0.1` to avoid accidental public exposure.
 
 ---
 
@@ -134,7 +141,22 @@ sudo -u postgres psql -d velikibukovec
 Location: `/etc/caddy/Caddyfile`
 
 ```caddyfile
-:80 {
+{
+    # Enforce modern TLS and avoid leaking server information
+    servers {
+        protocol {
+            experimental_http3
+        }
+    }
+}
+
+# Redirect HTTP → HTTPS (production)
+http:// {
+    redir https://{host}{uri} permanent
+}
+
+# Static site (public)
+velikibukovec.hr {
     root * /home/deploy/apps/admin-repo/apps/web/out
     file_server
     try_files {path} {path}.html {path}/ /index.html
@@ -144,15 +166,55 @@ Location: `/etc/caddy/Caddyfile`
     }
     header @static Cache-Control "public, max-age=31536000, immutable"
 
+    request_body {
+        max_size 10MB
+    }
+
     header {
+        -Server
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     }
 
-    encode gzip
+    encode zstd gzip
+}
+
+# Admin (reverse proxy to localhost-only app)
+admin.velikibukovec.hr {
+    request_body {
+        max_size 20MB
+    }
+
+    header {
+        -Server
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    }
+
+    reverse_proxy 127.0.0.1:3001 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 30s
+            idle_timeout 2m
+        }
+    }
+
+    encode zstd gzip
 }
 ```
+
+> **Staging note:** If you must expose HTTP for local testing, keep `:80` only on a Tailscale-only interface and skip the HTTPS redirect block above. Production must terminate TLS and redirect HTTP to HTTPS.
 
 ---
 
@@ -160,9 +222,10 @@ Location: `/etc/caddy/Caddyfile`
 
 Key rules:
 ```
-22/tcp    ALLOW  100.64.0.0/10   # SSH-Tailscale
-80/tcp    ALLOW  Anywhere        # HTTP-Web
-3001/tcp  ALLOW  100.64.0.0/10   # Admin-Tailscale (if needed)
+22/tcp    ALLOW  100.64.0.0/10   # SSH via Tailscale
+80/tcp    ALLOW  Cloudflare IPs  # HTTP redirect only (prod)
+443/tcp   ALLOW  Cloudflare IPs  # HTTPS (prod)
+3001/tcp  DENY   (not exposed)   # Admin via reverse proxy only
 5432/tcp  DENY   (not exposed)   # PostgreSQL localhost only
 ```
 
