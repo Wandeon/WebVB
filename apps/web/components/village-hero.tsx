@@ -282,23 +282,24 @@ export function VillageHero() {
 
           {/* Right: Gonfalon - Desktop only */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, x: 50 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 4, ease: 'easeOut' }}
             className="hidden flex-shrink-0 lg:block"
           >
             <div className="relative">
               {/* Glow effect */}
-              <div className="absolute -inset-4 rounded-full bg-primary-500/20 blur-2xl" />
+              <div className="absolute -inset-8 rounded-full bg-primary-500/20 blur-3xl" />
 
-              {/* Gonfalon image */}
-              <div className="relative h-72 w-40 xl:h-96 xl:w-52">
+              {/* Gonfalon image - doubled size */}
+              <div className="relative h-[36rem] w-80 xl:h-[48rem] xl:w-[26rem]">
                 <Image
                   src="/images/gonfalon.webp"
                   alt="Gonfalon Općine Veliki Bukovec"
                   fill
                   className="object-contain drop-shadow-2xl"
-                  sizes="(max-width: 1280px) 160px, 208px"
+                  sizes="(max-width: 1280px) 320px, 416px"
+                  priority
                 />
               </div>
             </div>
