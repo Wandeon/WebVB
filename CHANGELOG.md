@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 09 - Launch Readiness & Ops Hardening (2026-02-06)
+
+### Changed
+- Enforced explicit production env requirements (NODE_ENV, public URLs, DATABASE_URL) and blocked ALLOW_ANY_ORIGIN in production
+- Added startup checks for admin runtime (env validation + database readiness) with graceful shutdown hooks
+- Hardened AI queue worker crash handling and shutdown coordination for in-flight jobs
+- Switched push health checks to validated cron/push env helpers and added CORS safety tests
+
 ## Audit 10 - Infrastructure Hardening (2026-02-05)
 
 ### Changed

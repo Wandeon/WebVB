@@ -5,31 +5,43 @@ import {
   getAdminAuthEnv,
   getBaseEnv,
   getBuildEnv,
+  getDatabaseEnv,
+  getOllamaCloudEnv,
   getOptionalAdminEmailEnv,
+  getOptionalOllamaCloudEnv,
   getPublicEnv,
   getPushEnv,
+  getRuntimeEnv,
   getSeedEnv,
+  isCronConfigured,
   isPushConfigured,
 } from './env';
 
 const originalEnv = process.env;
 
 const resetEnv = () => {
-  process.env = { ...originalEnv };
+  process.env = { ...originalEnv, NODE_ENV: 'development' };
 };
 
 describe('env validation', () => {
-  it('returns base env defaults', () => {
+  it('throws when NODE_ENV is missing', () => {
     resetEnv();
     delete process.env.NODE_ENV;
+    expect(() => getBaseEnv()).toThrow('NODE_ENV must be set to development, test, or production.');
+  });
+
+  it('returns base env when NODE_ENV is set', () => {
+    resetEnv();
+    process.env.NODE_ENV = 'development';
 
     const env = getBaseEnv();
 
     expect(env.NODE_ENV).toBe('development');
   });
 
-  it('uses default public app url when missing', () => {
+  it('uses default public app url when missing in development', () => {
     resetEnv();
+    process.env.NODE_ENV = 'development';
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -37,6 +49,18 @@ describe('env validation', () => {
 
     expect(env.NEXT_PUBLIC_APP_URL).toBe(ADMIN_APP_URL_DEFAULT);
     expect(env.NEXT_PUBLIC_SITE_URL).toBe(PUBLIC_SITE_URL_DEFAULT);
+  });
+
+  it('requires explicit public URLs in production', () => {
+    resetEnv();
+    process.env.NODE_ENV = 'production';
+    delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.NEXT_PUBLIC_API_URL;
+
+    expect(() => getPublicEnv()).toThrow(
+      'Missing required public environment variables in production: NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL.'
+    );
   });
 
   it('validates admin auth env with required values', () => {
@@ -130,6 +154,43 @@ describe('env validation', () => {
     });
   });
 
+  describe('database env', () => {
+    it('requires a postgres connection string', () => {
+      resetEnv();
+      process.env.DATABASE_URL = 'postgresql://user:password@localhost:5432/db';
+
+      const env = getDatabaseEnv();
+
+      expect(env.DATABASE_URL).toContain('postgresql://');
+    });
+
+    it('throws for invalid database url', () => {
+      resetEnv();
+      process.env.DATABASE_URL = 'mysql://user:password@localhost:3306/db';
+
+      expect(() => getDatabaseEnv()).toThrow('DATABASE_URL must start with postgres:// or postgresql://');
+    });
+  });
+
+  describe('runtime env', () => {
+    it('allows LOG_LEVEL overrides', () => {
+      resetEnv();
+      process.env.LOG_LEVEL = 'warn';
+
+      const env = getRuntimeEnv();
+
+      expect(env.LOG_LEVEL).toBe('warn');
+    });
+
+    it('rejects ALLOW_ANY_ORIGIN in production', () => {
+      resetEnv();
+      process.env.NODE_ENV = 'production';
+      process.env.ALLOW_ANY_ORIGIN = 'true';
+
+      expect(() => getRuntimeEnv()).toThrow('ALLOW_ANY_ORIGIN cannot be enabled in production.');
+    });
+  });
+
   describe('email env', () => {
     it('returns null when email config is incomplete', () => {
       resetEnv();
@@ -169,6 +230,37 @@ describe('env validation', () => {
       const env = getSeedEnv();
 
       expect(env.SEED_USER_PASSWORD).toBe('very-strong-seed-password');
+    });
+  });
+
+  describe('cron env', () => {
+    it('isCronConfigured returns false when missing', () => {
+      resetEnv();
+      delete process.env.CRON_SECRET;
+
+      expect(isCronConfigured()).toBe(false);
+    });
+  });
+
+  describe('ollama cloud env', () => {
+    it('returns env when configured', () => {
+      resetEnv();
+      process.env.OLLAMA_CLOUD_API_KEY = 'api-key';
+      process.env.OLLAMA_CLOUD_URL = 'https://api.ollama.com';
+      process.env.OLLAMA_CLOUD_MODEL = 'deepseek-v3.2';
+
+      const env = getOllamaCloudEnv();
+
+      expect(env.OLLAMA_CLOUD_API_KEY).toBe('api-key');
+      expect(env.OLLAMA_CLOUD_URL).toBe('https://api.ollama.com');
+      expect(env.OLLAMA_CLOUD_MODEL).toBe('deepseek-v3.2');
+    });
+
+    it('returns null for optional env when missing', () => {
+      resetEnv();
+      delete process.env.OLLAMA_CLOUD_API_KEY;
+
+      expect(getOptionalOllamaCloudEnv()).toBeNull();
     });
   });
 });

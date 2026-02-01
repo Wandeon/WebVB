@@ -8,9 +8,9 @@
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Audit 10 infrastructure hardening (reverse proxy, health checks, deployment safety)
+**Recent:** Audit 09 launch readiness hardening (env validation, startup checks, worker shutdown)
 **Target Launch:** Domain setup pending
-**Latest Audit:** Audit 10 - infrastructure, reverse proxy, network boundaries, runtime hardening
+**Latest Audit:** Audit 09 - launch readiness, observability, operations
 **Staging:** Frontend at http://100.120.125.83/ (Tailscale access) | Admin via localhost reverse proxy
 
 ---

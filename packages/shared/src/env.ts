@@ -4,7 +4,7 @@ import { ADMIN_APP_URL_DEFAULT, PUBLIC_SITE_URL_DEFAULT } from './constants';
 
 // Schema definitions - single source of truth for both validation and types
 const baseEnvSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  NODE_ENV: z.enum(['development', 'test', 'production']),
 });
 
 const adminAuthEnvSchema = baseEnvSchema
@@ -60,6 +60,23 @@ const buildEnvSchema = baseEnvSchema.extend({
   ALLOW_EMPTY_STATIC_PARAMS: z.string().optional(),
 });
 
+const databaseEnvSchema = z.object({
+  DATABASE_URL: z
+    .string()
+    .min(1)
+    .refine(
+      value => value.startsWith('postgres://') || value.startsWith('postgresql://'),
+      'DATABASE_URL must start with postgres:// or postgresql://'
+    ),
+});
+
+const runtimeEnvSchema = baseEnvSchema.extend({
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).optional(),
+  ALLOW_ANY_ORIGIN: z.enum(['true', 'false']).optional(),
+  AI_WORKER_ENABLED: z.enum(['true', 'false']).optional(),
+  AI_WORKER_ID: z.string().min(1).optional(),
+});
+
 // Push notification VAPID keys - required for push functionality
 const pushEnvSchema = z.object({
   PUSH_VAPID_PUBLIC_KEY: z.string().min(1, 'PUSH_VAPID_PUBLIC_KEY is required'),
@@ -72,6 +89,12 @@ const cronEnvSchema = z.object({
   CRON_SECRET: z.string().min(32, 'CRON_SECRET must be at least 32 characters'),
 });
 
+const ollamaCloudEnvSchema = z.object({
+  OLLAMA_CLOUD_API_KEY: z.string().min(1),
+  OLLAMA_CLOUD_URL: z.string().url().optional(),
+  OLLAMA_CLOUD_MODEL: z.string().min(1).optional(),
+});
+
 // Types inferred from schemas - no manual interface duplication
 export type NodeEnv = 'development' | 'test' | 'production';
 export type BaseEnv = z.infer<typeof baseEnvSchema>;
@@ -81,11 +104,18 @@ export type AdminR2Env = z.infer<typeof adminR2EnvSchema>;
 export type AdminEmailEnv = z.infer<typeof adminEmailEnvSchema>;
 export type SeedEnv = z.infer<typeof seedEnvSchema>;
 export type BuildEnv = z.infer<typeof buildEnvSchema>;
+export type DatabaseEnv = z.infer<typeof databaseEnvSchema>;
+export type RuntimeEnv = z.infer<typeof runtimeEnvSchema>;
 export type PushEnv = z.infer<typeof pushEnvSchema>;
 export type CronEnv = z.infer<typeof cronEnvSchema>;
+export type OllamaCloudEnv = z.infer<typeof ollamaCloudEnvSchema>;
 
 // Validated env getters - Zod parse returns the inferred type
 export function getBaseEnv(): BaseEnv {
+  if (!process.env.NODE_ENV) {
+    throw new Error('NODE_ENV must be set to development, test, or production.');
+  }
+
   return baseEnvSchema.parse(process.env);
 }
 
@@ -94,7 +124,23 @@ export function getAdminAuthEnv(): AdminAuthEnv {
 }
 
 export function getPublicEnv(): PublicEnv {
-  return publicEnvSchema.parse(process.env);
+  const env = publicEnvSchema.parse(process.env);
+  const baseEnv = getBaseEnv();
+
+  if (baseEnv.NODE_ENV === 'production') {
+    const missing: string[] = [];
+    if (!process.env.NEXT_PUBLIC_APP_URL) missing.push('NEXT_PUBLIC_APP_URL');
+    if (!process.env.NEXT_PUBLIC_SITE_URL) missing.push('NEXT_PUBLIC_SITE_URL');
+    if (!process.env.NEXT_PUBLIC_API_URL) missing.push('NEXT_PUBLIC_API_URL');
+
+    if (missing.length > 0) {
+      throw new Error(
+        `Missing required public environment variables in production: ${missing.join(', ')}.`
+      );
+    }
+  }
+
+  return env;
 }
 
 export function getAdminR2Env(): AdminR2Env {
@@ -116,6 +162,21 @@ export function getSeedEnv(): SeedEnv {
 
 export function getBuildEnv(): BuildEnv {
   return buildEnvSchema.parse(process.env);
+}
+
+export function getDatabaseEnv(): DatabaseEnv {
+  return databaseEnvSchema.parse(process.env);
+}
+
+export function getRuntimeEnv(): RuntimeEnv {
+  getBaseEnv();
+  const env = runtimeEnvSchema.parse(process.env);
+
+  if (env.NODE_ENV === 'production' && env.ALLOW_ANY_ORIGIN === 'true') {
+    throw new Error('ALLOW_ANY_ORIGIN cannot be enabled in production.');
+  }
+
+  return env;
 }
 
 export function getPushEnv(): PushEnv {
@@ -141,4 +202,13 @@ export function getCronEnv(): CronEnv {
 export function isCronConfigured(): boolean {
   const result = cronEnvSchema.safeParse(process.env);
   return result.success;
+}
+
+export function getOllamaCloudEnv(): OllamaCloudEnv {
+  return ollamaCloudEnvSchema.parse(process.env);
+}
+
+export function getOptionalOllamaCloudEnv(): OllamaCloudEnv | null {
+  const result = ollamaCloudEnvSchema.safeParse(process.env);
+  return result.success ? result.data : null;
 }

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { aiQueueRepository } from '@repo/database';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,6 +9,7 @@ import {
   isWorkerRunning,
   startQueueWorker,
   stopQueueWorker,
+  shutdownQueueWorker,
   triggerProcessing,
 } from '../queue-worker';
 
@@ -104,6 +104,7 @@ describe('queue-worker', () => {
     // Default to worker enabled
     process.env = {
       ...originalEnv,
+      NODE_ENV: 'test',
       AI_WORKER_ENABLED: 'true',
     };
 
@@ -147,13 +148,11 @@ describe('queue-worker', () => {
     it('does not start when disabled via environment variable', () => {
       process.env.AI_WORKER_ENABLED = 'false';
 
-      // Need to re-import to pick up new env value
-      // Since the const is evaluated at import time, we need to test this differently
-      // The current implementation reads the env at module load time
-      // This test verifies the behavior is documented
-      expect(mockAiLogger.info).not.toHaveBeenCalledWith(
-        expect.objectContaining({ pollIntervalMs: expect.any(Number) }),
-        'Starting AI queue worker'
+      startQueueWorker();
+
+      expect(isWorkerRunning()).toBe(false);
+      expect(mockAiLogger.info).toHaveBeenCalledWith(
+        'AI queue worker is disabled (AI_WORKER_ENABLED=false)'
       );
     });
   });
@@ -179,6 +178,17 @@ describe('queue-worker', () => {
       expect(mockAiLogger.info).not.toHaveBeenCalledWith(
         'AI queue worker stopped'
       );
+    });
+  });
+
+  describe('shutdownQueueWorker', () => {
+    it('waits for in-flight work to complete', async () => {
+      mockAiQueueRepository.claimNext.mockResolvedValue(null);
+
+      startQueueWorker();
+      await shutdownQueueWorker();
+
+      expect(isWorkerRunning()).toBe(false);
     });
   });
 
@@ -355,6 +365,35 @@ describe('queue-worker', () => {
       expect(mockAiLogger.error).toHaveBeenCalledWith(
         { error: 'Database connection failed' },
         'Error during manual trigger processing'
+      );
+    });
+
+    it('marks job failed when processing throws unexpectedly', async () => {
+      const mockJob = createMockJob({
+        id: 'job-crash',
+        requestType: 'content_summary',
+        inputData: { prompt: 'Crash prompt' },
+        attempts: 1,
+        maxAttempts: 3,
+      });
+
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
+      mockGenerate.mockRejectedValue(new Error('Boom'));
+
+      const result = await triggerProcessing();
+
+      expect(result).toEqual({
+        processed: false,
+        jobId: 'job-crash',
+        error: 'Boom',
+      });
+      expect(mockAiQueueRepository.markFailed).toHaveBeenCalledWith(
+        'job-crash',
+        'Neočekivana greška tijekom ručne AI obrade'
+      );
+      expect(mockAiLogger.error).toHaveBeenCalledWith(
+        { jobId: 'job-crash', error: 'Boom' },
+        'Unhandled error during manual AI processing'
       );
     });
   });

@@ -3,6 +3,8 @@
  * Handles authentication, retries, and rate limiting
  */
 
+import { getOllamaCloudEnv, getOptionalOllamaCloudEnv } from '@repo/shared';
+
 import { aiLogger } from '../logger';
 
 import type {
@@ -27,16 +29,12 @@ const DEFAULT_CONFIG: Omit<OllamaCloudConfig, 'apiKey'> = {
 };
 
 function getConfig(): OllamaCloudConfig {
-  const apiKey = process.env.OLLAMA_CLOUD_API_KEY;
-
-  if (!apiKey) {
-    throw new Error('OLLAMA_CLOUD_API_KEY environment variable is not set');
-  }
+  const env = getOllamaCloudEnv();
 
   return {
-    apiKey,
-    baseUrl: process.env.OLLAMA_CLOUD_URL || DEFAULT_CONFIG.baseUrl,
-    model: process.env.OLLAMA_CLOUD_MODEL || DEFAULT_CONFIG.model,
+    apiKey: env.OLLAMA_CLOUD_API_KEY,
+    baseUrl: env.OLLAMA_CLOUD_URL || DEFAULT_CONFIG.baseUrl,
+    model: env.OLLAMA_CLOUD_MODEL || DEFAULT_CONFIG.model,
     maxRetries: DEFAULT_CONFIG.maxRetries,
     retryDelayMs: DEFAULT_CONFIG.retryDelayMs,
     requestTimeoutMs: DEFAULT_CONFIG.requestTimeoutMs,
@@ -133,14 +131,15 @@ async function withRetry<T>(
  * Check if Ollama Cloud is configured
  */
 export function isOllamaCloudConfigured(): boolean {
-  return !!process.env.OLLAMA_CLOUD_API_KEY;
+  return getOptionalOllamaCloudEnv() !== null;
 }
 
 /**
  * Get the configured model name
  */
 export function getConfiguredModel(): string {
-  return process.env.OLLAMA_CLOUD_MODEL || DEFAULT_CONFIG.model;
+  const env = getOptionalOllamaCloudEnv();
+  return env?.OLLAMA_CLOUD_MODEL || DEFAULT_CONFIG.model;
 }
 
 /**
@@ -150,7 +149,7 @@ export async function listModels(): Promise<AiResponse<OllamaModelsResponse>> {
   const config = getConfig();
 
   try {
-      const response = await fetchWithAuth(`${config.baseUrl}/api/tags`);
+    const response = await fetchWithAuth(`${config.baseUrl}/api/tags`);
 
     if (response.status === 401 || response.status === 403) {
       return {

@@ -1,9 +1,12 @@
+import { getBaseEnv, getRuntimeEnv } from '@repo/shared';
 import pino from 'pino';
 
-const isDev = process.env.NODE_ENV === 'development';
+const baseEnv = getBaseEnv();
+const runtimeEnv = getRuntimeEnv();
+const isDev = baseEnv.NODE_ENV === 'development';
 
 export const logger = pino({
-  level: process.env.LOG_LEVEL ?? (isDev ? 'debug' : 'info'),
+  level: runtimeEnv.LOG_LEVEL ?? (isDev ? 'debug' : 'info'),
   ...(isDev && {
     transport: {
       target: 'pino-pretty',

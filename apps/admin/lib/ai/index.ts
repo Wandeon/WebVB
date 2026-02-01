@@ -19,6 +19,7 @@ export {
 export {
   startQueueWorker,
   stopQueueWorker,
+  shutdownQueueWorker,
   isWorkerRunning,
   triggerProcessing,
 } from './queue-worker';
