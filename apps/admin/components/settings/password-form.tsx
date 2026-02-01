@@ -45,7 +45,7 @@ export function PasswordForm() {
       const result = await changePassword({
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
-        revokeOtherSessions: false,
+        revokeOtherSessions: true,
       });
 
       if (result.error) {
@@ -115,8 +115,8 @@ export function PasswordForm() {
               <p className="text-sm text-error">{errors.newPassword.message}</p>
             ) : (
               <p id="new-password-help" className="text-xs text-neutral-500">
-                Najmanje 8 znakova, mora sadržavati malo slovo, veliko slovo i
-                broj
+                Najmanje 12 znakova, mora sadržavati malo slovo, veliko slovo,
+                broj i poseban znak
               </p>
             )}
           </div>

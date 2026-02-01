@@ -4,7 +4,13 @@ import { z } from 'zod';
 export const createUserSchema = z.object({
   name: z.string().min(2, 'Ime mora imati najmanje 2 znaka'),
   email: z.string().email('Neispravan format email adrese'),
-  password: z.string().min(8, 'Lozinka mora imati najmanje 8 znakova'),
+  password: z
+    .string()
+    .min(12, 'Lozinka mora imati najmanje 12 znakova')
+    .regex(/[a-z]/, 'Lozinka mora sadržavati malo slovo')
+    .regex(/[A-Z]/, 'Lozinka mora sadržavati veliko slovo')
+    .regex(/\d/, 'Lozinka mora sadržavati broj')
+    .regex(/[^A-Za-z0-9]/, 'Lozinka mora sadržavati poseban znak'),
   role: z.enum([USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.STAFF], {
     message: 'Odaberite ulogu',
   }),

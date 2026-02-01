@@ -141,7 +141,7 @@ export function UserForm({
               <Input
                 id="password"
                 type="password"
-                placeholder="Najmanje 8 znakova"
+                placeholder="Najmanje 12 znakova"
                 error={Boolean((errors as { password?: { message?: string } }).password)}
                 {...register('password')}
               />

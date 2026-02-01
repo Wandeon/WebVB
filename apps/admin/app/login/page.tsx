@@ -25,7 +25,7 @@ export default function LoginPage() {
       });
 
       if (result.error) {
-        setError(result.error.message || 'Prijava nije uspjela');
+        setError('Neispravni podaci za prijavu.');
       } else {
         router.push('/');
       }
