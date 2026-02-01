@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Audit 05 - Events, Gallery, Static Pages, and Content-Type Edge Cases (2026-02-06)
+## Audit 05 - Events, Gallery, Static Pages, and Content-Type Edge Cases (2026-02-01)
 
 ### Changed
 - Corrected event filtering to respect multi-day ranges, Zagreb timezone day boundaries, and calendar month overlaps

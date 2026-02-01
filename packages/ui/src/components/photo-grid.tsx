@@ -1,8 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
-
 import { ImageOff } from 'lucide-react';
+import { useRef, useState } from 'react';
 import Lightbox from 'yet-another-react-lightbox';
 
 import 'yet-another-react-lightbox/styles.css';
