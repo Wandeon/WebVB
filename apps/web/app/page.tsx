@@ -29,10 +29,12 @@ import { ArrowRight, BarChart3, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 import { siteConfig } from './metadata';
+import { ExternalServicesSection } from '../components/external-services-section';
 import { NewsletterSectionWithApi } from '../components/newsletter-section-with-api';
 import { SmartDashboard } from '../components/smart-dashboard';
 import { VillageHero } from '../components/village-hero';
 import { experienceItems } from '../lib/experience-items';
+import { externalServices } from '../lib/external-services';
 import { quickLinks } from '../lib/quick-links';
 import { transparencyConfig } from '../lib/transparency-config';
 
@@ -427,6 +429,9 @@ export default async function HomePage() {
           </FadeIn>
         </div>
       </section>
+
+      {/* External Government Services */}
+      <ExternalServicesSection services={externalServices} />
 
       {/* Newsletter */}
       <NewsletterSectionWithApi />

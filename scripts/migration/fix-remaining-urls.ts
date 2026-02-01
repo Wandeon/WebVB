@@ -15,6 +15,7 @@ import { PrismaClient } from '@prisma/client';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import https from 'https';
 import http from 'http';
+import { getAdminR2Env, type AdminR2Env } from '@repo/shared';
 
 // Load env manually
 function loadEnv(filePath: string) {
@@ -33,21 +34,30 @@ loadEnv('/mnt/c/VelikiBukovec_web/apps/admin/.env');
 
 const prisma = new PrismaClient();
 
-// R2 Configuration
-const R2_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const R2_ACCESS_KEY = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
-const R2_SECRET_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
-const R2_BUCKET = process.env.CLOUDFLARE_R2_BUCKET_NAME || 'velikibukovec-media';
-const R2_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL || 'https://pub-920c291ea0c74945936ae9819993768a.r2.dev';
+let r2Env: AdminR2Env | null = null;
+let s3Client: S3Client | null = null;
 
-const s3Client = new S3Client({
-  region: 'auto',
-  endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY || '',
-    secretAccessKey: R2_SECRET_KEY || '',
-  },
-});
+function getR2Env(): AdminR2Env {
+  if (!r2Env) {
+    r2Env = getAdminR2Env();
+  }
+  return r2Env;
+}
+
+function getR2Client(): S3Client {
+  if (!s3Client) {
+    const env = getR2Env();
+    s3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+        secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+  return s3Client;
+}
 
 // Stats
 const stats = {
@@ -116,16 +126,17 @@ async function downloadImage(url: string): Promise<Buffer | null> {
  */
 async function uploadToR2(buffer: Buffer, filename: string, contentType: string): Promise<string | null> {
   try {
+    const env = getR2Env();
     const key = `migration/external/${filename}`;
 
-    await s3Client.send(new PutObjectCommand({
-      Bucket: R2_BUCKET,
+    await getR2Client().send(new PutObjectCommand({
+      Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
       Key: key,
       Body: buffer,
       ContentType: contentType,
     }));
 
-    return `${R2_PUBLIC_URL}/${key}`;
+    return `${env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
   } catch (error) {
     console.log(`  Upload error: ${error}`);
     return null;
@@ -164,7 +175,11 @@ function getContentType(filename: string): string {
 /**
  * Download and upload external images, return mapping
  */
-async function processExternalImages(content: string): Promise<string> {
+async function processExternalImages(content: string, dryRun: boolean): Promise<string> {
+  if (dryRun) {
+    return content;
+  }
+
   let result = content;
 
   // Find all external image URLs
@@ -276,6 +291,8 @@ async function main() {
 
   if (dryRun) {
     console.log('[DRY RUN MODE - No changes will be saved]\n');
+  } else {
+    getR2Env();
   }
 
   // Load URL maps
@@ -323,7 +340,7 @@ async function main() {
     let newContent = post.content;
 
     // 1. Download and replace external images
-    newContent = await processExternalImages(newContent);
+    newContent = await processExternalImages(newContent, dryRun);
 
     // 2. Replace internal URLs
     const { content: fixedContent, count } = replaceInternalUrls(newContent, combinedMap);
@@ -367,7 +384,7 @@ async function main() {
     let newContent = page.content;
 
     // 1. Download and replace external images
-    newContent = await processExternalImages(newContent);
+    newContent = await processExternalImages(newContent, dryRun);
 
     // 2. Replace internal URLs
     const { content: fixedContent, count } = replaceInternalUrls(newContent, combinedMap);

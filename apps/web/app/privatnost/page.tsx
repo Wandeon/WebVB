@@ -3,6 +3,7 @@
 // Last updated: 2026-01-31
 import {
   AlertTriangle,
+  Bell,
   CheckCircle2,
   Database,
   Eye,
@@ -12,6 +13,7 @@ import {
   MapPin,
   Phone,
   Shield,
+  Trash2,
   UserCheck,
   Users,
 } from 'lucide-react';
@@ -37,6 +39,7 @@ const pageSections: PageSection[] = [
   { id: 'podaci', label: 'Osobni podaci' },
   { id: 'prava', label: 'Vaša prava' },
   { id: 'kolacici', label: 'Kolačići' },
+  { id: 'push-obavijesti', label: 'Push obavijesti' },
   { id: 'kontakt', label: 'Kontakt' },
 ];
 
@@ -339,6 +342,124 @@ export default function PrivatnostPage() {
           </a>
           .
         </p>
+      </section>
+
+      {/* Push obavijesti */}
+      <section id="push-obavijesti" className="scroll-mt-24">
+        <h2 className="mb-6 flex items-center gap-3 text-2xl font-bold text-neutral-900">
+          <Bell className="h-7 w-7 text-primary-600" />
+          Push obavijesti
+        </h2>
+
+        <div className="space-y-6">
+          <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-neutral-900">
+              Podaci koje prikupljamo
+            </h3>
+            <p className="mb-4 text-neutral-700">
+              Ako se pretplatite na push obavijesti, prikupljamo sljedeće podatke:
+            </p>
+            <ul className="space-y-2 text-neutral-700">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Tehnički identifikator pretplate</strong> - jedinstveni URL koji koristi vaš
+                  preglednik za primanje obavijesti (ne sadrži osobne podatke)
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Ključevi za enkripciju</strong> - osiguravaju da samo vi možete čitati
+                  obavijesti
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Vrsta preglednika</strong> - za tehničku kompatibilnost
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Odabrane teme obavijesti</strong> - koje vrste obavijesti želite primati
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-neutral-900">Svrha obrade</h3>
+            <p className="text-neutral-700">
+              Navedene podatke koristimo <strong>isključivo</strong> za slanje push obavijesti koje
+              ste odabrali (odvoz otpada, novosti, obavijesti, događanja). Vaši podaci:
+            </p>
+            <ul className="mt-4 space-y-2 text-neutral-700">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>Ne povezujemo s vašim imenom, e-mailom ili drugim osobnim podacima</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>Ne dijelimo s trećim stranama</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>Ne koristimo za profiliranje ili praćenje</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-neutral-900">Rok čuvanja podataka</h3>
+            <p className="text-neutral-700">
+              Vaše podatke o pretplati na obavijesti čuvamo dok je pretplata aktivna. Podaci se
+              automatski brišu:
+            </p>
+            <ul className="mt-4 space-y-2 text-neutral-700">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Odmah</strong> - kada zatražite brisanje ili se odjavite
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Nakon 30 dana neaktivnosti</strong> - ako više ne koristite uslugu
+                  (npr. deinstalirali ste aplikaciju ili onemogućili obavijesti u pregledniku)
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Kada pretplata istekne</strong> - kada vaš preglednik obavijesti
+                  poslužitelj da je pretplata nevažeća (npr. ručno ste je izbrisali u postavkama
+                  preglednika)
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-xl border border-red-100 bg-red-50 p-6">
+            <div className="flex items-start gap-4">
+              <Trash2 className="mt-1 h-6 w-6 shrink-0 text-red-600" />
+              <div>
+                <h3 className="mb-2 font-semibold text-red-900">Brisanje podataka</h3>
+                <p className="text-red-800">
+                  U bilo kojem trenutku možete trajno izbrisati sve podatke o pretplati na
+                  obavijesti. Otvorite postavke obavijesti (ikona zupčanika u kutu ekrana) i
+                  odaberite &quot;Izbriši moje podatke&quot;. Brisanje je trajno i nepovratno.
+                </p>
+                <p className="mt-2 text-sm text-red-700">
+                  Također možete jednostavno onemogućiti obavijesti u postavkama preglednika što će
+                  automatski deaktivirati pretplatu.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Kontakt */}

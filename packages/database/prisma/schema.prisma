@@ -408,6 +408,48 @@ model AuditLog {
 }
 
 // ============================================================================
+// PUSH NOTIFICATIONS
+// ============================================================================
+
+model PushSubscription {
+  id               String    @id @default(uuid())
+  endpoint         String    @unique
+  p256dh           String // Public key for encryption
+  auth             String // Auth secret
+  userAgent        String?   @map("user_agent")
+  locale           String    @default("hr") // User locale for notifications
+  topics           Json      @default("[\"all\"]") // ["waste", "news", "events", "announcements"]
+  preferences      Json?     // { quietHoursStart?: "22:00", quietHoursEnd?: "07:00" }
+  isActive         Boolean   @default(true) @map("is_active")
+  lastSeenAt       DateTime? @map("last_seen_at")
+  lastErrorAt      DateTime? @map("last_error_at")
+  lastErrorMessage String?   @map("last_error_message")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@index([createdAt(sort: Desc)])
+  @@map("push_subscriptions")
+}
+
+model NotificationSend {
+  id             String   @id @default(uuid())
+  topic          String // 'waste', 'news', 'events', 'announcements', 'all'
+  title          String
+  body           String
+  url            String?
+  sentAt         DateTime @default(now()) @map("sent_at")
+  recipientCount Int      @map("recipient_count")
+  successCount   Int      @default(0) @map("success_count")
+  failureCount   Int      @default(0) @map("failure_count")
+  metadata       Json? // Additional context like event_id, post_id, etc.
+
+  @@index([topic])
+  @@index([sentAt(sort: Desc)])
+  @@map("notification_sends")
+}
+
+// ============================================================================
 // ANNOUNCEMENTS (OBAVIJESTI)
 // ============================================================================
 

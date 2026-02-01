@@ -1,44 +1,10 @@
+import { getOptionalAdminEmailEnv, type AdminEmailEnv } from '@repo/shared';
 import nodemailer from 'nodemailer';
 
 import type { Transporter } from 'nodemailer';
 
 // Email configuration from environment variables
-interface EmailConfig {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  from: string;
-  adminEmail: string;
-}
-
-// Check if all required SMTP environment variables are configured
-function checkEmailConfig(): EmailConfig | null {
-  const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT;
-  const user = process.env.SMTP_USER;
-  const password = process.env.SMTP_PASSWORD;
-  const from = process.env.SMTP_FROM;
-  const adminEmail = process.env.ADMIN_EMAIL;
-
-  if (!host || !port || !user || !password || !from || !adminEmail) {
-    return null;
-  }
-
-  const portNumber = parseInt(port, 10);
-  if (isNaN(portNumber)) {
-    return null;
-  }
-
-  return {
-    host,
-    port: portNumber,
-    user,
-    password,
-    from,
-    adminEmail,
-  };
-}
+type EmailConfig = AdminEmailEnv;
 
 // Lazy initialization for transporter
 let transporter: Transporter | null = null;
@@ -47,7 +13,7 @@ let configChecked = false;
 
 function getEmailConfig(): EmailConfig | null {
   if (!configChecked) {
-    emailConfig = checkEmailConfig();
+    emailConfig = getOptionalAdminEmailEnv();
     configChecked = true;
   }
   return emailConfig;
@@ -61,12 +27,12 @@ function getTransporter(): Transporter | null {
 
   if (!transporter) {
     transporter = nodemailer.createTransport({
-      host: config.host,
-      port: config.port,
-      secure: config.port === 465,
+      host: config.SMTP_HOST,
+      port: config.SMTP_PORT,
+      secure: config.SMTP_PORT === 465,
       auth: {
-        user: config.user,
-        pass: config.password,
+        user: config.SMTP_USER,
+        pass: config.SMTP_PASSWORD,
       },
     });
   }
@@ -88,7 +54,7 @@ export function isEmailConfigured(): boolean {
  */
 export function getSmtpFrom(): string | null {
   const config = getEmailConfig();
-  return config?.from ?? null;
+  return config?.SMTP_FROM ?? null;
 }
 
 /**
@@ -97,7 +63,7 @@ export function getSmtpFrom(): string | null {
  */
 export function getAdminEmail(): string | null {
   const config = getEmailConfig();
-  return config?.adminEmail ?? null;
+  return config?.ADMIN_EMAIL ?? null;
 }
 
 /**
@@ -107,7 +73,3 @@ export function getAdminEmail(): string | null {
 export function getEmailTransporter(): Transporter | null {
   return getTransporter();
 }
-
-// Export config values directly for convenience (returns empty string if not configured)
-export const SMTP_FROM = process.env.SMTP_FROM ?? '';
-export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? '';

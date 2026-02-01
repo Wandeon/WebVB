@@ -16,7 +16,8 @@ describe('CategoryFilter', () => {
     render(<CategoryFilter categories={categories} allLabel="Sve vijesti" />);
 
     const allButton = screen.getByRole('button', { name: 'Sve vijesti' });
-    expect(allButton).toHaveClass('bg-primary-600');
+    // Active button has text-white (bg-primary-600 is on child motion.div)
+    expect(allButton).toHaveClass('text-white');
   });
 
   it('highlights the matching category when the URL category is valid', () => {
@@ -24,6 +25,7 @@ describe('CategoryFilter', () => {
     render(<CategoryFilter categories={categories} allLabel="Sve vijesti" />);
 
     const categoryButton = screen.getByRole('button', { name: 'Sport' });
-    expect(categoryButton).toHaveClass('bg-primary-600');
+    // Active button has text-white (bg-primary-600 is on child motion.div)
+    expect(categoryButton).toHaveClass('text-white');
   });
 });

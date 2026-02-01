@@ -221,4 +221,31 @@ export const eventsRepository = {
       orderBy: { eventDate: 'desc' },
     });
   },
+
+  /**
+   * Get waste collection events for a specific date
+   * Waste events have titles like "Odvoz otpada: miješani komunalni otpad"
+   */
+  async getWasteEventsForDate(date: Date): Promise<Event[]> {
+    // Normalize to start of day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return db.event.findMany({
+      where: {
+        eventDate: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        title: {
+          startsWith: 'Odvoz otpada:',
+          mode: 'insensitive',
+        },
+      },
+      orderBy: { title: 'asc' },
+    });
+  },
 };

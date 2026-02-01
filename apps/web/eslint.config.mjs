@@ -4,6 +4,9 @@ import nextjsConfig from '@repo/eslint-config/nextjs';
 export default [
   ...nextjsConfig,
   {
+    ignores: ['public/**'],
+  },
+  {
     languageOptions: {
       parserOptions: {
         project: ['./tsconfig.json'],
