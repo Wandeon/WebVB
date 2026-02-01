@@ -64,6 +64,7 @@ function Typewriter({ text, speed = 50, delay = 0 }: { text: string; speed?: num
   const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset typewriter state when text changes
     setDisplayedText('');
     setHasStarted(false);
 

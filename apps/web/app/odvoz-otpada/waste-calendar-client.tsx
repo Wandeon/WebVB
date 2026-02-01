@@ -126,7 +126,7 @@ export function WasteCalendarClient() {
   }, [currentMonth, currentYear]);
 
   useEffect(() => {
-    fetchEvents();
+    void fetchEvents();
   }, [fetchEvents]);
 
   const goToPrevMonth = () => {
@@ -167,7 +167,7 @@ export function WasteCalendarClient() {
     if (!eventsByDate[date]) {
       eventsByDate[date] = [];
     }
-    eventsByDate[date]!.push(event);
+    eventsByDate[date].push(event);
   });
 
   if (isLoading) {
@@ -183,7 +183,7 @@ export function WasteCalendarClient() {
       <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
         <p className="text-red-700">{error}</p>
         <button
-          onClick={fetchEvents}
+          onClick={() => void fetchEvents()}
           className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
         >
           Pokušaj ponovno

@@ -51,6 +51,7 @@ export function MegaMenu({ groups, latestPost, upcomingEvent }: MegaMenuProps) {
 
   // Close on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentionally reset state on pathname change
     closeMenu();
   }, [pathname, closeMenu]);
 

@@ -81,7 +81,7 @@ export default function KapelaPage() {
         {/* TODO: Photo - Panorama Kapele Podravske, pogled na selo */}
 
         <p>
-          Povijesno nazvano po kapeli ("Kapela" doslovno znaci kapelica), nekad
+          Povijesno nazvano po kapeli (&quot;Kapela&quot; doslovno znaci kapelica), nekad
           je bilo satelit bukoveckog imanja Drašković. Danas je Kapela poznata
           po obiteljskim tvrtkama - posebno{' '}
           <strong>pilani Pečenec</strong> i brojnim cvjećarnicama. U selu vlada
@@ -159,10 +159,10 @@ export default function KapelaPage() {
         <div className="not-prose rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
-            Ime sela "Kapela" upućuje na ranu kapelicu koja je dala naselju
+            Ime sela &quot;Kapela&quot; upućuje na ranu kapelicu koja je dala naselju
             identitet - no danas nema župne crkve, samo malu putnu kapelicu.
             Vjersko središta je u Velikom Bukovcu, što neki vide kao ironiju:
-            "Dajemo toliko gospodarski, a ipak idemo u njihovu crkvu."
+            &quot;Dajemo toliko gospodarski, a ipak idemo u njihovu crkvu.&quot;
           </p>
         </div>
 
@@ -218,7 +218,7 @@ export default function KapelaPage() {
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
               Selo dobiva ime po maloj kapelici koja je služila kao duhovno
-              središta zajednice. "Kapela" doslovno znaci kapelica na hrvatskom
+              središta zajednice. &quot;Kapela&quot; doslovno znaci kapelica na hrvatskom
               - jednostavno ime za jednostavne ljude koji su živjeli od zemlje.
             </p>
           </div>
@@ -313,8 +313,8 @@ export default function KapelaPage() {
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
               Kapela se oporavlja od tuce i nastavlja graditi. Novi plastenici
-              dizu se na mjestu starih, pilana radi punom parom, a "Kapelske
-              žene" čuvaju društveni život. Selo koje ne čeka - vec gradi.
+              dizu se na mjestu starih, pilana radi punom parom, a &quot;Kapelske
+              žene&quot; čuvaju društveni život. Selo koje ne čeka - vec gradi.
             </p>
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function KapelaPage() {
           <p className="mt-1 text-sm text-amber-700">
             Tuča u svibnju 2022. uništila je polovicu hrvatske proizvodnje
             cvijeća - jer se toliko proizvodi upravo ovdje u Kapeli i susjednoj
-            Dubovici. "Sve što smo gradili 30 godina uništeno je u 15 minuta",
+            Dubovici. &quot;Sve što smo gradili 30 godina uništeno je u 15 minuta&quot;,
             rekao je jedan cvjecar.
           </p>
         </div>
@@ -411,7 +411,7 @@ export default function KapelaPage() {
               susjedi su se ujedinili da spase staklenike. Kultura uzajamne
               pomoci. Prilagodljivost: brzo su presli s tradicionalne
               poljoprivrede na intenzivno cvjećarstvo. Sposobnost da se
-              "poguraju rukavi" i riješi problem.
+              &quot;poguraju rukavi&quot; i riješi problem.
             </p>
           </div>
           <div className="rounded-lg border border-red-200 bg-red-50 p-4">
@@ -461,15 +461,15 @@ export default function KapelaPage() {
                 Izvoriste imena sela
               </p>
               <p className="mt-3 text-sm text-neutral-600">
-                Mala kapelica koja je dala ime cijelom selu. "Kapela" doslovno
+                Mala kapelica koja je dala ime cijelom selu. &quot;Kapela&quot; doslovno
                 znaci kapelica, i ova skromna građevina bila je duhovno središta
                 zajednice prije nego što je zupna crkva u Velikom Bukovcu
                 preuzela tu ulogu.
               </p>
               <p className="mt-2 text-sm text-neutral-600">
                 Ironija nije izgubljena na mještanima: selo koje nosi ime po
-                crkvi nema vlastitu zupnu crkvu. "Dajemo toliko gospodarski, a
-                ipak idemo u njihovu crkvu" - primjedba koja se čuje u razgovoru.
+                crkvi nema vlastitu zupnu crkvu. &quot;Dajemo toliko gospodarski, a
+                ipak idemo u njihovu crkvu&quot; - primjedba koja se čuje u razgovoru.
               </p>
               {/* TODO: Photo - Putna kapelica u Kapeli Podravskoj */}
             </div>
@@ -485,7 +485,7 @@ export default function KapelaPage() {
                 Plastenici i staklenici
               </h3>
               <p className="mt-1 text-sm text-neutral-500">
-                Moderna "znamenitost" sela
+                Moderna &quot;znamenitost&quot; sela
               </p>
               <p className="mt-3 text-sm text-neutral-600">
                 Desetci plastenika i staklenika protezi se kroz selo - mozda ne
@@ -533,7 +533,7 @@ export default function KapelaPage() {
         <div className="not-prose rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
-            "Kapelske žene" (ženska udruga) tiho čuva folklor i drzi zajedno
+            &quot;Kapelske žene&quot; (ženska udruga) tiho čuva folklor i drzi zajedno
             društveni život sela. U mjestu bez župnog doma ili društvenog
             centra, ove žene organiziraju događaje koji spajaju zajednicu.
           </p>
@@ -586,7 +586,7 @@ export default function KapelaPage() {
             <Trophy className="h-8 w-8 shrink-0 text-primary-600" />
             <div>
               <h3 className="text-lg font-semibold text-neutral-900">
-                NK "Poljoprivrednik"
+                NK &quot;Poljoprivrednik&quot;
               </h3>
               <p className="mt-1 text-sm text-neutral-500">
                 Nogometni klub Kapele
@@ -617,7 +617,7 @@ export default function KapelaPage() {
               </h3>
               <p className="mt-1 text-sm text-neutral-500">Ženska udruga</p>
               <p className="mt-3 text-sm text-neutral-600">
-                "Kapelske žene" tiho drze zajedno društveni život sela.
+                &quot;Kapelske žene&quot; tiho drze zajedno društveni život sela.
                 Organiziraju događaje, čuvaju folklor, i pruza prostor za
                 druženje u zajednici koja nema puno javnih mjesta.
               </p>

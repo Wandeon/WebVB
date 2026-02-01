@@ -148,8 +148,8 @@ export default function OpcinaPage() {
         <div className="not-prose rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
-            Ironija imena: "Mali" Bukovec (susjed) ima oko 1.800 stanovnika -
-            više nego "Veliki" Bukovec. Imena potječu iz doba kada su se odnosila
+            Ironija imena: &quot;Mali&quot; Bukovec (susjed) ima oko 1.800 stanovnika -
+            više nego &quot;Veliki&quot; Bukovec. Imena potječu iz doba kada su se odnosila
             na površinu posjeda, ne broj stanovnika.
           </p>
         </div>
@@ -197,7 +197,7 @@ export default function OpcinaPage() {
         <h3>Tri rijeke, jedan krajolik</h3>
         <p>
           <strong>Drava</strong> čini južnu granicu općine - divlja rijeka koja
-          "daje i uzima", kako kaže lokalna uzrečica. <strong>Plitvica</strong>{' '}
+          &quot;daje i uzima&quot;, kako kaže lokalna uzrečica. <strong>Plitvica</strong>{' '}
           teče kroz Dubovicu, dijeleći selo na gornji i donji dio. A{' '}
           <strong>Bednja</strong> prolazi nedaleko, doprinoseći sustavu odvodnje
           koji je stoljećima zahtijevao kolektivni rad na održavanju kanala.
@@ -378,8 +378,8 @@ export default function OpcinaPage() {
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
               Nakon godina trvenja, Veliki Bukovec, Kapela Podravska i Dubovica
-              osnivaju vlastitu općinu. Argument koji je prešao vagu: "U našem
-              selu su škola i župa - što vi imate?" Lokalni ponos pobijedio je
+              osnivaju vlastitu općinu. Argument koji je prešao vagu: &quot;U našem
+              selu su škola i župa - što vi imate?&quot; Lokalni ponos pobijedio je
               nad praktičnošću.
             </p>
           </div>
@@ -418,7 +418,7 @@ export default function OpcinaPage() {
         </h2>
 
         <p className="text-lg leading-relaxed">
-          Ekonomija Velikog Bukovca ne može se svesti na "poljoprivredu" - to je
+          Ekonomija Velikog Bukovca ne može se svesti na &quot;poljoprivredu&quot; - to je
           priča o prilagodbi: od kmetstva, preko gastarbajtera, do današnje
           kombinacije drvne industrije i cvjećarstva koja je jedinstvena u
           Hrvatskoj.
@@ -449,8 +449,8 @@ export default function OpcinaPage() {
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
             Tuča u svibnju 2022. uništila je 50% hrvatske proizvodnje cvijeća -
-            jer se toliko proizvodi upravo ovdje. "Sve što smo gradili 30 godina
-            uništeno je u 15 minuta", rekao je jedan cvjećar za Večernji list.
+            jer se toliko proizvodi upravo ovdje. &quot;Sve što smo gradili 30 godina
+            uništeno je u 15 minuta&quot;, rekao je jedan cvjećar za Večernji list.
           </p>
         </div>
 

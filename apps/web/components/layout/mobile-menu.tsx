@@ -57,21 +57,8 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
   const pathname = usePathname();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Load accessibility settings on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(ACCESSIBILITY_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setAccessibilitySettings(parsed);
-      } catch {
-        // Invalid JSON, use defaults
-      }
-    }
-  }, []);
-
-  // Apply accessibility settings
-  const applySettings = (s: AccessibilitySettings) => {
+  // Apply accessibility settings - defined as useCallback to be available before useEffect
+  const applySettings = useCallback((s: AccessibilitySettings) => {
     const root = document.documentElement;
 
     if (s.fontSize === 'large') {
@@ -93,7 +80,22 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
     } else {
       root.classList.remove('reduce-motion');
     }
-  };
+  }, []);
+
+  // Load accessibility settings on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(ACCESSIBILITY_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as AccessibilitySettings;
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Initialize state from localStorage on mount
+        setAccessibilitySettings(parsed);
+        applySettings(parsed);
+      } catch {
+        // Invalid JSON, use defaults
+      }
+    }
+  }, [applySettings]);
 
   const updateAccessibility = (newSettings: Partial<AccessibilitySettings>) => {
     const updated = { ...accessibilitySettings, ...newSettings };
@@ -104,6 +106,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
 
   // Close on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentionally reset menu state on route change
     setIsOpen(false);
     setShowAccessibility(false);
   }, [pathname]);

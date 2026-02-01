@@ -7,6 +7,22 @@ import { useEffect, useState } from 'react';
 
 const COOKIE_CONSENT_KEY = 'vb-cookie-consent';
 
+// Pre-generate random values for cookie crumbs to avoid Math.random in render
+interface CrumbConfig {
+  initialX: string;
+  animateX: string;
+  scale: number;
+  duration: number;
+}
+
+// Generate crumb configs once at module level (outside component)
+const CRUMB_CONFIGS: CrumbConfig[] = Array.from({ length: 6 }, () => ({
+  initialX: `${Math.random() * 100}%`,
+  animateX: `${Math.random() * 100}%`,
+  scale: Math.random() * 0.5 + 0.5,
+  duration: 3 + Math.random() * 2,
+}));
+
 interface CookiePreferences {
   necessary: boolean;
   analytics: boolean;
@@ -102,23 +118,23 @@ export function CookieConsent() {
             <div className="relative m-[2px] rounded-[22px] bg-white/95 backdrop-blur-xl">
               {/* Floating cookie crumbs */}
               <div className="absolute inset-0 overflow-hidden rounded-[22px] pointer-events-none">
-                {[...Array(6)].map((_, i) => (
+                {CRUMB_CONFIGS.map((config, i) => (
                   <motion.div
                     key={i}
                     className="absolute h-2 w-2 rounded-full bg-emerald-400/60"
                     initial={{
-                      x: Math.random() * 100 + '%',
+                      x: config.initialX,
                       y: '100%',
-                      scale: Math.random() * 0.5 + 0.5
+                      scale: config.scale
                     }}
                     animate={{
                       y: [null, '-20%'],
-                      x: [null, `${Math.random() * 100}%`],
+                      x: [null, config.animateX],
                       opacity: [0.6, 0],
                       scale: [null, 0]
                     }}
                     transition={{
-                      duration: 3 + Math.random() * 2,
+                      duration: config.duration,
                       repeat: Infinity,
                       delay: i * 0.5,
                       ease: 'easeOut'

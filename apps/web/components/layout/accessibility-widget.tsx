@@ -24,21 +24,7 @@ export function AccessibilityWidget() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Load settings on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(ACCESSIBILITY_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSettings(parsed);
-        applySettings(parsed);
-      } catch {
-        // Invalid JSON, use defaults
-      }
-    }
-  }, []);
-
-  // Apply settings to document
+  // Apply settings to document - defined before useEffect that uses it
   const applySettings = (s: AccessibilitySettings) => {
     const root = document.documentElement;
 
@@ -66,6 +52,21 @@ export function AccessibilityWidget() {
       root.classList.remove('reduce-motion');
     }
   };
+
+  // Load settings on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(ACCESSIBILITY_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as AccessibilitySettings;
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Initialize state from localStorage on mount
+        setSettings(parsed);
+        applySettings(parsed);
+      } catch {
+        // Invalid JSON, use defaults
+      }
+    }
+  }, []);
 
   // Save and apply settings
   const updateSettings = (newSettings: Partial<AccessibilitySettings>) => {

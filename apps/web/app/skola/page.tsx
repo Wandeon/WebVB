@@ -467,8 +467,8 @@ export default function ObrazovanjePage() {
         <div className="not-prose mt-8 rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
-            Ironija: "Mali" Bukovec (susjedna općina) zapravo ima više
-            stanovnika (~1.800) nego "Veliki" Bukovec (~1.325). Imena potječu
+            Ironija: &quot;Mali&quot; Bukovec (susjedna općina) zapravo ima više
+            stanovnika (~1.800) nego &quot;Veliki&quot; Bukovec (~1.325). Imena potječu
             iz doba kada su se odnosila na veličinu posjeda, a ne broj
             stanovnika. Ipak, Veliki Bukovec ima ono što Mali nema - školu i
             župu.

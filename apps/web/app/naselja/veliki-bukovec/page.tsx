@@ -148,7 +148,7 @@ export default function VelikiBukovecPage() {
         <div className="not-prose rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
-            Unatoč imenu "Veliki", selo ima manje stanovnika od susjednog "Mali"
+            Unatoč imenu &quot;Veliki&quot;, selo ima manje stanovnika od susjednog &quot;Mali&quot;
             Bukovca (~1.800). Imena potječu iz doba kada su se odnosila na
             površinu plemićkog posjeda, ne broj stanovnika.
           </p>
@@ -276,7 +276,7 @@ export default function VelikiBukovecPage() {
             <p className="mt-2 text-sm text-neutral-600">
               Nakon odvajanja od Mali Bukovca, Veliki Bukovec postaje
               administrativno središte novoosnovane općine. Ključan argument:
-              "U našem selu su škola i župa - što vi imate?"
+              &quot;U našem selu su škola i župa - što vi imate?&quot;
             </p>
           </div>
 
