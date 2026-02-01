@@ -145,14 +145,16 @@ jobs:
             # Regenerate Prisma client for this platform
             pnpm db:generate
 
-            # Restart PM2 (using existing process)
-            if pm2 describe vb-admin > /dev/null 2>&1; then
-              pm2 reload vb-admin --update-env
-            else
-              cd apps/admin
-              PORT=3001 HOSTNAME=0.0.0.0 pm2 start "pnpm start" --name vb-admin
-              pm2 save
-            fi
+            # Load environment and restart PM2
+            source apps/admin/.env
+            export PORT=3001
+            export HOSTNAME=0.0.0.0
+            export NODE_ENV=production
+
+            pm2 delete vb-admin 2>/dev/null || true
+            cd apps/admin
+            pm2 start "pnpm start" --name vb-admin --update-env
+            pm2 save
 
             # Health check with retry
             for i in {1..15}; do
