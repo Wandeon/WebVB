@@ -2,7 +2,7 @@
 // Called daily at 18:00 Europe/Zagreb by system cron
 // Protected by CRON_SECRET header
 
-import { eventsRepository, pushSubscriptionsRepository } from '@repo/database';
+import { eventsRepository, pushSubscriptionsRepository, isInQuietHours } from '@repo/database';
 import { isPushConfigured } from '@repo/shared';
 import webpush from 'web-push';
 
@@ -10,7 +10,7 @@ import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { contactLogger } from '@/lib/logger';
 
 import type { NextRequest } from 'next/server';
-import type { PushTopic } from '@repo/database';
+import type { PushTopic, PushSubscriptionWithPreferences } from '@repo/database';
 
 // Waste type display names for notifications
 const WASTE_DISPLAY_NAMES: Record<string, string> = {
@@ -129,12 +129,36 @@ export async function POST(request: NextRequest) {
       ? `Sutra (${formattedDate}) je odvoz: ${displayTypes[0]}`
       : `Sutra (${formattedDate}) je odvoz:\n• ${displayTypes.join('\n• ')}`;
 
-    // Get subscriptions for waste topic
-    const subscriptions = await pushSubscriptionsRepository.getActiveByTopic('waste' as PushTopic);
+    // Get subscriptions for waste topic with preferences (for quiet hours check)
+    const allSubscriptions = await pushSubscriptionsRepository.getActiveByTopicWithPreferences('waste' as PushTopic);
 
-    if (subscriptions.length === 0) {
+    if (allSubscriptions.length === 0) {
       contactLogger.info({ date: dateKey }, 'Waste reminder job: no subscribers');
       return apiSuccess({ sent: false, reason: 'no_subscribers', date: dateKey });
+    }
+
+    // Filter out subscriptions currently in quiet hours
+    const subscriptions: PushSubscriptionWithPreferences[] = [];
+    let quietHoursSkipped = 0;
+
+    for (const sub of allSubscriptions) {
+      if (isInQuietHours(sub.preferences, 'Europe/Zagreb')) {
+        quietHoursSkipped++;
+      } else {
+        subscriptions.push(sub);
+      }
+    }
+
+    if (quietHoursSkipped > 0) {
+      contactLogger.info(
+        { date: dateKey, skipped: quietHoursSkipped, sending: subscriptions.length },
+        'Waste reminder job: skipping subscribers in quiet hours'
+      );
+    }
+
+    if (subscriptions.length === 0) {
+      contactLogger.info({ date: dateKey, quietHoursSkipped }, 'Waste reminder job: all subscribers in quiet hours');
+      return apiSuccess({ sent: false, reason: 'all_in_quiet_hours', date: dateKey, quietHoursSkipped });
     }
 
     // Prepare notification payload
@@ -192,11 +216,12 @@ export async function POST(request: NextRequest) {
         date: dateKey,
         wasteTypes,
         jobRun: true,
+        quietHoursSkipped,
       },
     });
 
     contactLogger.info(
-      { date: dateKey, wasteTypes, sent: successCount, failed: failureCount },
+      { date: dateKey, wasteTypes, sent: successCount, failed: failureCount, quietHoursSkipped },
       'Waste reminder job: completed'
     );
 
@@ -207,6 +232,7 @@ export async function POST(request: NextRequest) {
       recipients: subscriptions.length,
       success: successCount,
       failed: failureCount,
+      quietHoursSkipped,
     });
   } catch (error) {
     contactLogger.error({ error }, 'Waste reminder job: error');

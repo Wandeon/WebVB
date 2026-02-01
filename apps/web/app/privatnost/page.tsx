@@ -411,6 +411,37 @@ export default function PrivatnostPage() {
             </ul>
           </div>
 
+          <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-neutral-900">Rok čuvanja podataka</h3>
+            <p className="text-neutral-700">
+              Vaše podatke o pretplati na obavijesti čuvamo dok je pretplata aktivna. Podaci se
+              automatski brišu:
+            </p>
+            <ul className="mt-4 space-y-2 text-neutral-700">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Odmah</strong> - kada zatražite brisanje ili se odjavite
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Nakon 30 dana neaktivnosti</strong> - ako više ne koristite uslugu
+                  (npr. deinstalirali ste aplikaciju ili onemogućili obavijesti u pregledniku)
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>
+                  <strong>Kada pretplata istekne</strong> - kada vaš preglednik obavijesti
+                  poslužitelj da je pretplata nevažeća (npr. ručno ste je izbrisali u postavkama
+                  preglednika)
+                </span>
+              </li>
+            </ul>
+          </div>
+
           <div className="rounded-xl border border-red-100 bg-red-50 p-6">
             <div className="flex items-start gap-4">
               <Trash2 className="mt-1 h-6 w-6 shrink-0 text-red-600" />
