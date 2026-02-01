@@ -11,7 +11,7 @@ describe('contactFormSchema', () => {
   it('accepts valid contact form data', () => {
     const validData = {
       name: 'Ivan Horvat',
-      email: 'ivan.horvat@example.com',
+      email: 'Ivan.Horvat@Example.com',
       subject: 'Upit o komunalnim uslugama',
       message: 'Zanima me kako mogu prijaviti problem s javnom rasvjetom u mom naselju.',
     };
@@ -121,6 +121,25 @@ describe('contactFormSchema', () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it('sanitizes contact input by stripping HTML and trimming', () => {
+    const validData = {
+      name: '  <b>Ivana</b>   Horvat ',
+      email: '  IVANA@EXAMPLE.COM ',
+      subject: ' <script>alert(1)</script> Upit ',
+      message: '  <p>Pozdrav!</p>\nOvo je <strong>test</strong> poruka.  ',
+    };
+
+    const result = contactFormSchema.safeParse(validData);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.name).toBe('Ivana Horvat');
+      expect(result.data.email).toBe('ivana@example.com');
+      expect(result.data.subject).toBe('Upit');
+      expect(result.data.message).toBe('Pozdrav!\nOvo je test poruka.');
+    }
   });
 });
 
@@ -272,6 +291,9 @@ describe('problemReportSchema', () => {
     const result = problemReportSchema.safeParse(validData);
 
     expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.reporterEmail).toBeUndefined();
+    }
   });
 
   it('rejects invalid email when provided', () => {
@@ -287,6 +309,48 @@ describe('problemReportSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe('Unesite ispravnu email adresu');
+    }
+  });
+
+  it('rejects invalid reporter phone characters', () => {
+    const invalidData = {
+      problemType: 'komunalno',
+      location: 'Ulica mira 5',
+      description: 'Opis problema s najmanje deset znakova.',
+      reporterPhone: '091/123-456',
+    };
+
+    const result = problemReportSchema.safeParse(invalidData);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(
+        'Telefon smije sadržavati samo brojeve i znakove + ( ) -'
+      );
+    }
+  });
+
+  it('sanitizes problem report content', () => {
+    const validData = {
+      problemType: 'otpad',
+      location: '  <b>Centar</b> ',
+      description: ' <p>Nepropisno</p>\n<em>odlozen</em> otpad. ',
+      reporterName: '  <strong>Ana</strong>  ',
+      reporterEmail: '  ANA@EXAMPLE.COM ',
+      reporterPhone: '  +385 91 000 0000  ',
+      images: [{ url: 'https://example.com/image.jpg', caption: ' <i>Kontejner</i> ' }],
+    };
+
+    const result = problemReportSchema.safeParse(validData);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.location).toBe('Centar');
+      expect(result.data.description).toBe('Nepropisno\nodlozen otpad.');
+      expect(result.data.reporterName).toBe('Ana');
+      expect(result.data.reporterEmail).toBe('ana@example.com');
+      expect(result.data.reporterPhone).toBe('+385 91 000 0000');
+      expect(result.data.images?.[0]?.caption).toBe('Kontejner');
     }
   });
 

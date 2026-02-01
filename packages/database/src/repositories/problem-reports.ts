@@ -64,6 +64,15 @@ export interface CountProblemReportsOptions {
 
 export type ProblemReportStatus = 'new' | 'in_progress' | 'resolved' | 'rejected';
 
+export interface FindDuplicateProblemReportOptions {
+  problemType: string;
+  location: string;
+  description: string;
+  reporterEmail?: string | null;
+  ipAddress?: string | null;
+  windowMs: number;
+}
+
 export const problemReportsRepository = {
   /**
    * Create a new problem report
@@ -245,5 +254,43 @@ export const problemReportsRepository = {
     }
 
     return db.problemReport.count({ where });
+  },
+
+  /**
+   * Find a recent duplicate problem report
+   */
+  async findRecentDuplicate(
+    options: FindDuplicateProblemReportOptions
+  ): Promise<ProblemReportRecord | null> {
+    const cutoff = new Date(Date.now() - options.windowMs);
+
+    const where: Prisma.ProblemReportWhereInput = {
+      problemType: options.problemType,
+      location: options.location,
+      description: options.description,
+      createdAt: { gte: cutoff },
+    };
+
+    if (options.reporterEmail) {
+      where.reporterEmail = options.reporterEmail;
+    } else if (options.ipAddress) {
+      where.ipAddress = options.ipAddress;
+    } else {
+      return null;
+    }
+
+    const result = await db.problemReport.findFirst({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    return {
+      ...result,
+      images: result.images as ProblemReportImage[] | null,
+    };
   },
 };

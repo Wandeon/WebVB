@@ -1,8 +1,10 @@
 import { newsletterRepository } from '@repo/database';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { contactLogger } from '@/lib/logger';
+import { getEmailLogFields } from '@/lib/pii';
 
 import type { NextRequest } from 'next/server';
 
@@ -30,10 +32,28 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    try {
-      const result = await newsletterRepository.unsubscribe(id);
+    const idResult = z
+      .string()
+      .uuid('Neispravan identifikator pretplatnika.')
+      .safeParse(id);
 
-      contactLogger.info({ email: result.email }, 'Newsletter unsubscribed');
+    if (!idResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'INVALID_ID',
+            message: 'Neispravan identifikator pretplatnika.',
+          },
+        },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    try {
+      const result = await newsletterRepository.unsubscribe(idResult.data);
+
+      contactLogger.info({ ...getEmailLogFields(result.email) }, 'Newsletter unsubscribed');
 
       return NextResponse.json(
         {

@@ -7,10 +7,13 @@ import { NextResponse } from 'next/server';
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { sendNewsletterConfirmation } from '@/lib/email';
 import { contactLogger } from '@/lib/logger';
+import { getEmailLogFields } from '@/lib/pii';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const RATE_LIMIT = 5;
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
+const EMAIL_RATE_LIMIT = 3;
+const EMAIL_RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || 'https://velikibukovec.hr';
 
 export function OPTIONS(request: Request) {
@@ -52,7 +55,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true }, { headers: corsHeaders }); // Silent rejection for bots
     }
 
-    const email = result.data.email.toLowerCase().trim();
+    const email = result.data.email;
+    const emailRateCheck = checkRateLimit(`newsletter:${email}`, EMAIL_RATE_LIMIT, EMAIL_RATE_WINDOW);
+    if (!emailRateCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'RATE_LIMIT',
+            message: 'Previše zahtjeva za ovu email adresu. Pokušajte ponovno kasnije.',
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Retry-After': String(Math.ceil((emailRateCheck.resetAt - Date.now()) / 1000)),
+          },
+        }
+      );
+    }
 
     // Check if already subscribed
     const existing = await newsletterRepository.findByEmail(email);
@@ -80,7 +102,7 @@ export async function POST(request: Request) {
         const confirmUrl = `${PUBLIC_SITE_URL}/newsletter/potvrda?token=${token}`;
         sendNewsletterConfirmation(email, confirmUrl);
 
-        contactLogger.info({ email }, 'Newsletter resubscription initiated');
+        contactLogger.info({ ...getEmailLogFields(email) }, 'Newsletter resubscription initiated');
 
         return NextResponse.json(
           {
@@ -100,7 +122,7 @@ export async function POST(request: Request) {
       const confirmUrl = `${PUBLIC_SITE_URL}/newsletter/potvrda?token=${token}`;
       sendNewsletterConfirmation(email, confirmUrl);
 
-      contactLogger.info({ email }, 'Newsletter confirmation resent');
+      contactLogger.info({ ...getEmailLogFields(email) }, 'Newsletter confirmation resent');
 
       return NextResponse.json(
         {
@@ -120,7 +142,7 @@ export async function POST(request: Request) {
     const confirmUrl = `${PUBLIC_SITE_URL}/newsletter/potvrda?token=${token}`;
     sendNewsletterConfirmation(email, confirmUrl);
 
-    contactLogger.info({ email }, 'New newsletter subscription initiated');
+    contactLogger.info({ ...getEmailLogFields(email) }, 'New newsletter subscription initiated');
 
     return NextResponse.json(
       {

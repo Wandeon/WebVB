@@ -1,9 +1,11 @@
 // apps/admin/app/api/public/newsletter/confirm/route.ts
 import { newsletterRepository } from '@repo/database';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { contactLogger } from '@/lib/logger';
+import { getEmailLogFields } from '@/lib/pii';
 
 import type { NextRequest } from 'next/server';
 
@@ -31,7 +33,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const subscriber = await newsletterRepository.findByToken(token);
+    const tokenResult = z
+      .string()
+      .uuid('Neispravan token za potvrdu.')
+      .safeParse(token);
+
+    if (!tokenResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'INVALID_TOKEN',
+            message: 'Neispravan token za potvrdu.',
+          },
+        },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    const subscriber = await newsletterRepository.findByToken(tokenResult.data);
 
     if (!subscriber) {
       return NextResponse.json(
@@ -61,7 +81,7 @@ export async function GET(request: NextRequest) {
 
     await newsletterRepository.confirm(subscriber.id);
 
-    contactLogger.info({ email: subscriber.email }, 'Newsletter subscription confirmed');
+    contactLogger.info({ ...getEmailLogFields(subscriber.email) }, 'Newsletter subscription confirmed');
 
     return NextResponse.json(
       {

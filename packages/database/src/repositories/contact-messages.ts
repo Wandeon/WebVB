@@ -50,6 +50,13 @@ export interface CountContactMessagesOptions {
 
 export type ContactMessageStatus = 'new' | 'read' | 'replied' | 'archived';
 
+export interface FindDuplicateContactMessageOptions {
+  email: string;
+  subject: string | null;
+  message: string;
+  windowMs: number;
+}
+
 export const contactMessagesRepository = {
   /**
    * Create a new contact message
@@ -175,5 +182,24 @@ export const contactMessagesRepository = {
     }
 
     return db.contactMessage.count({ where });
+  },
+
+  /**
+   * Find a recent duplicate contact message for deduplication
+   */
+  async findRecentDuplicate(
+    options: FindDuplicateContactMessageOptions
+  ): Promise<ContactMessageRecord | null> {
+    const cutoff = new Date(Date.now() - options.windowMs);
+
+    return await db.contactMessage.findFirst({
+      where: {
+        email: options.email,
+        subject: options.subject,
+        message: options.message,
+        createdAt: { gte: cutoff },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   },
 };

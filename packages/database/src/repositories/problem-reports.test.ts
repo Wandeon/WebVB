@@ -9,6 +9,7 @@ vi.mock('../client', () => ({
   db: {
     problemReport: {
       create: vi.fn(),
+      findFirst: vi.fn(),
     },
   },
 }));
@@ -16,6 +17,7 @@ vi.mock('../client', () => ({
 const mockedDb = db as unknown as {
   problemReport: {
     create: Mock;
+    findFirst: Mock;
   };
 };
 
@@ -75,6 +77,52 @@ describe('problemReportsRepository.create', () => {
         status: 'in_progress',
         ipAddress: '127.0.0.1',
       },
+    });
+  });
+});
+
+describe('problemReportsRepository.findRecentDuplicate', () => {
+  beforeEach(() => {
+    mockedDb.problemReport.findFirst.mockReset();
+  });
+
+  it('returns null when no identifier provided', async () => {
+    const result = await problemReportsRepository.findRecentDuplicate({
+      problemType: 'cesta',
+      location: 'Ulica 1',
+      description: 'Opis problema.',
+      windowMs: 10 * 60 * 1000,
+    });
+
+    expect(result).toBeNull();
+    expect(mockedDb.problemReport.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('queries recent duplicates by reporter email', async () => {
+    mockedDb.problemReport.findFirst.mockResolvedValue({
+      id: 'report-dup',
+      images: null,
+    });
+
+    await problemReportsRepository.findRecentDuplicate({
+      problemType: 'otpad',
+      location: 'Ulica 2',
+      description: 'Opis problema.',
+      reporterEmail: 'iva@example.com',
+      windowMs: 10 * 60 * 1000,
+    });
+
+    expect(mockedDb.problemReport.findFirst).toHaveBeenCalledWith({
+      where: {
+        problemType: 'otpad',
+        location: 'Ulica 2',
+        description: 'Opis problema.',
+        createdAt: {
+          gte: expect.any(Date),
+        },
+        reporterEmail: 'iva@example.com',
+      },
+      orderBy: { createdAt: 'desc' },
     });
   });
 });
