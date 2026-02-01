@@ -146,8 +146,12 @@ jobs:
             cd ~/apps/admin-repo
             pnpm db:generate
 
-            # Copy generated Prisma client to standalone
-            cp -r node_modules/.prisma ~/apps/admin-standalone/node_modules/
+            # Copy generated Prisma client to standalone (pnpm stores it in .pnpm folder)
+            PRISMA_CLIENT_PATH=$(find node_modules/.pnpm -name ".prisma" -type d 2>/dev/null | head -1)
+            if [ -n "$PRISMA_CLIENT_PATH" ]; then
+              mkdir -p ~/apps/admin-standalone/node_modules/.prisma
+              cp -r "$PRISMA_CLIENT_PATH"/* ~/apps/admin-standalone/node_modules/.prisma/
+            fi
             cd ~/apps/admin-standalone
 
             # Copy env file if not exists
