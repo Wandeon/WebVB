@@ -202,4 +202,13 @@ export const contactMessagesRepository = {
       orderBy: { createdAt: 'desc' },
     });
   },
+
+  /**
+   * Delete a contact message by ID
+   */
+  async deleteById(id: string): Promise<void> {
+    await db.contactMessage.delete({
+      where: { id },
+    });
+  },
 };

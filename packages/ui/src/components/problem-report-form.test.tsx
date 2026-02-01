@@ -30,6 +30,13 @@ describe('ProblemReportForm', () => {
     expect(screen.getByLabelText('Telefon')).toBeInTheDocument();
   });
 
+  it('shows privacy notice with link', () => {
+    render(<ProblemReportForm onSubmit={mockOnSubmit} />);
+
+    const link = screen.getByRole('link', { name: 'Politici privatnosti' });
+    expect(link).toHaveAttribute('href', '/privatnost');
+  });
+
   it('shows all problem type options in dropdown', async () => {
     const user = userEvent.setup();
     render(<ProblemReportForm onSubmit={mockOnSubmit} />);

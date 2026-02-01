@@ -21,6 +21,13 @@ describe('ContactForm', () => {
     expect(screen.getByRole('button', { name: 'Pošalji poruku' })).toBeInTheDocument();
   });
 
+  it('shows privacy notice with link', () => {
+    render(<ContactForm onSubmit={mockOnSubmit} />);
+
+    const link = screen.getByRole('link', { name: 'Politici privatnosti' });
+    expect(link).toHaveAttribute('href', '/privatnost');
+  });
+
   it('shows validation errors for empty required fields', async () => {
     render(<ContactForm onSubmit={mockOnSubmit} />);
 

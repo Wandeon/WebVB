@@ -23,7 +23,6 @@ export interface ContactMessage {
   status: string;
   repliedAt: string | null;
   repliedBy: string | null;
-  ipAddress: string | null;
   createdAt: string;
 }
 

@@ -89,6 +89,14 @@ export function NewsletterSignup({ onSubmit, className }: NewsletterSignupProps)
           {message}
         </p>
       )}
+      <p className="mt-3 text-xs text-neutral-500">
+        Pretplata se potvrđuje putem e-maila (double opt-in). Adresu koristimo isključivo za slanje newslettera, a odjavu
+        možete zatražiti u svakom izdanju.{' '}
+        <a href="/privatnost" className="text-primary-600 hover:underline">
+          Politika privatnosti
+        </a>
+        .
+      </p>
     </div>
   );
 }

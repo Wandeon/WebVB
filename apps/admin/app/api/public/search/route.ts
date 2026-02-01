@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { searchLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 
 const OLLAMA_URL = process.env.OLLAMA_LOCAL_URL || 'http://127.0.0.1:11434';
 
@@ -154,7 +155,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(response, { headers: corsHeaders });
   } catch (error) {
-    searchLogger.error({ error, query }, 'Hybrid search error');
+    searchLogger.error({ error, ...getTextLogFields(query) }, 'Hybrid search error');
     return NextResponse.json(
       { error: 'Search failed', results: { posts: [], documents: [], pages: [], events: [] }, totalCount: 0, query },
       { status: 500, headers: corsHeaders }

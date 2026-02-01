@@ -4,6 +4,7 @@ import { USER_ROLES } from '@repo/shared';
 import { apiError, ErrorCodes } from '@/lib/api-response';
 import { auth } from '@/lib/auth';
 import { isAdmin, normalizeRole } from '@/lib/permissions';
+import { anonymizeIp } from '@/lib/pii';
 
 type Role = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
@@ -132,10 +133,12 @@ export async function requireAuth(
 
 export function getAuditMetadata(request: Request) {
   const forwardedFor = request.headers.get('x-forwarded-for');
-  const ipAddress = forwardedFor?.split(',')[0]?.trim();
+  const ipAddress = anonymizeIp(
+    forwardedFor?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip')
+  );
 
   return {
-    ipAddress: ipAddress ?? request.headers.get('x-real-ip'),
+    ipAddress,
     userAgent: request.headers.get('user-agent'),
   };
 }

@@ -40,7 +40,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Poruka nije pronađena', 404);
     }
 
-    return apiSuccess(message);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Intentionally omitting ipAddress from response
+    const { ipAddress, ...sanitized } = message;
+    return apiSuccess(sanitized);
   } catch (error) {
     contactLogger.error({ error }, 'Failed to fetch contact message');
     return apiError(
@@ -113,6 +115,43 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Greška prilikom ažuriranja poruke',
+      500
+    );
+  }
+}
+
+// DELETE /api/messages/[id] - Delete contact message (GDPR request handling)
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  try {
+    const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const messageId = idResult.id;
+
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
+    const existingMessage = await contactMessagesRepository.findById(messageId);
+
+    if (!existingMessage) {
+      return apiError(ErrorCodes.NOT_FOUND, 'Poruka nije pronađena', 404);
+    }
+
+    await contactMessagesRepository.deleteById(messageId);
+
+    contactLogger.info({ messageId }, 'Contact message deleted');
+
+    return apiSuccess({ message: 'Poruka je trajno obrisana.' });
+  } catch (error) {
+    contactLogger.error({ error }, 'Failed to delete contact message');
+    return apiError(
+      ErrorCodes.INTERNAL_ERROR,
+      'Greška prilikom brisanja poruke',
       500
     );
   }

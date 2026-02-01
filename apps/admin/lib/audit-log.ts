@@ -1,6 +1,7 @@
 import { auditLogsRepository } from '@repo/database';
 
 import { getAuditMetadata } from '@/lib/api-auth';
+import { sanitizeAuditChanges } from '@/lib/audit-log-utils';
 
 import type { AuthContext } from '@/lib/api-auth';
 import type { AuditAction, AuditEntityType } from '@repo/shared';
@@ -23,7 +24,8 @@ export async function createAuditLog({
   changes,
 }: AuditLogInput) {
   const { ipAddress, userAgent } = getAuditMetadata(request);
-  const serializedChanges = changes ? JSON.stringify(changes) : undefined;
+  const sanitizedChanges = changes ? sanitizeAuditChanges(changes) : undefined;
+  const serializedChanges = sanitizedChanges ? JSON.stringify(sanitizedChanges) : undefined;
 
   await auditLogsRepository.create({
     userId: context.userId,

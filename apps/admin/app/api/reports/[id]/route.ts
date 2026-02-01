@@ -41,7 +41,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Prijava problema nije pronađena', 404);
     }
 
-    return apiSuccess(report);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Intentionally omitting ipAddress from response
+    const { ipAddress, ...sanitized } = report;
+    return apiSuccess(sanitized);
   } catch (error) {
     problemReportsLogger.error({ error }, 'Failed to fetch problem report');
     return apiError(
@@ -136,6 +138,43 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Greška prilikom ažuriranja prijave problema',
+      500
+    );
+  }
+}
+
+// DELETE /api/reports/[id] - Delete problem report (GDPR request handling)
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  try {
+    const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const reportId = idResult.id;
+
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
+    const existingReport = await problemReportsRepository.findById(reportId);
+
+    if (!existingReport) {
+      return apiError(ErrorCodes.NOT_FOUND, 'Prijava problema nije pronađena', 404);
+    }
+
+    await problemReportsRepository.deleteById(reportId);
+
+    problemReportsLogger.info({ reportId }, 'Problem report deleted');
+
+    return apiSuccess({ message: 'Prijava problema je trajno obrisana.' });
+  } catch (error) {
+    problemReportsLogger.error({ error }, 'Failed to delete problem report');
+    return apiError(
+      ErrorCodes.INTERNAL_ERROR,
+      'Greška prilikom brisanja prijave problema',
       500
     );
   }

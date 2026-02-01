@@ -85,6 +85,13 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
       <Button type="submit" disabled={status === 'loading'} className="w-full">
         {status === 'loading' ? 'Slanje...' : 'Pošalji poruku'}
       </Button>
+      <p className="text-xs text-neutral-500">
+        Slanjem poruke pristajete da vaše podatke koristimo isključivo za odgovor na upit. Više u{' '}
+        <a href="/privatnost" className="text-primary-600 hover:underline">
+          Politici privatnosti
+        </a>
+        .
+      </p>
     </form>
   );
 }

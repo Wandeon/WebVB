@@ -1,19 +1,35 @@
 import { createHash } from 'node:crypto';
 import { isIP } from 'node:net';
 
+export function hashValue(value: string): string {
+  return createHash('sha256').update(value).digest('hex').slice(0, 12);
+}
+
 export function getEmailLogFields(email?: string | null): { emailHash?: string; emailDomain?: string } {
   if (!email) {
     return {};
   }
 
-  const [localPart, domain] = email.split('@');
-  const hash = createHash('sha256').update(email).digest('hex').slice(0, 12);
+  const normalizedEmail = email.trim().toLowerCase();
+  const [localPart, domain] = normalizedEmail.split('@');
+  const hash = hashValue(normalizedEmail);
 
   if (!localPart || !domain) {
     return { emailHash: hash };
   }
 
   return { emailHash: hash, emailDomain: domain.toLowerCase() };
+}
+
+export function getTextLogFields(text?: string | null): { textHash?: string; textLength?: number } {
+  if (!text) {
+    return {};
+  }
+
+  return {
+    textHash: hashValue(text),
+    textLength: text.length,
+  };
 }
 
 export function anonymizeIp(ip?: string | null): string | null {
