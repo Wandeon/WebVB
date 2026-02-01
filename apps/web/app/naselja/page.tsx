@@ -15,7 +15,7 @@ const villages = [
   {
     id: 'veliki-bukovec',
     name: 'Veliki Bukovec',
-    description: 'Administrativno središte općine s bogatom poviješću i tradicijom cvjećarstva.',
+    description: 'Administrativno središte općine s dvorcem Drašković, župnom crkvom i drvnom industrijom.',
     image: '/images/hero/veliki-bukovec-hero-1.jpg',
     href: '/naselja/veliki-bukovec',
   },
@@ -29,7 +29,7 @@ const villages = [
   {
     id: 'kapela',
     name: 'Kapela Podravska',
-    description: 'Naselje uz rijeku Bednju s dugom poviješću i aktivnom zajednicom.',
+    description: 'Središte hrvatske cvjećarske proizvodnje s aktivnom zajednicom i pilanom.',
     image: '/images/hero/veliki-bukovec-hero-2.jpg',
     href: '/naselja/kapela',
   },

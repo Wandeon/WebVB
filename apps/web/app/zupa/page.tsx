@@ -52,7 +52,7 @@ const keyFacts = {
   feastDay: '4. listopada',
   diocese: 'Varaždinska biskupija',
   settlements: 3,
-  cemeteries: 2,
+  cemeteries: 1, // Municipality manages 1 cemetery (Groblje Veliki Bukovec); parish territory has more
   chapels: 2,
   nepomukYear: 1764,
 };

@@ -16,7 +16,7 @@
 | Area | ~13 km² |
 | Elevation | 140-150m above sea level |
 | Established | 1997 (split from Mali Bukovec) |
-| Mayor | Franjo Vrbanić (HSS, since 2021) |
+| Mayor | Ivan Modrić (current) |
 | Previous Mayor | Zvonko Samec (1997-2021, 24 years) |
 | Parish | Župa sv. Franje Asiškoga |
 | Parish Priest | Josip Vidović (current) |
@@ -96,6 +96,7 @@
 - 1993: Area falls under reconstituted Mali Bukovec municipality
 - 1997: Veliki Bukovec splits off with Kapela and Dubovica (~1,400 people)
 - 2021: Franjo Vrbanić elected mayor (first change in 24 years)
+- 2025: Ivan Modrić elected mayor
 - 2022: Devastating hailstorm destroys half of local greenhouses
 - Castle remains closed to public, never became tourist attraction
 
@@ -239,7 +240,7 @@
 - **Main Church**: Veliki Bukovec - classical style, built 1820 by Draškovići
 - **Chapels**: Kapela Podravska (wayside), Dubovica (Holy Cross, built 1974)
 - **Mali Bukovec**: Church of St. Catherine of Alexandria (separate village)
-- **Cemeteries**: 4 managed (Mali Bukovec, Veliki Bukovec, Sveti Petar, Selnica)
+- **Cemeteries**: Municipality manages 1 (Groblje Veliki Bukovec); Parish territory includes additional cemeteries in Mali Bukovec, Sveti Petar, Selnica
 
 ### Church as Infrastructure
 - Organizer of space, time, and social power
@@ -336,7 +337,8 @@
 
 ### Political
 - **Zvonko Samec**: Mayor 1997-2021 (24 years)
-- **Franjo Vrbanić**: Current mayor since 2021, HSS
+- **Ivan Modrić**: Current mayor since 2025
+- **Franjo Vrbanić**: Mayor 2021-2025, HSS
 
 ### Business
 - **Požgaj family**: Run wood-processing company, major employer
