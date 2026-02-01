@@ -131,7 +131,7 @@ jobs:
 
       - name: Update VPS and restart admin
         run: |
-          ssh ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }} << 'EOF'
+          ssh -T ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }} << 'EOF'
             set -e
             cd ~/apps/admin-repo
 
