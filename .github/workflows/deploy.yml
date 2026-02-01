@@ -127,7 +127,7 @@ jobs:
           # Prepare local directory structure (standalone + static + public)
           mkdir -p apps/admin/.next/standalone/.next/static
           cp -r apps/admin/.next/static/* apps/admin/.next/standalone/.next/static/
-          cp -r apps/admin/public apps/admin/.next/standalone/
+          [ -d apps/admin/public ] && cp -r apps/admin/public apps/admin/.next/standalone/ || true
 
           # Deploy everything in one rsync
           rsync -avz --delete \
