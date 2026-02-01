@@ -1,11 +1,5 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-
-import { ArrowLeft } from 'lucide-react';
-
 import {
   ContentTypeSwitcher,
   EventCalendar,
@@ -13,6 +7,10 @@ import {
   EventTabs,
   FadeIn,
 } from '@repo/ui';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Event {
   id: string;

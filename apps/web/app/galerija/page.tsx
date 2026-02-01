@@ -1,7 +1,7 @@
-import { Suspense } from 'react';
 
 import { galleriesRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
+import { Suspense } from 'react';
 
 import { GalleryPageClient } from './gallery-page-client';
 

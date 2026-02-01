@@ -1,7 +1,7 @@
-import { Suspense } from 'react';
 
 import { eventsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
+import { Suspense } from 'react';
 
 import { EventsPageClient } from './events-page-client';
 

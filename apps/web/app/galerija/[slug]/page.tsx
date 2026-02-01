@@ -1,7 +1,4 @@
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
-import { ArrowLeft, Calendar, Images } from 'lucide-react';
 
 import { galleriesRepository } from '@repo/database';
 import {
@@ -14,6 +11,9 @@ import {
   withStaticParams,
 } from '@repo/shared';
 import { FadeIn, PhotoGrid } from '@repo/ui';
+import { ArrowLeft, Calendar, Images } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 
@@ -89,6 +89,7 @@ export default async function GalleryDetailPage({
     : null;
 
   const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/galerija/${gallery.slug}`);
+  const safeDescription = gallery.description ? stripHtmlTags(gallery.description) : null;
   const pageDescription = safeDescription ?? null;
 
   const breadcrumbData = createBreadcrumbListJsonLd([

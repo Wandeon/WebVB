@@ -1,7 +1,4 @@
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
-import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
 
 import { eventsRepository } from '@repo/database';
 import {
@@ -13,6 +10,9 @@ import {
   withStaticParams,
 } from '@repo/shared';
 import { AddToCalendar, ArticleContent, EventHero, FadeIn } from '@repo/ui';
+import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import type { Metadata } from 'next';
 

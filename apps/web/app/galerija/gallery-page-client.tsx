@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { FadeIn, GalleryCard, Pagination } from '@repo/ui';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-
-import { ArrowLeft } from 'lucide-react';
-
-import { FadeIn, GalleryCard, Pagination } from '@repo/ui';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Gallery {
   id: string;
