@@ -1,3 +1,5 @@
+
+
 import { eventsRepository } from '@repo/database';
 import {
   buildCanonicalUrl,
@@ -35,6 +37,14 @@ interface EventDetailPageProps {
 
 const EVENT_TIME_ZONE = 'Europe/Zagreb';
 const META_DESCRIPTION_MAX_LENGTH = 160;
+
+function getValidEndDate(startDate: Date, endDate: Date | null): Date | null {
+  if (!endDate || endDate <= startDate) {
+    return null;
+  }
+
+  return endDate;
+}
 
 export async function generateMetadata({
   params,
@@ -78,6 +88,7 @@ export default async function EventDetailPage({
   }
 
   const eventDate = new Date(event.eventDate);
+  const validEndDate = getValidEndDate(eventDate, event.endDate);
   const day = new Intl.DateTimeFormat('hr-HR', {
     day: 'numeric',
     timeZone: EVENT_TIME_ZONE,
@@ -87,13 +98,15 @@ export default async function EventDetailPage({
     timeZone: EVENT_TIME_ZONE,
   }).format(eventDate);
 
-  const formattedDate = new Intl.DateTimeFormat('hr-HR', {
+  const dateFormatter = new Intl.DateTimeFormat('hr-HR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
     timeZone: EVENT_TIME_ZONE,
-  }).format(eventDate);
+  });
+  const formattedDate = dateFormatter.format(eventDate);
+  const formattedEndDate = validEndDate ? dateFormatter.format(validEndDate) : null;
 
   const formattedTime = event.eventTime
     ? new Intl.DateTimeFormat('hr-HR', {
@@ -101,6 +114,11 @@ export default async function EventDetailPage({
         minute: '2-digit',
         timeZone: 'UTC',
       }).format(event.eventTime)
+    : null;
+  const timeLabel = formattedTime
+    ? validEndDate
+      ? `Početak u ${formattedTime}`
+      : `u ${formattedTime}`
     : null;
 
   const googleMapsUrl = event.location
@@ -112,7 +130,7 @@ export default async function EventDetailPage({
   const structuredData = createEventJsonLd({
     name: event.title,
     startDate: event.eventDate.toISOString(),
-    ...(event.endDate && { endDate: event.endDate.toISOString() }),
+    ...(validEndDate && { endDate: validEndDate.toISOString() }),
     ...(description && { description }),
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/dogadanja/${event.id}`),
     ...(event.posterImage && { image: [event.posterImage] }),
@@ -170,8 +188,10 @@ export default async function EventDetailPage({
               <div className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5 text-neutral-400" />
                 <span>
-                  {formattedDate}
-                  {formattedTime && ` u ${formattedTime}`}
+                  {formattedEndDate
+                    ? `Od ${formattedDate} do ${formattedEndDate}`
+                    : formattedDate}
+                  {timeLabel && ` • ${timeLabel}`}
                 </span>
               </div>
               {event.location && (
@@ -199,14 +219,14 @@ export default async function EventDetailPage({
               <p className="mb-3 text-sm font-medium text-neutral-700">
                 Dodaj u kalendar
               </p>
-              <AddToCalendar
-                title={event.title}
-                description={event.description}
-                startDate={eventDate}
-                startTime={event.eventTime}
-                endDate={event.endDate}
-                location={event.location}
-              />
+                <AddToCalendar
+                  title={event.title}
+                  description={event.description}
+                  startDate={eventDate}
+                  startTime={event.eventTime}
+                  endDate={validEndDate}
+                  location={event.location}
+                />
             </div>
           </FadeIn>
 

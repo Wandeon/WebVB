@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 05 - Events, Gallery, Static Pages, and Content-Type Edge Cases (2026-02-01)
+
+### Changed
+- Corrected event filtering to respect multi-day ranges, Zagreb timezone day boundaries, and calendar month overlaps
+- Added date-range rendering for multi-day events and guarded calendar exports against invalid end dates
+- Improved gallery resilience with image fallbacks, safer descriptions, and reduced lightbox preloading
+- Blocked static pages from using reserved routes to prevent collisions with core site paths
+
 ## Audit 14 - Privacy, GDPR, Data Protection, and Legal-Tech Compliance (2026-02-01)
 
 ### Changed

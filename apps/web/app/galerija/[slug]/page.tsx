@@ -1,5 +1,15 @@
+
+
 import { galleriesRepository } from '@repo/database';
-import { buildCanonicalUrl, createBreadcrumbListJsonLd, createImageGalleryJsonLd, getPublicEnv, withStaticParams } from '@repo/shared';
+import {
+  buildCanonicalUrl,
+  createBreadcrumbListJsonLd,
+  createImageGalleryJsonLd,
+  getPublicEnv,
+  stripHtmlTags,
+  truncateText,
+  withStaticParams,
+} from '@repo/shared';
 import { FadeIn, PhotoGrid } from '@repo/ui';
 import { ArrowLeft, Calendar, Images } from 'lucide-react';
 import Link from 'next/link';
@@ -8,6 +18,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+const META_DESCRIPTION_MAX_LENGTH = 160;
 
 // Required for static export - only these params are valid, all others 404
 export const dynamicParams = false;
@@ -36,8 +47,9 @@ export async function generateMetadata({
     return { title: 'Galerija nije pronađena' };
   }
 
-  const description = gallery.description
-    ? gallery.description.slice(0, 160)
+  const safeDescription = gallery.description ? stripHtmlTags(gallery.description) : null;
+  const description = safeDescription
+    ? truncateText(safeDescription, META_DESCRIPTION_MAX_LENGTH)
     : `Foto galerija: ${gallery.name}`;
   const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/galerija/${gallery.slug}`);
 
@@ -72,10 +84,13 @@ export default async function GalleryDetailPage({
         day: 'numeric',
         month: 'long',
         year: 'numeric',
+        timeZone: 'Europe/Zagreb',
       }).format(new Date(gallery.eventDate))
     : null;
 
   const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/galerija/${gallery.slug}`);
+  const safeDescription = gallery.description ? stripHtmlTags(gallery.description) : null;
+  const pageDescription = safeDescription ?? null;
 
   const breadcrumbData = createBreadcrumbListJsonLd([
     { name: 'Početna', url: NEXT_PUBLIC_SITE_URL },
@@ -85,7 +100,7 @@ export default async function GalleryDetailPage({
 
   const gallerySchemaData = createImageGalleryJsonLd({
     name: gallery.name,
-    ...(gallery.description && { description: gallery.description }),
+    ...(pageDescription && { description: pageDescription }),
     url: canonicalUrl,
     dateCreated: gallery.eventDate?.toISOString() ?? gallery.createdAt.toISOString(),
     numberOfItems: gallery._count.images,
@@ -126,8 +141,8 @@ export default async function GalleryDetailPage({
               </div>
             )}
           </div>
-          {gallery.description && (
-            <p className="mt-3 text-neutral-600">{gallery.description}</p>
+          {pageDescription && (
+            <p className="mt-3 text-neutral-600">{pageDescription}</p>
           )}
         </FadeIn>
       </div>

@@ -39,6 +39,16 @@ describe('createEventSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects end date before start date', () => {
+    const result = createEventSchema.safeParse({
+      title: 'Sjednica vijeća',
+      eventDate: '2026-02-15',
+      endDate: '2026-02-10',
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('rejects unknown fields', () => {
     const result = createEventSchema.safeParse({
       title: 'Sjednica vijeća',

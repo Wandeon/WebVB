@@ -188,6 +188,24 @@ describe('Pages API', () => {
       expect(data.data?.title).toBe('Nova stranica');
     });
 
+    it('rejects reserved slugs', async () => {
+      const request = new Request('http://localhost/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'Galerija',
+          content: '<p>Sadržaj</p>',
+          menuOrder: 0,
+        }),
+      });
+
+      const response = await POST(request as never);
+      const data = (await response.json()) as ApiResponse;
+
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
+    });
+
     it('validates required fields', async () => {
       const request = new Request('http://localhost/api/pages', {
         method: 'POST',

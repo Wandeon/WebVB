@@ -37,4 +37,18 @@ describe('AddToCalendar', () => {
     expect(ics).toContain('DTSTART;VALUE=DATE:20260501');
     expect(ics).toContain('DTEND;VALUE=DATE:20260502');
   });
+
+  it('ignores invalid end dates before the start date', () => {
+    const ics = generateICS({
+      title: 'Sajam',
+      description: null,
+      startDate: new Date('2026-05-03T00:00:00.000Z'),
+      startTime: null,
+      endDate: new Date('2026-05-01T00:00:00.000Z'),
+      location: null,
+    });
+
+    expect(ics).toContain('DTSTART;VALUE=DATE:20260503');
+    expect(ics).toContain('DTEND;VALUE=DATE:20260504');
+  });
 });

@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
         id: event.id,
         title: event.title,
         eventDate: event.eventDate,
+        endDate: event.endDate,
       })),
     });
   } catch (error) {

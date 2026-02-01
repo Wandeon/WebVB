@@ -1,5 +1,9 @@
-import { CalendarDays, MapPin } from 'lucide-react';
+'use client';
+
+import { CalendarDays, ImageOff, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+
 
 import { cn } from '../lib/utils';
 
@@ -9,6 +13,7 @@ export interface EventCardProps {
   description: string | null;
   eventDate: Date;
   eventTime?: Date | null;
+  endDate?: Date | null;
   location: string | null;
   posterImage: string | null;
   className?: string;
@@ -20,17 +25,28 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+function getValidEndDate(startDate: Date, endDate?: Date | null): Date | null {
+  if (!endDate || endDate <= startDate) {
+    return null;
+  }
+
+  return endDate;
+}
+
 export function EventCard({
   id,
   title,
   description,
   eventDate,
   eventTime,
+  endDate,
   location,
   posterImage,
   className,
 }: EventCardProps) {
+  const [posterError, setPosterError] = useState(false);
   const date = new Date(eventDate);
+  const validEndDate = getValidEndDate(date, endDate);
   const day = new Intl.DateTimeFormat('hr-HR', {
     day: 'numeric',
     timeZone: EVENT_TIME_ZONE,
@@ -39,12 +55,16 @@ export function EventCard({
     month: 'short',
     timeZone: EVENT_TIME_ZONE,
   }).format(date);
-  const dateLabel = new Intl.DateTimeFormat('hr-HR', {
+  const dateFormatter = new Intl.DateTimeFormat('hr-HR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
+    year: 'numeric',
     timeZone: EVENT_TIME_ZONE,
-  }).format(date);
+  });
+  const dateLabel = validEndDate
+    ? `Od ${dateFormatter.format(date)} do ${dateFormatter.format(validEndDate)}`
+    : dateFormatter.format(date);
   const timeLabel = eventTime
     ? new Intl.DateTimeFormat('hr-HR', {
         hour: '2-digit',
@@ -53,6 +73,11 @@ export function EventCard({
       }).format(eventTime)
     : null;
   const descriptionText = description ? stripHtml(description) : null;
+  const timeSuffix = timeLabel
+    ? validEndDate
+      ? ` • Početak u ${timeLabel}`
+      : ` u ${timeLabel}`
+    : '';
 
   return (
     <Link
@@ -79,7 +104,7 @@ export function EventCard({
           <span className="flex items-center gap-1">
             <CalendarDays className="h-3 w-3" />
             {dateLabel}
-            {timeLabel ? ` u ${timeLabel}` : ''}
+            {timeSuffix}
           </span>
           {location && (
             <span className="flex items-center gap-1">
@@ -89,14 +114,22 @@ export function EventCard({
           )}
         </div>
       </div>
-      {posterImage && (
+      {posterImage && !posterError && (
         <div className="hidden h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg sm:block">
           <img
             src={posterImage}
             alt={title}
             className="h-full w-full object-cover"
             loading="lazy"
+            decoding="async"
+            onError={() => setPosterError(true)}
           />
+        </div>
+      )}
+      {posterImage && posterError && (
+        <div className="hidden h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-400 sm:flex">
+          <ImageOff className="h-5 w-5" aria-hidden="true" />
+          <span className="sr-only">Slika nije dostupna</span>
         </div>
       )}
     </Link>

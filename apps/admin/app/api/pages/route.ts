@@ -1,5 +1,5 @@
 import { indexPage, pagesRepository } from '@repo/database';
-import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES, isReservedPageSlug } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
@@ -91,6 +91,14 @@ export async function POST(request: NextRequest) {
     // Generate unique slug
     let slug = generateSlug(title);
     let slugSuffix = 1;
+
+    if (isReservedPageSlug(slug)) {
+      return apiError(
+        ErrorCodes.VALIDATION_ERROR,
+        'Odabrani naslov koristi rezerviranu adresu. Promijenite naslov stranice.',
+        400
+      );
+    }
 
     while (await pagesRepository.slugExists(slug)) {
       slug = `${generateSlug(title)}-${slugSuffix}`;

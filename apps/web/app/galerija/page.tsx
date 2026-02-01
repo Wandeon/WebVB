@@ -1,3 +1,4 @@
+
 import { galleriesRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';

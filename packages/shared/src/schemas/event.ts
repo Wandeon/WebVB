@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
-export const eventSchema = z
+const eventBaseSchema = z
   .object({
     title: z
       .string()
@@ -38,13 +38,32 @@ export const eventSchema = z
   })
   .strict();
 
+export const eventSchema = eventBaseSchema.superRefine((data, ctx) => {
+  if (data.endDate && data.eventDate && data.endDate < data.eventDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Završni datum ne može biti prije početnog datuma',
+      path: ['endDate'],
+    });
+  }
+});
+
 export const createEventSchema = eventSchema;
-export const updateEventSchema = eventSchema
+export const updateEventSchema = eventBaseSchema
   .partial()
   .extend({
     id: z.string().uuid(),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    if (data.endDate && data.eventDate && data.endDate < data.eventDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Završni datum ne može biti prije početnog datuma',
+        path: ['endDate'],
+      });
+    }
+  });
 
 export type CreateEventInput = z.infer<typeof createEventSchema>;
 export type UpdateEventInput = z.infer<typeof updateEventSchema>;

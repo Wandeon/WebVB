@@ -12,6 +12,7 @@ export interface CalendarEvent {
   id: string;
   title: string;
   date: Date;
+  endDate?: Date | null;
 }
 
 export interface EventCalendarProps {
@@ -76,6 +77,16 @@ export function formatCalendarDate(date: Date): string {
   return formatter.format(date);
 }
 
+export function getCalendarEndDate(startDate: Date, endDate?: Date | null): string | null {
+  if (!endDate || endDate <= startDate) {
+    return null;
+  }
+
+  const inclusiveEnd = new Date(endDate);
+  inclusiveEnd.setDate(inclusiveEnd.getDate() + 1);
+  return formatCalendarDate(inclusiveEnd);
+}
+
 export function formatMonthParam(date: Date): string {
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: EVENT_TIME_ZONE,
@@ -99,12 +110,14 @@ export function EventCalendar({
 
   const calendarEvents = events.map((event) => {
     const dateStr = formatCalendarDate(new Date(event.date));
+    const endDate = getCalendarEndDate(event.date, event.endDate);
     const { label, colors } = getEventDisplayInfo(event.title);
     return {
       id: event.id,
       title: label,
       date: dateStr,
       url: `/dogadanja/${event.id}`,
+      ...(endDate ? { end: endDate } : {}),
       ...(colors && {
         backgroundColor: colors.bg,
         borderColor: colors.border,

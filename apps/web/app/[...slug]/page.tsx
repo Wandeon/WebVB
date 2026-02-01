@@ -1,5 +1,12 @@
+
 import { pagesRepository } from '@repo/database';
-import { buildCanonicalUrl, getPublicEnv, isValidPageSlug, withStaticParams } from '@repo/shared';
+import {
+  buildCanonicalUrl,
+  getPublicEnv,
+  isReservedPageSlug,
+  isValidPageSlug,
+  withStaticParams,
+} from '@repo/shared';
 import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
 import { notFound } from 'next/navigation';
 
@@ -31,7 +38,10 @@ function formatDate(date: Date): string {
 
 function getSlugPath(segments: string[]): string | null {
   const slugPath = segments.join('/');
-  return isValidPageSlug(slugPath) ? slugPath : null;
+  if (!isValidPageSlug(slugPath) || isReservedPageSlug(slugPath)) {
+    return null;
+  }
+  return slugPath;
 }
 
 // Required for static export - only these params are valid, all others 404

@@ -8,9 +8,9 @@
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Audit 14 privacy/GDPR compliance hardening (PII redaction, deletion handling, privacy UI updates)
+**Recent:** Audit 05 events/gallery/static page edge-case hardening (date ranges, gallery fallbacks, reserved slugs)
 **Target Launch:** Domain setup pending
-**Latest Audit:** Audit 14 - privacy, GDPR, data protection, and legal-tech compliance
+**Latest Audit:** Audit 05 - events, gallery, static pages, and content-type edge cases
 **Staging:** Frontend at http://100.120.125.83/ (Tailscale access) | Admin via localhost reverse proxy
 
 ---
