@@ -1,6 +1,6 @@
 // Admin endpoint for push notification stats and health
 import { pushSubscriptionsRepository } from '@repo/database';
-import { isPushConfigured } from '@repo/shared';
+import { isCronConfigured, isPushConfigured } from '@repo/shared';
 import { NextResponse } from 'next/server';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
 
     // Check system health
     const pushConfigured = isPushConfigured();
-    const hasCronSecret = !!process.env.CRON_SECRET;
-    const hasVapidKeys = !!process.env.PUSH_VAPID_PUBLIC_KEY && !!process.env.PUSH_VAPID_PRIVATE_KEY;
+    const hasCronSecret = isCronConfigured();
+    const hasVapidKeys = isPushConfigured();
 
     return NextResponse.json({
       success: true,

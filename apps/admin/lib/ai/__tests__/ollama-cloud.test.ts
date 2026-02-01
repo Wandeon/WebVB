@@ -20,6 +20,7 @@ describe('ollama-cloud', () => {
     vi.resetAllMocks();
     process.env = {
       ...originalEnv,
+      NODE_ENV: 'test',
       OLLAMA_CLOUD_API_KEY: 'test-api-key',
       OLLAMA_CLOUD_URL: 'https://api.ollama.com',
       OLLAMA_CLOUD_MODEL: 'deepseek-v3.2',

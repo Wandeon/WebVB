@@ -6,6 +6,7 @@
 import { randomUUID } from 'crypto';
 
 import { aiQueueRepository } from '@repo/database';
+import { getRuntimeEnv } from '@repo/shared';
 import { z } from 'zod';
 
 import { aiLogger } from '../logger';
@@ -30,8 +31,7 @@ interface PostGenerationResult {
 // =============================================================================
 
 const POLL_INTERVAL_MS = 10_000; // 10 seconds
-const WORKER_ENABLED = process.env.AI_WORKER_ENABLED !== 'false';
-const WORKER_ID = process.env.AI_WORKER_ID ?? randomUUID();
+const FALLBACK_WORKER_ID = randomUUID();
 const LEASE_DURATION_MS = 5 * 60 * 1000;
 const MAX_CONTENT_LENGTH = 20000;
 
@@ -41,6 +41,8 @@ const MAX_CONTENT_LENGTH = 20000;
 
 let workerInterval: ReturnType<typeof setInterval> | null = null;
 let isProcessing = false;
+let processingPromise: Promise<void> | null = null;
+let shutdownRequested = false;
 
 // =============================================================================
 // Helper Functions
@@ -83,6 +85,15 @@ function hasOnlyAllowedTags(value: string): boolean {
   }
 
   return true;
+}
+
+function getWorkerConfig() {
+  const env = getRuntimeEnv();
+
+  return {
+    enabled: env.AI_WORKER_ENABLED !== 'false',
+    workerId: env.AI_WORKER_ID ?? FALLBACK_WORKER_ID,
+  };
 }
 
 function validatePostGenerationResult(response: string): {
@@ -293,7 +304,7 @@ async function processJob(job: AiQueueRecord): Promise<void> {
  */
 async function pollAndProcess(): Promise<void> {
   // Skip if already processing
-  if (isProcessing) {
+  if (isProcessing || shutdownRequested) {
     return;
   }
 
@@ -302,26 +313,55 @@ async function pollAndProcess(): Promise<void> {
     return;
   }
 
+  const { workerId } = getWorkerConfig();
+
   isProcessing = true;
+  processingPromise = (async () => {
+    try {
+      // Find the oldest pending job
+      const job = await aiQueueRepository.claimNext({
+        workerId,
+        leaseMs: LEASE_DURATION_MS,
+      });
 
-  try {
-    // Find the oldest pending job
-    const job = await aiQueueRepository.claimNext({
-      workerId: WORKER_ID,
-      leaseMs: LEASE_DURATION_MS,
-    });
+      if (job) {
+        try {
+          await processJob(job);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          aiLogger.error(
+            { jobId: job.id, error: errorMessage },
+            'Unhandled error while processing AI job'
+          );
 
-    if (job) {
-      await processJob(job);
+          try {
+            await aiQueueRepository.markFailed(
+              job.id,
+              'Neočekivana greška tijekom obrade AI zadatka'
+            );
+          } catch (markError) {
+            aiLogger.error(
+              {
+                jobId: job.id,
+                error: markError instanceof Error ? markError.message : 'Unknown error',
+              },
+              'Failed to mark AI job as failed after crash'
+            );
+          }
+        }
+      }
+    } catch (error) {
+      aiLogger.error(
+        { error: error instanceof Error ? error.message : 'Unknown error' },
+        'Error during poll and process'
+      );
+    } finally {
+      isProcessing = false;
+      processingPromise = null;
     }
-  } catch (error) {
-    aiLogger.error(
-      { error: error instanceof Error ? error.message : 'Unknown error' },
-      'Error during poll and process'
-    );
-  } finally {
-    isProcessing = false;
-  }
+  })();
+
+  await processingPromise;
 }
 
 // =============================================================================
@@ -336,8 +376,10 @@ async function pollAndProcess(): Promise<void> {
  * - Starts interval for subsequent polls
  */
 export function startQueueWorker(): void {
+  const { enabled, workerId } = getWorkerConfig();
+
   // Check if worker is enabled
-  if (!WORKER_ENABLED) {
+  if (!enabled) {
     aiLogger.info('AI queue worker is disabled (AI_WORKER_ENABLED=false)');
     return;
   }
@@ -348,8 +390,10 @@ export function startQueueWorker(): void {
     return;
   }
 
+  shutdownRequested = false;
+
   aiLogger.info(
-    { pollIntervalMs: POLL_INTERVAL_MS, workerId: WORKER_ID, leaseMs: LEASE_DURATION_MS },
+    { pollIntervalMs: POLL_INTERVAL_MS, workerId, leaseMs: LEASE_DURATION_MS },
     'Starting AI queue worker'
   );
 
@@ -369,10 +413,44 @@ export function startQueueWorker(): void {
  * - Logs stop
  */
 export function stopQueueWorker(): void {
+  shutdownRequested = true;
   if (workerInterval !== null) {
     clearInterval(workerInterval);
     workerInterval = null;
     aiLogger.info('AI queue worker stopped');
+  }
+}
+
+/**
+ * Gracefully stop the worker and wait for in-flight work to finish.
+ */
+export async function shutdownQueueWorker(timeoutMs = 10_000): Promise<void> {
+  shutdownRequested = true;
+  stopQueueWorker();
+
+  if (!processingPromise) {
+    return;
+  }
+
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<'timeout'>(resolve => {
+    timeoutId = setTimeout(() => resolve('timeout'), timeoutMs);
+  });
+
+  const outcome = await Promise.race([
+    processingPromise.then(() => 'completed'),
+    timeoutPromise,
+  ]);
+
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
+
+  if (outcome === 'timeout') {
+    aiLogger.warn(
+      { timeoutMs },
+      'AI queue worker shutdown timed out with in-flight work'
+    );
   }
 }
 
@@ -392,6 +470,8 @@ export async function triggerProcessing(): Promise<{
   jobId?: string;
   error?: string;
 }> {
+  const { workerId } = getWorkerConfig();
+
   // Check if Ollama Cloud is configured
   if (!isOllamaCloudConfigured()) {
     return {
@@ -403,7 +483,7 @@ export async function triggerProcessing(): Promise<{
   try {
     // Find a pending job
     const job = await aiQueueRepository.claimNext({
-      workerId: WORKER_ID,
+      workerId,
       leaseMs: LEASE_DURATION_MS,
     });
 
@@ -411,10 +491,34 @@ export async function triggerProcessing(): Promise<{
       return { processed: false };
     }
 
-    // Process the job
-    await processJob(job);
+    try {
+      // Process the job
+      await processJob(job);
+      return { processed: true, jobId: job.id };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      aiLogger.error(
+        { jobId: job.id, error: errorMessage },
+        'Unhandled error during manual AI processing'
+      );
 
-    return { processed: true, jobId: job.id };
+      try {
+        await aiQueueRepository.markFailed(
+          job.id,
+          'Neočekivana greška tijekom ručne AI obrade'
+        );
+      } catch (markError) {
+        aiLogger.error(
+          {
+            jobId: job.id,
+            error: markError instanceof Error ? markError.message : 'Unknown error',
+          },
+          'Failed to mark AI job as failed after manual processing crash'
+        );
+      }
+
+      return { processed: false, jobId: job.id, error: errorMessage };
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     aiLogger.error({ error: errorMessage }, 'Error during manual trigger processing');

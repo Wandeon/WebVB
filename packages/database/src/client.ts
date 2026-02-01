@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import { getBaseEnv } from '@repo/shared';
+import { getBaseEnv, getDatabaseEnv } from '@repo/shared';
 
 declare global {
   var prisma: PrismaClient | undefined;
 }
 
 const env = getBaseEnv();
+getDatabaseEnv();
 
 export const db =
   globalThis.prisma ??

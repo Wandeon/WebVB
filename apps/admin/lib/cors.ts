@@ -1,6 +1,8 @@
 // CORS helper for public API endpoints
 // These endpoints are called from the static web app
 
+import { getBaseEnv, getRuntimeEnv } from '@repo/shared';
+
 const ALLOWED_ORIGINS = [
   'https://velikibukovec.hr',
   'https://www.velikibukovec.hr',
@@ -13,18 +15,25 @@ const ALLOWED_ORIGINS = [
 const DEFAULT_ORIGIN = 'https://velikibukovec.hr';
 
 function isAllowedOrigin(origin: string): boolean {
+  const baseEnv = getBaseEnv();
+  const runtimeEnv = getRuntimeEnv();
+  const allowAnyOrigin = runtimeEnv.ALLOW_ANY_ORIGIN === 'true';
+
   // Always allow configured origins
   if (ALLOWED_ORIGINS.includes(origin)) {
     return true;
   }
 
   // In non-production, allow any origin (for staging/dev with IP access)
-  if (process.env.NODE_ENV !== 'production' || process.env.ALLOW_ANY_ORIGIN === 'true') {
+  if (baseEnv.NODE_ENV !== 'production' && allowAnyOrigin) {
     return true;
   }
 
-  // Allow IP-based origins in staging
-  if (origin.match(/^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/)) {
+  // Allow IP-based origins only outside production
+  if (
+    baseEnv.NODE_ENV !== 'production' &&
+    origin.match(/^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/)
+  ) {
     return true;
   }
 
