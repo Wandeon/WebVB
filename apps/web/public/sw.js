@@ -46,7 +46,9 @@ self.addEventListener('install', (event) => {
         }));
       })
       .then(() => self.skipWaiting())
-      .catch(() => {})
+      .catch((err) => {
+        console.error('SW install failed:', err);
+      })
   );
 });
 
@@ -98,7 +100,7 @@ async function cleanStaleCacheEntries() {
         }
       }
     } catch (err) {
-      void err;
+      console.error('SW: Error cleaning cache:', cacheName, err);
     }
   }
 }
@@ -183,7 +185,7 @@ async function syncWasteSchedule(apiUrl) {
 
     return cacheData;
   } catch (err) {
-    void err;
+    console.error('Failed to sync waste schedule:', err);
     return null;
   }
 }
@@ -379,5 +381,6 @@ self.addEventListener('notificationclick', (event) => {
 
 // Handle notification close
 self.addEventListener('notificationclose', (event) => {
-  void event;
+  // Could track analytics here if needed
+  console.log('Notification closed:', event.notification.tag);
 });

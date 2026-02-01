@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Audit 04 - Public Website Rendering & Accessibility (2026-02-06)
+## Audit 04 - Public Website Rendering & Accessibility (2026-02-01)
 
 ### Changed
 - Sanitized announcement detail HTML rendering with shared ArticleContent component

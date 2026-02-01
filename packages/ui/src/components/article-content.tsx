@@ -155,7 +155,8 @@ function tipTapToHtml(jsonContent: string): string {
   try {
     const doc = JSON.parse(jsonContent) as TipTapDoc;
     return nodeToHtml(doc as TipTapNode);
-  } catch {
+  } catch (error) {
+    console.error('Failed to convert TipTap JSON to HTML:', error);
     return '<p>Sadržaj trenutno nije moguće prikazati.</p>';
   }
 }
