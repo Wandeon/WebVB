@@ -129,6 +129,15 @@ jobs:
           cp -r apps/admin/.next/static/* apps/admin/.next/standalone/.next/static/
           [ -d apps/admin/public ] && cp -r apps/admin/public apps/admin/.next/standalone/ || true
 
+          # Copy Prisma engine binaries (required for standalone)
+          mkdir -p apps/admin/.next/standalone/node_modules/.prisma/client
+          cp node_modules/.pnpm/@prisma+client*/node_modules/.prisma/client/libquery_engine-* \
+             apps/admin/.next/standalone/node_modules/.prisma/client/ 2>/dev/null || \
+          cp packages/database/node_modules/.prisma/client/libquery_engine-* \
+             apps/admin/.next/standalone/node_modules/.prisma/client/ 2>/dev/null || true
+          cp node_modules/.pnpm/@prisma+client*/node_modules/.prisma/client/schema.prisma \
+             apps/admin/.next/standalone/node_modules/.prisma/client/ 2>/dev/null || true
+
           # Deploy everything in one rsync
           rsync -avz --delete \
             apps/admin/.next/standalone/ \
@@ -140,52 +149,39 @@ jobs:
             set -e
             cd ~/apps/admin-standalone
 
-            # Create/update ecosystem file for PM2
-            cat > ecosystem.config.cjs << 'EOFPM2'
-          module.exports = {
-            apps: [{
-              name: 'vb-admin',
-              script: 'apps/admin/server.js',
-              cwd: '/home/deploy/apps/admin-standalone',
-              env: {
-                NODE_ENV: 'production',
-                PORT: '3001',
-                HOSTNAME: '0.0.0.0'
-              },
-              env_file: '/home/deploy/apps/admin-standalone/.env',
-              instances: 1,
-              exec_mode: 'fork',
-              max_memory_restart: '500M',
-              error_file: '/home/deploy/.pm2/logs/vb-admin-error.log',
-              out_file: '/home/deploy/.pm2/logs/vb-admin-out.log'
-            }]
-          };
-          EOFPM2
+            # Generate Prisma client for this platform
+            cd packages/database
+            npx prisma generate
+            cd ~/apps/admin-standalone
 
             # Copy env file if not exists
             if [ ! -f .env ]; then
               cp ~/apps/admin-repo/apps/admin/.env .env 2>/dev/null || echo "No source .env found"
             fi
 
-            # Restart or start PM2
-            if pm2 describe vb-admin > /dev/null 2>&1; then
-              pm2 reload ecosystem.config.cjs --update-env
-            else
-              pm2 start ecosystem.config.cjs
-            fi
+            # Stop old PM2 process if exists
+            pm2 delete vb-admin 2>/dev/null || true
+
+            # Start with PM2 using env file
+            set -a && source .env && set +a
+            pm2 start apps/admin/server.js --name vb-admin \
+              --cwd /home/deploy/apps/admin-standalone \
+              --env PORT=3001 \
+              --env HOSTNAME=0.0.0.0
             pm2 save
 
             # Health check with retry
-            for i in {1..10}; do
+            for i in {1..15}; do
               if curl -sf http://127.0.0.1:3001/api/healthz > /dev/null; then
                 echo "Admin app healthy!"
+                pm2 list
                 exit 0
               fi
-              echo "Waiting for admin app... ($i/10)"
+              echo "Waiting for admin app... ($i/15)"
               sleep 2
             done
             echo "Health check failed"
-            pm2 logs vb-admin --lines 20
+            pm2 logs vb-admin --lines 30 --nostream
             exit 1
           EOF
 
