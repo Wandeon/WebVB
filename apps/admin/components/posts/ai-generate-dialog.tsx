@@ -21,8 +21,6 @@ import {
 import { FileText, Loader2, Sparkles, Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { aiLogger } from '@/lib/logger';
-
 // =============================================================================
 // Types
 // =============================================================================
@@ -139,7 +137,7 @@ export function AiGenerateDialog({
           setDialogState('form');
         }
       } catch (error) {
-        aiLogger.error({ error, jobId }, 'Failed to poll job');
+        console.error('Failed to poll job:', jobId, error);
       }
     };
 

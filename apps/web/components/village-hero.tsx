@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ChevronDown, MapPin, Users, Building2, Landmark } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -144,6 +144,7 @@ export function VillageHero() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const reduceMotion = useReducedMotion();
 
   // Auto-cycle when not hovering
   useEffect(() => {
@@ -290,24 +291,42 @@ export function VillageHero() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 4, ease: 'easeOut' }}
+            transition={{ delay: 0.3, duration: 1.5, ease: 'easeOut' }}
             className="hidden flex-shrink-0 lg:block"
           >
             <div className="relative">
               {/* Glow effect */}
               <div className="absolute -inset-8 rounded-full bg-primary-500/20 blur-3xl" />
 
-              {/* Gonfalon image - doubled size */}
-              <div className="relative h-[36rem] w-80 xl:h-[48rem] xl:w-[26rem]">
+              {/* Gonfalon image with subtle wind animation */}
+              <motion.div
+                className="relative h-[36rem] w-80 xl:h-[48rem] xl:w-[26rem]"
+                style={{
+                  transformOrigin: '50% 4%', // Anchored near top like a hanging banner
+                }}
+                {...(!reduceMotion && {
+                  animate: {
+                    rotate: [-0.5, 0.8, -0.3, 0.6, -0.5],
+                    skewX: [-0.2, 0.4, -0.15, 0.3, -0.2],
+                    y: [0, -1.5, 0, -1, 0],
+                  },
+                  transition: {
+                    duration: 7,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                  },
+                })}
+              >
                 <Image
                   src="/images/gonfalon.webp"
                   alt="Gonfalon Općine Veliki Bukovec"
                   fill
-                  className="object-contain drop-shadow-2xl"
+                  className="pointer-events-none select-none object-contain drop-shadow-2xl"
                   sizes="(max-width: 1280px) 320px, 416px"
                   priority
+                  draggable={false}
                 />
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
