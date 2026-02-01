@@ -11,6 +11,7 @@ import { join, extname, basename } from 'path';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import { PrismaClient } from '@prisma/client';
+import { getAdminR2Env, type AdminR2Env } from '@repo/shared';
 
 // Load env manually
 import { readFileSync as readEnvFile } from 'fs';
@@ -30,21 +31,30 @@ loadEnv('/mnt/c/VelikiBukovec_web/apps/admin/.env');
 
 const prisma = new PrismaClient();
 
-// R2 Configuration
-const R2_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const R2_ACCESS_KEY = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
-const R2_SECRET_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
-const R2_BUCKET = process.env.CLOUDFLARE_R2_BUCKET_NAME || 'velikibukovec-media';
-const R2_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL;
+let r2Env: AdminR2Env | null = null;
+let s3Client: S3Client | null = null;
 
-const s3Client = new S3Client({
-  region: 'auto',
-  endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY || '',
-    secretAccessKey: R2_SECRET_KEY || '',
-  },
-});
+function getR2Env(): AdminR2Env {
+  if (!r2Env) {
+    r2Env = getAdminR2Env();
+  }
+  return r2Env;
+}
+
+function getR2Client(): S3Client {
+  if (!s3Client) {
+    const env = getR2Env();
+    s3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+        secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+  return s3Client;
+}
 
 // Image processing settings
 const IMAGE_VARIANTS = {
@@ -82,14 +92,15 @@ async function processImage(filePath: string, relativePath: string): Promise<str
       const buffer = readFileSync(filePath);
       const key = `migration/${relativePath}`;
 
-      await s3Client.send(new PutObjectCommand({
-        Bucket: R2_BUCKET,
+      const env = getR2Env();
+      await getR2Client().send(new PutObjectCommand({
+        Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
         Key: key,
         Body: buffer,
         ContentType: getMimeType(ext),
       }));
 
-      return `${R2_PUBLIC_URL}/${key}`;
+      return `${env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
     }
 
     // Process image with Sharp
@@ -109,14 +120,15 @@ async function processImage(filePath: string, relativePath: string): Promise<str
       })
       .toBuffer();
 
-    await s3Client.send(new PutObjectCommand({
-      Bucket: R2_BUCKET,
+    const env = getR2Env();
+    await getR2Client().send(new PutObjectCommand({
+      Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
       Key: webpKey,
       Body: webpBuffer,
       ContentType: 'image/webp',
     }));
 
-    return `${R2_PUBLIC_URL}/${webpKey}`;
+    return `${env.CLOUDFLARE_R2_PUBLIC_URL}/${webpKey}`;
   } catch (error) {
     console.error(`  Error processing ${filePath}: ${error}`);
     return null;
@@ -201,8 +213,12 @@ async function main() {
 
   console.log('=== Media Migration Script ===\n');
   console.log(`Source: ${uploadsDir}`);
-  console.log(`Destination: R2 bucket '${R2_BUCKET}'`);
-  console.log(`Public URL: ${R2_PUBLIC_URL}`);
+  const shouldUpload = !dryRun && !skipUpload;
+  const destination = shouldUpload ? getR2Env().CLOUDFLARE_R2_BUCKET_NAME : 'R2 upload disabled';
+  const publicUrl = shouldUpload ? getR2Env().CLOUDFLARE_R2_PUBLIC_URL : 'R2 upload disabled';
+
+  console.log(`Destination: ${destination}`);
+  console.log(`Public URL: ${publicUrl}`);
 
   if (dryRun) {
     console.log('\n[DRY RUN MODE - No uploads will be made]\n');
@@ -214,9 +230,8 @@ async function main() {
     process.exit(1);
   }
 
-  if (!R2_PUBLIC_URL && !dryRun) {
-    console.error('\nError: CLOUDFLARE_R2_PUBLIC_URL not set');
-    process.exit(1);
+  if (shouldUpload) {
+    getR2Env();
   }
 
   // Find all files

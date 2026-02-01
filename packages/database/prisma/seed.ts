@@ -1,10 +1,10 @@
+import { getSeedEnv } from '@repo/shared';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Test password for all seeded users (for development/testing only)
-const TEST_PASSWORD = 'password123';
+const { SEED_USER_PASSWORD } = getSeedEnv();
 
 // Seed-specific logger (console is acceptable in development scripts)
 const log = (message: string) => process.stdout.write(`${message}\n`);
@@ -13,7 +13,7 @@ async function main() {
   log('Seeding database...');
 
   // Hash the test password
-  const passwordHash = await bcrypt.hash(TEST_PASSWORD, 10);
+  const passwordHash = await bcrypt.hash(SEED_USER_PASSWORD, 10);
 
   // Create test admin user
   const adminUser = await prisma.user.upsert({

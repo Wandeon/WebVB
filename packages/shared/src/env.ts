@@ -42,6 +42,19 @@ const adminR2EnvSchema = z.object({
   CLOUDFLARE_R2_PUBLIC_URL: z.string().url(),
 });
 
+const adminEmailEnvSchema = z.object({
+  SMTP_HOST: z.string().min(1),
+  SMTP_PORT: z.coerce.number().int().positive(),
+  SMTP_USER: z.string().min(1),
+  SMTP_PASSWORD: z.string().min(1),
+  SMTP_FROM: z.string().min(1),
+  ADMIN_EMAIL: z.string().email(),
+});
+
+const seedEnvSchema = z.object({
+  SEED_USER_PASSWORD: z.string().min(12),
+});
+
 const buildEnvSchema = baseEnvSchema.extend({
   CI: z.string().optional(),
   ALLOW_EMPTY_STATIC_PARAMS: z.string().optional(),
@@ -65,6 +78,8 @@ export type BaseEnv = z.infer<typeof baseEnvSchema>;
 export type AdminAuthEnv = z.infer<typeof adminAuthEnvSchema>;
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
 export type AdminR2Env = z.infer<typeof adminR2EnvSchema>;
+export type AdminEmailEnv = z.infer<typeof adminEmailEnvSchema>;
+export type SeedEnv = z.infer<typeof seedEnvSchema>;
 export type BuildEnv = z.infer<typeof buildEnvSchema>;
 export type PushEnv = z.infer<typeof pushEnvSchema>;
 export type CronEnv = z.infer<typeof cronEnvSchema>;
@@ -84,6 +99,19 @@ export function getPublicEnv(): PublicEnv {
 
 export function getAdminR2Env(): AdminR2Env {
   return adminR2EnvSchema.parse(process.env);
+}
+
+export function getAdminEmailEnv(): AdminEmailEnv {
+  return adminEmailEnvSchema.parse(process.env);
+}
+
+export function getOptionalAdminEmailEnv(): AdminEmailEnv | null {
+  const result = adminEmailEnvSchema.safeParse(process.env);
+  return result.success ? result.data : null;
+}
+
+export function getSeedEnv(): SeedEnv {
+  return seedEnvSchema.parse(process.env);
 }
 
 export function getBuildEnv(): BuildEnv {

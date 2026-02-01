@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Security Hardening (2026-02-01)
+
+### Changed
+- Enforced validated Better Auth environment configuration to prevent empty secrets at startup
+- Added validated SMTP and seed env parsing for safer configuration checks
+- Seed script now requires a strong SEED_USER_PASSWORD instead of a hardcoded default
+- Migration scripts now fail fast on missing R2 config and skip uploads during dry runs
+
 ## UX, SEO & Performance Improvements (2026-01-31)
 
 ### Added - Legal Pages

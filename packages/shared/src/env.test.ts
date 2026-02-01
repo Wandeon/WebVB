@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import { ADMIN_APP_URL_DEFAULT, PUBLIC_SITE_URL_DEFAULT } from './constants';
-import { getAdminAuthEnv, getBaseEnv, getBuildEnv, getPublicEnv, getPushEnv, isPushConfigured } from './env';
+import {
+  getAdminAuthEnv,
+  getBaseEnv,
+  getBuildEnv,
+  getOptionalAdminEmailEnv,
+  getPublicEnv,
+  getPushEnv,
+  getSeedEnv,
+  isPushConfigured,
+} from './env';
 
 const originalEnv = process.env;
 
@@ -118,6 +127,48 @@ describe('env validation', () => {
       process.env.PUSH_VAPID_PRIVATE_KEY = 'test-private-key';
 
       expect(isPushConfigured()).toBe(true);
+    });
+  });
+
+  describe('email env', () => {
+    it('returns null when email config is incomplete', () => {
+      resetEnv();
+      delete process.env.SMTP_HOST;
+      delete process.env.SMTP_PORT;
+      delete process.env.SMTP_USER;
+      delete process.env.SMTP_PASSWORD;
+      delete process.env.SMTP_FROM;
+      delete process.env.ADMIN_EMAIL;
+
+      const env = getOptionalAdminEmailEnv();
+
+      expect(env).toBeNull();
+    });
+
+    it('parses optional email config when provided', () => {
+      resetEnv();
+      process.env.SMTP_HOST = 'smtp.example.com';
+      process.env.SMTP_PORT = '587';
+      process.env.SMTP_USER = 'user@example.com';
+      process.env.SMTP_PASSWORD = 'password';
+      process.env.SMTP_FROM = 'Općina Veliki Bukovec <noreply@velikibukovec.hr>';
+      process.env.ADMIN_EMAIL = 'opcina@velikibukovec.hr';
+
+      const env = getOptionalAdminEmailEnv();
+
+      expect(env).not.toBeNull();
+      expect(env?.SMTP_PORT).toBe(587);
+    });
+  });
+
+  describe('seed env', () => {
+    it('requires a strong seed password', () => {
+      resetEnv();
+      process.env.SEED_USER_PASSWORD = 'very-strong-seed-password';
+
+      const env = getSeedEnv();
+
+      expect(env.SEED_USER_PASSWORD).toBe('very-strong-seed-password');
     });
   });
 });
