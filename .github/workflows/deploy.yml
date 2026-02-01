@@ -68,7 +68,19 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          pnpm --filter @repo/database exec prisma db execute --stdin <<< "SELECT 1;"
+          # Simple connection test via psql or node
+          node -e "
+            const { PrismaClient } = require('@prisma/client');
+            const prisma = new PrismaClient();
+            prisma.\$queryRaw\`SELECT 1\`.then(() => {
+              console.log('Database connection successful');
+              process.exit(0);
+            }).catch(err => {
+              console.error('Database connection failed:', err.message);
+              process.exit(1);
+            });
+          "
+        working-directory: packages/database
 
       - name: Build admin app (standalone)
         env:
