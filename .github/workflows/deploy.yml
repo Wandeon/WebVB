@@ -131,45 +131,45 @@ jobs:
 
       - name: Update VPS and restart admin
         run: |
-          ssh -T ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }} << 'EOF'
-            set -e
-            cd ~/apps/admin-repo
+          ssh -T ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }} 'bash -s' << 'DEPLOY_SCRIPT'
+          set -e
+          cd ~/apps/admin-repo
 
-            # Pull latest code (for package.json, configs, etc.)
-            git fetch origin main
-            git reset --hard origin/main
+          # Pull latest code (for package.json, configs, etc.)
+          git fetch origin main
+          git reset --hard origin/main
 
-            # Install dependencies (in case they changed)
-            pnpm install --frozen-lockfile
+          # Install dependencies (in case they changed)
+          pnpm install --frozen-lockfile
 
-            # Regenerate Prisma client for this platform
-            pnpm db:generate
+          # Regenerate Prisma client for this platform
+          pnpm db:generate
 
-            # Load environment and restart PM2
-            source apps/admin/.env
-            export PORT=3001
-            export HOSTNAME=0.0.0.0
-            export NODE_ENV=production
+          # Load environment and restart PM2
+          source apps/admin/.env
+          export PORT=3001
+          export HOSTNAME=0.0.0.0
+          export NODE_ENV=production
 
-            pm2 delete vb-admin 2>/dev/null || true
-            cd apps/admin
-            pm2 start "pnpm start" --name vb-admin --update-env
-            pm2 save
+          pm2 delete vb-admin 2>/dev/null || true
+          cd apps/admin
+          pm2 start "pnpm start" --name vb-admin --update-env
+          pm2 save
 
-            # Health check with retry
-            for i in {1..15}; do
-              if curl -sf http://127.0.0.1:3001/api/healthz > /dev/null; then
-                echo "Admin app healthy!"
-                pm2 list
-                exit 0
-              fi
-              echo "Waiting for admin app... ($i/15)"
-              sleep 2
-            done
-            echo "Health check failed"
-            pm2 logs vb-admin --lines 30 --nostream
-            exit 1
-          EOF
+          # Health check with retry
+          for i in {1..15}; do
+            if curl -sf http://127.0.0.1:3001/api/healthz > /dev/null; then
+              echo "Admin app healthy!"
+              pm2 list
+              exit 0
+            fi
+            echo "Waiting for admin app... ($i/15)"
+            sleep 2
+          done
+          echo "Health check failed"
+          pm2 logs vb-admin --lines 30 --nostream
+          exit 1
+          DEPLOY_SCRIPT
 
       - name: Deployment summary
         run: |
