@@ -42,6 +42,35 @@ export type SupportedMimeType = (typeof SUPPORTED_MIME_TYPES)[number];
 
 const MAX_TEXT_LENGTH = 8000;
 const MIN_PDF_TEXT_LENGTH = 50; // Threshold to detect scanned PDFs
+const MAX_BUFFER_BYTES = 10 * 1024 * 1024; // 10MB safety limit
+const MAX_PDF_PAGES = 50;
+const PDF_PARSE_TIMEOUT_MS = 20000;
+const DOCX_PARSE_TIMEOUT_MS = 15000;
+const OCR_TIMEOUT_MS = 60000;
+
+// =============================================================================
+// Timeout Helper
+// =============================================================================
+
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  timeoutMessage: string
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(timeoutMessage));
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  });
+}
 
 // =============================================================================
 // Helpers
@@ -98,9 +127,20 @@ async function parsePdf(buffer: Buffer): Promise<ParseResult> {
 
   try {
     parser = new PDFParse({ data: buffer });
-    const textResult = await parser.getText();
+    const textResult = await withTimeout(
+      parser.getText(),
+      PDF_PARSE_TIMEOUT_MS,
+      'PDF obrada je predugo trajala'
+    );
     let text = cleanText(textResult.text);
     const pageCount = textResult.total;
+
+    if (pageCount > MAX_PDF_PAGES) {
+      return {
+        success: false,
+        error: `PDF ima ${pageCount} stranica, maksimalno je ${MAX_PDF_PAGES}`,
+      };
+    }
 
     // If PDF has very little text, it might be a scanned document
     if (text.length < MIN_PDF_TEXT_LENGTH) {
@@ -110,7 +150,7 @@ async function parsePdf(buffer: Buffer): Promise<ParseResult> {
       if (text.length === 0) {
         return {
           success: false,
-          error: 'PDF appears to be scanned/image-based. Direct OCR of PDF pages is not yet supported.',
+          error: 'PDF izgleda kao skenirani dokument. OCR obrada PDF stranica još nije podržana.',
         };
       }
     }
@@ -128,7 +168,7 @@ async function parsePdf(buffer: Buffer): Promise<ParseResult> {
     aiLogger.error({ error }, 'Failed to parse PDF');
     return {
       success: false,
-      error: `Failed to parse PDF: ${message}`,
+      error: `Neuspjela obrada PDF dokumenta: ${message}`,
     };
   } finally {
     if (parser) {
@@ -142,7 +182,11 @@ async function parsePdf(buffer: Buffer): Promise<ParseResult> {
  */
 async function parseDocx(buffer: Buffer): Promise<ParseResult> {
   try {
-    const result = await mammoth.extractRawText({ buffer });
+    const result = await withTimeout(
+      mammoth.extractRawText({ buffer }),
+      DOCX_PARSE_TIMEOUT_MS,
+      'DOCX obrada je predugo trajala'
+    );
     let text = cleanText(result.value);
 
     if (result.messages.length > 0) {
@@ -152,7 +196,7 @@ async function parseDocx(buffer: Buffer): Promise<ParseResult> {
     if (text.length === 0) {
       return {
         success: false,
-        error: 'DOCX document contains no extractable text',
+        error: 'DOCX dokument ne sadrži prepoznatljiv tekst',
       };
     }
 
@@ -168,7 +212,7 @@ async function parseDocx(buffer: Buffer): Promise<ParseResult> {
     aiLogger.error({ error }, 'Failed to parse DOCX');
     return {
       success: false,
-      error: `Failed to parse DOCX: ${message}`,
+      error: `Neuspjela obrada DOCX dokumenta: ${message}`,
     };
   }
 }
@@ -181,20 +225,24 @@ async function parseImage(buffer: Buffer): Promise<ParseResult> {
   try {
     aiLogger.info('Starting OCR processing');
 
-    const { data } = await Tesseract.recognize(buffer, 'hrv+eng', {
-      logger: (m) => {
-        if (m.status === 'recognizing text' && m.progress) {
-          aiLogger.debug({ progress: Math.round(m.progress * 100) }, 'OCR progress');
-        }
-      },
-    });
+    const { data } = await withTimeout(
+      Tesseract.recognize(buffer, 'hrv+eng', {
+        logger: (m) => {
+          if (m.status === 'recognizing text' && m.progress) {
+            aiLogger.debug({ progress: Math.round(m.progress * 100) }, 'OCR progress');
+          }
+        },
+      }),
+      OCR_TIMEOUT_MS,
+      'OCR obrada je predugo trajala'
+    );
 
     let text = cleanText(data.text);
 
     if (text.length === 0) {
       return {
         success: false,
-        error: 'No text could be extracted from image via OCR',
+        error: 'OCR nije pronašao prepoznatljiv tekst na slici',
       };
     }
 
@@ -212,7 +260,7 @@ async function parseImage(buffer: Buffer): Promise<ParseResult> {
     aiLogger.error({ error }, 'Failed to perform OCR');
     return {
       success: false,
-      error: `Failed to extract text from image: ${message}`,
+      error: `Neuspjela OCR obrada slike: ${message}`,
     };
   }
 }
@@ -245,10 +293,17 @@ export async function parseDocument(
   buffer: Buffer,
   mimeType: string
 ): Promise<ParseResult> {
+  if (buffer.length > MAX_BUFFER_BYTES) {
+    return {
+      success: false,
+      error: `Dokument je prevelik za obradu (maks ${MAX_BUFFER_BYTES / (1024 * 1024)}MB)`,
+    };
+  }
+
   if (!isSupportedMimeType(mimeType)) {
     return {
       success: false,
-      error: `Unsupported document type: ${mimeType}`,
+      error: `Nepodržani tip dokumenta: ${mimeType}`,
     };
   }
 
@@ -269,7 +324,7 @@ export async function parseDocument(
       // This should never happen due to the type guard above
       return {
         success: false,
-        error: `Unsupported document type: ${String(mimeType)}`,
+        error: `Nepodržani tip dokumenta: ${String(mimeType)}`,
       };
   }
 }

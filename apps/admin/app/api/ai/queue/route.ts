@@ -12,18 +12,27 @@ import type { NextRequest } from 'next/server';
 // Validation
 // =============================================================================
 
+const MAX_PROMPT_LENGTH = 12000;
+
 const createJobSchema = z
   .object({
     requestType: z.enum(['post_generation', 'newsletter_intro', 'content_summary']),
-    prompt: z.string().min(1, 'Prompt je obavezan'),
+    prompt: z
+      .string()
+      .min(1, 'Prompt je obavezan')
+      .max(MAX_PROMPT_LENGTH, `Prompt može imati maksimalno ${MAX_PROMPT_LENGTH} znakova`),
     system: z.string().optional(),
     context: z.record(z.string(), z.unknown()).optional(),
+    idempotencyKey: z.string().min(8).max(128).optional(),
+    forceNew: z.boolean().optional(),
   })
   .strict();
 
 const listQuerySchema = z
   .object({
-    status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
+    status: z
+      .enum(['pending', 'processing', 'completed', 'failed', 'cancelled', 'dead_letter'])
+      .optional(),
     requestType: z.enum(['post_generation', 'newsletter_intro', 'content_summary']).optional(),
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -54,7 +63,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { requestType, prompt, system, context } = result.data;
+    const { requestType, prompt, system, context, idempotencyKey, forceNew } = result.data;
+
+    if (idempotencyKey && !forceNew) {
+      const existing = await aiQueueRepository.findByIdempotencyKey({
+        userId: authResult.context.userId,
+        requestType: requestType as AiRequestType,
+        idempotencyKey,
+      });
+
+      if (existing) {
+        return apiSuccess(
+          {
+            jobId: existing.id,
+            status: existing.status,
+            deduplicated: true,
+          },
+          200
+        );
+      }
+    }
 
     const job = await aiQueueRepository.create({
       userId: authResult.context.userId,
@@ -63,6 +91,7 @@ export async function POST(request: NextRequest) {
         prompt,
         system,
         context,
+        idempotencyKey,
       },
     });
 

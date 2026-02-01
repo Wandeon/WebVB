@@ -335,13 +335,16 @@ ai_queue (
   request_type VARCHAR NOT NULL,          -- 'post_generation', 'chat'
   input_data JSONB NOT NULL,              -- Request payload
   status VARCHAR DEFAULT 'pending',
+  locked_at TIMESTAMP,                    -- Lease start (worker claim)
+  locked_by TEXT,                         -- Worker identifier
+  lease_expires_at TIMESTAMP,             -- Lease expiry for crash recovery
   result JSONB,                           -- Response when complete
   error_message TEXT,
   attempts INTEGER DEFAULT 0,
   max_attempts INTEGER DEFAULT 3,
   created_at TIMESTAMP DEFAULT NOW(),
   processed_at TIMESTAMP,
-  CONSTRAINT valid_status CHECK (status IN ('pending', 'processing', 'completed', 'failed'))
+  CONSTRAINT valid_status CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled', 'dead_letter'))
 )
 ```
 

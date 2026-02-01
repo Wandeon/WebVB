@@ -32,7 +32,13 @@ export type ContactStatus = 'new' | 'read' | 'replied' | 'archived';
 
 export type ProblemStatus = 'new' | 'in_progress' | 'resolved' | 'rejected';
 
-export type AiQueueStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type AiQueueStatus =
+  | 'pending'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'dead_letter';
 
 export interface ApiResponse<T> {
   success: boolean;

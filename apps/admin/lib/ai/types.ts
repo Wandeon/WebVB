@@ -12,6 +12,7 @@ export interface OllamaCloudConfig {
   model: string;
   maxRetries: number;
   retryDelayMs: number;
+  requestTimeoutMs: number;
 }
 
 export interface OllamaGenerateRequest {

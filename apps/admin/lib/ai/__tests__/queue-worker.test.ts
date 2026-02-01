@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { aiLogger } from '../../logger';
 import { generate, isOllamaCloudConfigured } from '../ollama-cloud';
+import { runArticlePipeline } from '../pipeline';
 import {
   isWorkerRunning,
   startQueueWorker,
@@ -19,8 +20,7 @@ import type { AiQueueRecord } from '@repo/database';
 // These mocks must be defined inside the factory to avoid hoisting issues
 vi.mock('@repo/database', () => ({
   aiQueueRepository: {
-    findPending: vi.fn(),
-    markProcessing: vi.fn(),
+    claimNext: vi.fn(),
     markCompleted: vi.fn(),
     markFailed: vi.fn(),
     resetToPending: vi.fn(),
@@ -30,6 +30,10 @@ vi.mock('@repo/database', () => ({
 vi.mock('../ollama-cloud', () => ({
   generate: vi.fn(),
   isOllamaCloudConfigured: vi.fn(),
+}));
+
+vi.mock('../pipeline', () => ({
+  runArticlePipeline: vi.fn(),
 }));
 
 vi.mock('../../logger', () => ({
@@ -45,6 +49,7 @@ const mockAiQueueRepository = vi.mocked(aiQueueRepository);
 const mockGenerate = vi.mocked(generate);
 const mockIsOllamaCloudConfigured = vi.mocked(isOllamaCloudConfigured);
 const mockAiLogger = vi.mocked(aiLogger);
+const mockRunArticlePipeline = vi.mocked(runArticlePipeline);
 
 /**
  * Helper to create a complete mock AiQueueRecord with all required fields
@@ -62,6 +67,9 @@ function createMockJob(overrides: Partial<AiQueueRecord> = {}): AiQueueRecord {
     maxAttempts: 3,
     createdAt: new Date('2024-01-01T00:00:00Z'),
     processedAt: null,
+    lockedAt: null,
+    lockedBy: null,
+    leaseExpiresAt: null,
     ...overrides,
   };
 }
@@ -176,12 +184,12 @@ describe('queue-worker', () => {
 
   describe('triggerProcessing', () => {
     it('returns processed: false when no pending jobs', async () => {
-      mockAiQueueRepository.findPending.mockResolvedValue(null);
+      mockAiQueueRepository.claimNext.mockResolvedValue(null);
 
       const result = await triggerProcessing();
 
       expect(result).toEqual({ processed: false });
-      expect(mockAiQueueRepository.findPending).toHaveBeenCalled();
+      expect(mockAiQueueRepository.claimNext).toHaveBeenCalled();
     });
 
     it('returns processed: false when not configured', async () => {
@@ -193,25 +201,19 @@ describe('queue-worker', () => {
         processed: false,
         error: 'Ollama Cloud is not configured (missing OLLAMA_CLOUD_API_KEY)',
       });
-      expect(mockAiQueueRepository.findPending).not.toHaveBeenCalled();
+      expect(mockAiQueueRepository.claimNext).not.toHaveBeenCalled();
     });
 
     it('processes a job successfully', async () => {
       const mockJob = createMockJob({
         id: 'job-123',
-        requestType: 'generate',
+        requestType: 'content_summary',
         inputData: { prompt: 'Test prompt', system: 'Be helpful' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: true,
         data: createMockGenerateResponse(),
@@ -220,9 +222,7 @@ describe('queue-worker', () => {
       const result = await triggerProcessing();
 
       expect(result).toEqual({ processed: true, jobId: 'job-123' });
-      expect(mockAiQueueRepository.markProcessing).toHaveBeenCalledWith(
-        'job-123'
-      );
+      expect(mockAiQueueRepository.claimNext).toHaveBeenCalled();
       expect(mockGenerate).toHaveBeenCalledWith('Test prompt', {
         system: 'Be helpful',
       });
@@ -241,19 +241,13 @@ describe('queue-worker', () => {
     it('processes a job without system prompt', async () => {
       const mockJob = createMockJob({
         id: 'job-456',
-        requestType: 'generate',
+        requestType: 'content_summary',
         inputData: { prompt: 'Simple prompt' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: true,
         data: createMockGenerateResponse({
@@ -270,19 +264,13 @@ describe('queue-worker', () => {
     it('marks job as failed after max attempts', async () => {
       const mockJob = createMockJob({
         id: 'job-789',
-        requestType: 'generate',
+        requestType: 'content_summary',
         inputData: { prompt: 'Failing prompt' },
-        attempts: 2,
+        attempts: 3,
         maxAttempts: 3,
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 3, // Now at max
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: false,
         error: {
@@ -304,19 +292,13 @@ describe('queue-worker', () => {
     it('resets job to pending for retry when under max attempts', async () => {
       const mockJob = createMockJob({
         id: 'job-retry',
-        requestType: 'generate',
+        requestType: 'content_summary',
         inputData: { prompt: 'Retry prompt' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1, // Still under max
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: false,
         error: {
@@ -341,32 +323,26 @@ describe('queue-worker', () => {
     it('marks job as failed when prompt is missing', async () => {
       const mockJob = createMockJob({
         id: 'job-no-prompt',
-        requestType: 'generate',
+        requestType: 'content_summary',
         inputData: {}, // Missing prompt
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
 
       const result = await triggerProcessing();
 
       expect(result).toEqual({ processed: true, jobId: 'job-no-prompt' });
       expect(mockAiQueueRepository.markFailed).toHaveBeenCalledWith(
         'job-no-prompt',
-        'Missing required prompt in inputData'
+        'Nedostaje obavezni prompt u inputData'
       );
       expect(mockGenerate).not.toHaveBeenCalled();
     });
 
     it('returns error when an exception occurs', async () => {
-      mockAiQueueRepository.findPending.mockRejectedValue(
+      mockAiQueueRepository.claimNext.mockRejectedValue(
         new Error('Database connection failed')
       );
 
@@ -408,28 +384,33 @@ describe('queue-worker', () => {
         id: 'job-post-gen',
         requestType: 'post_generation',
         inputData: { prompt: 'Generate a post about...' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
       const validResponse = JSON.stringify({
         title: 'Test Title',
-        content: 'Test content paragraph.',
+        content: '<p>Test content paragraph.</p>',
         excerpt: 'Short excerpt',
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: true,
         data: createMockGenerateResponse({
           response: validResponse,
         }),
+      });
+      mockRunArticlePipeline.mockResolvedValue({
+        article: {
+          title: 'Test Title',
+          content: '<p>Test content paragraph.</p>',
+          excerpt: 'Short excerpt',
+        },
+        reviewHistory: [],
+        rewriteCount: 0,
+        finalScore: 8,
+        passed: true,
       });
 
       const result = await triggerProcessing();
@@ -438,10 +419,10 @@ describe('queue-worker', () => {
       expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
         'job-post-gen',
         expect.objectContaining({
-          response: validResponse,
           title: 'Test Title',
-          content: 'Test content paragraph.',
+          content: '<p>Test content paragraph.</p>',
           excerpt: 'Short excerpt',
+          pipelinePassed: true,
         })
       );
       expect(mockAiLogger.info).toHaveBeenCalledWith(
@@ -455,30 +436,35 @@ describe('queue-worker', () => {
         id: 'job-post-gen-2',
         requestType: 'post_generation',
         inputData: { prompt: 'Generate a post about...' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
       const responseWithExtraText = `Here is the generated post:
 {
   "title": "Embedded Title",
-  "content": "Embedded content here.",
+  "content": "<p>Embedded content here.</p>",
   "excerpt": "Brief summary"
 }
 I hope this helps!`;
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: true,
         data: createMockGenerateResponse({
           response: responseWithExtraText,
         }),
+      });
+      mockRunArticlePipeline.mockResolvedValue({
+        article: {
+          title: 'Embedded Title',
+          content: '<p>Embedded content here.</p>',
+          excerpt: 'Brief summary',
+        },
+        reviewHistory: [],
+        rewriteCount: 0,
+        finalScore: 7.5,
+        passed: true,
       });
 
       const result = await triggerProcessing();
@@ -488,30 +474,24 @@ I hope this helps!`;
         'job-post-gen-2',
         expect.objectContaining({
           title: 'Embedded Title',
-          content: 'Embedded content here.',
+          content: '<p>Embedded content here.</p>',
           excerpt: 'Brief summary',
         })
       );
     });
 
-    it('stores raw response when JSON parsing fails for post_generation jobs', async () => {
+    it('marks job as failed when JSON parsing fails for post_generation jobs', async () => {
       const mockJob = createMockJob({
         id: 'job-post-gen-fail',
         requestType: 'post_generation',
         inputData: { prompt: 'Generate a post about...' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
       const invalidResponse = 'This is just plain text without any JSON';
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: true,
         data: createMockGenerateResponse({
@@ -522,22 +502,12 @@ I hope this helps!`;
       const result = await triggerProcessing();
 
       expect(result).toEqual({ processed: true, jobId: 'job-post-gen-fail' });
-      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+      expect(mockAiQueueRepository.markFailed).toHaveBeenCalledWith(
         'job-post-gen-fail',
+        'Neispravan JSON odgovor',
         expect.objectContaining({
-          response: invalidResponse,
+          responseLength: invalidResponse.length,
         })
-      );
-      // Should NOT include parsed fields
-      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
-        'job-post-gen-fail',
-        expect.not.objectContaining({
-          title: expect.any(String),
-        })
-      );
-      expect(mockAiLogger.warn).toHaveBeenCalledWith(
-        { jobId: 'job-post-gen-fail' },
-        'Failed to parse post generation result, storing raw response'
       );
     });
 
@@ -546,7 +516,7 @@ I hope this helps!`;
         id: 'job-post-gen-incomplete',
         requestType: 'post_generation',
         inputData: { prompt: 'Generate a post about...' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
@@ -555,13 +525,7 @@ I hope this helps!`;
         // Missing content and excerpt
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: true,
         data: createMockGenerateResponse({
@@ -575,25 +539,21 @@ I hope this helps!`;
         processed: true,
         jobId: 'job-post-gen-incomplete',
       });
-      // Should store raw response but not parsed fields
-      expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
+      expect(mockAiQueueRepository.markFailed).toHaveBeenCalledWith(
         'job-post-gen-incomplete',
+        'Neispravna struktura AI odgovora',
         expect.objectContaining({
-          response: incompleteResponse,
+          responseLength: incompleteResponse.length,
         })
-      );
-      expect(mockAiLogger.warn).toHaveBeenCalledWith(
-        { jobId: 'job-post-gen-incomplete' },
-        'Failed to parse post generation result, storing raw response'
       );
     });
 
     it('does not parse response for non-post_generation jobs', async () => {
       const mockJob = createMockJob({
         id: 'job-other-type',
-        requestType: 'generate',
+        requestType: 'content_summary',
         inputData: { prompt: 'Regular generation' },
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 3,
       });
 
@@ -603,13 +563,7 @@ I hope this helps!`;
         excerpt: 'Some excerpt',
       });
 
-      mockAiQueueRepository.findPending.mockResolvedValue(mockJob);
-      mockAiQueueRepository.markProcessing.mockResolvedValue(
-        createMockJob({
-          ...mockJob,
-          attempts: 1,
-        })
-      );
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
       mockGenerate.mockResolvedValue({
         success: true,
         data: createMockGenerateResponse({
@@ -623,13 +577,53 @@ I hope this helps!`;
       // Should NOT include parsed fields since it's not a post_generation job
       expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
         'job-other-type',
-        expect.not.objectContaining({
-          title: expect.any(String),
-        })
+        expect.objectContaining({ response: jsonResponse })
       );
-      expect(mockAiLogger.info).not.toHaveBeenCalledWith(
-        expect.objectContaining({ jobId: 'job-other-type' }),
-        'Successfully parsed post generation result'
+    });
+
+    it('marks job as failed when pipeline does not pass', async () => {
+      const mockJob = createMockJob({
+        id: 'job-post-gen-quality',
+        requestType: 'post_generation',
+        inputData: { prompt: 'Generate a post about...' },
+        attempts: 1,
+        maxAttempts: 3,
+      });
+
+      const validResponse = JSON.stringify({
+        title: 'Test Title',
+        content: '<p>Test content paragraph.</p>',
+        excerpt: 'Short excerpt',
+      });
+
+      mockAiQueueRepository.claimNext.mockResolvedValue(mockJob);
+      mockGenerate.mockResolvedValue({
+        success: true,
+        data: createMockGenerateResponse({
+          response: validResponse,
+        }),
+      });
+      mockRunArticlePipeline.mockResolvedValue({
+        article: {
+          title: 'Test Title',
+          content: '<p>Test content paragraph.</p>',
+          excerpt: 'Short excerpt',
+        },
+        reviewHistory: [],
+        rewriteCount: 2,
+        finalScore: 5,
+        passed: false,
+      });
+
+      const result = await triggerProcessing();
+
+      expect(result).toEqual({ processed: true, jobId: 'job-post-gen-quality' });
+      expect(mockAiQueueRepository.markFailed).toHaveBeenCalledWith(
+        'job-post-gen-quality',
+        'AI članak nije prošao provjeru kvalitete',
+        expect.objectContaining({
+          pipelinePassed: false,
+        })
       );
     });
   });

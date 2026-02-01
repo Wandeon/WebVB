@@ -23,6 +23,7 @@ const DEFAULT_CONFIG: Omit<OllamaCloudConfig, 'apiKey'> = {
   model: 'deepseek-v3.2',
   maxRetries: 3,
   retryDelayMs: 30000, // 30 seconds base delay
+  requestTimeoutMs: 60000,
 };
 
 function getConfig(): OllamaCloudConfig {
@@ -38,6 +39,7 @@ function getConfig(): OllamaCloudConfig {
     model: process.env.OLLAMA_CLOUD_MODEL || DEFAULT_CONFIG.model,
     maxRetries: DEFAULT_CONFIG.maxRetries,
     retryDelayMs: DEFAULT_CONFIG.retryDelayMs,
+    requestTimeoutMs: DEFAULT_CONFIG.requestTimeoutMs,
   };
 }
 
@@ -47,18 +49,26 @@ function getConfig(): OllamaCloudConfig {
 
 async function fetchWithAuth(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  timeoutMs?: number
 ): Promise<Response> {
   const config = getConfig();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs ?? config.requestTimeoutMs);
 
-  return fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.apiKey}`,
-      ...options.headers,
-    },
-  });
+  try {
+    return await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`,
+        ...options.headers,
+      },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 function sleep(ms: number): Promise<void> {
@@ -140,7 +150,7 @@ export async function listModels(): Promise<AiResponse<OllamaModelsResponse>> {
   const config = getConfig();
 
   try {
-    const response = await fetchWithAuth(`${config.baseUrl}/api/tags`);
+      const response = await fetchWithAuth(`${config.baseUrl}/api/tags`);
 
     if (response.status === 401 || response.status === 403) {
       return {
@@ -218,7 +228,7 @@ export async function generate(
       const response = await fetchWithAuth(`${config.baseUrl}/api/generate`, {
         method: 'POST',
         body: JSON.stringify(request),
-      });
+      }, config.requestTimeoutMs);
 
       if (response.status === 401 || response.status === 403) {
         return {

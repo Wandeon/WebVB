@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import {
   getSupportedMimeTypes,
@@ -41,6 +41,10 @@ vi.mock('tesseract.js', () => ({
 describe('document-parser', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('isSupportedMimeType', () => {
@@ -118,7 +122,7 @@ describe('document-parser', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error).toContain('Unsupported document type');
+          expect(result.error).toContain('Nepodržani tip dokumenta');
         }
       });
     });
@@ -156,7 +160,7 @@ describe('document-parser', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error).toContain('scanned/image-based');
+          expect(result.error).toContain('skenirani');
         }
       });
 
@@ -168,7 +172,24 @@ describe('document-parser', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error).toContain('Failed to parse PDF');
+          expect(result.error).toContain('Neuspjela obrada PDF');
+        }
+      });
+
+      it('returns error for PDFs with too many pages', async () => {
+        mockGetText.mockResolvedValueOnce({
+          text: 'Some text in a large PDF',
+          total: 100,
+          pages: [],
+          getPageText: () => '',
+        });
+
+        const buffer = Buffer.from('large pdf');
+        const result = await parseDocument(buffer, 'application/pdf');
+
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error).toContain('maksimalno');
         }
       });
     });
@@ -208,7 +229,7 @@ describe('document-parser', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error).toContain('no extractable text');
+          expect(result.error).toContain('ne sadrži prepoznatljiv tekst');
         }
       });
 
@@ -223,7 +244,7 @@ describe('document-parser', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error).toContain('Failed to parse DOCX');
+          expect(result.error).toContain('Neuspjela obrada DOCX');
         }
       });
     });
@@ -278,7 +299,7 @@ describe('document-parser', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error).toContain('No text could be extracted');
+          expect(result.error).toContain('OCR nije pronašao');
         }
       });
 
@@ -290,7 +311,26 @@ describe('document-parser', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error).toContain('Failed to extract text from image');
+          expect(result.error).toContain('Neuspjela OCR obrada slike');
+        }
+      });
+
+      it('returns error when OCR times out', async () => {
+        vi.useFakeTimers();
+
+        mockRecognize.mockImplementationOnce(
+          () => new Promise(() => {})
+        );
+
+        const buffer = Buffer.from('slow image');
+        const parsePromise = parseDocument(buffer, 'image/png');
+
+        await vi.advanceTimersByTimeAsync(60000);
+        const result = await parsePromise;
+
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error).toContain('predugo');
         }
       });
     });
@@ -346,6 +386,16 @@ describe('document-parser', () => {
         if (result.success) {
           expect(result.text.length).toBeLessThanOrEqual(8003); // 8000 + "..."
           expect(result.text.endsWith('...')).toBe(true);
+        }
+      });
+
+      it('rejects documents that exceed the size limit', async () => {
+        const buffer = Buffer.alloc(10 * 1024 * 1024 + 1);
+        const result = await parseDocument(buffer, 'application/pdf');
+
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error).toContain('prevelik');
         }
       });
     });

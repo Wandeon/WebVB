@@ -236,6 +236,16 @@ External reviews identified critical issues. Decisions updated:
 - **Decision:** No feature flags - ship everything
 - **Strategy:** AI features (generation, chatbot) implemented last in roadmap
 
+### Session 5 - 2026-02-04 (AI Pipeline Hardening)
+
+#### AI Queue Reliability
+- **Decision:** Add queue leases and worker identifiers for AI jobs
+- **Why:** Prevent duplicate processing and recover safely from crashed workers
+
+#### AI Idempotency & Validation
+- **Decision:** Store idempotency keys in queue input data and enforce strict output validation
+- **Why:** Ensure deterministic re-runs and reject malformed AI outputs
+
 ---
 
 ## Architecture Diagram (Updated)

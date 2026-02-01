@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 08 - AI Generation Pipeline Hardening (2026-02-04)
+
+### Changed
+- Added queue leasing with worker identifiers and stale job recovery to prevent duplicate AI processing
+- Enforced idempotency keys on AI queue creation to avoid duplicate jobs for identical inputs
+- Hardened document parsing with size limits, timeouts, and clearer Croatian error messages
+- Added strict AI output validation, HTML allowlisting, and quality gating for post generation
+- Added AI job statuses for cancellations and dead-letter handling with updated admin visibility
+
 ## Audit 02 - Data Access & Validation (2026-02-03)
 
 ### Changed

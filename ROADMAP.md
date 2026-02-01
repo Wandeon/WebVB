@@ -2,15 +2,15 @@
 
 > AI-agent optimized roadmap with clear gates and parallel tracks.
 > Each sprint is independently completable with defined acceptance criteria.
-> Last updated: 2026-01-31
+> Last updated: 2026-02-04
 
 ## Current Status
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Audit 07 communication flows hardening (forms, email safety, rate limits)
+**Recent:** Audit 08 AI generation pipeline hardening (queue leases, validation, idempotency)
 **Target Launch:** Domain setup pending
-**Latest Audit:** Audit 07 - Communication flows, forms, email pipelines, input safety
+**Latest Audit:** Audit 08 - AI generation pipeline, queues, workers, and safety guarantees
 **Staging:** Frontend at http://100.120.125.83/ (public: 159.195.61.215) | Admin at http://100.120.125.83:3001/
 
 ---
