@@ -122,3 +122,12 @@ export {
   type FindAllAiQueueResult,
   type AiQueueStats,
 } from './ai-queue';
+
+export * as pushSubscriptionsRepository from './push-subscriptions';
+export type {
+  PushTopic,
+  PushPreferences,
+  CreatePushSubscriptionData,
+  PushSubscriptionWithKeys,
+  CreateNotificationSendData,
+} from './push-subscriptions';

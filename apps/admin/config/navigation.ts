@@ -1,5 +1,6 @@
 import {
   Bell,
+  BellRing,
   Brain,
   CalendarDays,
   FileText,
@@ -93,6 +94,11 @@ export const adminNavigation: NavSection[] = [
         title: 'Newsletter',
         href: '/newsletter',
         icon: icon(Mail),
+      },
+      {
+        title: 'Push obavijesti',
+        href: '/notifications',
+        icon: icon(BellRing),
       },
     ],
   },

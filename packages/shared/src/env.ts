@@ -47,6 +47,18 @@ const buildEnvSchema = baseEnvSchema.extend({
   ALLOW_EMPTY_STATIC_PARAMS: z.string().optional(),
 });
 
+// Push notification VAPID keys - required for push functionality
+const pushEnvSchema = z.object({
+  PUSH_VAPID_PUBLIC_KEY: z.string().min(1, 'PUSH_VAPID_PUBLIC_KEY is required'),
+  PUSH_VAPID_PRIVATE_KEY: z.string().min(1, 'PUSH_VAPID_PRIVATE_KEY is required'),
+  PUSH_VAPID_SUBJECT: z.string().email().or(z.string().startsWith('mailto:')).default('mailto:admin@velikibukovec.hr'),
+});
+
+// Cron job authentication
+const cronEnvSchema = z.object({
+  CRON_SECRET: z.string().min(32, 'CRON_SECRET must be at least 32 characters'),
+});
+
 // Types inferred from schemas - no manual interface duplication
 export type NodeEnv = 'development' | 'test' | 'production';
 export type BaseEnv = z.infer<typeof baseEnvSchema>;
@@ -54,6 +66,8 @@ export type AdminAuthEnv = z.infer<typeof adminAuthEnvSchema>;
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
 export type AdminR2Env = z.infer<typeof adminR2EnvSchema>;
 export type BuildEnv = z.infer<typeof buildEnvSchema>;
+export type PushEnv = z.infer<typeof pushEnvSchema>;
+export type CronEnv = z.infer<typeof cronEnvSchema>;
 
 // Validated env getters - Zod parse returns the inferred type
 export function getBaseEnv(): BaseEnv {
@@ -74,4 +88,29 @@ export function getAdminR2Env(): AdminR2Env {
 
 export function getBuildEnv(): BuildEnv {
   return buildEnvSchema.parse(process.env);
+}
+
+export function getPushEnv(): PushEnv {
+  return pushEnvSchema.parse(process.env);
+}
+
+/**
+ * Check if push notification env vars are configured.
+ * Returns false if keys are missing (push disabled), does not throw.
+ */
+export function isPushConfigured(): boolean {
+  const result = pushEnvSchema.safeParse(process.env);
+  return result.success;
+}
+
+export function getCronEnv(): CronEnv {
+  return cronEnvSchema.parse(process.env);
+}
+
+/**
+ * Check if cron secret is configured.
+ */
+export function isCronConfigured(): boolean {
+  const result = cronEnvSchema.safeParse(process.env);
+  return result.success;
 }
