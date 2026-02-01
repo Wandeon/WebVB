@@ -44,10 +44,11 @@ export function Typewriter({
         setDisplayedText(text.slice(0, displayedText.length + 1));
       }, speed);
       return () => clearTimeout(timeout);
-    } else {
-      setIsComplete(true);
-      onComplete?.();
     }
+
+    setIsComplete(true);
+    onComplete?.();
+    return undefined;
   }, [displayedText, text, speed, hasStarted, onComplete]);
 
   return (
@@ -108,8 +109,8 @@ export function TypewriterFact({ label, value, delay = 0, onComplete }: Typewrit
               text={value}
               speed={40}
               delay={0}
-              onComplete={onComplete}
               cursor={false}
+              {...(onComplete ? { onComplete } : {})}
             />
           </motion.span>
         )}
