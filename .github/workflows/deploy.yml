@@ -8,6 +8,7 @@ on:
       - 'apps/**'
       - 'packages/**'
       - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy.yml'
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -95,6 +96,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
         run: pnpm build --filter=@repo/web
 
       - name: Verify build outputs
