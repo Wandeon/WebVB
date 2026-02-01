@@ -5,6 +5,7 @@ import { baseMetadata } from './metadata';
 import { CookieConsent } from '../components/cookie-consent';
 import { SiteFooter } from '../components/layout/footer';
 import { SiteHeader } from '../components/layout/header';
+import { PwaRegister } from '../components/pwa';
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
@@ -48,6 +49,7 @@ export default function RootLayout({
         <main id="main-content" className="flex-1">{children}</main>
         <SiteFooter />
         <CookieConsent />
+        <PwaRegister />
       </body>
     </html>
   );
