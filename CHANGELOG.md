@@ -11,6 +11,15 @@ All notable changes to this project will be documented in this file.
 - Validated UUID route parameters before database access
 - Moved public search query execution into the database repository layer
 
+## Audit 07 - Communication Flows (2026-02-04)
+
+### Changed
+- Sanitized contact, problem report, and newsletter inputs (HTML stripping, trimming, email normalization, phone constraints)
+- Added duplicate submission detection for contact/problem reports and email-based throttling for newsletter signups
+- Anonymized stored IP addresses and tightened client IP extraction for rate limiting
+- Masked email addresses in logs and added admin-side rate limiting for manual newsletter sends
+- Validated newsletter confirmation/unsubscribe tokens with UUID checks
+
 ## Security Hardening (2026-02-02)
 
 ### Changed

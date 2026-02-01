@@ -1,3 +1,5 @@
+import { isIP } from 'node:net';
+
 type RateLimitEntry = {
   timestamps: number[];
 };
@@ -39,9 +41,18 @@ export function checkRateLimit(
 }
 
 export function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0]?.trim() || 'unknown';
+  const headerCandidates = [
+    request.headers.get('cf-connecting-ip'),
+    request.headers.get('true-client-ip'),
+    request.headers.get('x-real-ip'),
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
+  ].filter(Boolean) as string[];
+
+  for (const candidate of headerCandidates) {
+    if (isIP(candidate)) {
+      return candidate;
+    }
   }
-  return request.headers.get('x-real-ip') || 'unknown';
+
+  return 'unknown';
 }

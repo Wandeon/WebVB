@@ -8,6 +8,7 @@ vi.mock('../client', () => ({
   db: {
     contactMessage: {
       create: vi.fn(),
+      findFirst: vi.fn(),
     },
   },
 }));
@@ -15,6 +16,7 @@ vi.mock('../client', () => ({
 const mockedDb = db as unknown as {
   contactMessage: {
     create: Mock;
+    findFirst: Mock;
   };
 };
 
@@ -65,6 +67,35 @@ describe('contactMessagesRepository.create', () => {
         status: 'read',
         ipAddress: '127.0.0.1',
       },
+    });
+  });
+});
+
+describe('contactMessagesRepository.findRecentDuplicate', () => {
+  beforeEach(() => {
+    mockedDb.contactMessage.findFirst.mockReset();
+  });
+
+  it('searches for recent duplicates by email, subject, and message', async () => {
+    mockedDb.contactMessage.findFirst.mockResolvedValue({ id: 'contact-dup' });
+
+    await contactMessagesRepository.findRecentDuplicate({
+      email: 'ana@example.com',
+      subject: 'Upit',
+      message: 'Imam pitanje.',
+      windowMs: 10 * 60 * 1000,
+    });
+
+    expect(mockedDb.contactMessage.findFirst).toHaveBeenCalledWith({
+      where: {
+        email: 'ana@example.com',
+        subject: 'Upit',
+        message: 'Imam pitanje.',
+        createdAt: {
+          gte: expect.any(Date),
+        },
+      },
+      orderBy: { createdAt: 'desc' },
     });
   });
 });

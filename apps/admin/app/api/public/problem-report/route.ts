@@ -5,10 +5,12 @@ import { NextResponse } from 'next/server';
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { sendProblemConfirmation, sendProblemNotification } from '@/lib/email';
 import { problemReportsLogger } from '@/lib/logger';
+import { anonymizeIp } from '@/lib/pii';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const RATE_LIMIT = 3;
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
+const DUPLICATE_WINDOW = 30 * 60 * 1000; // 30 minutes
 
 export function OPTIONS(request: Request) {
   return corsResponse(request);
@@ -18,9 +20,10 @@ export async function POST(request: Request) {
   const corsHeaders = getCorsHeaders(request);
 
   try {
-    const ip = getClientIp(request);
+    const clientIp = getClientIp(request);
+    const storedIp = anonymizeIp(clientIp);
 
-    const rateCheck = checkRateLimit(ip, RATE_LIMIT, RATE_WINDOW);
+    const rateCheck = checkRateLimit(clientIp, RATE_LIMIT, RATE_WINDOW);
     if (!rateCheck.allowed) {
       return NextResponse.json(
         { success: false, error: { code: 'RATE_LIMIT', message: 'Previše zahtjeva. Pokušajte ponovno za sat vremena.' } },
@@ -62,10 +65,32 @@ export async function POST(request: Request) {
       })) ?? null,
     };
 
+    const duplicate = await problemReportsRepository.findRecentDuplicate({
+      problemType: reportData.problemType,
+      location: reportData.location,
+      description: reportData.description,
+      reporterEmail: reportData.reporterEmail,
+      ipAddress: storedIp,
+      windowMs: DUPLICATE_WINDOW,
+    });
+
+    if (duplicate) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'DUPLICATE_SUBMISSION',
+            message: 'Već smo zaprimili istu prijavu. Ako imate dodatne informacije, pošaljite novu prijavu.',
+          },
+        },
+        { status: 409, headers: corsHeaders }
+      );
+    }
+
     await problemReportsRepository.create({
       ...reportData,
       status: 'new',
-      ipAddress: ip,
+      ipAddress: storedIp,
     });
 
     // Send email notifications (fire-and-forget, errors are logged but don't fail the request)

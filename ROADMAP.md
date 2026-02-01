@@ -8,9 +8,9 @@
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Audit 02 data access hardening (validation, pagination safeguards, repository boundaries)
+**Recent:** Audit 07 communication flows hardening (forms, email safety, rate limits)
 **Target Launch:** Domain setup pending
-**Latest Audit:** Audit 02 - Database, data access, API contracts, validation
+**Latest Audit:** Audit 07 - Communication flows, forms, email pipelines, input safety
 **Staging:** Frontend at http://100.120.125.83/ (public: 159.195.61.215) | Admin at http://100.120.125.83:3001/
 
 ---

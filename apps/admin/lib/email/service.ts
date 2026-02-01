@@ -1,4 +1,5 @@
 import { contactLogger, problemReportsLogger } from '../logger';
+import { getEmailLogFields } from '../pii';
 import { getAdminEmail, getEmailTransporter, getSmtpFrom, isEmailConfigured } from './client';
 import { contactConfirmationTemplate } from './templates/contact-confirmation';
 import { contactNotificationTemplate } from './templates/contact-notification';
@@ -45,10 +46,10 @@ export function sendContactNotification(data: ContactEmailData): void {
       html: template.html,
     })
     .then(() => {
-      contactLogger.info({ to: adminEmail }, 'Contact notification email sent to admin');
+      contactLogger.info({ ...getEmailLogFields(adminEmail) }, 'Contact notification email sent to admin');
     })
     .catch((error: unknown) => {
-      contactLogger.error({ error, to: adminEmail }, 'Failed to send contact notification email');
+      contactLogger.error({ error, ...getEmailLogFields(adminEmail) }, 'Failed to send contact notification email');
     });
 }
 
@@ -84,10 +85,10 @@ export function sendContactConfirmation(data: ContactEmailData): void {
       html: template.html,
     })
     .then(() => {
-      contactLogger.info({ to: data.email }, 'Contact confirmation email sent to sender');
+      contactLogger.info({ ...getEmailLogFields(data.email) }, 'Contact confirmation email sent to sender');
     })
     .catch((error: unknown) => {
-      contactLogger.error({ error, to: data.email }, 'Failed to send contact confirmation email');
+      contactLogger.error({ error, ...getEmailLogFields(data.email) }, 'Failed to send contact confirmation email');
     });
 }
 
@@ -136,10 +137,16 @@ export function sendProblemNotification(data: ProblemReportEmailData): void {
       html: template.html,
     })
     .then(() => {
-      problemReportsLogger.info({ to: adminEmail, problemType: data.problemType }, 'Problem notification email sent to admin');
+      problemReportsLogger.info(
+        { ...getEmailLogFields(adminEmail), problemType: data.problemType },
+        'Problem notification email sent to admin'
+      );
     })
     .catch((error: unknown) => {
-      problemReportsLogger.error({ error, to: adminEmail }, 'Failed to send problem notification email');
+      problemReportsLogger.error(
+        { error, ...getEmailLogFields(adminEmail) },
+        'Failed to send problem notification email'
+      );
     });
 }
 
@@ -182,10 +189,16 @@ export function sendProblemConfirmation(data: ProblemReportEmailData): void {
       html: template.html,
     })
     .then(() => {
-      problemReportsLogger.info({ to: data.reporterEmail }, 'Problem confirmation email sent to reporter');
+      problemReportsLogger.info(
+        { ...getEmailLogFields(data.reporterEmail) },
+        'Problem confirmation email sent to reporter'
+      );
     })
     .catch((error: unknown) => {
-      problemReportsLogger.error({ error, to: data.reporterEmail }, 'Failed to send problem confirmation email');
+      problemReportsLogger.error(
+        { error, ...getEmailLogFields(data.reporterEmail) },
+        'Failed to send problem confirmation email'
+      );
     });
 }
 
@@ -222,10 +235,10 @@ export function sendNewsletterConfirmation(email: string, confirmUrl: string): v
       html: template.html,
     })
     .then(() => {
-      contactLogger.info({ to: email }, 'Newsletter confirmation email sent');
+      contactLogger.info({ ...getEmailLogFields(email) }, 'Newsletter confirmation email sent');
     })
     .catch((error: unknown) => {
-      contactLogger.error({ error, to: email }, 'Failed to send newsletter confirmation email');
+      contactLogger.error({ error, ...getEmailLogFields(email) }, 'Failed to send newsletter confirmation email');
     });
 }
 
@@ -310,10 +323,16 @@ export async function sendNewsletterDigest(
       });
 
       sent++;
-      contactLogger.info({ to: subscriber.email }, 'Newsletter digest sent');
+      contactLogger.info(
+        { subscriberId: subscriber.id, ...getEmailLogFields(subscriber.email) },
+        'Newsletter digest sent'
+      );
     } catch (error) {
       failed++;
-      contactLogger.error({ error, to: subscriber.email }, 'Failed to send newsletter digest');
+      contactLogger.error(
+        { error, subscriberId: subscriber.id, ...getEmailLogFields(subscriber.email) },
+        'Failed to send newsletter digest'
+      );
     }
 
     onProgress?.(sent + failed, subscribers.length);

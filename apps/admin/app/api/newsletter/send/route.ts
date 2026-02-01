@@ -11,11 +11,14 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { sendNewsletterDigest } from '@/lib/email';
 import { newsletterLogger } from '@/lib/logger';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 import type { NewsletterDigestItem } from '@/lib/email';
 import type { NextRequest } from 'next/server';
 
 const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || 'https://velikibukovec.hr';
+const SEND_RATE_LIMIT = 1;
+const SEND_RATE_WINDOW = 2 * 60 * 1000; // 2 minutes
 
 // POST /api/newsletter/send - Send the newsletter
 export async function POST(request: NextRequest) {
@@ -26,6 +29,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const rateCheck = checkRateLimit(
+      `newsletter-send:${authResult.context.userId}`,
+      SEND_RATE_LIMIT,
+      SEND_RATE_WINDOW
+    );
+
+    if (!rateCheck.allowed) {
+      return apiError(
+        ErrorCodes.RATE_LIMIT,
+        'Newsletter je već u slanju. Pokušajte ponovno za nekoliko minuta.',
+        429
+      );
+    }
+
     // Get draft
     const draft = await newsletterDraftRepository.get();
 
