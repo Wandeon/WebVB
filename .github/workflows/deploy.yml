@@ -162,12 +162,37 @@ jobs:
             # Stop old PM2 process if exists
             pm2 delete vb-admin 2>/dev/null || true
 
-            # Start with PM2 using env file
-            set -a && source .env && set +a
-            pm2 start apps/admin/server.js --name vb-admin \
-              --cwd /home/deploy/apps/admin-standalone \
-              --env PORT=3001 \
-              --env HOSTNAME=0.0.0.0
+            # Create ecosystem file with env from file
+            cat > ecosystem.config.cjs << 'PMEOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          // Parse .env file
+          const envFile = fs.readFileSync('/home/deploy/apps/admin-standalone/.env', 'utf8');
+          const env = {};
+          envFile.split('\n').forEach(line => {
+            const match = line.match(/^([^#=]+)=(.*)$/);
+            if (match) {
+              env[match[1].trim()] = match[2].trim();
+            }
+          });
+
+          module.exports = {
+            apps: [{
+              name: 'vb-admin',
+              script: 'apps/admin/server.js',
+              cwd: '/home/deploy/apps/admin-standalone',
+              env: {
+                ...env,
+                NODE_ENV: 'production',
+                PORT: '3001',
+                HOSTNAME: '0.0.0.0'
+              }
+            }]
+          };
+          PMEOF
+
+            pm2 start ecosystem.config.cjs
             pm2 save
 
             # Health check with retry
