@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
-
 import { checkDatabaseHealth } from '@repo/database';
+import { NextResponse } from 'next/server';
 
 import packageJson from '../../../package.json';
 
