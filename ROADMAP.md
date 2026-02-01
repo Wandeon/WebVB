@@ -8,10 +8,10 @@
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Audit 08 AI generation pipeline hardening (queue leases, validation, idempotency)
+**Recent:** Audit 10 infrastructure hardening (reverse proxy, health checks, deployment safety)
 **Target Launch:** Domain setup pending
-**Latest Audit:** Audit 08 - AI generation pipeline, queues, workers, and safety guarantees
-**Staging:** Frontend at http://100.120.125.83/ (public: 159.195.61.215) | Admin at http://100.120.125.83:3001/
+**Latest Audit:** Audit 10 - infrastructure, reverse proxy, network boundaries, runtime hardening
+**Staging:** Frontend at http://100.120.125.83/ (Tailscale access) | Admin via localhost reverse proxy
 
 ---
 
@@ -27,7 +27,7 @@
 │  DEVELOPMENT ENVIRONMENTS:                                      │
 │  ├── Local:     localhost:3000 (web), localhost:3001 (admin)   │
 │  ├── Staging:   velikibukovec-web.pages.dev (Cloudflare Pages) │
-│  ├── Admin:     100.120.125.83:3001 (VPS via Tailscale)        │
+│  ├── Admin:     localhost reverse proxy (VPS via Tailscale)    │
 │  └── Database:  VPS PostgreSQL 17 (velikibukovec)               │
 │                                                                 │
 │  LAUNCH DAY ONLY:                                               │
