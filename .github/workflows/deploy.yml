@@ -122,78 +122,37 @@ jobs:
             apps/web/out/ \
             ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/web-static/
 
-      - name: Deploy admin standalone
+      - name: Deploy admin .next folder
         run: |
-          # Prepare local directory structure (standalone + static + public)
-          mkdir -p apps/admin/.next/standalone/.next/static
-          cp -r apps/admin/.next/static/* apps/admin/.next/standalone/.next/static/
-          [ -d apps/admin/public ] && cp -r apps/admin/public apps/admin/.next/standalone/ || true
-
-          # Note: Prisma client will be generated on VPS using admin-repo's pnpm
-
-          # Deploy everything in one rsync
+          # Sync the built .next folder to VPS admin-repo
           rsync -avz --delete \
-            apps/admin/.next/standalone/ \
-            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-standalone/
+            apps/admin/.next/ \
+            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-repo/apps/admin/.next/
 
-      - name: Restart admin service
+      - name: Update VPS and restart admin
         run: |
           ssh ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }} << 'EOF'
             set -e
-            cd ~/apps/admin-standalone
-
-            # Generate Prisma client for this platform using project's Prisma version
             cd ~/apps/admin-repo
+
+            # Pull latest code (for package.json, configs, etc.)
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Install dependencies (in case they changed)
+            pnpm install --frozen-lockfile
+
+            # Regenerate Prisma client for this platform
             pnpm db:generate
 
-            # Copy generated Prisma client to standalone (pnpm stores it in .pnpm folder)
-            PRISMA_CLIENT_PATH=$(find node_modules/.pnpm -name ".prisma" -type d 2>/dev/null | head -1)
-            if [ -n "$PRISMA_CLIENT_PATH" ]; then
-              mkdir -p ~/apps/admin-standalone/node_modules/.prisma
-              cp -r "$PRISMA_CLIENT_PATH"/* ~/apps/admin-standalone/node_modules/.prisma/
+            # Restart PM2 (using existing process)
+            if pm2 describe vb-admin > /dev/null 2>&1; then
+              pm2 reload vb-admin --update-env
+            else
+              cd apps/admin
+              PORT=3001 HOSTNAME=0.0.0.0 pm2 start "pnpm start" --name vb-admin
+              pm2 save
             fi
-            cd ~/apps/admin-standalone
-
-            # Copy env file if not exists
-            if [ ! -f .env ]; then
-              cp ~/apps/admin-repo/apps/admin/.env .env 2>/dev/null || echo "No source .env found"
-            fi
-
-            # Stop old PM2 process if exists
-            pm2 delete vb-admin 2>/dev/null || true
-
-            # Create ecosystem file with env from file
-            cat > ecosystem.config.cjs << 'PMEOF'
-          const fs = require('fs');
-          const path = require('path');
-
-          // Parse .env file
-          const envFile = fs.readFileSync('/home/deploy/apps/admin-standalone/.env', 'utf8');
-          const env = {};
-          envFile.split('\n').forEach(line => {
-            const match = line.match(/^([^#=]+)=(.*)$/);
-            if (match) {
-              env[match[1].trim()] = match[2].trim();
-            }
-          });
-
-          module.exports = {
-            apps: [{
-              name: 'vb-admin',
-              script: 'apps/admin/server.js',
-              cwd: '/home/deploy/apps/admin-standalone',
-              env: {
-                ...env,
-                NODE_ENV: 'production',
-                PORT: '3001',
-                HOSTNAME: '0.0.0.0'
-              }
-            }]
-          };
-          PMEOF
-
-            pm2 start ecosystem.config.cjs
-            pm2 save
 
             # Health check with retry
             for i in {1..15}; do

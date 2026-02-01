@@ -2,8 +2,7 @@ import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
-  // Admin uses SSR with standalone output for deployment
-  output: 'standalone',
+  // Admin uses SSR (built in CI, deployed to VPS)
 
   // Transpile workspace packages
   transpilePackages: ['@repo/ui', '@repo/shared', '@repo/database'],
