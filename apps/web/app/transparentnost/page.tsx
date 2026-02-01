@@ -228,6 +228,44 @@ export default function TransparentnostPage() {
               sklopu dokumentacije za lakše razumijevanje građana.
             </p>
           </div>
+
+          {/* External budget portals */}
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <a
+              href="https://transparentnost-veliki-bukovec.kipos.hr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 transition-colors hover:bg-green-100"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                <BookOpen className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <div className="font-medium text-green-900">Transparentnost proračuna</div>
+                <div className="flex items-center gap-1 text-xs text-green-700">
+                  Vizualizacija i grafovi
+                  <ExternalLink className="h-3 w-3" />
+                </div>
+              </div>
+            </a>
+            <a
+              href="https://proracun.hr/proracuni.php?kid=164"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 transition-colors hover:bg-blue-100"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                <FileText className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="font-medium text-blue-900">Proračuni po godinama</div>
+                <div className="flex items-center gap-1 text-xs text-blue-700">
+                  Usvojeni proračuni i rebalansi
+                  <ExternalLink className="h-3 w-3" />
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -337,6 +375,58 @@ export default function TransparentnostPage() {
               opcina.veliki.bukovec@gmail.com
             </a>
           </p>
+        </div>
+      </section>
+
+      {/* External Services */}
+      <section className="mt-8 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <h3 className="mb-4 font-semibold text-neutral-900">Službeni portali</h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <a
+            href="https://glasila.hr/glasila/sluzbeni-vjesnik-varazdinske-zupanije-1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 transition-colors hover:bg-neutral-100"
+          >
+            <FileText className="h-5 w-5 text-neutral-600" />
+            <div>
+              <div className="text-sm font-medium text-neutral-900">Službeni vjesnik</div>
+              <div className="flex items-center gap-1 text-xs text-neutral-500">
+                Varaždinska županija
+                <ExternalLink className="h-3 w-3" />
+              </div>
+            </div>
+          </a>
+          <a
+            href="https://v2.imovina.hr/imovina-link.php?o=31317"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 transition-colors hover:bg-neutral-100"
+          >
+            <FolderOpen className="h-5 w-5 text-neutral-600" />
+            <div>
+              <div className="text-sm font-medium text-neutral-900">Registar imovine</div>
+              <div className="flex items-center gap-1 text-xs text-neutral-500">
+                Evidencija imovine općine
+                <ExternalLink className="h-3 w-3" />
+              </div>
+            </div>
+          </a>
+          <a
+            href="https://proracun.hr/savjetovanja.php?kid=164"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 transition-colors hover:bg-neutral-100"
+          >
+            <Users className="h-5 w-5 text-neutral-600" />
+            <div>
+              <div className="text-sm font-medium text-neutral-900">Savjetovanja s javnošću</div>
+              <div className="flex items-center gap-1 text-xs text-neutral-500">
+                Sudjelujte u odlučivanju
+                <ExternalLink className="h-3 w-3" />
+              </div>
+            </div>
+          </a>
         </div>
       </section>
 
