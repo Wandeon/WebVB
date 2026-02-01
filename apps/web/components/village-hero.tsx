@@ -64,14 +64,20 @@ function Typewriter({ text, speed = 50, delay = 0 }: { text: string; speed?: num
   const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
-    setDisplayedText('');
-    setHasStarted(false);
+    // Reset state asynchronously to avoid cascading renders
+    const resetTimeout = setTimeout(() => {
+      setDisplayedText('');
+      setHasStarted(false);
+    }, 0);
 
     const startTimeout = setTimeout(() => {
       setHasStarted(true);
     }, delay);
 
-    return () => clearTimeout(startTimeout);
+    return () => {
+      clearTimeout(resetTimeout);
+      clearTimeout(startTimeout);
+    };
   }, [text, delay]);
 
   useEffect(() => {

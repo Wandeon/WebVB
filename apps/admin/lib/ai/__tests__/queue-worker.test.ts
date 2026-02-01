@@ -1,8 +1,19 @@
+/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { aiQueueRepository } from '@repo/database';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { AiQueueRecord } from '@repo/database';
+import { aiLogger } from '../../logger';
+import { generate, isOllamaCloudConfigured } from '../ollama-cloud';
+import {
+  isWorkerRunning,
+  startQueueWorker,
+  stopQueueWorker,
+  triggerProcessing,
+} from '../queue-worker';
 
 import type { OllamaGenerateResponse } from '../types';
+import type { AiQueueRecord } from '@repo/database';
 
 // Mock dependencies BEFORE importing the module under test
 // These mocks must be defined inside the factory to avoid hoisting issues
@@ -28,18 +39,6 @@ vi.mock('../../logger', () => ({
     error: vi.fn(),
   },
 }));
-
-// Import the module under test AFTER setting up mocks
-import { aiQueueRepository } from '@repo/database';
-
-import { aiLogger } from '../../logger';
-import { generate, isOllamaCloudConfigured } from '../ollama-cloud';
-import {
-  isWorkerRunning,
-  startQueueWorker,
-  stopQueueWorker,
-  triggerProcessing,
-} from '../queue-worker';
 
 // Cast mocks to get proper typing using vi.mocked
 const mockAiQueueRepository = vi.mocked(aiQueueRepository);

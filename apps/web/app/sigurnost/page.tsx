@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   UserCheck,
 } from 'lucide-react';
+
 import { PageLayoutV2 } from '../../components/page-layout-v2';
 
 import type { PageSection } from '../../lib/navigation';

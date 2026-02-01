@@ -1,11 +1,12 @@
 'use client';
 
-import type { PostCategory } from '@repo/shared';
 import { Button, toast } from '@repo/ui';
 import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { AiGenerateDialog } from './ai-generate-dialog';
+
+import type { PostCategory } from '@repo/shared';
 
 // =============================================================================
 // Types

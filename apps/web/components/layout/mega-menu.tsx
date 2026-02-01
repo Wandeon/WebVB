@@ -51,7 +51,10 @@ export function MegaMenu({ groups, latestPost, upcomingEvent }: MegaMenuProps) {
 
   // Close on route change
   useEffect(() => {
-    closeMenu();
+    // Use setTimeout to avoid synchronous setState in effect
+    setTimeout(() => {
+      closeMenu();
+    }, 0);
   }, [pathname, closeMenu]);
 
   // Close on Escape key

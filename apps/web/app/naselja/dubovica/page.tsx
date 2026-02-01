@@ -84,7 +84,7 @@ export default function DubovicaPage() {
         {/* TODO: Photo - Panorama Dubovice, pogled na selo uz Plitvicu */}
 
         <p>
-          Prvi put se spominje kao <strong>"Dudowycz"</strong> u 16. stoljeću, a
+          Prvi put se spominje kao <strong>{`"Dudowycz"`}</strong> u 16. stoljeću, a
           nekad je imala čak i malu <strong>kuriju</strong> (plemićki dvor) unutar
           svojih granica. Društveno, svi se poznaju - zajednica stisnuta iz nužde.
           Postoji poniznost u selu - možda zato što je toliko izgubilo: ljude,
@@ -93,7 +93,7 @@ export default function DubovicaPage() {
 
         <p>
           Interna napetost Dubovice ogleda se u sukobu <strong>rezignacije i
-          aspiracije</strong>. Neki prihvaćaju da je "Dubovica takva kakva je",
+          aspiracije</strong>. Neki prihvaćaju da je {`"Dubovica takva kakva je"`},
           dok nekoliko preostalih mladih obitelji želi revitalizaciju -
           plastenici s cvijećem, bolje ceste, možda seoski turizam na Plitvici.
         </p>
@@ -195,7 +195,7 @@ export default function DubovicaPage() {
           Povijest Dubovice je priča o usponu i padu - od živahnog sela s
           vlastitom kurijom i inovativnom obitelji, do tihog mjesta koje čuva
           sjećanja na bolja vremena. Ime možda potječe od staroslavenskog
-          "dub" (hrast), ukazujući na nekadašnje šume.
+          {`"dub"`} (hrast), ukazujući na nekadašnje šume.
         </p>
 
         {/* Timeline */}
@@ -207,12 +207,12 @@ export default function DubovicaPage() {
               16. stoljeće
             </div>
             <h4 className="mt-1 font-semibold text-neutral-900">
-              Prvi spomen kao "Dudowycz"
+              Prvi spomen kao {`"Dudowycz"`}
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
               Dubovica se prvi put pojavljuje u pisanim izvorima pod imenom
-              "Dudowycz". Selo možda vodi porijeklo od ranijeg naselja
-              "Keljanovec" ili "Kilijanovci" koje se spominje u starijim
+              {`"Dudowycz"`}. Selo možda vodi porijeklo od ranijeg naselja
+              {`"Keljanovec"`} ili {`"Kilijanovci"`} koje se spominje u starijim
               dokumentima.
             </p>
           </div>
@@ -227,8 +227,8 @@ export default function DubovicaPage() {
               Velika i Mala Dubovica
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
-              U ovom razdoblju razlikuju se "Velika Dubovica" i "Mala Dubovica"
-              - podjela koja se danas odražava u razlikovanju "Gornje" i "Donje"
+              U ovom razdoblju razlikuju se {`"Velika Dubovica"`} i {`"Mala Dubovica"`}
+              - podjela koja se danas odražava u razlikovanju {`"Gornje"`} i {`"Donje"`}
               Dubovice, odvojenih rijekom Plitvica.
             </p>
           </div>
@@ -259,7 +259,7 @@ export default function DubovicaPage() {
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
               Dobrovoljno vatrogasno društvo Dubovica osnovano je gotovo stoljeće
-              prije i ostaje "vrlo aktivno" do danas - simbol zajedničke brige i
+              prije i ostaje {`"vrlo aktivno"`} do danas - simbol zajedničke brige i
               solidarnosti koja definira selo.
             </p>
           </div>
@@ -317,12 +317,12 @@ export default function DubovicaPage() {
             <div className="absolute -left-2.5 top-0 h-5 w-5 rounded-full border-2 border-primary-500 bg-white" />
             <div className="text-sm font-medium text-primary-600">1976.</div>
             <h4 className="mt-1 font-semibold text-neutral-900">
-              Osnivanje NK "Croatia" Dubovica
+              Osnivanje NK {`"Croatia"`} Dubovica
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
               Nogometni klub osnovan je kao simbol seoskog identiteta i
               zajedništva. Nažalost, klub je kasnije prestao s radom zbog
-              "nedostatka mladih" - bolna ilustracija demografske stvarnosti.
+              {`"nedostatka mladih"`} - bolna ilustracija demografske stvarnosti.
             </p>
           </div>
 
@@ -346,7 +346,7 @@ export default function DubovicaPage() {
         <div className="not-prose mt-8 rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
-            NK "Croatia" Dubovica prestala je s radom zbog nedostatka mladih
+            NK {`"Croatia"`} Dubovica prestala je s radom zbog nedostatka mladih
             igrača - tužan, ali simboličan znak demografskog pada koji je
             pogodio selo. Klub osnovan 1976. postao je žrtvom istog trenda koji
             prijeti cijeloj ruralnoj Hrvatskoj.
@@ -373,8 +373,8 @@ export default function DubovicaPage() {
           Cvjećarstvo - u 3 ujutro prema Zagrebu
         </h3>
         <p>
-          "Velik broj cvjećara iz Dubovice može se vidjeti na zagrebačkim
-          tržnicama" - rečenica koja najbolje opisuje gospodarsku stvarnost sela.
+          {`"Velik broj cvjećara iz Dubovice može se vidjeti na zagrebačkim
+          tržnicama"`} - rečenica koja najbolje opisuje gospodarsku stvarnost sela.
           Obiteljski plastenički uzgoj cvijeća temelj je egzistencije mnogih
           domaćinstava.
         </p>
@@ -459,7 +459,7 @@ export default function DubovicaPage() {
               </p>
               <p className="mt-3 text-sm text-neutral-600">
                 Plitvica doslovno dijeli Dubovicu na dva dijela - mještani se
-                identificiraju kao iz "Gornje" ili "Donje" Dubovice. Rijeka je
+                identificiraju kao iz {`"Gornje"`} ili {`"Donje"`} Dubovice. Rijeka je
                 nekad pogonila mlin obitelji Toplak koji je proizvodio struju
                 desetljećima prije državne elektrifikacije.
               </p>
@@ -486,7 +486,7 @@ export default function DubovicaPage() {
               </p>
               <p className="mt-3 text-sm text-neutral-600">
                 Kapela izgrađena 1974. godine na mjestu koje je nekada bilo
-                "šikara i močvara". Gradnju je vodio preč. Ivan Lončar uz pomoć
+                {`"šikara i močvara"`}. Gradnju je vodio preč. Ivan Lončar uz pomoć
                 mještana koji su <strong>vlastitim rukama i sredstvima</strong>{' '}
                 podigli ovo svetište - primjer zajedničkog rada koji definira
                 Dubovicu.
@@ -554,8 +554,8 @@ export default function DubovicaPage() {
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
             Rijeka Plitvica dijeli selo na dva dijela - mještani se i danas
-            identificiraju kao iz "Gornje" ili "Donje" Dubovice. Ova podjela
-            odražava povijesnu razliku između "Velike" i "Male" Dubovice iz
+            identificiraju kao iz {`"Gornje"`} ili {`"Donje"`} Dubovice. Ova podjela
+            odražava povijesnu razliku između {`"Velike"`} i {`"Male"`} Dubovice iz
             kasnog 18. stoljeća.
           </p>
         </div>
@@ -588,7 +588,7 @@ export default function DubovicaPage() {
               </p>
               <p className="mt-3 text-sm text-neutral-600">
                 Dobrovoljno vatrogasno društvo Dubovica osnovano je 1928. godine
-                i ostaje <strong>"vrlo aktivno"</strong> do danas - rijetka
+                i ostaje <strong>{`"vrlo aktivno"`}</strong> do danas - rijetka
                 priča kontinuiteta u selu koje je izgubilo toliko toga.
                 Vatrogasci su više od protupožarne službe; oni su simbol
                 zajedničke brige i solidarnosti.
@@ -609,14 +609,14 @@ export default function DubovicaPage() {
             <Calendar className="h-8 w-8 shrink-0 text-neutral-400" />
             <div>
               <h3 className="text-lg font-semibold text-neutral-600">
-                NK "Croatia" Dubovica
+                NK {`"Croatia"`} Dubovica
               </h3>
               <p className="mt-1 text-sm text-neutral-500">
                 1976. - prestanak rada • Nedostatak mladih
               </p>
               <p className="mt-3 text-sm text-neutral-500">
                 Nogometni klub osnovan 1976. morao je prestati s radom zbog
-                "nedostatka mladih" - fraza koja bolno sažima demografsku
+                {`"nedostatka mladih"`} - fraza koja bolno sažima demografsku
                 stvarnost Dubovice. Klub je nekad bio središte seoskog života,
                 mjesto gdje su se susjedstva natjecala i družila.
               </p>

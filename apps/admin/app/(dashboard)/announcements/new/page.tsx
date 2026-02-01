@@ -1,5 +1,5 @@
-import { Breadcrumbs } from '@/components/layout';
 import { AnnouncementForm } from '@/components/announcements';
+import { Breadcrumbs } from '@/components/layout';
 
 export default function NewAnnouncementPage() {
   return (

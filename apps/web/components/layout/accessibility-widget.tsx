@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Accessibility, Check, Moon, Type, Zap } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const ACCESSIBILITY_KEY = 'vb-accessibility';
 
@@ -18,6 +18,35 @@ const defaultSettings: AccessibilitySettings = {
   reduceMotion: false,
 };
 
+// Apply settings to document - defined outside component to avoid hook ordering issues
+const applySettingsToDocument = (s: AccessibilitySettings) => {
+  const root = document.documentElement;
+
+  // Font size
+  root.classList.remove('text-base', 'text-lg', 'text-xl');
+  if (s.fontSize === 'large') {
+    root.style.fontSize = '18px';
+  } else if (s.fontSize === 'xlarge') {
+    root.style.fontSize = '20px';
+  } else {
+    root.style.fontSize = '';
+  }
+
+  // High contrast
+  if (s.highContrast) {
+    root.classList.add('high-contrast');
+  } else {
+    root.classList.remove('high-contrast');
+  }
+
+  // Reduce motion
+  if (s.reduceMotion) {
+    root.classList.add('reduce-motion');
+  } else {
+    root.classList.remove('reduce-motion');
+  }
+};
+
 export function AccessibilityWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [settings, setSettings] = useState<AccessibilitySettings>(defaultSettings);
@@ -29,51 +58,26 @@ export function AccessibilityWidget() {
     const saved = localStorage.getItem(ACCESSIBILITY_KEY);
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        setSettings(parsed);
-        applySettings(parsed);
+        const parsed = JSON.parse(saved) as AccessibilitySettings;
+        setTimeout(() => {
+          setSettings(parsed);
+          applySettingsToDocument(parsed);
+        }, 0);
       } catch {
         // Invalid JSON, use defaults
       }
     }
   }, []);
 
-  // Apply settings to document
-  const applySettings = (s: AccessibilitySettings) => {
-    const root = document.documentElement;
-
-    // Font size
-    root.classList.remove('text-base', 'text-lg', 'text-xl');
-    if (s.fontSize === 'large') {
-      root.style.fontSize = '18px';
-    } else if (s.fontSize === 'xlarge') {
-      root.style.fontSize = '20px';
-    } else {
-      root.style.fontSize = '';
-    }
-
-    // High contrast
-    if (s.highContrast) {
-      root.classList.add('high-contrast');
-    } else {
-      root.classList.remove('high-contrast');
-    }
-
-    // Reduce motion
-    if (s.reduceMotion) {
-      root.classList.add('reduce-motion');
-    } else {
-      root.classList.remove('reduce-motion');
-    }
-  };
-
   // Save and apply settings
-  const updateSettings = (newSettings: Partial<AccessibilitySettings>) => {
-    const updated = { ...settings, ...newSettings };
-    setSettings(updated);
-    localStorage.setItem(ACCESSIBILITY_KEY, JSON.stringify(updated));
-    applySettings(updated);
-  };
+  const updateSettings = useCallback((newSettings: Partial<AccessibilitySettings>) => {
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem(ACCESSIBILITY_KEY, JSON.stringify(updated));
+      applySettingsToDocument(updated);
+      return updated;
+    });
+  }, []);
 
   // Close on click outside
   useEffect(() => {

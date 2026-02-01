@@ -1,9 +1,10 @@
 // apps/web/app/naselja/page.tsx
-import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import { PageLayoutV2 } from '../../components/page-layout-v2';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Naselja | Općina Veliki Bukovec',

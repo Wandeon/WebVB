@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -56,7 +57,7 @@ describe('ollama-cloud', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({
+        json: () => Promise.resolve({
           models: [
             { name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 },
           ],
@@ -108,7 +109,7 @@ describe('ollama-cloud', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({
+        json: () => Promise.resolve({
           model: 'deepseek-v3.2',
           created_at: '2024-01-01T00:00:00Z',
           response: 'Generated text here',
@@ -132,7 +133,7 @@ describe('ollama-cloud', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({
+        json: () => Promise.resolve({
           model: 'deepseek-v3.2',
           response: 'Generated text',
           done: true,
@@ -181,7 +182,7 @@ describe('ollama-cloud', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({
+        json: () => Promise.resolve({
           models: [{ name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 }],
         }),
       });
@@ -207,7 +208,7 @@ describe('ollama-cloud', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({
+        json: () => Promise.resolve({
           models: [{ name: 'other-model', modified_at: '2024-01-01', size: 1000 }],
         }),
       });

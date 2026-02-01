@@ -27,7 +27,7 @@ export function problemConfirmationTemplate(
   const { reporterName, problemType, location } = data;
 
   const problemTypeLabel =
-    PROBLEM_TYPE_LABELS[problemType as keyof typeof PROBLEM_TYPE_LABELS] ||
+    PROBLEM_TYPE_LABELS[problemType] ??
     problemType;
 
   const greeting = reporterName

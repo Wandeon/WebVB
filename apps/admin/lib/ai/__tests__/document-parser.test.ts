@@ -1,4 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+import {
+  getSupportedMimeTypes,
+  isSupportedMimeType,
+  parseDocument,
+} from '../document-parser';
+
 import type Tesseract from 'tesseract.js';
 
 // Hoist mock functions so they can be referenced in vi.mock
@@ -30,12 +37,6 @@ vi.mock('tesseract.js', () => ({
     recognize: mockRecognize,
   },
 }));
-
-import {
-  getSupportedMimeTypes,
-  isSupportedMimeType,
-  parseDocument,
-} from '../document-parser';
 
 describe('document-parser', () => {
   beforeEach(() => {

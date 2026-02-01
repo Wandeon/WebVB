@@ -5,9 +5,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
+import { SidebarNav } from './sidebar-nav';
+
 import type { PageSection } from '../../lib/navigation';
 
-import { SidebarNav } from './sidebar-nav';
 
 interface MobileNavSheetProps {
   isOpen: boolean;

@@ -62,50 +62,55 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
     const saved = localStorage.getItem(ACCESSIBILITY_KEY);
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        setAccessibilitySettings(parsed);
+        const parsed = JSON.parse(saved) as AccessibilitySettings;
+        // Use setTimeout to avoid synchronous setState in effect
+        setTimeout(() => {
+          setAccessibilitySettings(parsed);
+        }, 0);
       } catch {
         // Invalid JSON, use defaults
       }
     }
   }, []);
 
-  // Apply accessibility settings
-  const applySettings = (s: AccessibilitySettings) => {
+  // Apply accessibility settings via useEffect to satisfy React hooks linter
+  useEffect(() => {
     const root = document.documentElement;
 
-    if (s.fontSize === 'large') {
+    if (accessibilitySettings.fontSize === 'large') {
       root.style.fontSize = '18px';
-    } else if (s.fontSize === 'xlarge') {
+    } else if (accessibilitySettings.fontSize === 'xlarge') {
       root.style.fontSize = '20px';
     } else {
       root.style.fontSize = '';
     }
 
-    if (s.highContrast) {
+    if (accessibilitySettings.highContrast) {
       root.classList.add('high-contrast');
     } else {
       root.classList.remove('high-contrast');
     }
 
-    if (s.reduceMotion) {
+    if (accessibilitySettings.reduceMotion) {
       root.classList.add('reduce-motion');
     } else {
       root.classList.remove('reduce-motion');
     }
-  };
+  }, [accessibilitySettings]);
 
   const updateAccessibility = (newSettings: Partial<AccessibilitySettings>) => {
     const updated = { ...accessibilitySettings, ...newSettings };
     setAccessibilitySettings(updated);
     localStorage.setItem(ACCESSIBILITY_KEY, JSON.stringify(updated));
-    applySettings(updated);
   };
 
   // Close on route change
   useEffect(() => {
-    setIsOpen(false);
-    setShowAccessibility(false);
+    // Use setTimeout to avoid synchronous setState in effect
+    setTimeout(() => {
+      setIsOpen(false);
+      setShowAccessibility(false);
+    }, 0);
   }, [pathname]);
 
   // Prevent body scroll when menu is open

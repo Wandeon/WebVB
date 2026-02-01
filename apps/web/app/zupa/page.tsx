@@ -196,7 +196,7 @@ export default function ZupaPage() {
               Na raskrižju prema Dravi podignut je kameni stup s kipom sv. Ivana
               Nepomuka, s grbom obitelji Nádasdy. Nepomuk je tradicionalni
               zaštitnik od poplava - postavljanje kipa bilo je čin duhovne zaštite
-              naselja od rijeke koja "daje i uzima".
+              naselja od rijeke koja {`"daje i uzima"`}.
             </p>
           </div>
 
@@ -244,7 +244,7 @@ export default function ZupaPage() {
               Prebendar Ivan Lončar nije bio samo liturg - bio je organizator
               zajednice i graditelj. Pod njegovim vodstvom izgrađena je kapelica u
               Dubovici, mobilizirajući vjernike da vlastitim rukama i sredstvima
-              pretvaraju "šikaru i močvaru" u sveto mjesto.
+              pretvaraju {`"šikaru i močvaru"`} u sveto mjesto.
             </p>
           </div>
 
@@ -259,7 +259,7 @@ export default function ZupaPage() {
               Mještani Dubovice, predvođeni župnikom Lončarom, grade kapelicu na
               mjestu nekadašnje močvare. Gradnja nije bila samo pobožni čin - bila
               je to socijalna inženjerija koja je razjedinjene poljoprivrednike
-              pretvorila u kohezivnu "svetu zajednicu".
+              pretvorila u kohezivnu {`"svetu zajednicu"`}.
             </p>
           </div>
 
@@ -349,7 +349,7 @@ export default function ZupaPage() {
                   Dubovica • Filijalna kapelica
                 </p>
                 <p className="mt-3 text-sm text-neutral-600">
-                  Izgrađena 1974. godine na mjestu nekadašnje "šikare i močvare",
+                  Izgrađena 1974. godine na mjestu nekadašnje {`"šikare i močvare"`},
                   kapelica je rezultat zajedničkog rada mještana pod vodstvom
                   župnika Ivana Lončara. Danas služi kao fokalna točka vjerskog
                   života u Dubovici, s redovitim misama i proslavom blagdana
@@ -374,7 +374,7 @@ export default function ZupaPage() {
                   Kapela Podravska • Filijalna kapelica
                 </p>
                 <p className="mt-3 text-sm text-neutral-600">
-                  Sam naziv sela "Kapela" ukazuje na davnu povijest - selo je
+                  Sam naziv sela {`"Kapela"`} ukazuje na davnu povijest - selo je
                   vjerojatno dobilo ime po ranoj kapelici koja je bila središte
                   okupljanja još prije formalnih institucija. Današnja kapelica
                   nastavlja tu tradiciju, a mještani je održavaju s posebnom
@@ -402,8 +402,8 @@ export default function ZupaPage() {
                   Kameni stup s kipom sv. Ivana Nepomuka na raskrižju prema Dravi
                   nosi grb obitelji Nádasdy i godinu 1764. Nepomuk je tradicionalni
                   zaštitnik od poplava - postavljanje kipa bilo je čin duhovne
-                  zaštite zajednice od rijeke. Lokalna uzrečica kaže: "Drava daje,
-                  Drava uzima" - Nepomuk stoji kao podsjetnik na tu drevnu istinu.
+                  zaštite zajednice od rijeke. Lokalna uzrečica kaže: {`"Drava daje,
+                  Drava uzima"`} - Nepomuk stoji kao podsjetnik na tu drevnu istinu.
                 </p>
                 {/* TODO: Photo - nepomuk.jpg - St. John Nepomuk statue from 1764 */}
               </div>
@@ -415,7 +415,7 @@ export default function ZupaPage() {
         <div className="not-prose mt-8 rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
           <p className="text-sm font-medium text-amber-800">Jeste li znali?</p>
           <p className="mt-1 text-sm text-amber-700">
-            U šumi Križančija skrivena je "Crkvica Križančija" - privatna kapelica
+            U šumi Križančija skrivena je {`"Crkvica Križančija"`} - privatna kapelica
             obitelji Drašković. Čak i najudaljeniji kutovi vlastelinstva bili su
             posvećeni, proširujući duhovnu pokrivenost preko cijelog posjeda.
           </p>

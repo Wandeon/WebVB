@@ -2,8 +2,8 @@ import { db } from '@repo/database';
 import { type AnnouncementCategory } from '@repo/shared';
 import { notFound } from 'next/navigation';
 
-import { Breadcrumbs } from '@/components/layout';
 import { AnnouncementForm } from '@/components/announcements';
+import { Breadcrumbs } from '@/components/layout';
 
 interface EditAnnouncementPageProps {
   params: Promise<{ id: string }>;

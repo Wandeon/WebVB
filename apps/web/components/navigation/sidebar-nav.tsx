@@ -3,10 +3,11 @@
 
 import { usePathname } from 'next/navigation';
 
-import type { PageSection } from '../../lib/navigation';
+import { SidebarItem } from './sidebar-item';
 import { findActiveItem, findSectionForPath } from '../../lib/navigation';
 
-import { SidebarItem } from './sidebar-item';
+import type { PageSection } from '../../lib/navigation';
+
 
 interface SidebarNavProps {
   pageSections?: PageSection[];

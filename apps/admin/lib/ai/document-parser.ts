@@ -269,7 +269,7 @@ export async function parseDocument(
       // This should never happen due to the type guard above
       return {
         success: false,
-        error: `Unsupported document type: ${mimeType}`,
+        error: `Unsupported document type: ${String(mimeType)}`,
       };
   }
 }

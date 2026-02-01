@@ -5,6 +5,16 @@ import { Cookie, Settings, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+// Pre-generated random values for cookie crumb animations to satisfy React's purity requirements
+const CRUMB_ANIMATIONS = [
+  { initialX: 15, initialScale: 0.75, animateX: 85, duration: 3.5 },
+  { initialX: 42, initialScale: 0.6, animateX: 28, duration: 4.2 },
+  { initialX: 78, initialScale: 0.9, animateX: 62, duration: 3.8 },
+  { initialX: 25, initialScale: 0.55, animateX: 95, duration: 4.5 },
+  { initialX: 55, initialScale: 0.8, animateX: 12, duration: 3.2 },
+  { initialX: 90, initialScale: 0.65, animateX: 45, duration: 4.0 },
+];
+
 const COOKIE_CONSENT_KEY = 'vb-cookie-consent';
 
 interface CookiePreferences {
@@ -102,23 +112,23 @@ export function CookieConsent() {
             <div className="relative m-[2px] rounded-[22px] bg-white/95 backdrop-blur-xl">
               {/* Floating cookie crumbs */}
               <div className="absolute inset-0 overflow-hidden rounded-[22px] pointer-events-none">
-                {[...Array(6)].map((_, i) => (
+                {CRUMB_ANIMATIONS.map((anim, i) => (
                   <motion.div
                     key={i}
                     className="absolute h-2 w-2 rounded-full bg-emerald-400/60"
                     initial={{
-                      x: Math.random() * 100 + '%',
+                      x: anim.initialX + '%',
                       y: '100%',
-                      scale: Math.random() * 0.5 + 0.5
+                      scale: anim.initialScale
                     }}
                     animate={{
                       y: [null, '-20%'],
-                      x: [null, `${Math.random() * 100}%`],
+                      x: [null, `${anim.animateX}%`],
                       opacity: [0.6, 0],
                       scale: [null, 0]
                     }}
                     transition={{
-                      duration: 3 + Math.random() * 2,
+                      duration: anim.duration,
                       repeat: Infinity,
                       delay: i * 0.5,
                       ease: 'easeOut'

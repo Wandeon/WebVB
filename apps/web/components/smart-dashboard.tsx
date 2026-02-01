@@ -34,16 +34,16 @@ function WeatherWidget() {
     // Fetch weather from Open-Meteo (free, no API key needed)
     // Veliki Bukovec coordinates: 46.35, 16.75
     fetch('https://api.open-meteo.com/v1/forecast?latitude=46.35&longitude=16.75&current=temperature_2m,weather_code&timezone=Europe/Zagreb')
-      .then(res => res.json())
+      .then(res => res.json() as Promise<{ current?: { weather_code?: number; temperature_2m?: number } }>)
       .then(data => {
-        const weatherCode = data.current?.weather_code || 0;
+        const weatherCode = data.current?.weather_code ?? 0;
         let condition = 'sunny';
         if (weatherCode >= 61 && weatherCode <= 67) condition = 'rainy';
         else if (weatherCode >= 1 && weatherCode <= 3) condition = 'cloudy';
         else if (weatherCode >= 45 && weatherCode <= 48) condition = 'cloudy';
 
         setWeather({
-          temp: Math.round(data.current?.temperature_2m || 0),
+          temp: Math.round(data.current?.temperature_2m ?? 0),
           condition,
         });
       })

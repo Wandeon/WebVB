@@ -58,8 +58,8 @@ async function getQueryEmbedding(query: string): Promise<number[] | null> {
 
     if (!response.ok) return null;
 
-    const data = await response.json();
-    return data.embedding;
+    const data = await response.json() as { embedding?: number[] };
+    return data.embedding ?? null;
   } catch {
     return null;
   }

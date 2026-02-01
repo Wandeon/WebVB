@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 
-import { useScrollSpy } from '../hooks/use-scroll-spy';
-import type { PageSection } from '../lib/navigation';
-
 import { MobileNavPill, MobileNavSheet, SidebarNav } from './navigation';
 import { SmallHero } from './small-hero';
+import { useScrollSpy } from '../hooks/use-scroll-spy';
+
+import type { PageSection } from '../lib/navigation';
+
 
 interface PageLayoutV2Props {
   title: string;

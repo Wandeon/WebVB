@@ -42,7 +42,7 @@ export function problemNotificationTemplate(
   } = data;
 
   const problemTypeLabel =
-    PROBLEM_TYPE_LABELS[problemType as keyof typeof PROBLEM_TYPE_LABELS] ||
+    PROBLEM_TYPE_LABELS[problemType] ??
     problemType;
 
   const formattedDate = createdAt
