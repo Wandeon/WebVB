@@ -1,6 +1,8 @@
-import type { PushSubscription, NotificationSend, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { db } from '../client';
+
+import type { PushSubscription, NotificationSend } from '@prisma/client';
 
 export type PushTopic = 'all' | 'waste' | 'news' | 'events' | 'announcements';
 
@@ -24,6 +26,10 @@ export interface PushSubscriptionWithKeys {
   endpoint: string;
   p256dh: string;
   auth: string;
+}
+
+export interface PushSubscriptionWithPreferences extends PushSubscriptionWithKeys {
+  preferences: PushPreferences | null;
 }
 
 // Upsert subscription - create or update if endpoint exists
@@ -115,13 +121,19 @@ export async function updateSettings(
   preferences?: PushPreferences
 ): Promise<PushSubscription | null> {
   try {
-    // Build update data - preferences added conditionally for schema compatibility
-    const updateData = {
+    // Build update data
+    const updateData: Prisma.PushSubscriptionUpdateInput = {
       topics: topics as Prisma.JsonArray,
       lastSeenAt: new Date(),
       updatedAt: new Date(),
-      ...(preferences !== undefined && { preferences: preferences ? (preferences as Prisma.JsonObject) : null }),
     };
+
+    // Handle preferences - use Prisma.DbNull for null values
+    if (preferences !== undefined) {
+      updateData.preferences = preferences
+        ? (preferences as Prisma.JsonObject)
+        : Prisma.DbNull;
+    }
 
     return await db.pushSubscription.update({
       where: { endpoint },
@@ -221,6 +233,87 @@ export async function getActiveByTopic(
   });
 
   return subscriptions;
+}
+
+// Get all active subscriptions for a topic with preferences (for quiet hours enforcement)
+export async function getActiveByTopicWithPreferences(
+  topic: PushTopic
+): Promise<PushSubscriptionWithPreferences[]> {
+  const subscriptions = await db.pushSubscription.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        // Match specific topic or 'all'
+        {
+          topics: {
+            array_contains: [topic],
+          },
+        },
+        {
+          topics: {
+            array_contains: ['all'],
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+      endpoint: true,
+      p256dh: true,
+      auth: true,
+      preferences: true,
+    },
+  });
+
+  return subscriptions.map((sub) => ({
+    id: sub.id,
+    endpoint: sub.endpoint,
+    p256dh: sub.p256dh,
+    auth: sub.auth,
+    preferences: sub.preferences as PushPreferences | null,
+  }));
+}
+
+/**
+ * Check if current time falls within quiet hours for a subscription
+ * @param preferences - subscription preferences with quiet hours
+ * @param timezone - timezone to use for comparison (default: Europe/Zagreb)
+ * @returns true if currently in quiet hours, false otherwise
+ */
+export function isInQuietHours(
+  preferences: PushPreferences | null,
+  timezone: string = 'Europe/Zagreb'
+): boolean {
+  if (!preferences?.quietHoursStart || !preferences?.quietHoursEnd) {
+    return false;
+  }
+
+  // Get current time in specified timezone
+  const now = new Date();
+  const timeString = now.toLocaleTimeString('en-GB', {
+    timeZone: timezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  const [currentHour, currentMinute] = timeString.split(':').map(Number);
+  const currentMinutes = currentHour! * 60 + currentMinute!;
+
+  const [startHour, startMinute] = preferences.quietHoursStart.split(':').map(Number);
+  const startMinutes = startHour! * 60 + startMinute!;
+
+  const [endHour, endMinute] = preferences.quietHoursEnd.split(':').map(Number);
+  const endMinutes = endHour! * 60 + endMinute!;
+
+  // Handle overnight quiet hours (e.g., 22:00 to 07:00)
+  if (startMinutes > endMinutes) {
+    // Overnight: quiet if current >= start OR current < end
+    return currentMinutes >= startMinutes || currentMinutes < endMinutes;
+  } else {
+    // Same day: quiet if current >= start AND current < end
+    return currentMinutes >= startMinutes && currentMinutes < endMinutes;
+  }
 }
 
 // Get all active subscriptions

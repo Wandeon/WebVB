@@ -1,9 +1,13 @@
 // Service Worker for Općina Veliki Bukovec PWA
 // Handles offline caching and push notifications
 
-const CACHE_NAME = 'vb-cache-v1';
-const STATIC_CACHE_NAME = 'vb-static-v1';
-const WASTE_CACHE_NAME = 'vb-waste-v1';
+const SW_VERSION = 'v2';
+const CACHE_NAME = `vb-cache-${SW_VERSION}`;
+const STATIC_CACHE_NAME = `vb-static-${SW_VERSION}`;
+const WASTE_CACHE_NAME = `vb-waste-${SW_VERSION}`;
+
+// Cache TTL in milliseconds (7 days)
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 // Assets to cache immediately on install
 const PRECACHE_ASSETS = [
@@ -48,20 +52,60 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and stale entries
 self.addEventListener('activate', (event) => {
+  const currentCaches = [CACHE_NAME, STATIC_CACHE_NAME, WASTE_CACHE_NAME];
+
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE_NAME && name !== WASTE_CACHE_NAME)
-            .map((name) => caches.delete(name))
+            // Delete any cache that isn't in our current version list
+            .filter((name) => name.startsWith('vb-') && !currentCaches.includes(name))
+            .map((name) => {
+              console.log('SW: Deleting old cache:', name);
+              return caches.delete(name);
+            })
         );
+      })
+      .then(() => {
+        // Clean up stale entries from current caches
+        return cleanStaleCacheEntries();
       })
       .then(() => self.clients.claim())
   );
 });
+
+// Clean entries older than CACHE_TTL_MS from all caches
+async function cleanStaleCacheEntries() {
+  const now = Date.now();
+  const cacheNames = [CACHE_NAME, STATIC_CACHE_NAME];
+
+  for (const cacheName of cacheNames) {
+    try {
+      const cache = await caches.open(cacheName);
+      const requests = await cache.keys();
+
+      for (const request of requests) {
+        const response = await cache.match(request);
+        if (response) {
+          // Check cache timestamp from custom header
+          const cachedAt = response.headers.get('x-sw-cached-at');
+          if (cachedAt) {
+            const cacheAge = now - parseInt(cachedAt, 10);
+            if (cacheAge > CACHE_TTL_MS) {
+              console.log('SW: Removing stale cache entry:', request.url);
+              await cache.delete(request);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('SW: Error cleaning cache:', cacheName, err);
+    }
+  }
+}
 
 // Message event - handle commands from client
 self.addEventListener('message', (event) => {
@@ -190,10 +234,35 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Cache-first strategy
+// Add timestamp header and cache a response
+async function cacheWithTimestamp(cache, request, response) {
+  // Clone response and add cache timestamp
+  const headers = new Headers(response.headers);
+  headers.set('x-sw-cached-at', String(Date.now()));
+
+  const timestampedResponse = new Response(await response.clone().blob(), {
+    status: response.status,
+    statusText: response.statusText,
+    headers: headers,
+  });
+
+  await cache.put(request, timestampedResponse);
+}
+
+// Check if cached response is still valid (within TTL)
+function isCacheValid(response) {
+  const cachedAt = response.headers.get('x-sw-cached-at');
+  if (!cachedAt) return true; // No timestamp = assume valid (legacy cache)
+
+  const cacheAge = Date.now() - parseInt(cachedAt, 10);
+  return cacheAge < CACHE_TTL_MS;
+}
+
+// Cache-first strategy with TTL check
 async function cacheFirst(request) {
   const cached = await caches.match(request);
-  if (cached) {
+
+  if (cached && isCacheValid(cached)) {
     return cached;
   }
 
@@ -201,21 +270,25 @@ async function cacheFirst(request) {
     const response = await fetch(request);
     if (response.ok) {
       const cache = await caches.open(STATIC_CACHE_NAME);
-      cache.put(request, response.clone());
+      await cacheWithTimestamp(cache, request, response);
     }
     return response;
   } catch {
+    // Return stale cache if network fails
+    if (cached) {
+      return cached;
+    }
     return new Response('Offline', { status: 503 });
   }
 }
 
-// Network-first strategy
+// Network-first strategy with caching
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
     if (response.ok) {
       const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
+      await cacheWithTimestamp(cache, request, response);
     }
     return response;
   } catch {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, BellOff, Download, Settings, X } from 'lucide-react';
+import { Bell, BellOff, Download, Settings, Share, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { NotificationSettings } from './notification-settings';
@@ -8,7 +8,22 @@ import { NotificationSettings } from './notification-settings';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 const INSTALL_PROMPT_COOLDOWN_DAYS = 30;
 const INSTALL_PROMPT_STORAGE_KEY = 'vb-install-prompt-dismissed';
+const IOS_INSTALL_STORAGE_KEY = 'vb-ios-install-dismissed';
 const NOTIFICATION_STORAGE_KEY = 'vb-notifications-enabled';
+
+// Detect iOS Safari
+function isIOS(): boolean {
+  if (typeof window === 'undefined') return false;
+  const ua = window.navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// Detect if running as installed PWA (standalone mode)
+function isStandalone(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true);
+}
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -43,6 +58,7 @@ export function PwaRegister() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriptionKeys, setSubscriptionKeys] = useState<SubscriptionKeys | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [showIOSInstallPrompt, setShowIOSInstallPrompt] = useState(false);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -82,7 +98,7 @@ export function PwaRegister() {
     }
   }, []);
 
-  // Listen for install prompt
+  // Listen for install prompt (Android/Chrome)
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -109,14 +125,37 @@ export function PwaRegister() {
     };
   }, []);
 
-  // Show notification prompt if not subscribed and permission not denied
+  // iOS-specific install prompt (Safari doesn't fire beforeinstallprompt)
   useEffect(() => {
-    if (
+    if (!isIOS() || isStandalone()) return;
+
+    // Check if user dismissed recently
+    const dismissedAt = localStorage.getItem(IOS_INSTALL_STORAGE_KEY);
+    if (dismissedAt) {
+      const dismissedDate = new Date(dismissedAt);
+      const cooldownEnd = new Date(dismissedDate.getTime() + INSTALL_PROMPT_COOLDOWN_DAYS * 24 * 60 * 60 * 1000);
+      if (new Date() < cooldownEnd) {
+        return;
+      }
+    }
+
+    // Show iOS install helper after a delay
+    const timer = setTimeout(() => setShowIOSInstallPrompt(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show notification prompt if not subscribed and permission not denied
+  // On iOS, only show if app is installed (standalone mode)
+  useEffect(() => {
+    const shouldShowNotificationPrompt =
       swRegistration &&
       !isSubscribed &&
       notificationPermission !== 'denied' &&
-      !localStorage.getItem(NOTIFICATION_STORAGE_KEY)
-    ) {
+      !localStorage.getItem(NOTIFICATION_STORAGE_KEY) &&
+      // On iOS, only prompt for notifications when running as installed PWA
+      (!isIOS() || isStandalone());
+
+    if (shouldShowNotificationPrompt) {
       // Show after a delay
       const timer = setTimeout(() => setShowNotificationPrompt(true), 5000);
       return () => clearTimeout(timer);
@@ -145,6 +184,11 @@ export function PwaRegister() {
   const handleDismissInstall = useCallback(() => {
     localStorage.setItem(INSTALL_PROMPT_STORAGE_KEY, new Date().toISOString());
     setShowInstallPrompt(false);
+  }, []);
+
+  const handleDismissIOSInstall = useCallback(() => {
+    localStorage.setItem(IOS_INSTALL_STORAGE_KEY, new Date().toISOString());
+    setShowIOSInstallPrompt(false);
   }, []);
 
   const handleEnableNotifications = useCallback(async () => {
@@ -265,7 +309,51 @@ export function PwaRegister() {
         onUnsubscribe={() => void handleUnsubscribe()}
       />
 
-      {/* Install Prompt */}
+      {/* iOS Install Helper */}
+      {showIOSInstallPrompt && (
+        <div className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-sm animate-in slide-in-from-bottom-4 sm:bottom-4 sm:left-auto sm:right-4">
+          <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-xl">
+            <button
+              onClick={handleDismissIOSInstall}
+              className="absolute right-2 top-2 rounded-full p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+              aria-label="Zatvori"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-100">
+                <Download className="h-5 w-5 text-primary-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-neutral-900">Instaliraj aplikaciju</h3>
+                <p className="mt-1 text-sm text-neutral-600">
+                  Za instalaciju na iPhone/iPad:
+                </p>
+                <ol className="mt-2 space-y-2 text-sm text-neutral-600">
+                  <li className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700">1</span>
+                    <span>Pritisnite <Share className="inline h-4 w-4 text-primary-600" /> na dnu ekrana</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700">2</span>
+                    <span>Odaberite &quot;Dodaj na početni zaslon&quot;</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700">3</span>
+                    <span>Pritisnite &quot;Dodaj&quot;</span>
+                  </li>
+                </ol>
+                <p className="mt-3 text-xs text-neutral-500">
+                  Nakon instalacije moći ćete primati obavijesti.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Install Prompt (Android/Chrome) */}
       {showInstallPrompt && deferredPrompt && (
         <div className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-sm animate-in slide-in-from-bottom-4 sm:bottom-4 sm:left-auto sm:right-4">
           <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-xl">
@@ -299,7 +387,7 @@ export function PwaRegister() {
       )}
 
       {/* Notification Prompt */}
-      {showNotificationPrompt && !showInstallPrompt && (
+      {showNotificationPrompt && !showInstallPrompt && !showIOSInstallPrompt && (
         <div className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-sm animate-in slide-in-from-bottom-4 sm:bottom-4 sm:left-auto sm:right-4">
           <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-xl">
             <button

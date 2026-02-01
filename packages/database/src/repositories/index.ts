@@ -124,10 +124,12 @@ export {
 } from './ai-queue';
 
 export * as pushSubscriptionsRepository from './push-subscriptions';
+export { isInQuietHours } from './push-subscriptions';
 export type {
   PushTopic,
   PushPreferences,
   CreatePushSubscriptionData,
   PushSubscriptionWithKeys,
+  PushSubscriptionWithPreferences,
   CreateNotificationSendData,
 } from './push-subscriptions';
