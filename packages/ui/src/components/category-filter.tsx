@@ -41,7 +41,10 @@ export function CategoryFilter({
       // Center the active button in the scroll container
       const scrollLeft =
         button.offsetLeft - container.offsetWidth / 2 + button.offsetWidth / 2;
-      container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+      // Guard for environments where scrollTo is not available (e.g., jsdom)
+      if (typeof container.scrollTo === 'function') {
+        container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+      }
     }
   }, [activeCategory]);
 
