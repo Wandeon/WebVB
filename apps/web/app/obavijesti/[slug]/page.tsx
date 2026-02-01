@@ -7,7 +7,7 @@ import {
   truncateText,
   withStaticParams,
 } from '@repo/shared';
-import { Badge, FadeIn, SectionHeader, ShareButtons } from '@repo/ui';
+import { ArticleContent, Badge, FadeIn, SectionHeader, ShareButtons } from '@repo/ui';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -274,10 +274,7 @@ export default async function AnnouncementDetailPage({
 
             {announcement.content && (
               <FadeIn>
-                <div
-                  className="prose prose-neutral max-w-none"
-                  dangerouslySetInnerHTML={{ __html: announcement.content }}
-                />
+                <ArticleContent content={announcement.content} />
               </FadeIn>
             )}
 

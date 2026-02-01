@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 04 - Public Website Rendering & Accessibility (2026-02-06)
+
+### Changed
+- Sanitized announcement detail HTML rendering with shared ArticleContent component
+- Added aria-pressed states and explicit button types to category filters for better keyboard/AT support
+- Ensured footer external links use safe anchor handling with rel attributes
+- Removed console logging from PWA registration and service worker flows
+- Updated TipTap fallback rendering message to Croatian
+
 ## Audit 09 - Launch Readiness & Ops Hardening (2026-02-06)
 
 ### Changed

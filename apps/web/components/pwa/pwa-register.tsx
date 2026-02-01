@@ -89,7 +89,7 @@ export function PwaRegister() {
         });
       })
       .catch((err) => {
-        console.error('SW registration failed:', err);
+        void err;
       });
 
     // Check notification permission
@@ -174,7 +174,7 @@ export function PwaRegister() {
         localStorage.setItem(INSTALL_PROMPT_STORAGE_KEY, new Date().toISOString());
       }
     } catch (err) {
-      console.error('Install prompt error:', err);
+      void err;
     } finally {
       setDeferredPrompt(null);
       setShowInstallPrompt(false);
@@ -247,7 +247,7 @@ export function PwaRegister() {
       localStorage.setItem(NOTIFICATION_STORAGE_KEY, 'true');
       setShowNotificationPrompt(false);
     } catch (err) {
-      console.error('Notification subscription error:', err);
+      void err;
     } finally {
       setIsLoading(false);
     }
@@ -279,7 +279,7 @@ export function PwaRegister() {
       setSubscriptionKeys(null);
       localStorage.removeItem(NOTIFICATION_STORAGE_KEY);
     } catch (err) {
-      console.error('Unsubscribe error:', err);
+      void err;
     }
   }, [swRegistration, subscriptionKeys]);
 

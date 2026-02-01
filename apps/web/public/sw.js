@@ -46,9 +46,7 @@ self.addEventListener('install', (event) => {
         }));
       })
       .then(() => self.skipWaiting())
-      .catch((err) => {
-        console.error('SW install failed:', err);
-      })
+      .catch(() => {})
   );
 });
 
@@ -64,7 +62,6 @@ self.addEventListener('activate', (event) => {
             // Delete any cache that isn't in our current version list
             .filter((name) => name.startsWith('vb-') && !currentCaches.includes(name))
             .map((name) => {
-              console.log('SW: Deleting old cache:', name);
               return caches.delete(name);
             })
         );
@@ -95,14 +92,13 @@ async function cleanStaleCacheEntries() {
           if (cachedAt) {
             const cacheAge = now - parseInt(cachedAt, 10);
             if (cacheAge > CACHE_TTL_MS) {
-              console.log('SW: Removing stale cache entry:', request.url);
               await cache.delete(request);
             }
           }
         }
       }
     } catch (err) {
-      console.error('SW: Error cleaning cache:', cacheName, err);
+      void err;
     }
   }
 }
@@ -187,7 +183,7 @@ async function syncWasteSchedule(apiUrl) {
 
     return cacheData;
   } catch (err) {
-    console.error('Failed to sync waste schedule:', err);
+    void err;
     return null;
   }
 }
@@ -383,6 +379,5 @@ self.addEventListener('notificationclick', (event) => {
 
 // Handle notification close
 self.addEventListener('notificationclose', (event) => {
-  // Could track analytics here if needed
-  console.log('Notification closed:', event.notification.tag);
+  void event;
 });
