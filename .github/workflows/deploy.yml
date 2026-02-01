@@ -1,0 +1,188 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Wait for Tailscale connection
+        run: |
+          for i in {1..30}; do
+            if tailscale status | grep -q "100."; then
+              echo "Tailscale connected"
+              break
+            fi
+            echo "Waiting for Tailscale... ($i/30)"
+            sleep 1
+          done
+          tailscale status
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            .turbo
+            node_modules/.prisma
+          key: deps-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: deps-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Test database connection
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pnpm --filter @repo/database exec prisma db execute --stdin <<< "SELECT 1;"
+
+      - name: Build admin app (standalone)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+        run: pnpm build --filter=@repo/admin
+
+      - name: Build web app (static)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: pnpm build --filter=@repo/web
+
+      - name: Verify build outputs
+        run: |
+          echo "=== Admin standalone ==="
+          ls -la apps/admin/.next/standalone/ | head -10
+          echo ""
+          echo "=== Web static ==="
+          ls -la apps/web/out/ | head -10
+          echo ""
+          echo "Web pages: $(find apps/web/out -name '*.html' | wc -l)"
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy web static files
+        run: |
+          rsync -avz --delete \
+            apps/web/out/ \
+            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/web-static/
+
+      - name: Deploy admin standalone
+        run: |
+          # Copy standalone app
+          rsync -avz --delete \
+            apps/admin/.next/standalone/ \
+            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-standalone/
+
+          # Copy static assets (not included in standalone)
+          rsync -avz \
+            apps/admin/.next/static/ \
+            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-standalone/.next/static/
+
+          # Copy public folder
+          rsync -avz \
+            apps/admin/public/ \
+            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-standalone/public/
+
+      - name: Restart admin service
+        run: |
+          ssh ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }} << 'EOF'
+            set -e
+            cd ~/apps/admin-standalone
+
+            # Create/update ecosystem file for PM2
+            cat > ecosystem.config.cjs << 'EOFPM2'
+          module.exports = {
+            apps: [{
+              name: 'vb-admin',
+              script: 'apps/admin/server.js',
+              cwd: '/home/deploy/apps/admin-standalone',
+              env: {
+                NODE_ENV: 'production',
+                PORT: '3001',
+                HOSTNAME: '0.0.0.0'
+              },
+              env_file: '/home/deploy/apps/admin-standalone/.env',
+              instances: 1,
+              exec_mode: 'fork',
+              max_memory_restart: '500M',
+              error_file: '/home/deploy/.pm2/logs/vb-admin-error.log',
+              out_file: '/home/deploy/.pm2/logs/vb-admin-out.log'
+            }]
+          };
+          EOFPM2
+
+            # Copy env file if not exists
+            if [ ! -f .env ]; then
+              cp ~/apps/admin-repo/apps/admin/.env .env 2>/dev/null || echo "No source .env found"
+            fi
+
+            # Restart or start PM2
+            if pm2 describe vb-admin > /dev/null 2>&1; then
+              pm2 reload ecosystem.config.cjs --update-env
+            else
+              pm2 start ecosystem.config.cjs
+            fi
+            pm2 save
+
+            # Health check with retry
+            for i in {1..10}; do
+              if curl -sf http://127.0.0.1:3001/api/healthz > /dev/null; then
+                echo "Admin app healthy!"
+                exit 0
+              fi
+              echo "Waiting for admin app... ($i/10)"
+              sleep 2
+            done
+            echo "Health check failed"
+            pm2 logs vb-admin --lines 20
+            exit 1
+          EOF
+
+      - name: Deployment summary
+        run: |
+          echo "✅ Deployment complete!"
+          echo ""
+          echo "Web:   http://${{ secrets.VPS_SSH_HOST }}/"
+          echo "Admin: http://${{ secrets.VPS_SSH_HOST }}:3001/"
