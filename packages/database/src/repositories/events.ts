@@ -69,6 +69,7 @@ export const eventsRepository = {
     });
 
     const where: Prisma.EventWhereInput = {};
+    const andFilters: Prisma.EventWhereInput[] = [];
 
     if (search) {
       where.OR = [
@@ -79,17 +80,25 @@ export const eventsRepository = {
     }
 
     if (from) {
-      where.eventDate = { ...where.eventDate as Prisma.DateTimeFilter, gte: from };
+      andFilters.push({ eventDate: { gte: from } });
     }
 
     if (to) {
-      where.eventDate = { ...where.eventDate as Prisma.DateTimeFilter, lte: to };
+      andFilters.push({ eventDate: { lte: to } });
     }
 
     if (upcoming) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      where.eventDate = { ...where.eventDate as Prisma.DateTimeFilter, gte: today };
+      const today = getZagrebStartOfDay();
+      andFilters.push({
+        OR: [
+          { eventDate: { gte: today } },
+          { endDate: { gte: today } },
+        ],
+      });
+    }
+
+    if (andFilters.length > 0) {
+      where.AND = andFilters;
     }
 
     const [total, events] = await Promise.all([
@@ -153,13 +162,15 @@ export const eventsRepository = {
    * Get upcoming events (from today onwards)
    */
   async getUpcomingEvents(limit: number = 5): Promise<Event[]> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getZagrebStartOfDay();
     const safeLimit = clampLimit(limit, 5);
 
     return db.event.findMany({
       where: {
-        eventDate: { gte: today },
+        OR: [
+          { eventDate: { gte: today } },
+          { endDate: { gte: today } },
+        ],
       },
       orderBy: { eventDate: 'asc' },
       take: safeLimit,
@@ -175,10 +186,22 @@ export const eventsRepository = {
 
     return db.event.findMany({
       where: {
-        eventDate: {
-          gte: startDate,
-          lte: endDate,
-        },
+        OR: [
+          {
+            eventDate: {
+              gte: startDate,
+              lte: endDate,
+            },
+          },
+          {
+            endDate: {
+              gte: startDate,
+            },
+            eventDate: {
+              lte: endDate,
+            },
+          },
+        ],
       },
       orderBy: { eventDate: 'asc' },
     });
@@ -196,11 +219,19 @@ export const eventsRepository = {
       limit,
       defaultLimit: 20,
     });
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getZagrebStartOfDay();
 
     const where: Prisma.EventWhereInput = {
-      eventDate: { lt: today },
+      OR: [
+        {
+          endDate: { lt: today },
+          eventDate: { lt: today },
+        },
+        {
+          endDate: null,
+          eventDate: { lt: today },
+        },
+      ],
     };
 
     const [total, events] = await Promise.all([
@@ -261,3 +292,10 @@ export const eventsRepository = {
     });
   },
 };
+
+function getZagrebStartOfDay(): Date {
+  const now = new Date();
+  const zagrebNow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Zagreb' }));
+  zagrebNow.setHours(0, 0, 0, 0);
+  return zagrebNow;
+}

@@ -320,6 +320,7 @@ export default async function HomePage() {
                     description={event.description}
                     eventDate={event.eventDate}
                     eventTime={event.eventTime}
+                    endDate={event.endDate}
                     location={event.location}
                     posterImage={event.posterImage}
                   />

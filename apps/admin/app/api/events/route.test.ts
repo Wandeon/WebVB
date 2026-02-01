@@ -272,7 +272,7 @@ describe('Events API', () => {
 
       expect(response.status).toBe(400);
       expect(data.success).toBe(false);
-      expect(data.error?.message).toContain('Datum završetka');
+      expect(data.error?.message).toContain('Završni datum');
     });
   });
 });

@@ -1,5 +1,11 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+import { ArrowLeft } from 'lucide-react';
+
 import {
   ContentTypeSwitcher,
   EventCalendar,
@@ -7,10 +13,6 @@ import {
   EventTabs,
   FadeIn,
 } from '@repo/ui';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
 
 interface Event {
   id: string;
@@ -18,6 +20,7 @@ interface Event {
   description: string | null;
   eventDate: Date;
   eventTime: Date | null;
+  endDate: Date | null;
   location: string | null;
   posterImage: string | null;
 }
@@ -26,6 +29,7 @@ interface CalendarEvent {
   id: string;
   title: string;
   date: Date;
+  endDate: Date | null;
 }
 
 interface SerializedEvent {
@@ -34,6 +38,7 @@ interface SerializedEvent {
   description: string | null;
   eventDate: string;
   eventTime: string | null;
+  endDate: string | null;
   location: string | null;
   posterImage: string | null;
 }
@@ -42,6 +47,7 @@ interface SerializedCalendarEvent {
   id: string;
   title: string;
   eventDate: string;
+  endDate: string | null;
 }
 
 interface Pagination {
@@ -91,12 +97,14 @@ const deserializeEvent = (event: SerializedEvent): Event => ({
   ...event,
   eventDate: new Date(event.eventDate),
   eventTime: event.eventTime ? new Date(event.eventTime) : null,
+  endDate: event.endDate ? new Date(event.endDate) : null,
 });
 
 const deserializeCalendarEvent = (event: SerializedCalendarEvent): CalendarEvent => ({
   id: event.id,
   title: event.title,
   date: new Date(event.eventDate),
+  endDate: event.endDate ? new Date(event.endDate) : null,
 });
 
 export function EventsPageClient({ initialData }: EventsPageClientProps) {
@@ -314,6 +322,7 @@ export function EventsPageClient({ initialData }: EventsPageClientProps) {
                     description={event.description}
                     eventDate={event.eventDate}
                     eventTime={event.eventTime}
+                    endDate={event.endDate}
                     location={event.location}
                     posterImage={event.posterImage}
                   />

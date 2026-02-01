@@ -62,6 +62,14 @@ function escapeICSValue(value: string): string {
     .replace(/\r?\n/g, '\\n');
 }
 
+function normalizeEndDate(startDate: Date, endDate: Date | null): Date | null {
+  if (!endDate || endDate <= startDate) {
+    return null;
+  }
+
+  return endDate;
+}
+
 function buildCalendarDates({
   startDate,
   startTime,
@@ -71,9 +79,10 @@ function buildCalendarDates({
   end: string;
   isAllDay: boolean;
 } {
+  const safeEndDate = normalizeEndDate(startDate, endDate);
   const isAllDay = !startTime;
   if (isAllDay) {
-    const end = endDate ? new Date(endDate) : new Date(startDate);
+    const end = safeEndDate ? new Date(safeEndDate) : new Date(startDate);
     end.setDate(end.getDate() + 1);
     return {
       start: formatLocalDate(startDate),
@@ -88,8 +97,8 @@ function buildCalendarDates({
   const defaultEndTime = new Date(startTime.getTime() + 60 * 60 * 1000);
 
   const start = formatLocalDateTime(startDate, startTime);
-  const endBase = endDate ? new Date(endDate) : withStartTime;
-  const endTime = endDate ? startTime : defaultEndTime;
+  const endBase = safeEndDate ? new Date(safeEndDate) : withStartTime;
+  const endTime = safeEndDate ? startTime : defaultEndTime;
   const end = formatLocalDateTime(endBase, endTime);
   return { start, end, isAllDay };
 }
@@ -99,7 +108,7 @@ export function generateICS(props: Omit<AddToCalendarProps, 'className'>): strin
   const { start, end, isAllDay } = buildCalendarDates({
     startDate,
     startTime: startTime ?? null,
-    endDate,
+    endDate: normalizeEndDate(startDate, endDate),
   });
   const safeTitle = escapeICSValue(title);
   const safeDescription = escapeICSValue(description ? stripHtml(description) : '');

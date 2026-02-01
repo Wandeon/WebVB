@@ -70,4 +70,4 @@ export const PAGINATION = {
   MAX_LIMIT: 100,
 } as const;
 
-export { PAGE_SLUG_SEGMENT_REGEX } from './pages';
+export { PAGE_SLUG_SEGMENT_REGEX, RESERVED_PAGE_SLUGS } from './pages';

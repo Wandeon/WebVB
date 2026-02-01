@@ -29,7 +29,7 @@ const optionalTimeStringSchema = z
   .transform((value) => (value ? value : null))
   .optional();
 
-export const eventFormSchema = z
+const eventFormBaseSchema = z
   .object({
     title: z
       .string()
@@ -58,13 +58,32 @@ export const eventFormSchema = z
   })
   .strict();
 
+export const eventFormSchema = eventFormBaseSchema.superRefine((data, ctx) => {
+  if (data.endDate && data.eventDate && data.endDate < data.eventDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Završni datum ne može biti prije početnog datuma',
+      path: ['endDate'],
+    });
+  }
+});
+
 export const createEventSchema = eventFormSchema;
-export const updateEventSchema = eventFormSchema
+export const updateEventSchema = eventFormBaseSchema
   .partial()
   .extend({
     id: z.string().uuid(),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    if (data.endDate && data.eventDate && data.endDate < data.eventDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Završni datum ne može biti prije početnog datuma',
+        path: ['endDate'],
+      });
+    }
+  });
 
 export type CreateEventInput = z.infer<typeof createEventSchema>;
 export type UpdateEventInput = z.infer<typeof updateEventSchema>;

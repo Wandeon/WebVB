@@ -1,6 +1,7 @@
+import { Suspense } from 'react';
+
 import { eventsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
-import { Suspense } from 'react';
 
 import { EventsPageClient } from './events-page-client';
 
@@ -54,6 +55,7 @@ async function getInitialEventsData(): Promise<EventsPageInitialData> {
       description: event.description,
       eventDate: event.eventDate.toISOString(),
       eventTime: event.eventTime ? event.eventTime.toISOString() : null,
+      endDate: event.endDate ? event.endDate.toISOString() : null,
       location: event.location,
       posterImage: event.posterImage,
     })),
@@ -61,6 +63,7 @@ async function getInitialEventsData(): Promise<EventsPageInitialData> {
       id: event.id,
       title: event.title,
       eventDate: event.eventDate.toISOString(),
+      endDate: event.endDate ? event.endDate.toISOString() : null,
     })),
     pagination: eventsResult.pagination,
     initialYear,
