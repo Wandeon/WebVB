@@ -64,7 +64,6 @@ self.addEventListener('activate', (event) => {
             // Delete any cache that isn't in our current version list
             .filter((name) => name.startsWith('vb-') && !currentCaches.includes(name))
             .map((name) => {
-              console.log('SW: Deleting old cache:', name);
               return caches.delete(name);
             })
         );
@@ -95,7 +94,6 @@ async function cleanStaleCacheEntries() {
           if (cachedAt) {
             const cacheAge = now - parseInt(cachedAt, 10);
             if (cacheAge > CACHE_TTL_MS) {
-              console.log('SW: Removing stale cache entry:', request.url);
               await cache.delete(request);
             }
           }

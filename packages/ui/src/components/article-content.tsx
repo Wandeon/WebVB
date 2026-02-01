@@ -157,7 +157,7 @@ function tipTapToHtml(jsonContent: string): string {
     return nodeToHtml(doc as TipTapNode);
   } catch (error) {
     console.error('Failed to convert TipTap JSON to HTML:', error);
-    return '<p>Error loading content</p>';
+    return '<p>Sadržaj trenutno nije moguće prikazati.</p>';
   }
 }
 

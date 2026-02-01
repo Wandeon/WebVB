@@ -20,6 +20,9 @@ interface FooterProps {
 }
 
 export function Footer({ groups, logo, copyright, className, socialLinks }: FooterProps) {
+    const isExternalLink = (href: string) => href.startsWith('http://') || href.startsWith('https://');
+    const isMailLink = (href: string) => href.startsWith('mailto:') || href.startsWith('tel:');
+
     return (
         <footer className={cn('bg-neutral-900 text-neutral-50', className)}>
             <div className="container mx-auto px-4 py-12 md:py-16">
@@ -43,12 +46,24 @@ export function Footer({ groups, logo, copyright, className, socialLinks }: Foot
                                 <ul className="space-y-1.5 md:space-y-2">
                                     {group.items.map((item) => (
                                         <li key={item.title}>
-                                            <Link
-                                                href={item.href}
-                                                className="text-xs text-neutral-300 transition-colors hover:text-white md:text-sm"
-                                            >
-                                                {item.title}
-                                            </Link>
+                                            {isExternalLink(item.href) || isMailLink(item.href) ? (
+                                                <a
+                                                    href={item.href}
+                                                    className="text-xs text-neutral-300 transition-colors hover:text-white md:text-sm"
+                                                    {...(isExternalLink(item.href)
+                                                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                                                        : {})}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            ) : (
+                                                <Link
+                                                    href={item.href}
+                                                    className="text-xs text-neutral-300 transition-colors hover:text-white md:text-sm"
+                                                >
+                                                    {item.title}
+                                                </Link>
+                                            )}
                                         </li>
                                     ))}
                                 </ul>

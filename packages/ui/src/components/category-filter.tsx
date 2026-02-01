@@ -92,7 +92,9 @@ export function CategoryFilter({
     >
       <button
         ref={!activeCategory ? activeButtonRef : null}
+        type="button"
         onClick={() => handleCategoryChange(null)}
+        aria-pressed={!activeCategory}
         className={cn(
           'relative shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-all',
           'sm:px-4 sm:py-2',
@@ -114,7 +116,9 @@ export function CategoryFilter({
         <button
           key={cat.value}
           ref={activeCategory === cat.value ? activeButtonRef : null}
+          type="button"
           onClick={() => handleCategoryChange(cat.value)}
+          aria-pressed={activeCategory === cat.value}
           className={cn(
             'relative shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-all',
             'sm:px-4 sm:py-2',
