@@ -28,7 +28,7 @@ address: Trg svetog Franje 425, 42231 Veliki Bukovec, Hrvatska
 phone: +385 42 719 001
 email: opcina@velikibukovec.hr
 vat_id: HR92aborable
-mayor: Marko Galić
+mayor: Ivan Modrić
 
 # Settlements
 settlements: Veliki Bukovec, Dubovica, Kapela Podravska
