@@ -1,6 +1,7 @@
 import { checkHealth, isOllamaCloudConfigured } from '@/lib/ai';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { aiLogger } from '@/lib/logger';
 
 import type { NextRequest } from 'next/server';
 
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
       ...health,
     });
   } catch (error) {
-    console.error('AI health check failed:', error);
+    aiLogger.error({ error }, 'AI health check failed');
     return apiError(
       ErrorCodes.INTERNAL_ERROR,
       'Health check failed',

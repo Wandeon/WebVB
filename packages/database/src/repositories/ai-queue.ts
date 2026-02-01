@@ -4,7 +4,13 @@ import { normalizePagination } from './pagination';
 import type { Prisma } from '@prisma/client';
 
 // Status type for AI queue jobs
-export type AiQueueStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type AiQueueStatus =
+  | 'pending'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'dead_letter';
 
 // Request types supported by the AI queue
 export type AiRequestType = 'post_generation' | 'newsletter_intro' | 'content_summary';
@@ -20,6 +26,9 @@ export interface AiQueueRecord {
   errorMessage: string | null;
   attempts: number;
   maxAttempts: number;
+  lockedAt: Date | null;
+  lockedBy: string | null;
+  leaseExpiresAt: Date | null;
   createdAt: Date;
   processedAt: Date | null;
 }
@@ -60,6 +69,8 @@ export interface AiQueueStats {
   processing: number;
   completed: number;
   failed: number;
+  cancelled: number;
+  deadLetter: number;
   total: number;
 }
 
@@ -80,6 +91,9 @@ function transformToRecord(
     errorMessage: job.errorMessage,
     attempts: job.attempts,
     maxAttempts: job.maxAttempts,
+    lockedAt: job.lockedAt,
+    lockedBy: job.lockedBy,
+    leaseExpiresAt: job.leaseExpiresAt,
     createdAt: job.createdAt,
     processedAt: job.processedAt,
   };
@@ -99,6 +113,33 @@ export const aiQueueRepository = {
       },
     });
     return transformToRecord(job);
+  },
+
+  /**
+   * Find a job by idempotency key stored in inputData
+   */
+  async findByIdempotencyKey({
+    userId,
+    requestType,
+    idempotencyKey,
+  }: {
+    userId?: string | null;
+    requestType: AiRequestType;
+    idempotencyKey: string;
+  }): Promise<AiQueueRecord | null> {
+    const job = await db.aiQueue.findFirst({
+      where: {
+        userId: userId ?? null,
+        requestType,
+        status: { not: 'cancelled' },
+        inputData: {
+          path: ['idempotencyKey'],
+          equals: idempotencyKey,
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return job ? transformToRecord(job) : null;
   },
 
   /**
@@ -134,9 +175,87 @@ export const aiQueueRepository = {
       data: {
         status: 'processing',
         attempts: { increment: 1 },
+        lockedAt: new Date(),
+        lockedBy: 'manual',
+        leaseExpiresAt: new Date(Date.now() + 5 * 60 * 1000),
       },
     });
     return transformToRecord(job);
+  },
+
+  /**
+   * Claim the next available job with a lease to prevent duplicate processing.
+   * Allows reclaiming stale processing jobs with expired leases.
+   */
+  async claimNext({
+    workerId,
+    leaseMs,
+  }: {
+    workerId: string;
+    leaseMs: number;
+  }): Promise<AiQueueRecord | null> {
+    const now = new Date();
+    const leaseExpiresAt = new Date(now.getTime() + leaseMs);
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const job = await db.aiQueue.findFirst({
+        where: {
+          status: { in: ['pending', 'processing'] },
+          OR: [
+            { status: 'pending' },
+            { status: 'processing', leaseExpiresAt: { lt: now } },
+            { status: 'processing', leaseExpiresAt: null },
+          ],
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (!job) {
+        return null;
+      }
+
+      if (job.attempts >= job.maxAttempts) {
+        await db.aiQueue.update({
+          where: { id: job.id },
+          data: {
+            status: 'dead_letter',
+            errorMessage: 'Maksimalni broj pokušaja je prekoračen',
+            processedAt: new Date(),
+            lockedAt: null,
+            lockedBy: null,
+            leaseExpiresAt: null,
+          },
+        });
+        continue;
+      }
+
+      const claimed = await db.aiQueue.updateMany({
+        where: {
+          id: job.id,
+          status: job.status,
+          ...(job.status === 'processing'
+            ? { leaseExpiresAt: job.leaseExpiresAt }
+            : {}),
+        },
+        data: {
+          status: 'processing',
+          attempts: { increment: 1 },
+          lockedAt: now,
+          lockedBy: workerId,
+          leaseExpiresAt,
+          errorMessage: null,
+        },
+      });
+
+      if (claimed.count === 0) {
+        continue;
+      }
+
+      const claimedJob = await db.aiQueue.findUnique({ where: { id: job.id } });
+      return claimedJob ? transformToRecord(claimedJob) : null;
+    }
+
+    return null;
   },
 
   /**
@@ -152,6 +271,9 @@ export const aiQueueRepository = {
         status: 'completed',
         result: result as Prisma.InputJsonValue,
         processedAt: new Date(),
+        lockedAt: null,
+        lockedBy: null,
+        leaseExpiresAt: null,
       },
     });
     return transformToRecord(job);
@@ -160,13 +282,21 @@ export const aiQueueRepository = {
   /**
    * Mark a job as failed with an error message
    */
-  async markFailed(id: string, errorMessage: string): Promise<AiQueueRecord> {
+  async markFailed(
+    id: string,
+    errorMessage: string,
+    result?: Record<string, unknown>
+  ): Promise<AiQueueRecord> {
     const job = await db.aiQueue.update({
       where: { id },
       data: {
         status: 'failed',
         errorMessage,
         processedAt: new Date(),
+        ...(result ? { result: result as Prisma.InputJsonValue } : {}),
+        lockedAt: null,
+        lockedBy: null,
+        leaseExpiresAt: null,
       },
     });
     return transformToRecord(job);
@@ -182,6 +312,9 @@ export const aiQueueRepository = {
         status: 'pending',
         errorMessage: null,
         processedAt: null,
+        lockedAt: null,
+        lockedBy: null,
+        leaseExpiresAt: null,
       },
     });
     return transformToRecord(job);
@@ -203,9 +336,12 @@ export const aiQueueRepository = {
     const job = await db.aiQueue.update({
       where: { id },
       data: {
-        status: 'failed',
-        errorMessage: 'Cancelled by user',
+        status: 'cancelled',
+        errorMessage: 'Otkazano od strane korisnika',
         processedAt: new Date(),
+        lockedAt: null,
+        lockedBy: null,
+        leaseExpiresAt: null,
       },
     });
     return transformToRecord(job);
@@ -272,11 +408,13 @@ export const aiQueueRepository = {
    * Get statistics about queue jobs by status
    */
   async getStats(): Promise<AiQueueStats> {
-    const [pending, processing, completed, failed] = await Promise.all([
+    const [pending, processing, completed, failed, cancelled, deadLetter] = await Promise.all([
       db.aiQueue.count({ where: { status: 'pending' } }),
       db.aiQueue.count({ where: { status: 'processing' } }),
       db.aiQueue.count({ where: { status: 'completed' } }),
       db.aiQueue.count({ where: { status: 'failed' } }),
+      db.aiQueue.count({ where: { status: 'cancelled' } }),
+      db.aiQueue.count({ where: { status: 'dead_letter' } }),
     ]);
 
     return {
@@ -284,7 +422,9 @@ export const aiQueueRepository = {
       processing,
       completed,
       failed,
-      total: pending + processing + completed + failed,
+      cancelled,
+      deadLetter,
+      total: pending + processing + completed + failed + cancelled + deadLetter,
     };
   },
 
@@ -298,7 +438,7 @@ export const aiQueueRepository = {
 
     const result = await db.aiQueue.deleteMany({
       where: {
-        status: { in: ['completed', 'failed'] },
+        status: { in: ['completed', 'failed', 'cancelled', 'dead_letter'] },
         processedAt: { lt: cutoffDate },
       },
     });

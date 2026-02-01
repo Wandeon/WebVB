@@ -374,7 +374,10 @@ model AiQueue {
   userId       String?   @map("user_id")
   requestType  String    @map("request_type") // 'post_generation', 'chat'
   inputData    Json      @map("input_data")
-  status       String    @default("pending") // 'pending', 'processing', 'completed', 'failed'
+  status       String    @default("pending") // 'pending', 'processing', 'completed', 'failed', 'cancelled', 'dead_letter'
+  lockedAt     DateTime? @map("locked_at")
+  lockedBy     String?   @map("locked_by")
+  leaseExpiresAt DateTime? @map("lease_expires_at")
   result       Json?
   errorMessage String?   @map("error_message")
   attempts     Int       @default(0)

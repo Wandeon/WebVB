@@ -3,11 +3,15 @@
  * Background worker that polls for pending AI jobs and processes them
  */
 
+import { randomUUID } from 'crypto';
+
 import { aiQueueRepository } from '@repo/database';
+import { z } from 'zod';
 
 import { aiLogger } from '../logger';
 import { generate, isOllamaCloudConfigured } from './ollama-cloud';
 import { runArticlePipeline } from './pipeline';
+import { hashText } from './prompt-utils';
 
 import type { AiQueueRecord } from '@repo/database';
 
@@ -27,6 +31,9 @@ interface PostGenerationResult {
 
 const POLL_INTERVAL_MS = 10_000; // 10 seconds
 const WORKER_ENABLED = process.env.AI_WORKER_ENABLED !== 'false';
+const WORKER_ID = process.env.AI_WORKER_ID ?? randomUUID();
+const LEASE_DURATION_MS = 5 * 60 * 1000;
+const MAX_CONTENT_LENGTH = 20000;
 
 // =============================================================================
 // State
@@ -39,37 +46,74 @@ let isProcessing = false;
 // Helper Functions
 // =============================================================================
 
-/**
- * Parse post generation result from AI response
- * Extracts JSON from the response and validates structure
- * Returns null if parsing fails
- */
-function parsePostGenerationResult(response: string): PostGenerationResult | null {
+const postGenerationSchema = z
+  .object({
+    title: z.string().min(1).max(100),
+    content: z.string().min(1).max(MAX_CONTENT_LENGTH),
+    excerpt: z.string().min(1).max(200),
+  })
+  .strict();
+
+const ALLOWED_HTML_TAGS = new Set(['p', 'h2', 'h3', 'ul', 'li', 'strong', 'em', 'a', 'br']);
+
+function extractJson(response: string): unknown {
+  const jsonMatch = response.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return null;
+
   try {
-    // Try to extract JSON from the response (AI might include extra text)
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
-
-    const parsed = JSON.parse(jsonMatch[0]) as unknown;
-
-    // Validate structure
-    if (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      'title' in parsed &&
-      'content' in parsed &&
-      'excerpt' in parsed &&
-      typeof (parsed as PostGenerationResult).title === 'string' &&
-      typeof (parsed as PostGenerationResult).content === 'string' &&
-      typeof (parsed as PostGenerationResult).excerpt === 'string'
-    ) {
-      return parsed as PostGenerationResult;
-    }
-
-    return null;
+    return JSON.parse(jsonMatch[0]) as unknown;
   } catch {
     return null;
   }
+}
+
+function containsUnsafeMarkup(value: string): boolean {
+  return /<\s*script\b|javascript:|on\w+\s*=|<\s*iframe\b/i.test(value);
+}
+
+function hasOnlyAllowedTags(value: string): boolean {
+  const tagRegex = /<\/?([a-z0-9-]+)(\s[^>]*)?>/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = tagRegex.exec(value)) !== null) {
+    const tagName = match[1]?.toLowerCase();
+    if (!tagName || !ALLOWED_HTML_TAGS.has(tagName)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function validatePostGenerationResult(response: string): {
+  result: PostGenerationResult | null;
+  error?: string;
+} {
+  const extracted = extractJson(response);
+  if (!extracted) {
+    return { result: null, error: 'Neispravan JSON odgovor' };
+  }
+
+  const parsed = postGenerationSchema.safeParse(extracted);
+  if (!parsed.success) {
+    return { result: null, error: 'Neispravna struktura AI odgovora' };
+  }
+
+  const { title, content, excerpt } = parsed.data;
+
+  if (/[<>]/.test(title) || /[<>]/.test(excerpt)) {
+    return { result: null, error: 'Naslov ili sažetak sadrži HTML' };
+  }
+
+  if (containsUnsafeMarkup(content)) {
+    return { result: null, error: 'Sadržaj sadrži nesiguran HTML' };
+  }
+
+  if (!hasOnlyAllowedTags(content)) {
+    return { result: null, error: 'Sadržaj sadrži nepodržane HTML tagove' };
+  }
+
+  return { result: parsed.data };
 }
 
 // =============================================================================
@@ -86,12 +130,9 @@ function parsePostGenerationResult(response: string): PostGenerationResult | nul
  */
 async function processJob(job: AiQueueRecord): Promise<void> {
   aiLogger.info(
-    { jobId: job.id, requestType: job.requestType, attempt: job.attempts + 1 },
+    { jobId: job.id, requestType: job.requestType, attempt: job.attempts },
     'Processing AI queue job'
   );
-
-  // Mark job as processing and increment attempts
-  const updatedJob = await aiQueueRepository.markProcessing(job.id);
 
   // Extract prompt and system from input data
   const inputData = job.inputData as { prompt?: string; system?: string };
@@ -100,7 +141,18 @@ async function processJob(job: AiQueueRecord): Promise<void> {
 
   if (!prompt) {
     aiLogger.error({ jobId: job.id }, 'Job missing required prompt in inputData');
-    await aiQueueRepository.markFailed(job.id, 'Missing required prompt in inputData');
+    await aiQueueRepository.markFailed(
+      job.id,
+      'Nedostaje obavezni prompt u inputData'
+    );
+    return;
+  }
+
+  if (job.attempts > job.maxAttempts) {
+    await aiQueueRepository.markFailed(
+      job.id,
+      `Prekoračen maksimalni broj pokušaja (${job.maxAttempts})`
+    );
     return;
   }
 
@@ -116,8 +168,10 @@ async function processJob(job: AiQueueRecord): Promise<void> {
     );
 
     // Build result data
+    const responseHash = hashText(result.data.response);
     const resultData: Record<string, unknown> = {
-      response: result.data.response,
+      responseHash,
+      responseLength: result.data.response.length,
       model: result.data.model,
       promptTokens: result.data.prompt_eval_count,
       completionTokens: result.data.eval_count,
@@ -128,35 +182,67 @@ async function processJob(job: AiQueueRecord): Promise<void> {
 
     // For post_generation jobs, parse the response and run through pipeline
     if (job.requestType === 'post_generation') {
-      const parsedResult = parsePostGenerationResult(result.data.response);
-      if (parsedResult) {
-        aiLogger.info({ jobId: job.id }, 'Running article through quality pipeline');
+      const validated = validatePostGenerationResult(result.data.response);
 
-        // Run through REVIEW → REWRITE → POLISH pipeline
-        const pipelineResult = await runArticlePipeline(parsedResult);
-
-        aiLogger.info(
-          {
-            jobId: job.id,
-            finalScore: pipelineResult.finalScore,
-            passed: pipelineResult.passed,
-            rewriteCount: pipelineResult.rewriteCount,
-          },
-          'Article pipeline completed'
-        );
-
-        resultData.title = pipelineResult.article.title;
-        resultData.content = pipelineResult.article.content;
-        resultData.excerpt = pipelineResult.article.excerpt;
-        resultData.pipelineScore = pipelineResult.finalScore;
-        resultData.pipelinePassed = pipelineResult.passed;
-        resultData.pipelineRewriteCount = pipelineResult.rewriteCount;
-      } else {
+      if (!validated.result) {
         aiLogger.warn(
-          { jobId: job.id },
-          'Failed to parse post generation result, storing raw response'
+          { jobId: job.id, reason: validated.error },
+          'Invalid post generation response'
         );
+        await aiQueueRepository.markFailed(
+          job.id,
+          validated.error ?? 'Neispravan AI odgovor',
+          resultData
+        );
+        return;
       }
+
+      aiLogger.info({ jobId: job.id }, 'Running article through quality pipeline');
+
+      // Run through REVIEW → REWRITE → POLISH pipeline
+      const pipelineResult = await runArticlePipeline(validated.result);
+
+      aiLogger.info(
+        {
+          jobId: job.id,
+          finalScore: pipelineResult.finalScore,
+          passed: pipelineResult.passed,
+          rewriteCount: pipelineResult.rewriteCount,
+        },
+        'Article pipeline completed'
+      );
+
+      if (!pipelineResult.passed) {
+        await aiQueueRepository.markFailed(
+          job.id,
+          'AI članak nije prošao provjeru kvalitete',
+          {
+            ...resultData,
+            pipelineScore: pipelineResult.finalScore,
+            pipelinePassed: pipelineResult.passed,
+            pipelineRewriteCount: pipelineResult.rewriteCount,
+          }
+        );
+        return;
+      }
+
+      resultData.title = pipelineResult.article.title;
+      resultData.content = pipelineResult.article.content;
+      resultData.excerpt = pipelineResult.article.excerpt;
+      resultData.pipelineScore = pipelineResult.finalScore;
+      resultData.pipelinePassed = pipelineResult.passed;
+      resultData.pipelineRewriteCount = pipelineResult.rewriteCount;
+    } else {
+      if (containsUnsafeMarkup(result.data.response)) {
+        await aiQueueRepository.markFailed(
+          job.id,
+          'AI odgovor sadrži nesiguran sadržaj',
+          resultData
+        );
+        return;
+      }
+
+      resultData.response = result.data.response;
     }
 
     await aiQueueRepository.markCompleted(job.id, resultData);
@@ -170,28 +256,28 @@ async function processJob(job: AiQueueRecord): Promise<void> {
         jobId: job.id,
         errorCode,
         errorMessage,
-        attempt: updatedJob.attempts,
-        maxAttempts: updatedJob.maxAttempts,
+        attempt: job.attempts,
+        maxAttempts: job.maxAttempts,
       },
       'AI queue job failed'
     );
 
-    if (updatedJob.attempts < updatedJob.maxAttempts) {
+    if (job.attempts < job.maxAttempts) {
       // Reset to pending for retry
       aiLogger.info(
-        { jobId: job.id, attemptsRemaining: updatedJob.maxAttempts - updatedJob.attempts },
+        { jobId: job.id, attemptsRemaining: job.maxAttempts - job.attempts },
         'Resetting job to pending for retry'
       );
       await aiQueueRepository.resetToPending(job.id);
     } else {
       // Max attempts reached - mark as permanently failed
       aiLogger.error(
-        { jobId: job.id, attempts: updatedJob.attempts },
+        { jobId: job.id, attempts: job.attempts },
         'AI queue job permanently failed after max attempts'
       );
       await aiQueueRepository.markFailed(
         job.id,
-        `${errorCode}: ${errorMessage} (after ${updatedJob.attempts} attempts)`
+        `${errorCode}: ${errorMessage} (after ${job.attempts} attempts)`
       );
     }
   }
@@ -220,7 +306,10 @@ async function pollAndProcess(): Promise<void> {
 
   try {
     // Find the oldest pending job
-    const job = await aiQueueRepository.findPending();
+    const job = await aiQueueRepository.claimNext({
+      workerId: WORKER_ID,
+      leaseMs: LEASE_DURATION_MS,
+    });
 
     if (job) {
       await processJob(job);
@@ -260,7 +349,7 @@ export function startQueueWorker(): void {
   }
 
   aiLogger.info(
-    { pollIntervalMs: POLL_INTERVAL_MS },
+    { pollIntervalMs: POLL_INTERVAL_MS, workerId: WORKER_ID, leaseMs: LEASE_DURATION_MS },
     'Starting AI queue worker'
   );
 
@@ -313,7 +402,10 @@ export async function triggerProcessing(): Promise<{
 
   try {
     // Find a pending job
-    const job = await aiQueueRepository.findPending();
+    const job = await aiQueueRepository.claimNext({
+      workerId: WORKER_ID,
+      leaseMs: LEASE_DURATION_MS,
+    });
 
     if (!job) {
       return { processed: false };

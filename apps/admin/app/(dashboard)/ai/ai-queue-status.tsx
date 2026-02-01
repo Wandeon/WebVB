@@ -42,6 +42,8 @@ interface QueueStats {
   processing: number;
   completed: number;
   failed: number;
+  cancelled: number;
+  deadLetter: number;
   total: number;
   workerRunning: boolean;
   ollamaConfigured: boolean;
@@ -89,6 +91,8 @@ const STATUS_LABELS: Record<string, string> = {
   processing: 'U obradi',
   completed: 'Zavrseno',
   failed: 'Neuspjelo',
+  cancelled: 'Otkazano',
+  dead_letter: 'Prekoraceno',
 };
 
 // Auto-refresh interval in milliseconds
@@ -105,6 +109,7 @@ export function AiQueueStatus() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Fetch queue stats
   const fetchStats = useCallback(async () => {
@@ -114,9 +119,12 @@ export function AiQueueStatus() {
 
       if (result.success && result.data) {
         setStats(result.data);
+        setFetchError(null);
       }
-    } catch {
-      // Silent fail for stats - will retry on next refresh
+    } catch (error) {
+      setFetchError(
+        error instanceof Error ? error.message : 'Nije moguće dohvatiti statistiku'
+      );
     }
   }, []);
 
@@ -132,9 +140,12 @@ export function AiQueueStatus() {
       if (result.success && result.data) {
         setJobs(result.data.jobs);
         setPagination(result.data.pagination);
+        setFetchError(null);
       }
-    } catch {
-      // Silent fail for jobs - will retry on next refresh
+    } catch (error) {
+      setFetchError(
+        error instanceof Error ? error.message : 'Nije moguće dohvatiti zadatke'
+      );
     }
   }, []);
 
@@ -228,8 +239,16 @@ export function AiQueueStatus() {
           </Badge>
         );
       case 'failed':
+      case 'dead_letter':
         return (
           <Badge className="bg-red-100 text-red-800">
+            <XCircle className="mr-1 h-3 w-3" />
+            {STATUS_LABELS[status]}
+          </Badge>
+        );
+      case 'cancelled':
+        return (
+          <Badge className="bg-neutral-200 text-neutral-700">
             <XCircle className="mr-1 h-3 w-3" />
             {STATUS_LABELS[status]}
           </Badge>
@@ -261,6 +280,11 @@ export function AiQueueStatus() {
 
   return (
     <div className="space-y-6">
+      {fetchError && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
+          {fetchError}
+        </div>
+      )}
       {/* System Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Ollama Cloud Status */}
@@ -349,7 +373,7 @@ export function AiQueueStatus() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             <div className="bg-amber-50 rounded-lg p-4 text-center">
               <div className="text-3xl font-bold text-amber-600">{stats?.pending ?? 0}</div>
               <div className="text-sm text-amber-700 mt-1">Na cekanju</div>
@@ -365,6 +389,18 @@ export function AiQueueStatus() {
             <div className="bg-red-50 rounded-lg p-4 text-center">
               <div className="text-3xl font-bold text-red-600">{stats?.failed ?? 0}</div>
               <div className="text-sm text-red-700 mt-1">Neuspjelo</div>
+            </div>
+            <div className="bg-neutral-100 rounded-lg p-4 text-center">
+              <div className="text-3xl font-bold text-neutral-600">
+                {stats?.cancelled ?? 0}
+              </div>
+              <div className="text-sm text-neutral-700 mt-1">Otkazano</div>
+            </div>
+            <div className="bg-rose-50 rounded-lg p-4 text-center">
+              <div className="text-3xl font-bold text-rose-600">
+                {stats?.deadLetter ?? 0}
+              </div>
+              <div className="text-sm text-rose-700 mt-1">Prekoraceno</div>
             </div>
           </div>
         </CardContent>
@@ -409,7 +445,8 @@ export function AiQueueStatus() {
                         <span className="ml-4">Obradeno: {formatDate(job.processedAt)}</span>
                       )}
                     </div>
-                    {job.status === 'failed' && job.errorMessage && (
+                    {(['failed', 'dead_letter', 'cancelled'].includes(job.status)) &&
+                      job.errorMessage && (
                       <div className="mt-2 text-sm text-red-600 bg-red-50 rounded p-2">
                         {job.errorMessage}
                       </div>
