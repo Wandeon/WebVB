@@ -1,4 +1,5 @@
 import { db } from '../client';
+import { clampLimit, normalizePagination } from './pagination';
 
 import type { Document, Prisma } from '@prisma/client';
 
@@ -67,6 +68,11 @@ export const documentsRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 20,
+    });
 
     const where: Prisma.DocumentWhereInput = {};
 
@@ -91,18 +97,18 @@ export const documentsRepository = {
         where,
         include: { uploader: { select: uploaderSelect } },
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       documents,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },
@@ -192,6 +198,7 @@ export const documentsRepository = {
    * Get latest documents (for homepage)
    */
   async getLatestDocuments(limit: number = 5): Promise<DocumentWithUploader[]> {
+    const safeLimit = clampLimit(limit, 5);
     return db.document.findMany({
       include: {
         uploader: {
@@ -199,7 +206,7 @@ export const documentsRepository = {
         },
       },
       orderBy: { createdAt: 'desc' },
-      take: limit,
+      take: safeLimit,
     });
   },
 };

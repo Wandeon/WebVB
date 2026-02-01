@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { postsLogger } from '@/lib/logger';
+import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
 import { updatePostSchema } from '@/lib/validations/post';
 
@@ -18,13 +19,18 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const postId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const post = await postsRepository.findById(id);
+    const post = await postsRepository.findById(postId);
 
     if (!post) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
@@ -45,6 +51,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const postId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -56,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Validate request body
     const validationResult = updatePostSchema.safeParse({
       ...(body as Record<string, unknown>),
-      id,
+      id: postId,
     });
 
     if (!validationResult.success) {
@@ -67,7 +78,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if post exists
-    const existingPost = await postsRepository.findById(id);
+    const existingPost = await postsRepository.findById(postId);
 
     if (!existingPost) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
@@ -95,7 +106,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         let slugSuffix = 1;
 
         // Check for existing slug (excluding current post) and make it unique
-        while (await postsRepository.slugExists(slug, id)) {
+        while (await postsRepository.slugExists(slug, postId)) {
           slug = `${generateSlug(title)}-${slugSuffix}`;
           slugSuffix++;
         }
@@ -111,7 +122,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (featuredImage !== undefined) updateData.featuredImage = featuredImage;
 
     // Update post
-    const post = await postsRepository.update(id, updateData);
+    const post = await postsRepository.update(postId, updateData);
 
     await createAuditLog({
       request,
@@ -136,7 +147,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       publishedAt: post.publishedAt,
     });
 
-    postsLogger.info({ postId: id }, 'Objava uspješno ažurirana');
+    postsLogger.info({ postId }, 'Objava uspješno ažurirana');
 
     return apiSuccess(post);
   } catch (error) {
@@ -153,6 +164,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const postId = idResult.id;
     const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
@@ -160,22 +176,22 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if post exists
-    const exists = await postsRepository.exists(id);
+    const exists = await postsRepository.exists(postId);
 
     if (!exists) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
-    const existingPost = await postsRepository.findById(id);
+    const existingPost = await postsRepository.findById(postId);
 
     if (!existingPost) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
-    await postsRepository.delete(id);
+    await postsRepository.delete(postId);
 
     // Remove from search index
-    await removeFromIndex('post', id);
+    await removeFromIndex('post', postId);
 
     await createAuditLog({
       request,
@@ -188,7 +204,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    postsLogger.info({ postId: id }, 'Objava uspješno obrisana');
+    postsLogger.info({ postId }, 'Objava uspješno obrisana');
 
     return apiSuccess({ deleted: true });
   } catch (error) {

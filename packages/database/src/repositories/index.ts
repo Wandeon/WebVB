@@ -123,6 +123,8 @@ export {
   type AiQueueStats,
 } from './ai-queue';
 
+export { searchIndex, type SearchIndexOptions, type SearchIndexResultRow } from './search';
+
 export * as pushSubscriptionsRepository from './push-subscriptions';
 export { isInQuietHours } from './push-subscriptions';
 export type {

@@ -10,9 +10,11 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 const RATE_LIMIT = 10;
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 
-const unsubscribeSchema = z.object({
-  endpoint: z.string().url(),
-});
+const unsubscribeSchema = z
+  .object({
+    endpoint: z.string().url(),
+  })
+  .strict();
 
 export function OPTIONS(request: Request) {
   return corsResponse(request);

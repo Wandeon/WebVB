@@ -1,4 +1,5 @@
 import { db } from '../client';
+import { normalizePagination } from './pagination';
 
 import type { Prisma } from '@prisma/client';
 
@@ -225,6 +226,11 @@ export const aiQueueRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 20,
+    });
 
     // Build where clause
     const where: Prisma.AiQueueWhereInput = {};
@@ -246,18 +252,18 @@ export const aiQueueRepository = {
       db.aiQueue.findMany({
         where,
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       jobs: jobs.map(transformToRecord),
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },

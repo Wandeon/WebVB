@@ -6,6 +6,7 @@ import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { usersLogger } from '@/lib/logger';
 import { canAssignRole, canManageUser, normalizeRole } from '@/lib/permissions';
+import { parseUuidParam } from '@/lib/request-validation';
 import { updateUserSchema } from '@/lib/validations/user';
 
 import type { NextRequest } from 'next/server';
@@ -18,6 +19,11 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const userId = idResult.id;
 
     const authResult = await requireAuth(request, { requireAdmin: true });
 
@@ -25,7 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return authResult.response;
     }
 
-    const user = await usersRepository.findById(id);
+    const user = await usersRepository.findById(userId);
 
     if (!user) {
       return apiError(ErrorCodes.NOT_FOUND, 'Korisnik nije pronađen', 404);
@@ -46,6 +52,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const userId = idResult.id;
 
     const authResult = await requireAuth(request, { requireAdmin: true });
 
@@ -55,7 +66,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const userRole = authResult.context.role;
 
-    const existingUser = await usersRepository.findById(id);
+    const existingUser = await usersRepository.findById(userId);
 
     if (!existingUser) {
       return apiError(ErrorCodes.NOT_FOUND, 'Korisnik nije pronađen', 404);
@@ -114,7 +125,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (role !== undefined) updateData.role = role;
     if (active !== undefined) updateData.active = active;
 
-    const user = await usersRepository.update(id, updateData);
+    const user = await usersRepository.update(userId, updateData);
 
     await createAuditLog({
       request,
@@ -143,6 +154,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const userId = idResult.id;
 
     const authResult = await requireAuth(request, { requireAdmin: true });
 
@@ -153,7 +169,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const userRole = authResult.context.role;
 
     // Cannot deactivate yourself
-    if (authResult.context.userId === id) {
+    if (authResult.context.userId === userId) {
       return apiError(
         ErrorCodes.FORBIDDEN,
         'Ne možete deaktivirati vlastiti račun',
@@ -161,7 +177,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const existingUser = await usersRepository.findById(id);
+    const existingUser = await usersRepository.findById(userId);
 
     if (!existingUser) {
       return apiError(ErrorCodes.NOT_FOUND, 'Korisnik nije pronađen', 404);
@@ -178,7 +194,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const user = await usersRepository.deactivate(id);
+    const user = await usersRepository.deactivate(userId);
 
     await createAuditLog({
       request,

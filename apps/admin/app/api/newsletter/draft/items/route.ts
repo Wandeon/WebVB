@@ -8,25 +8,33 @@ import { newsletterLogger } from '@/lib/logger';
 import type { NewsletterItemType } from '@repo/database';
 import type { NextRequest } from 'next/server';
 
-const addItemSchema = z.object({
-  type: z.enum(['post', 'announcement', 'event']),
-  id: z.string().min(1),
-});
+const addItemSchema = z
+  .object({
+    type: z.enum(['post', 'announcement', 'event']),
+    id: z.string().min(1),
+  })
+  .strict();
 
-const removeItemSchema = z.object({
-  type: z.enum(['post', 'announcement', 'event']),
-  id: z.string().min(1),
-});
+const removeItemSchema = z
+  .object({
+    type: z.enum(['post', 'announcement', 'event']),
+    id: z.string().min(1),
+  })
+  .strict();
 
-const reorderSchema = z.object({
-  items: z.array(
-    z.object({
-      type: z.enum(['post', 'announcement', 'event']),
-      id: z.string(),
-      addedAt: z.string(),
-    })
-  ),
-});
+const reorderSchema = z
+  .object({
+    items: z.array(
+      z
+        .object({
+          type: z.enum(['post', 'announcement', 'event']),
+          id: z.string(),
+          addedAt: z.string(),
+        })
+        .strict()
+    ),
+  })
+  .strict();
 
 // POST /api/newsletter/draft/items - Add item to draft
 export async function POST(request: NextRequest) {

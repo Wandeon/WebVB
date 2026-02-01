@@ -11,12 +11,14 @@ const categoryKeys = Object.keys(DOCUMENT_CATEGORIES) as [
   ...Array<keyof typeof DOCUMENT_CATEGORIES>,
 ];
 
-const publicDocumentsQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
-  category: z.enum(categoryKeys).optional(),
-  year: z.coerce.number().int().optional(),
-});
+const publicDocumentsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    category: z.enum(categoryKeys).optional(),
+    year: z.coerce.number().int().optional(),
+  })
+  .strict();
 
 const mapDocument = (doc: DocumentWithUploader) => ({
   id: doc.id,

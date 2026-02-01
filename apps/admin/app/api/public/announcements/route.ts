@@ -12,12 +12,14 @@ const categoryKeys = Object.keys(ANNOUNCEMENT_CATEGORIES) as [
   ...Array<keyof typeof ANNOUNCEMENT_CATEGORIES>,
 ];
 
-const publicAnnouncementsQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(12),
-  category: z.enum(categoryKeys).optional(),
-  includeExpired: z.coerce.boolean().default(false),
-});
+const publicAnnouncementsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(12),
+    category: z.enum(categoryKeys).optional(),
+    includeExpired: z.coerce.boolean().default(false),
+  })
+  .strict();
 
 const mapAnnouncement = (announcement: AnnouncementWithAuthor) => ({
   id: announcement.id,

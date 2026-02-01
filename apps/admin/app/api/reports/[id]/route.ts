@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { problemReportsLogger } from '@/lib/logger';
+import { parseUuidParam } from '@/lib/request-validation';
 
 import type { NextRequest } from 'next/server';
 
@@ -12,22 +13,29 @@ interface RouteParams {
 }
 
 // Update body validation schema
-const updateReportSchema = z.object({
-  status: z.enum(['new', 'in_progress', 'resolved', 'rejected']).optional(),
-  resolutionNotes: z.string().max(5000).optional(),
-});
+const updateReportSchema = z
+  .object({
+    status: z.enum(['new', 'in_progress', 'resolved', 'rejected']).optional(),
+    resolutionNotes: z.string().max(5000).optional(),
+  })
+  .strict();
 
 // GET /api/reports/[id] - Get single problem report by ID
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const reportId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const report = await problemReportsRepository.findById(id);
+    const report = await problemReportsRepository.findById(reportId);
 
     if (!report) {
       return apiError(ErrorCodes.NOT_FOUND, 'Prijava problema nije pronađena', 404);
@@ -48,6 +56,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const reportId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -78,7 +91,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if report exists
-    const existingReport = await problemReportsRepository.findById(id);
+    const existingReport = await problemReportsRepository.findById(reportId);
 
     if (!existingReport) {
       return apiError(ErrorCodes.NOT_FOUND, 'Prijava problema nije pronađena', 404);
@@ -89,31 +102,31 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // If both status and resolutionNotes are provided, update status first, then add notes
     if (status && resolutionNotes) {
       await problemReportsRepository.updateStatus(
-        id,
+        reportId,
         status as ProblemReportStatus,
         authResult.context.userId
       );
       report = await problemReportsRepository.addResolutionNotes(
-        id,
+        reportId,
         resolutionNotes,
         authResult.context.userId
       );
     } else if (status) {
       report = await problemReportsRepository.updateStatus(
-        id,
+        reportId,
         status as ProblemReportStatus,
         authResult.context.userId
       );
     } else if (resolutionNotes) {
       report = await problemReportsRepository.addResolutionNotes(
-        id,
+        reportId,
         resolutionNotes,
         authResult.context.userId
       );
     }
 
     problemReportsLogger.info(
-      { reportId: id, status, hasResolutionNotes: !!resolutionNotes },
+      { reportId, status, hasResolutionNotes: !!resolutionNotes },
       'Problem report updated successfully'
     );
 

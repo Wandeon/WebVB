@@ -1,4 +1,5 @@
 import { db } from '../client';
+import { clampLimit, normalizePagination } from './pagination';
 
 import type { Prisma, Post } from '@prisma/client';
 
@@ -98,6 +99,11 @@ export const postsRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 10,
+    });
 
     // Build where clause
     const where: Prisma.PostWhereInput = {};
@@ -126,18 +132,18 @@ export const postsRepository = {
         where,
         include: { author: { select: authorSelect } },
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       posts,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },
@@ -241,6 +247,7 @@ export const postsRepository = {
     limit: number = 4,
     excludeFeatured: boolean = true
   ): Promise<PostWithAuthor[]> {
+    const safeLimit = clampLimit(limit, 4);
     const where: Prisma.PostWhereInput = {
       publishedAt: { not: null },
     };
@@ -253,7 +260,7 @@ export const postsRepository = {
       where,
       include: { author: { select: authorSelect } },
       orderBy: { publishedAt: 'desc' },
-      take: limit,
+      take: safeLimit,
     });
   },
 
@@ -265,7 +272,11 @@ export const postsRepository = {
     options: FindPublishedPostsOptions = {}
   ): Promise<FindPublishedPostsResult> {
     const { page = 1, limit = 12, category } = options;
-    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const { page: safePage, limit: safeLimit } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 12,
+    });
 
     // Build where clause - only published posts
     const where: Prisma.PostWhereInput = {
@@ -277,21 +288,21 @@ export const postsRepository = {
     }
 
     const total = await db.post.count({ where });
-    const totalPages = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / safeLimit);
     const clampedPage = totalPages > 0 ? Math.min(safePage, totalPages) : 1;
     const posts = await db.post.findMany({
       where,
       include: { author: { select: authorSelect } },
       orderBy: { publishedAt: 'desc' },
-      skip: (clampedPage - 1) * limit,
-      take: limit,
+      skip: (clampedPage - 1) * safeLimit,
+      take: safeLimit,
     });
 
     return {
       posts,
       pagination: {
         page: clampedPage,
-        limit,
+        limit: safeLimit,
         total,
         totalPages,
       },
@@ -317,6 +328,7 @@ export const postsRepository = {
     category: string,
     limit: number = 3
   ): Promise<PostWithAuthor[]> {
+    const safeLimit = clampLimit(limit, 3);
     return db.post.findMany({
       where: {
         id: { not: excludeId },
@@ -325,7 +337,7 @@ export const postsRepository = {
       },
       include: { author: { select: authorSelect } },
       orderBy: { publishedAt: 'desc' },
-      take: limit,
+      take: safeLimit,
     });
   },
 };

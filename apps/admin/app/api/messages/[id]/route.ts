@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { contactLogger } from '@/lib/logger';
+import { parseUuidParam } from '@/lib/request-validation';
 
 import type { NextRequest } from 'next/server';
 
@@ -12,21 +13,28 @@ interface RouteParams {
 }
 
 // Update body validation schema
-const updateMessageSchema = z.object({
-  status: z.enum(['new', 'read', 'replied', 'archived']),
-});
+const updateMessageSchema = z
+  .object({
+    status: z.enum(['new', 'read', 'replied', 'archived']),
+  })
+  .strict();
 
 // GET /api/messages/[id] - Get single contact message by ID
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const messageId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const message = await contactMessagesRepository.findById(id);
+    const message = await contactMessagesRepository.findById(messageId);
 
     if (!message) {
       return apiError(ErrorCodes.NOT_FOUND, 'Poruka nije pronađena', 404);
@@ -47,6 +55,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const messageId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -68,7 +81,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const { status } = validationResult.data;
 
     // Check if message exists
-    const existingMessage = await contactMessagesRepository.findById(id);
+    const existingMessage = await contactMessagesRepository.findById(messageId);
 
     if (!existingMessage) {
       return apiError(ErrorCodes.NOT_FOUND, 'Poruka nije pronađena', 404);
@@ -79,18 +92,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // If status is 'replied', use markReplied to also set repliedAt and repliedBy
     if (status === 'replied') {
       message = await contactMessagesRepository.markReplied(
-        id,
+        messageId,
         authResult.context.userId
       );
     } else {
       message = await contactMessagesRepository.updateStatus(
-        id,
+        messageId,
         status as ContactMessageStatus
       );
     }
 
     contactLogger.info(
-      { messageId: id, status },
+      { messageId, status },
       'Contact message status updated successfully'
     );
 

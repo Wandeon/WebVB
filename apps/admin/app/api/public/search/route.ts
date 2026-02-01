@@ -1,4 +1,4 @@
-import { db } from '@repo/database';
+import { searchIndex, type SearchIndexResultRow } from '@repo/database';
 import { NextResponse } from 'next/server';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
@@ -99,130 +99,13 @@ export async function GET(request: Request) {
     const hasEmbedding = embedding !== null;
     const vectorString = hasEmbedding ? `[${embedding.join(',')}]` : null;
 
-    let results: {
-      id: string;
-      source_type: string;
-      source_id: string;
-      title: string;
-      url: string;
-      category: string | null;
-      published_at: Date | null;
-      headline: string;
-      keyword_score: number;
-      fuzzy_score: number;
-      semantic_score: number;
-      combined_score: number;
-    }[];
-
-    if (hasEmbedding && vectorString) {
-      // Full hybrid search with semantic
-      results = await db.$queryRaw`
-        WITH scores AS (
-          SELECT
-            id,
-            source_type,
-            source_id,
-            title,
-            url,
-            category,
-            published_at,
-            content_text,
-            -- Keyword score: full-text search with prefix matching
-            CASE
-              WHEN ${prefixQuery} = '' THEN 0
-              WHEN search_vector @@ to_tsquery('simple', ${prefixQuery})
-              THEN ts_rank(search_vector, to_tsquery('simple', ${prefixQuery}))
-              ELSE 0
-            END as keyword_score,
-            -- Fuzzy score: trigram similarity for typo tolerance
-            GREATEST(
-              similarity(title, ${query}),
-              similarity(LEFT(content_text, 1000), ${query})
-            ) as fuzzy_score,
-            -- Semantic score: vector cosine similarity (1 - distance)
-            CASE
-              WHEN embedding IS NOT NULL
-              THEN 1 - (embedding <=> ${vectorString}::vector)
-              ELSE 0
-            END as semantic_score
-          FROM search_index
-        )
-        SELECT
-          id,
-          source_type,
-          source_id,
-          title,
-          url,
-          category,
-          published_at,
-          ts_headline(
-            'simple',
-            content_text,
-            to_tsquery('simple', ${prefixQuery}),
-            'MaxWords=25, MinWords=15, StartSel=<mark>, StopSel=</mark>'
-          ) as headline,
-          keyword_score,
-          fuzzy_score,
-          semantic_score,
-          -- Combined score with weights
-          (keyword_score * ${WEIGHTS.keyword} +
-           fuzzy_score * ${WEIGHTS.fuzzy} +
-           semantic_score * ${WEIGHTS.semantic}) as combined_score
-        FROM scores
-        WHERE keyword_score > 0 OR fuzzy_score > 0.2 OR semantic_score > 0.5
-        ORDER BY combined_score DESC
-        LIMIT ${MAX_TOTAL_RESULTS}
-      `;
-    } else {
-      // Fallback: keyword + fuzzy only (no semantic)
-      results = await db.$queryRaw`
-        WITH scores AS (
-          SELECT
-            id,
-            source_type,
-            source_id,
-            title,
-            url,
-            category,
-            published_at,
-            content_text,
-            CASE
-              WHEN ${prefixQuery} = '' THEN 0
-              WHEN search_vector @@ to_tsquery('simple', ${prefixQuery})
-              THEN ts_rank(search_vector, to_tsquery('simple', ${prefixQuery}))
-              ELSE 0
-            END as keyword_score,
-            GREATEST(
-              similarity(title, ${query}),
-              similarity(LEFT(content_text, 1000), ${query})
-            ) as fuzzy_score,
-            0::float as semantic_score
-          FROM search_index
-        )
-        SELECT
-          id,
-          source_type,
-          source_id,
-          title,
-          url,
-          category,
-          published_at,
-          ts_headline(
-            'simple',
-            content_text,
-            to_tsquery('simple', ${prefixQuery}),
-            'MaxWords=25, MinWords=15, StartSel=<mark>, StopSel=</mark>'
-          ) as headline,
-          keyword_score,
-          fuzzy_score,
-          semantic_score,
-          (keyword_score * 0.6 + fuzzy_score * 0.4) as combined_score
-        FROM scores
-        WHERE keyword_score > 0 OR fuzzy_score > 0.2
-        ORDER BY combined_score DESC
-        LIMIT ${MAX_TOTAL_RESULTS}
-      `;
-    }
+    const results: SearchIndexResultRow[] = await searchIndex({
+      query,
+      prefixQuery,
+      vectorString: hasEmbedding ? vectorString : null,
+      maxResults: MAX_TOTAL_RESULTS,
+      weights: WEIGHTS,
+    });
 
     // Group results by source type
     const grouped: GroupedResults = {

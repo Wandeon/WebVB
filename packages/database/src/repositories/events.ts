@@ -1,4 +1,5 @@
 import { db } from '../client';
+import { clampLimit, normalizePagination } from './pagination';
 
 import type { Event, Prisma } from '@prisma/client';
 
@@ -61,6 +62,11 @@ export const eventsRepository = {
       sortBy = 'eventDate',
       sortOrder = 'asc',
     } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 20,
+    });
 
     const where: Prisma.EventWhereInput = {};
 
@@ -91,18 +97,18 @@ export const eventsRepository = {
       db.event.findMany({
         where,
         orderBy: { [sortBy]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       events,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },
@@ -149,13 +155,14 @@ export const eventsRepository = {
   async getUpcomingEvents(limit: number = 5): Promise<Event[]> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const safeLimit = clampLimit(limit, 5);
 
     return db.event.findMany({
       where: {
         eventDate: { gte: today },
       },
       orderBy: { eventDate: 'asc' },
-      take: limit,
+      take: safeLimit,
     });
   },
 
@@ -184,6 +191,11 @@ export const eventsRepository = {
     options: { page?: number; limit?: number } = {}
   ): Promise<FindAllEventsResult> {
     const { page = 1, limit = 20 } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 20,
+    });
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -196,18 +208,18 @@ export const eventsRepository = {
       db.event.findMany({
         where,
         orderBy: { eventDate: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       events,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },

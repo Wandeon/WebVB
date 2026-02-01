@@ -8,14 +8,16 @@ import { contactLogger } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 
 // Query parameters validation schema
-const messageQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
-  status: z.enum(['new', 'read', 'replied', 'archived']).optional(),
-  search: z.string().max(200).optional(),
-  sortBy: z.enum(['createdAt', 'status', 'name']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-});
+const messageQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    status: z.enum(['new', 'read', 'replied', 'archived']).optional(),
+    search: z.string().max(200).optional(),
+    sortBy: z.enum(['createdAt', 'status', 'name']).default('createdAt'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  })
+  .strict();
 
 // GET /api/messages - List contact messages with filtering, pagination, sorting
 export async function GET(request: NextRequest) {

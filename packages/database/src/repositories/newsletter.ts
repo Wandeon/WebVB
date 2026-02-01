@@ -1,5 +1,6 @@
 // packages/database/src/repositories/newsletter.ts
 import { db } from '../client';
+import { normalizePagination } from './pagination';
 
 export interface NewsletterSubscriberRecord {
   id: string;
@@ -110,6 +111,11 @@ export const newsletterRepository = {
     options: FindAllSubscribersOptions = {}
   ): Promise<FindAllSubscribersResult> {
     const { page = 1, limit = 100 } = options;
+    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 100,
+    });
 
     const where = {
       confirmed: true,
@@ -121,18 +127,18 @@ export const newsletterRepository = {
       db.newsletterSubscriber.findMany({
         where,
         orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take: safeLimit,
       }),
     ]);
 
     return {
       subscribers,
       pagination: {
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / safeLimit),
       },
     };
   },

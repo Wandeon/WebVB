@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { pagesLogger } from '@/lib/logger';
+import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
 import { updatePageSchema } from '@/lib/validations/page';
 
@@ -17,13 +18,18 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const pageId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const page = await pagesRepository.findById(id);
+    const page = await pagesRepository.findById(pageId);
 
     if (!page) {
       return apiError(ErrorCodes.NOT_FOUND, 'Stranica nije pronađena', 404);
@@ -43,6 +49,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const pageId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -53,7 +64,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const validationResult = updatePageSchema.safeParse({
       ...(body as Record<string, unknown>),
-      id,
+      id: pageId,
     });
 
     if (!validationResult.success) {
@@ -63,7 +74,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.VALIDATION_ERROR, errorMessage, 400);
     }
 
-    const existingPage = await pagesRepository.findById(id);
+    const existingPage = await pagesRepository.findById(pageId);
 
     if (!existingPage) {
       return apiError(ErrorCodes.NOT_FOUND, 'Stranica nije pronađena', 404);
@@ -72,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const { title, content, parentId, menuOrder } = validationResult.data;
 
     // Prevent circular reference
-    if (parentId === id) {
+    if (parentId === pageId) {
       return apiError(
         ErrorCodes.VALIDATION_ERROR,
         'Stranica ne može biti vlastiti roditelj',
@@ -99,7 +110,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         let slug = generateSlug(title);
         let slugSuffix = 1;
 
-        while (await pagesRepository.slugExists(slug, id)) {
+        while (await pagesRepository.slugExists(slug, pageId)) {
           slug = `${generateSlug(title)}-${slugSuffix}`;
           slugSuffix++;
         }
@@ -111,7 +122,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (parentId !== undefined) updateData.parentId = parentId;
     if (menuOrder !== undefined) updateData.menuOrder = menuOrder;
 
-    const page = await pagesRepository.update(id, updateData);
+    const page = await pagesRepository.update(pageId, updateData);
 
     await createAuditLog({
       request,
@@ -149,22 +160,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const pageId = idResult.id;
     const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const existingPage = await pagesRepository.findById(id);
+    const existingPage = await pagesRepository.findById(pageId);
 
     if (!existingPage) {
       return apiError(ErrorCodes.NOT_FOUND, 'Stranica nije pronađena', 404);
     }
 
-    await pagesRepository.delete(id);
+    await pagesRepository.delete(pageId);
 
     // Remove from search index
-    await removeFromIndex('page', id);
+    await removeFromIndex('page', pageId);
 
     await createAuditLog({
       request,
@@ -177,7 +193,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    pagesLogger.info({ pageId: id }, 'Stranica uspješno obrisana');
+    pagesLogger.info({ pageId }, 'Stranica uspješno obrisana');
 
     return apiSuccess({ deleted: true });
   } catch (error) {

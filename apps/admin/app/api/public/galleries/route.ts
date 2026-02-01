@@ -6,10 +6,12 @@ import { galleriesLogger } from '@/lib/logger';
 
 import type { NextRequest } from 'next/server';
 
-const publicGalleriesQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(12),
-});
+const publicGalleriesQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(12),
+  })
+  .strict();
 
 const mapGallery = (gallery: GalleryWithCount) => ({
   id: gallery.id,

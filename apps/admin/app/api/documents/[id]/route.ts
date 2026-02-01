@@ -6,6 +6,7 @@ import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
+import { parseUuidParam } from '@/lib/request-validation';
 
 import type { NextRequest } from 'next/server';
 
@@ -17,6 +18,11 @@ interface RouteParams {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const documentId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -27,7 +33,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const validationResult = updateDocumentSchema.safeParse({
       ...(body as Record<string, unknown>),
-      id,
+      id: documentId,
     });
 
     if (!validationResult.success) {
@@ -37,7 +43,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.VALIDATION_ERROR, errorMessage, 400);
     }
 
-    const existingDocument = await documentsRepository.findById(id);
+    const existingDocument = await documentsRepository.findById(documentId);
 
     if (!existingDocument) {
       return apiError(ErrorCodes.NOT_FOUND, 'Dokument nije pronađen', 404);
@@ -52,7 +58,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (subcategory !== undefined) updateData.subcategory = subcategory;
     if (year !== undefined) updateData.year = year;
 
-    const document = await documentsRepository.update(id, updateData);
+    const document = await documentsRepository.update(documentId, updateData);
 
     await createAuditLog({
       request,
@@ -76,7 +82,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       year: document.year,
     });
 
-    documentsLogger.info({ documentId: id }, 'Document updated successfully');
+    documentsLogger.info({ documentId }, 'Document updated successfully');
 
     return apiSuccess(document);
   } catch (error) {
@@ -93,13 +99,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const documentId = idResult.id;
     const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const existingDocument = await documentsRepository.findById(id);
+    const existingDocument = await documentsRepository.findById(documentId);
 
     if (!existingDocument) {
       return apiError(
@@ -110,10 +121,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Delete from DB first
-    const deletedDocument = await documentsRepository.delete(id);
+    const deletedDocument = await documentsRepository.delete(documentId);
 
     // Remove from search index
-    await removeFromIndex('document', id);
+    await removeFromIndex('document', documentId);
 
     await createAuditLog({
       request,
@@ -131,17 +142,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     if (r2Key) {
       try {
         await deleteFromR2(r2Key);
-        documentsLogger.info({ documentId: id, r2Key }, 'Document file deleted from R2');
+        documentsLogger.info({ documentId, r2Key }, 'Document file deleted from R2');
       } catch (r2Error) {
         documentsLogger.error(
-          { documentId: id, r2Key, error: r2Error },
+          { documentId, r2Key, error: r2Error },
           'Failed to delete document file from R2 (DB record already deleted)'
         );
       }
     }
 
     documentsLogger.info(
-      { documentId: id, title: deletedDocument.title },
+      { documentId, title: deletedDocument.title },
       'Document deleted successfully'
     );
 
