@@ -124,20 +124,15 @@ jobs:
 
       - name: Deploy admin standalone
         run: |
-          # Copy standalone app
+          # Prepare local directory structure (standalone + static + public)
+          mkdir -p apps/admin/.next/standalone/.next/static
+          cp -r apps/admin/.next/static/* apps/admin/.next/standalone/.next/static/
+          cp -r apps/admin/public apps/admin/.next/standalone/
+
+          # Deploy everything in one rsync
           rsync -avz --delete \
             apps/admin/.next/standalone/ \
             ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-standalone/
-
-          # Copy static assets (not included in standalone)
-          rsync -avz \
-            apps/admin/.next/static/ \
-            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-standalone/.next/static/
-
-          # Copy public folder
-          rsync -avz \
-            apps/admin/public/ \
-            ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}:~/apps/admin-standalone/public/
 
       - name: Restart admin service
         run: |
