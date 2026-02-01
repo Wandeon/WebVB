@@ -7,8 +7,8 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { contactLogger } from '@/lib/logger';
 
-import type { NextRequest } from 'next/server';
 import type { PushTopic } from '@repo/database';
+import type { NextRequest } from 'next/server';
 
 // Configure web-push with VAPID keys
 const VAPID_PUBLIC_KEY = process.env.PUSH_VAPID_PUBLIC_KEY;

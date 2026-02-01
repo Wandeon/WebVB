@@ -6,8 +6,8 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/api-auth';
 import { contactLogger } from '@/lib/logger';
 
-import type { NextRequest } from 'next/server';
 import type { PushTopic } from '@repo/database';
+import type { NextRequest } from 'next/server';
 
 const TOPICS: PushTopic[] = ['all', 'waste', 'news', 'events', 'announcements'];
 

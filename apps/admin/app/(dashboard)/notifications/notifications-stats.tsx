@@ -122,7 +122,7 @@ export function NotificationsStats() {
   }, []);
 
   useEffect(() => {
-    fetchStats();
+    void fetchStats();
   }, [fetchStats]);
 
   if (isLoading) {
@@ -222,7 +222,7 @@ export function NotificationsStats() {
               </div>
             </div>
             <button
-              onClick={() => fetchStats(true)}
+              onClick={() => void fetchStats(true)}
               disabled={isRefreshing}
               className="rounded-lg p-2 hover:bg-white/50 transition-colors"
               title="Osvježi"

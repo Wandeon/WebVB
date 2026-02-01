@@ -127,7 +127,7 @@ export function NotificationsSend() {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, [fetchData]);
 
   const handleSend = async () => {
@@ -167,7 +167,7 @@ export function NotificationsSend() {
         setBody('');
         setUrl('');
         // Refresh history
-        fetchData();
+        void fetchData();
       } else {
         toast({
           title: 'Greška',
@@ -317,7 +317,7 @@ export function NotificationsSend() {
                   <Button variant="outline" size="sm" onClick={() => setShowConfirm(false)}>
                     Odustani
                   </Button>
-                  <Button size="sm" onClick={handleSend} disabled={isSending}>
+                  <Button size="sm" onClick={() => void handleSend()} disabled={isSending}>
                     {isSending ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     ) : (

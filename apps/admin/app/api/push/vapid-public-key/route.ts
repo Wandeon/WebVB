@@ -7,7 +7,7 @@ export function OPTIONS(request: Request) {
   return corsResponse(request);
 }
 
-export async function GET(request: Request) {
+export function GET(request: Request) {
   const corsHeaders = getCorsHeaders(request);
 
   const publicKey = process.env.PUSH_VAPID_PUBLIC_KEY;

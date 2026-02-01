@@ -9,8 +9,8 @@ import webpush from 'web-push';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { contactLogger } from '@/lib/logger';
 
-import type { NextRequest } from 'next/server';
 import type { PushTopic, PushSubscriptionWithPreferences } from '@repo/database';
+import type { NextRequest } from 'next/server';
 
 // Waste type display names for notifications
 const WASTE_DISPLAY_NAMES: Record<string, string> = {
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET endpoint for status check (no auth required, just returns if configured)
-export async function GET() {
+export function GET() {
   const configured = isPushConfigured();
   const hasCronSecret = !!process.env.CRON_SECRET;
 
