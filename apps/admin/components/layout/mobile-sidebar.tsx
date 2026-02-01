@@ -1,6 +1,6 @@
 'use client';
 
-import { cn, Sheet, SheetContent } from '@repo/ui';
+import { cn, Sheet, SheetContent, SheetTitle } from '@repo/ui';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -60,6 +60,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-72 p-0">
+        <SheetTitle className="sr-only">Navigacija</SheetTitle>
         {/* Logo */}
         <div className="flex h-16 items-center border-b border-neutral-200 px-6">
           <Link href="/" onClick={handleClose} className="flex items-center gap-2">

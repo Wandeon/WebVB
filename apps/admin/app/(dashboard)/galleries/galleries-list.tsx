@@ -19,7 +19,7 @@ import { Breadcrumbs } from '@/components/layout';
 interface PaginatedResponse {
   success: boolean;
   data?: {
-    galleries: Gallery[];
+    data: Gallery[];
     pagination: {
       page: number;
       limit: number;
@@ -82,7 +82,7 @@ export function GalleriesList() {
       const result = (await response.json()) as PaginatedResponse;
 
       if (result.success && result.data) {
-        setGalleries(result.data.galleries);
+        setGalleries(result.data.data);
         setPagination(result.data.pagination);
       }
     } catch {

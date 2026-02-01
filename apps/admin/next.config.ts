@@ -10,6 +10,16 @@ const nextConfig: NextConfig = {
   // Strict mode for better debugging
   reactStrictMode: true,
 
+  // Allow R2 bucket images
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'pub-920c291ea0c74945936ae9819993768a.r2.dev',
+      },
+    ],
+  },
+
   // Server-side features enabled
   experimental: {
     // Enable server actions
