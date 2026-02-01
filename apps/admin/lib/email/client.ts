@@ -27,12 +27,12 @@ function getTransporter(): Transporter | null {
 
   if (!transporter) {
     transporter = nodemailer.createTransport({
-      host: config.host,
-      port: config.port,
-      secure: config.port === 465,
+      host: config.SMTP_HOST,
+      port: config.SMTP_PORT,
+      secure: config.SMTP_PORT === 465,
       auth: {
-        user: config.user,
-        pass: config.password,
+        user: config.SMTP_USER,
+        pass: config.SMTP_PASSWORD,
       },
     });
   }
@@ -54,7 +54,7 @@ export function isEmailConfigured(): boolean {
  */
 export function getSmtpFrom(): string | null {
   const config = getEmailConfig();
-  return config?.from ?? null;
+  return config?.SMTP_FROM ?? null;
 }
 
 /**
@@ -63,7 +63,7 @@ export function getSmtpFrom(): string | null {
  */
 export function getAdminEmail(): string | null {
   const config = getEmailConfig();
-  return config?.adminEmail ?? null;
+  return config?.ADMIN_EMAIL ?? null;
 }
 
 /**
