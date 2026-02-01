@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Audit 14 - Privacy, GDPR, Data Protection, and Legal-Tech Compliance (2026-02-06)
+## Audit 14 - Privacy, GDPR, Data Protection, and Legal-Tech Compliance (2026-02-01)
 
 ### Changed
 - Redacted sensitive fields in audit logs and anonymized stored audit IP metadata

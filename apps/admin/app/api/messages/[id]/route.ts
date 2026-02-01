@@ -40,6 +40,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Poruka nije pronađena', 404);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Intentionally omitting ipAddress from response
     const { ipAddress, ...sanitized } = message;
     return apiSuccess(sanitized);
   } catch (error) {

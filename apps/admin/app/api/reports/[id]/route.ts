@@ -41,6 +41,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Prijava problema nije pronađena', 404);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Intentionally omitting ipAddress from response
     const { ipAddress, ...sanitized } = report;
     return apiSuccess(sanitized);
   } catch (error) {
