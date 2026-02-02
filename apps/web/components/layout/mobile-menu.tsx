@@ -3,21 +3,16 @@
 import { Button } from '@repo/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Accessibility,
   Building2,
-  Check,
   ExternalLink,
   Globe,
   Home,
   Mail,
   MapPin,
   Menu,
-  Moon,
   Newspaper,
   Phone,
-  Type,
   X,
-  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -36,80 +31,16 @@ const iconMap: Record<string, typeof Building2> = {
   home: Home,
 };
 
-const ACCESSIBILITY_KEY = 'vb-accessibility';
-
-interface AccessibilitySettings {
-  fontSize: 'normal' | 'large' | 'xlarge';
-  highContrast: boolean;
-  reduceMotion: boolean;
-}
-
-const defaultSettings: AccessibilitySettings = {
-  fontSize: 'normal',
-  highContrast: false,
-  reduceMotion: false,
-};
-
 export function MobileMenu({ groups, logo }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [showAccessibility, setShowAccessibility] = useState(false);
-  const [accessibilitySettings, setAccessibilitySettings] = useState<AccessibilitySettings>(defaultSettings);
   const pathname = usePathname();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  // Load accessibility settings on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(ACCESSIBILITY_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as AccessibilitySettings;
-        // Use setTimeout to avoid synchronous setState in effect
-        setTimeout(() => {
-          setAccessibilitySettings(parsed);
-        }, 0);
-      } catch {
-        // Invalid JSON, use defaults
-      }
-    }
-  }, []);
-
-  // Apply accessibility settings via useEffect to satisfy React hooks linter
-  useEffect(() => {
-    const root = document.documentElement;
-
-    if (accessibilitySettings.fontSize === 'large') {
-      root.style.fontSize = '18px';
-    } else if (accessibilitySettings.fontSize === 'xlarge') {
-      root.style.fontSize = '20px';
-    } else {
-      root.style.fontSize = '';
-    }
-
-    if (accessibilitySettings.highContrast) {
-      root.classList.add('high-contrast');
-    } else {
-      root.classList.remove('high-contrast');
-    }
-
-    if (accessibilitySettings.reduceMotion) {
-      root.classList.add('reduce-motion');
-    } else {
-      root.classList.remove('reduce-motion');
-    }
-  }, [accessibilitySettings]);
-
-  const updateAccessibility = (newSettings: Partial<AccessibilitySettings>) => {
-    const updated = { ...accessibilitySettings, ...newSettings };
-    setAccessibilitySettings(updated);
-    localStorage.setItem(ACCESSIBILITY_KEY, JSON.stringify(updated));
-  };
 
   // Close on route change
   useEffect(() => {
     // Use setTimeout to avoid synchronous setState in effect
     setTimeout(() => {
       setIsOpen(false);
-      setShowAccessibility(false);
     }, 0);
   }, [pathname]);
 
@@ -129,13 +60,9 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
   // Close on Escape key
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
-      if (showAccessibility) {
-        setShowAccessibility(false);
-      } else {
-        setIsOpen(false);
-      }
+      setIsOpen(false);
     }
-  }, [showAccessibility]);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -152,11 +79,6 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
     }
     return pathname === href || pathname.startsWith(href + '/');
   }
-
-  const hasActiveAccessibility =
-    accessibilitySettings.fontSize !== 'normal' ||
-    accessibilitySettings.highContrast ||
-    accessibilitySettings.reduceMotion;
 
   return (
     <>
@@ -340,193 +262,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                 <Phone style={{ width: 14, height: 14 }} />
                 Kontakt
               </Link>
-
-              {/* Accessibility */}
-              <button
-                onClick={() => setShowAccessibility(!showAccessibility)}
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
-                  background: hasActiveAccessibility ? '#16a34a' : '#e5e5e5',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: hasActiveAccessibility ? '#ffffff' : '#525252',
-                }}
-                aria-label="Pristupačnost"
-                aria-expanded={showAccessibility}
-              >
-                <Accessibility style={{ width: 20, height: 20 }} />
-              </button>
             </div>
-
-            {/* Accessibility Panel */}
-            <AnimatePresence>
-              {showAccessibility && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  style={{ overflow: 'hidden', flexShrink: 0 }}
-                >
-                  <div
-                    style={{
-                      padding: '20px 16px',
-                      backgroundColor: '#f0fdf4',
-                      borderBottom: '1px solid #bbf7d0',
-                    }}
-                  >
-                    <h3
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        color: '#166534',
-                        marginBottom: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                      }}
-                    >
-                      <Accessibility style={{ width: 18, height: 18 }} />
-                      Postavke pristupačnosti
-                    </h3>
-
-                    {/* Font Size */}
-                    <div style={{ marginBottom: '16px' }}>
-                      <div
-                        style={{
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color: '#525252',
-                          marginBottom: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                        }}
-                      >
-                        <Type style={{ width: 14, height: 14 }} />
-                        Veličina teksta
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        {(['normal', 'large', 'xlarge'] as const).map((size) => (
-                          <button
-                            key={size}
-                            onClick={() => updateAccessibility({ fontSize: size })}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              borderRadius: '10px',
-                              border: accessibilitySettings.fontSize === size ? '2px solid #16a34a' : '2px solid #e5e5e5',
-                              background: accessibilitySettings.fontSize === size ? '#dcfce7' : '#ffffff',
-                              cursor: 'pointer',
-                              fontSize: size === 'normal' ? '14px' : size === 'large' ? '16px' : '18px',
-                              fontWeight: 600,
-                              color: accessibilitySettings.fontSize === size ? '#166534' : '#525252',
-                            }}
-                          >
-                            Aa
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Toggles */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {/* High Contrast */}
-                      <button
-                        onClick={() => updateAccessibility({ highContrast: !accessibilitySettings.highContrast })}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '14px 16px',
-                          borderRadius: '10px',
-                          border: '2px solid #e5e5e5',
-                          background: '#ffffff',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px', fontWeight: 500, color: '#404040' }}>
-                          <Moon style={{ width: 18, height: 18 }} />
-                          Visoki kontrast
-                        </span>
-                        <div
-                          style={{
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '6px',
-                            background: accessibilitySettings.highContrast ? '#16a34a' : '#e5e5e5',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          {accessibilitySettings.highContrast && <Check style={{ width: 16, height: 16, color: '#ffffff' }} />}
-                        </div>
-                      </button>
-
-                      {/* Reduce Motion */}
-                      <button
-                        onClick={() => updateAccessibility({ reduceMotion: !accessibilitySettings.reduceMotion })}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '14px 16px',
-                          borderRadius: '10px',
-                          border: '2px solid #e5e5e5',
-                          background: '#ffffff',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px', fontWeight: 500, color: '#404040' }}>
-                          <Zap style={{ width: 18, height: 18 }} />
-                          Bez animacija
-                        </span>
-                        <div
-                          style={{
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '6px',
-                            background: accessibilitySettings.reduceMotion ? '#16a34a' : '#e5e5e5',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          {accessibilitySettings.reduceMotion && <Check style={{ width: 16, height: 16, color: '#ffffff' }} />}
-                        </div>
-                      </button>
-                    </div>
-
-                    {/* Reset */}
-                    {hasActiveAccessibility && (
-                      <button
-                        onClick={() => updateAccessibility(defaultSettings)}
-                        style={{
-                          marginTop: '12px',
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '10px',
-                          border: 'none',
-                          background: '#fef2f2',
-                          color: '#dc2626',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Vrati na zadano
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* Navigation - scrollable */}
             <div

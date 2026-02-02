@@ -436,11 +436,11 @@ export function VillageHero() {
       {/* Subtle admin access - for staff who know about it */}
       <a
         href={process.env.NEXT_PUBLIC_APP_URL || '/admin'}
-        className="absolute bottom-4 left-4 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-white/30 transition-colors hover:bg-white/10 hover:text-white/60"
+        className="absolute right-4 top-20 flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-white/25 transition-colors hover:bg-white/10 hover:text-white/50"
         title="Upravljanje"
         aria-label="Pristup administraciji"
       >
-        <Shield className="h-3.5 w-3.5" />
+        <Shield className="h-4 w-4" />
         <span className="hidden text-xs sm:inline">Uprava</span>
       </a>
     </section>
