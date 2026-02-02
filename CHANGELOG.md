@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## Admin Login & Deployment Fixes (2026-02-02)
+
+### Added
+- Admin login page redesign with branded styling:
+  - Favicon (ico, 16x16, 32x32 PNG variants)
+  - Municipality crest/logo above login form
+  - Title "Općina Veliki Bukovec - Administrativno sučelje"
+  - Gradient background with decorative elements
+  - "Zaštićeni pristup" security indicator
+  - Google OAuth button with icon
+- Admin user created: opcinavk@gmail.com
+- Stakeholder presentation document: docs/prezentacija-dionici-2026.md
+
+### Fixed
+- NEXT_PUBLIC_APP_URL GitHub secret updated to include port `:3001`
+- Auth client now correctly points to admin app (http://100.120.125.83:3001)
+
+### Infrastructure
+- Public access clarified:
+  - Web (staging): http://159.195.61.215 (direct VPS IP, port 80)
+  - Admin: http://100.120.125.83:3001 (Tailscale only, port 3001 firewalled)
+  - Domain velikibukovec.hr still points to old WordPress site (pending DNS switch)
+
 ## Audit 05 - Events, Gallery, Static Pages, and Content-Type Edge Cases (2026-02-01)
 
 ### Changed

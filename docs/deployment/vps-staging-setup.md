@@ -1,71 +1,48 @@
 # VPS Staging Environment Setup
 
-Deploy both admin (backend) and web (static frontend) to VPS with Tailscale access.
+Deploy both admin (backend) and web (static frontend) to VPS.
 
 ## Current Deployment
 
-| Service | URL | Status |
+| Service | URL | Access |
 |---------|-----|--------|
-| Frontend | http://100.120.125.83/ | ✅ Live |
-| Admin (Tailscale only) | http://127.0.0.1:3001/ | ✅ Live |
-| Admin API (Tailscale only) | http://127.0.0.1:3001/api/ | ✅ Live |
+| Frontend (public) | http://159.195.61.215/ | ✅ Public |
+| Frontend (Tailscale) | http://100.120.125.83/ | ✅ Tailscale |
+| Admin | http://100.120.125.83:3001/ | ✅ Tailscale only (port 3001 firewalled) |
+| Admin API | http://100.120.125.83:3001/api/ | ✅ Tailscale only |
+
+**Note:** The domain `velikibukovec.hr` still points to the old WordPress site. DNS switch pending for launch.
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    VPS (Tailscale)                      │
+│                    VPS (159.195.61.215)                 │
 │                                                         │
-│   :80 ──► Caddy ──► static files (web/out)             │
-│   :443 ──► Caddy ──► admin.velikibukovec.hr → 127.0.0.1 │
+│   :80 ──► Caddy ──► static files (web/out)  [PUBLIC]   │
 │                                                         │
-│   :3001 ──► PM2/Next.js (admin app, localhost only)    │
+│   :3001 ──► PM2/Next.js (admin app)  [TAILSCALE ONLY]  │
 │                                                         │
-│   :5432 ──► PostgreSQL (localhost only)                │
+│   :5432 ──► PostgreSQL (localhost + Tailscale)         │
 │                                                         │
+│   Tailscale IP: 100.120.125.83                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## SSH Access - CRITICAL
+## SSH Access
 
-**SSH is Tailscale SSH only. Direct OpenSSH to port 22 will NOT work.**
+SSH access is via Tailscale IP only (UFW blocks port 22 from public internet).
 
-### ✅ Correct way to connect:
+### Connect via Tailscale:
 ```bash
-tailscale ssh deploy@v2202601269591428137
+ssh deploy@100.120.125.83
 ```
 
-### ❌ This will NOT work:
-```bash
-ssh deploy@100.120.125.83  # Connection refused (DERP-only path)
-```
-
-### Why regular SSH fails:
-- The VPS is accessible via Tailscale DERP relay only (no direct connection)
-- UFW blocks port 22 from non-Tailscale sources
-- Even Tailscale IPs fail because the path is DERP-relayed
-- Tailscale SSH handles this by tunneling through the Tailscale control plane
-
-### Requirements for SSH access:
+### Requirements:
 1. Your machine must be on the same Tailscale network
-2. Tailscale ACL must permit SSH from your machine to the VPS
-3. VPS must have `tailscale up --ssh` enabled
-
-### Tailscale ACL example (add to Access Controls):
-```json
-{
-  "ssh": [
-    {
-      "action": "accept",
-      "src": ["autogroup:members"],
-      "dst": ["tag:tagged-devices"],
-      "users": ["autogroup:nonroot", "root"]
-    }
-  ]
-}
-```
+2. SSH key must be authorized on VPS (~/.ssh/authorized_keys)
 
 ---
 

@@ -8,10 +8,10 @@
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Audit 05 events/gallery/static page edge-case hardening (date ranges, gallery fallbacks, reserved slugs)
+**Recent:** Admin login redesign, stakeholder presentation, deployment fixes
 **Target Launch:** Domain setup pending
 **Latest Audit:** Audit 05 - events, gallery, static pages, and content-type edge cases
-**Staging:** Frontend at http://100.120.125.83/ (Tailscale access) | Admin via localhost reverse proxy
+**Staging:** Frontend at http://159.195.61.215/ (public) | Admin at http://100.120.125.83:3001 (Tailscale only)
 
 ---
 
@@ -1049,3 +1049,8 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-01-31 | Page speed optimized: Hero images converted to WebP (33-42% smaller), grb WebP (71% smaller), Caddy caching (1yr static, 10min HTML), gzip/zstd compression |
 | 2026-01-31 | Gallery data normalized: 13 galleries renamed with proper Croatian diacritics, duplicates merged, test gallery deleted |
 | 2026-01-31 | Mobile UX improved: Menu logo links to home, Kontakt button added, CategoryFilter sticky with horizontal scroll |
+| 2026-02-02 | Admin login redesign: favicon, crest, branded styling, Google OAuth button |
+| 2026-02-02 | Admin user created: opcinavk@gmail.com |
+| 2026-02-02 | NEXT_PUBLIC_APP_URL fix: GitHub secret updated with port :3001 |
+| 2026-02-02 | Stakeholder presentation: docs/prezentacija-dionici-2026.md |
+| 2026-02-02 | Public access: Web at 159.195.61.215:80 (public), Admin at 100.120.125.83:3001 (Tailscale) |
