@@ -1,6 +1,6 @@
 // apps/web/app/dokumenti/page.tsx
 import { documentsRepository } from '@repo/database';
-import { buildCanonicalUrl, DOCUMENT_CATEGORIES, getPublicEnv } from '@repo/shared';
+import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
 import { DocumentsContent } from './documents-content';
@@ -23,15 +23,6 @@ export const metadata: Metadata = {
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, '/dokumenti'),
   },
 };
-
-interface DocumentsPageProps {
-  searchParams: Promise<{
-    kategorija?: string;
-    godina?: string;
-    stranica?: string;
-    pretraga?: string;
-  }>;
-}
 
 function DocumentsPageFallback() {
   return (
@@ -58,29 +49,16 @@ function DocumentsPageFallback() {
   );
 }
 
-async function getDocumentsData(params: {
-  category?: string | undefined;
-  year?: number | undefined;
-  page?: number | undefined;
-  search?: string | undefined;
-}) {
-  const { category, year, page = 1, search } = params;
-
-  const validCategory =
-    category && category in DOCUMENT_CATEGORIES ? category : undefined;
-
+async function getInitialDocumentsData() {
   const [documentsResult, years, counts] = await Promise.all([
     documentsRepository.findAll({
-      category: validCategory,
-      year,
-      page,
+      page: 1,
       limit: 20,
-      search,
       sortBy: 'createdAt',
       sortOrder: 'desc',
     }),
     documentsRepository.getDistinctYears(),
-    documentsRepository.getCategoryCounts(year),
+    documentsRepository.getCategoryCounts(),
   ]);
 
   return {
@@ -96,35 +74,19 @@ async function getDocumentsData(params: {
     pagination: documentsResult.pagination,
     years,
     counts,
-    activeCategory: validCategory,
-    activeYear: year,
   };
 }
 
-export default async function DocumentsPage({ searchParams }: DocumentsPageProps) {
-  const params = await searchParams;
-  const category = params.kategorija;
-  const year = params.godina ? parseInt(params.godina, 10) : undefined;
-  const page = params.stranica ? parseInt(params.stranica, 10) : 1;
-  const search = params.pretraga;
-
-  const data = await getDocumentsData({
-    category,
-    year: Number.isFinite(year) ? year : undefined,
-    page: Number.isFinite(page) && page > 0 ? page : 1,
-    search,
-  });
+export default async function DocumentsPage() {
+  const data = await getInitialDocumentsData();
 
   return (
     <Suspense fallback={<DocumentsPageFallback />}>
       <DocumentsContent
-        documents={data.documents}
-        pagination={data.pagination}
+        initialDocuments={data.documents}
+        initialPagination={data.pagination}
         years={data.years}
         counts={data.counts}
-        activeCategory={data.activeCategory}
-        activeYear={data.activeYear}
-        searchQuery={search}
       />
     </Suspense>
   );

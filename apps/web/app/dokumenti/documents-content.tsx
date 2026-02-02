@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
 interface Document {
   id: string;
@@ -34,14 +34,13 @@ interface Pagination {
 }
 
 interface DocumentsContentProps {
-  documents: Document[];
-  pagination: Pagination;
+  initialDocuments: Document[];
+  initialPagination: Pagination;
   years: number[];
   counts: Record<string, number>;
-  activeCategory?: string | undefined;
-  activeYear?: number | undefined;
-  searchQuery?: string | undefined;
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 function formatFileSize(bytes: number | null): string {
   if (!bytes) return '';
@@ -72,19 +71,91 @@ const categoryIcons: Record<string, string> = {
 };
 
 export function DocumentsContent({
-  documents,
-  pagination,
+  initialDocuments,
+  initialPagination,
   years,
   counts,
-  activeCategory,
-  activeYear,
-  searchQuery: initialSearchQuery,
 }: DocumentsContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [searchInput, setSearchInput] = useState(initialSearchQuery || '');
+
+  // Parse URL params
+  const categoryParam = searchParams.get('kategorija');
+  const activeCategory = categoryParam && categoryParam in DOCUMENT_CATEGORIES ? categoryParam : undefined;
+  const yearParam = searchParams.get('godina');
+  const activeYear = yearParam ? parseInt(yearParam, 10) : undefined;
+  const pageParam = searchParams.get('stranica');
+  const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
+  const searchQuery = searchParams.get('pretraga') || undefined;
+
+  const [searchInput, setSearchInput] = useState(searchQuery || '');
   const [showFilters, setShowFilters] = useState(false);
+  const [documents, setDocuments] = useState<Document[]>(initialDocuments);
+  const [pagination, setPagination] = useState<Pagination>(initialPagination);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Check if we need to fetch (any filter active)
+  const hasActiveFilters = activeCategory || activeYear || searchQuery || currentPage > 1;
+
+  // Fetch documents when filters change
+  useEffect(() => {
+    if (!hasActiveFilters) {
+      // Use initial data when no filters
+      setDocuments(initialDocuments);
+      setPagination(initialPagination);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function fetchDocuments() {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams();
+        if (activeCategory) params.set('category', activeCategory);
+        if (activeYear && Number.isFinite(activeYear)) params.set('year', activeYear.toString());
+        if (searchQuery) params.set('search', searchQuery);
+        params.set('page', currentPage.toString());
+        params.set('limit', '20');
+
+        const response = await fetch(
+          `${API_URL}/api/public/documents?${params.toString()}`,
+          { signal: controller.signal }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch documents');
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          setDocuments(result.data.documents);
+          setPagination(result.data.pagination);
+        } else {
+          throw new Error(result.error?.message || 'Failed to fetch documents');
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        setError('Ne možemo učitati dokumente. Pokušajte ponovno.');
+        console.error('Error fetching documents:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    void fetchDocuments();
+
+    return () => {
+      controller.abort();
+    };
+  }, [activeCategory, activeYear, searchQuery, currentPage, hasActiveFilters, initialDocuments, initialPagination]);
 
   const updateUrl = useCallback(
     (updates: Record<string, string | undefined>) => {
@@ -130,8 +201,19 @@ export function DocumentsContent({
     });
   };
 
-  const hasActiveFilters = activeCategory || activeYear || initialSearchQuery;
-  const totalDocuments = Object.values(counts).reduce((sum, count) => sum + count, 0);
+  const totalDocuments = useMemo(
+    () => Object.values(counts).reduce((sum, count) => sum + count, 0),
+    [counts]
+  );
+
+  const buildPageUrl = (page: number) => {
+    const params = new URLSearchParams();
+    if (activeCategory) params.set('kategorija', activeCategory);
+    if (activeYear) params.set('godina', activeYear.toString());
+    if (searchQuery) params.set('pretraga', searchQuery);
+    params.set('stranica', page.toString());
+    return `/dokumenti?${params.toString()}`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white">
@@ -195,7 +277,7 @@ export function DocumentsContent({
               <span className="hidden sm:inline">Filteri</span>
               {hasActiveFilters && (
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-xs text-white">
-                  {(activeCategory ? 1 : 0) + (activeYear ? 1 : 0) + (initialSearchQuery ? 1 : 0)}
+                  {(activeCategory ? 1 : 0) + (activeYear ? 1 : 0) + (searchQuery ? 1 : 0)}
                 </span>
               )}
             </button>
@@ -322,9 +404,9 @@ export function DocumentsContent({
                 </button>
               </span>
             )}
-            {initialSearchQuery && (
+            {searchQuery && (
               <span className="inline-flex items-center gap-1 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-700">
-                &quot;{initialSearchQuery}&quot;
+                &quot;{searchQuery}&quot;
                 <button
                   onClick={() => {
                     setSearchInput('');
@@ -349,13 +431,26 @@ export function DocumentsContent({
                 : `${pagination.total} dokumenata`}
             {hasActiveFilters && ' pronađeno'}
           </p>
-          {isPending && (
+          {(isPending || isLoading) && (
             <div className="flex items-center gap-2 text-sm text-primary-600">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600" />
               Učitavanje...
             </div>
           )}
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error}
+            <button
+              onClick={() => window.location.reload()}
+              className="ml-2 font-medium underline hover:no-underline"
+            >
+              Pokušaj ponovno
+            </button>
+          </div>
+        )}
 
         {/* Document list */}
         {documents.length > 0 ? (
@@ -403,7 +498,7 @@ export function DocumentsContent({
               </a>
             ))}
           </div>
-        ) : (
+        ) : !isLoading && (
           <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-12 text-center">
             <FileText className="mx-auto h-12 w-12 text-neutral-300" />
             <h3 className="mt-4 font-semibold text-neutral-900">Nema dokumenata</h3>
@@ -427,18 +522,13 @@ export function DocumentsContent({
         {pagination.totalPages > 1 && (
           <div className="mt-8 flex items-center justify-center gap-2">
             <Link
-              href={`/dokumenti?${new URLSearchParams({
-                ...(activeCategory && { kategorija: activeCategory }),
-                ...(activeYear && { godina: activeYear.toString() }),
-                ...(initialSearchQuery && { pretraga: initialSearchQuery }),
-                stranica: Math.max(1, pagination.page - 1).toString(),
-              }).toString()}`}
+              href={buildPageUrl(Math.max(1, currentPage - 1))}
               className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
-                pagination.page <= 1
+                currentPage <= 1
                   ? 'pointer-events-none text-neutral-300'
                   : 'text-neutral-600 hover:bg-neutral-100'
               }`}
-              aria-disabled={pagination.page <= 1}
+              aria-disabled={currentPage <= 1}
             >
               <ChevronLeft className="h-5 w-5" />
             </Link>
@@ -448,24 +538,19 @@ export function DocumentsContent({
                 let pageNum: number;
                 if (pagination.totalPages <= 5) {
                   pageNum = i + 1;
-                } else if (pagination.page <= 3) {
+                } else if (currentPage <= 3) {
                   pageNum = i + 1;
-                } else if (pagination.page >= pagination.totalPages - 2) {
+                } else if (currentPage >= pagination.totalPages - 2) {
                   pageNum = pagination.totalPages - 4 + i;
                 } else {
-                  pageNum = pagination.page - 2 + i;
+                  pageNum = currentPage - 2 + i;
                 }
                 return (
                   <Link
                     key={pageNum}
-                    href={`/dokumenti?${new URLSearchParams({
-                      ...(activeCategory && { kategorija: activeCategory }),
-                      ...(activeYear && { godina: activeYear.toString() }),
-                      ...(initialSearchQuery && { pretraga: initialSearchQuery }),
-                      stranica: pageNum.toString(),
-                    }).toString()}`}
+                    href={buildPageUrl(pageNum)}
                     className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors ${
-                      pageNum === pagination.page
+                      pageNum === currentPage
                         ? 'bg-primary-600 text-white'
                         : 'text-neutral-600 hover:bg-neutral-100'
                     }`}
@@ -477,18 +562,13 @@ export function DocumentsContent({
             </div>
 
             <Link
-              href={`/dokumenti?${new URLSearchParams({
-                ...(activeCategory && { kategorija: activeCategory }),
-                ...(activeYear && { godina: activeYear.toString() }),
-                ...(initialSearchQuery && { pretraga: initialSearchQuery }),
-                stranica: Math.min(pagination.totalPages, pagination.page + 1).toString(),
-              }).toString()}`}
+              href={buildPageUrl(Math.min(pagination.totalPages, currentPage + 1))}
               className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
-                pagination.page >= pagination.totalPages
+                currentPage >= pagination.totalPages
                   ? 'pointer-events-none text-neutral-300'
                   : 'text-neutral-600 hover:bg-neutral-100'
               }`}
-              aria-disabled={pagination.page >= pagination.totalPages}
+              aria-disabled={currentPage >= pagination.totalPages}
             >
               <ChevronRight className="h-5 w-5" />
             </Link>
@@ -497,7 +577,7 @@ export function DocumentsContent({
 
         {pagination.totalPages > 1 && (
           <p className="mt-4 text-center text-sm text-neutral-500">
-            Stranica {pagination.page} od {pagination.totalPages}
+            Stranica {currentPage} od {pagination.totalPages}
           </p>
         )}
       </div>
