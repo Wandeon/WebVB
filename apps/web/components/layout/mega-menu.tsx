@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  AlertTriangle,
   Bell,
   Building2,
   ChevronDown,
@@ -197,89 +198,74 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
               })}
 
               {/* Fourth column: Action buttons + Featured content */}
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
                 {/* Action buttons */}
                 <div className="flex gap-2">
                   <Link
                     href="/kontakt"
                     onClick={closeMenu}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg"
+                    className="flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-br from-sky-500 to-sky-700 px-3 py-2 text-[13px] font-semibold text-white shadow-md transition-all hover:shadow-lg hover:brightness-110"
                   >
-                    <Mail className="h-4 w-4" />
+                    <Mail className="h-3.5 w-3.5" />
                     Kontakt
                   </Link>
                   <Link
                     href="/prijava-problema"
                     onClick={closeMenu}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 px-3 py-2 text-[13px] font-semibold text-white shadow-md transition-all hover:shadow-lg hover:brightness-110"
                   >
-                    <Bell className="h-4 w-4" />
+                    <AlertTriangle className="h-3.5 w-3.5" />
                     Prijava problema
                   </Link>
                 </div>
 
                 {/* Featured content */}
-                <div className="flex-1 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 p-4 text-white shadow-lg">
-                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary-100">
+                <div className="rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 p-3 text-white shadow-lg">
+                  <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-rose-100">
                     Najnovije
                   </h3>
 
                   {/* Latest news */}
-                {latestPost && (
-                  <Link
-                    href={`/vijesti/${latestPost.slug}`}
-                    onClick={closeMenu}
-                    className="group mb-2 block rounded-lg bg-white/10 p-2.5 backdrop-blur-sm transition-all hover:bg-white/20"
-                  >
-                    <div className="mb-1 flex items-center gap-2">
-                      <Newspaper className="h-3 w-3 text-primary-200" />
-                      <span className="text-[10px] font-medium uppercase tracking-wide text-primary-200">
-                        Vijest
-                      </span>
-                    </div>
-                    <p className="line-clamp-2 text-[13px] font-medium leading-tight text-white group-hover:underline">
-                      {latestPost.title}
-                    </p>
-                  </Link>
-                )}
+                  {latestPost && (
+                    <Link
+                      href={`/vijesti/${latestPost.slug}`}
+                      onClick={closeMenu}
+                      className="group mb-1.5 flex items-start gap-2 rounded-lg bg-white/10 p-2 backdrop-blur-sm transition-all hover:bg-white/20"
+                    >
+                      <Newspaper className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-200" />
+                      <p className="line-clamp-1 text-[12px] font-medium leading-tight text-white group-hover:underline">
+                        {latestPost.title}
+                      </p>
+                    </Link>
+                  )}
 
-                {/* Latest announcement */}
-                {latestAnnouncement && (
-                  <Link
-                    href={`/obavijesti/${latestAnnouncement.slug}`}
-                    onClick={closeMenu}
-                    className="group mb-2 block rounded-lg bg-white/10 p-2.5 backdrop-blur-sm transition-all hover:bg-white/20"
-                  >
-                    <div className="mb-1 flex items-center gap-2">
-                      <Bell className="h-3 w-3 text-primary-200" />
-                      <span className="text-[10px] font-medium uppercase tracking-wide text-primary-200">
-                        Obavijest
-                      </span>
-                    </div>
-                    <p className="line-clamp-2 text-[13px] font-medium leading-tight text-white group-hover:underline">
-                      {latestAnnouncement.title}
-                    </p>
-                  </Link>
-                )}
+                  {/* Latest announcement */}
+                  {latestAnnouncement && (
+                    <Link
+                      href={`/obavijesti/${latestAnnouncement.slug}`}
+                      onClick={closeMenu}
+                      className="group mb-1.5 flex items-start gap-2 rounded-lg bg-white/10 p-2 backdrop-blur-sm transition-all hover:bg-white/20"
+                    >
+                      <Bell className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-200" />
+                      <p className="line-clamp-1 text-[12px] font-medium leading-tight text-white group-hover:underline">
+                        {latestAnnouncement.title}
+                      </p>
+                    </Link>
+                  )}
 
-                {/* Latest document */}
-                {latestDocument && (
-                  <Link
-                    href={`/dokumenti/${latestDocument.slug}`}
-                    onClick={closeMenu}
-                    className="group block rounded-lg bg-white/10 p-2.5 backdrop-blur-sm transition-all hover:bg-white/20"
-                  >
-                    <div className="mb-1 flex items-center gap-2">
-                      <FileText className="h-3 w-3 text-primary-200" />
-                      <span className="text-[10px] font-medium uppercase tracking-wide text-primary-200">
-                        Dokument
-                      </span>
-                    </div>
-                    <p className="line-clamp-2 text-[13px] font-medium leading-tight text-white group-hover:underline">
-                      {latestDocument.title}
-                    </p>
-                  </Link>
-                )}
+                  {/* Latest document */}
+                  {latestDocument && (
+                    <Link
+                      href={`/dokumenti/${latestDocument.slug}`}
+                      onClick={closeMenu}
+                      className="group flex items-start gap-2 rounded-lg bg-white/10 p-2 backdrop-blur-sm transition-all hover:bg-white/20"
+                    >
+                      <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-200" />
+                      <p className="line-clamp-1 text-[12px] font-medium leading-tight text-white group-hover:underline">
+                        {latestDocument.title}
+                      </p>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
