@@ -121,13 +121,17 @@ export function DocumentsContent({
           throw new Error('Failed to fetch documents');
         }
 
-        const result = await response.json();
+        const result = (await response.json()) as {
+          success: boolean;
+          data?: { documents: Document[]; pagination: Pagination };
+          error?: { message: string };
+        };
 
         if (result.success && result.data) {
           setDocuments(result.data.documents);
           setPagination(result.data.pagination);
         } else {
-          throw new Error(result.error?.message || 'Failed to fetch documents');
+          throw new Error(result.error?.message ?? 'Failed to fetch documents');
         }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
