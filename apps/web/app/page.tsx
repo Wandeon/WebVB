@@ -25,7 +25,7 @@ import {
   QuickLinkCard,
   SectionHeader,
 } from '@repo/ui';
-import { ArrowRight, BarChart3, ExternalLink } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { siteConfig } from './metadata';
@@ -36,7 +36,6 @@ import { VillageHero } from '../components/village-hero';
 import { experienceItems } from '../lib/experience-items';
 import { externalServices } from '../lib/external-services';
 import { quickLinks } from '../lib/quick-links';
-import { transparencyConfig } from '../lib/transparency-config';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
@@ -393,43 +392,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Transparency */}
-      <section className="bg-neutral-50 py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <FadeIn>
-            <div className="mx-auto max-w-2xl rounded-2xl border border-neutral-200 bg-white/70 p-8 text-center backdrop-blur md:p-12">
-              <BarChart3 className="mx-auto h-10 w-10 text-primary-600" aria-hidden="true" />
-              <h2 className="mt-4 font-display text-2xl font-semibold text-neutral-900">
-                {transparencyConfig.headline}
-              </h2>
-              <p className="mt-3 text-neutral-600">
-                {transparencyConfig.description}
-              </p>
-              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
-                <a
-                  href={transparencyConfig.mobesUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                >
-                  {transparencyConfig.mobesLabel}
-                  <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
-                </a>
-                <Link
-                  href={transparencyConfig.documentsUrl}
-                  className="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                >
-                  {transparencyConfig.documentsLabel}
-                </Link>
-              </div>
-              <p className="mt-4 text-sm text-neutral-500">
-                {transparencyConfig.helperText}
-              </p>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
 
       {/* External Government Services */}
       <ExternalServicesSection services={externalServices} />
