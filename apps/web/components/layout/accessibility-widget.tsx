@@ -113,20 +113,21 @@ export function AccessibilityWidget() {
     settings.fontSize !== 'normal' || settings.highContrast || settings.reduceMotion;
 
   return (
-    <div className="relative hidden md:block">
+    <div className="relative">
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`rounded-full p-2 transition-colors ${
+        className={`rounded-full p-2.5 transition-colors ${
           hasActiveSettings
-            ? 'bg-primary-100 text-primary-700'
-            : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'
+            ? 'bg-blue-600 text-white shadow-md'
+            : 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm'
         }`}
         aria-label="Postavke pristupačnosti"
         aria-expanded={isOpen}
         aria-haspopup="true"
+        title="Pristupačnost"
       >
-        <Accessibility className="h-4 w-4" />
+        <Accessibility className="h-5 w-5" />
       </button>
 
       <AnimatePresence>

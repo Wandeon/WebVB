@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { ChevronDown, MapPin, Users, Building2, Landmark } from 'lucide-react';
+import { ChevronDown, MapPin, Users, Building2, Landmark, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
@@ -432,6 +432,17 @@ export function VillageHero() {
           <ChevronDown className="h-6 w-6" />
         </motion.div>
       </motion.div>
+
+      {/* Subtle admin access - for staff who know about it */}
+      <a
+        href={process.env.NEXT_PUBLIC_APP_URL || '/admin'}
+        className="absolute bottom-4 left-4 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-white/30 transition-colors hover:bg-white/10 hover:text-white/60"
+        title="Upravljanje"
+        aria-label="Pristup administraciji"
+      >
+        <Shield className="h-3.5 w-3.5" />
+        <span className="hidden text-xs sm:inline">Uprava</span>
+      </a>
     </section>
   );
 }
