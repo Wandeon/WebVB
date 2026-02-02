@@ -16,6 +16,7 @@ interface Village {
   id: string;
   name: string;
   image: string;
+  thumbnail: string;
   href: string;
   facts: VillageFact[];
 }
@@ -25,6 +26,7 @@ const villages: Village[] = [
     id: 'veliki-bukovec',
     name: 'Veliki Bukovec',
     image: '/images/hero/veliki-bukovec-hero-1.webp',
+    thumbnail: '/images/hero/veliki-bukovec-card-1.webp',
     href: '/naselja/veliki-bukovec',
     facts: [
       { icon: Users, label: 'Stanovnika', value: '~600' },
@@ -36,6 +38,7 @@ const villages: Village[] = [
     id: 'kapela-podravska',
     name: 'Kapela Podravska',
     image: '/images/hero/veliki-bukovec-hero-2.webp',
+    thumbnail: '/images/hero/veliki-bukovec-card-2.webp',
     href: '/naselja/kapela',
     facts: [
       { icon: Users, label: 'Stanovnika', value: '~350' },
@@ -47,6 +50,7 @@ const villages: Village[] = [
     id: 'dubovica',
     name: 'Dubovica',
     image: '/images/hero/veliki-bukovec-hero-3.webp',
+    thumbnail: '/images/hero/veliki-bukovec-card-3.webp',
     href: '/naselja/dubovica',
     facts: [
       { icon: Users, label: 'Stanovnika', value: '~400' },
@@ -389,7 +393,7 @@ export function VillageHero() {
                 <div className="relative h-20 w-24 overflow-hidden rounded-xl backdrop-blur-md sm:h-24 sm:w-32 md:h-32 md:w-44 lg:h-36 lg:w-52">
                   {/* Background image */}
                   <Image
-                    src={village.image}
+                    src={village.thumbnail}
                     alt={village.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
