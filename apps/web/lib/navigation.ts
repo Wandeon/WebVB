@@ -54,7 +54,7 @@ export const sidebarSections: NavSection[] = [
       { id: 'vijece', label: 'Vijeće', href: '/vijece' },
       { id: 'usluge', label: 'Usluge', href: '/usluge' },
       { id: 'dokumenti', label: 'Dokumenti', href: '/dokumenti' },
-      { id: 'javna-nabava', label: 'Javna nabava', href: 'https://eojn.nn.hr/', external: true },
+      { id: 'javna-nabava', label: 'Javna nabava', href: '/javna-nabava' },
     ],
   },
   {
@@ -62,8 +62,6 @@ export const sidebarSections: NavSection[] = [
     title: 'Aktualno',
     icon: 'newspaper',
     items: [
-      { id: 'kontakt', label: 'Kontakt', href: '/kontakt' },
-      { id: 'korisni-kontakti', label: 'Korisni kontakti', href: '/korisni-kontakti' },
       { id: 'vijesti', label: 'Vijesti', href: '/vijesti' },
       { id: 'obavijesti', label: 'Obavijesti', href: '/obavijesti' },
       { id: 'galerija', label: 'Galerija', href: '/galerija' },

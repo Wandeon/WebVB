@@ -1,3 +1,8 @@
+import {
+  announcementsRepository,
+  documentsRepository,
+  postsRepository,
+} from '@repo/database';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import './globals.css';
@@ -6,6 +11,43 @@ import { CookieConsent } from '../components/cookie-consent';
 import { SiteFooter } from '../components/layout/footer';
 import { SiteHeader } from '../components/layout/header';
 import { PwaRegister } from '../components/pwa';
+
+async function getHeaderData() {
+  try {
+    const [postsResult, announcementsResult, documentsResult] = await Promise.all([
+      postsRepository.findPublished({ limit: 1 }),
+      announcementsRepository.findPublished({ limit: 1 }),
+      documentsRepository.findAll({ limit: 1, sortBy: 'createdAt', sortOrder: 'desc' }),
+    ]);
+
+    return {
+      latestPost: postsResult.posts[0]
+        ? {
+            title: postsResult.posts[0].title,
+            slug: postsResult.posts[0].slug,
+            category: postsResult.posts[0].category ?? undefined,
+            publishedAt: postsResult.posts[0].publishedAt,
+          }
+        : null,
+      latestAnnouncement: announcementsResult.announcements[0]
+        ? {
+            title: announcementsResult.announcements[0].title,
+            slug: announcementsResult.announcements[0].slug,
+            publishedAt: announcementsResult.announcements[0].publishedAt,
+          }
+        : null,
+      latestDocument: documentsResult.documents[0]
+        ? {
+            title: documentsResult.documents[0].title,
+            slug: documentsResult.documents[0].id,
+            publishedAt: documentsResult.documents[0].createdAt,
+          }
+        : null,
+    };
+  } catch {
+    return { latestPost: null, latestAnnouncement: null, latestDocument: null };
+  }
+}
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
@@ -21,11 +63,13 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 export const metadata = baseMetadata;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { latestPost, latestAnnouncement, latestDocument } = await getHeaderData();
+
   return (
     <html lang="hr" className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
@@ -45,7 +89,11 @@ export default function RootLayout({
         >
           Preskoči na glavni sadržaj
         </a>
-        <SiteHeader />
+        <SiteHeader
+          latestPost={latestPost}
+          latestAnnouncement={latestAnnouncement}
+          latestDocument={latestDocument}
+        />
         <main id="main-content" className="flex-1">{children}</main>
         <SiteFooter />
         <CookieConsent />

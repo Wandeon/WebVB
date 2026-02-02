@@ -1,10 +1,11 @@
 'use client';
 
 import {
+  Bell,
   Building2,
-  CalendarDays,
   ChevronDown,
   ExternalLink,
+  FileText,
   Home,
   Mail,
   MapPin,
@@ -26,10 +27,15 @@ interface MegaMenuProps {
     category?: string | undefined;
     publishedAt?: Date | null | undefined;
   } | null | undefined;
-  upcomingEvent?: {
+  latestAnnouncement?: {
     title: string;
-    id: string;
-    eventDate: Date;
+    slug: string;
+    publishedAt?: Date | null | undefined;
+  } | null | undefined;
+  latestDocument?: {
+    title: string;
+    slug: string;
+    publishedAt?: Date | null | undefined;
   } | null | undefined;
 }
 
@@ -39,7 +45,7 @@ const iconMap: Record<string, typeof Building2> = {
   home: Home,
 };
 
-export function MegaMenu({ groups, latestPost, upcomingEvent }: MegaMenuProps) {
+export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocument }: MegaMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -193,8 +199,20 @@ export function MegaMenu({ groups, latestPost, upcomingEvent }: MegaMenuProps) {
               {/* Featured content column */}
               <div className="rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 p-4 text-white shadow-lg">
                 <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-primary-100">
-                  Aktualno
+                  Brzi pristup
                 </h3>
+
+                {/* Kontakt link */}
+                <Link
+                  href="/kontakt"
+                  onClick={closeMenu}
+                  className="group mb-3 flex items-center gap-2 rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+                >
+                  <Mail className="h-4 w-4 text-primary-200" />
+                  <span className="text-sm font-medium text-white group-hover:underline">
+                    Kontakt
+                  </span>
+                </Link>
 
                 {/* Latest news */}
                 {latestPost && (
@@ -209,42 +227,48 @@ export function MegaMenu({ groups, latestPost, upcomingEvent }: MegaMenuProps) {
                         Vijest
                       </span>
                     </div>
-                    <p className="text-sm font-medium leading-tight text-white group-hover:underline">
+                    <p className="line-clamp-2 text-sm font-medium leading-tight text-white group-hover:underline">
                       {latestPost.title}
                     </p>
                   </Link>
                 )}
 
-                {/* Upcoming event */}
-                {upcomingEvent && (
+                {/* Latest announcement */}
+                {latestAnnouncement && (
                   <Link
-                    href={`/dogadanja/${upcomingEvent.id}`}
+                    href={`/obavijesti/${latestAnnouncement.slug}`}
                     onClick={closeMenu}
-                    className="group block rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+                    className="group mb-3 block rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
                   >
                     <div className="mb-1 flex items-center gap-2">
-                      <CalendarDays className="h-3 w-3 text-primary-200" />
+                      <Bell className="h-3 w-3 text-primary-200" />
                       <span className="text-[10px] font-medium uppercase tracking-wide text-primary-200">
-                        Događaj
+                        Obavijest
                       </span>
                     </div>
-                    <p className="text-sm font-medium leading-tight text-white group-hover:underline">
-                      {upcomingEvent.title}
-                    </p>
-                    <p className="mt-1 text-xs text-primary-200">
-                      {upcomingEvent.eventDate.toLocaleDateString('hr-HR', {
-                        day: 'numeric',
-                        month: 'long',
-                      })}
+                    <p className="line-clamp-2 text-sm font-medium leading-tight text-white group-hover:underline">
+                      {latestAnnouncement.title}
                     </p>
                   </Link>
                 )}
 
-                {/* Fallback if no content */}
-                {!latestPost && !upcomingEvent && (
-                  <div className="rounded-lg bg-white/10 p-3 text-sm text-primary-100">
-                    Pratite najnovije vijesti i događanja u općini.
-                  </div>
+                {/* Latest document */}
+                {latestDocument && (
+                  <Link
+                    href={`/dokumenti/${latestDocument.slug}`}
+                    onClick={closeMenu}
+                    className="group block rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+                  >
+                    <div className="mb-1 flex items-center gap-2">
+                      <FileText className="h-3 w-3 text-primary-200" />
+                      <span className="text-[10px] font-medium uppercase tracking-wide text-primary-200">
+                        Dokument
+                      </span>
+                    </div>
+                    <p className="line-clamp-2 text-sm font-medium leading-tight text-white group-hover:underline">
+                      {latestDocument.title}
+                    </p>
+                  </Link>
                 )}
               </div>
             </div>

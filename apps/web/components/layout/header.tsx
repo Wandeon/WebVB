@@ -22,14 +22,19 @@ interface SiteHeaderProps {
     category?: string | undefined;
     publishedAt?: Date | null | undefined;
   } | null | undefined;
-  upcomingEvent?: {
+  latestAnnouncement?: {
     title: string;
-    id: string;
-    eventDate: Date;
+    slug: string;
+    publishedAt?: Date | null | undefined;
+  } | null | undefined;
+  latestDocument?: {
+    title: string;
+    slug: string;
+    publishedAt?: Date | null | undefined;
   } | null | undefined;
 }
 
-export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
+export function SiteHeader({ latestPost, latestAnnouncement, latestDocument }: SiteHeaderProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleOpenSearch = useCallback(() => {
@@ -119,7 +124,8 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
               <MegaMenu
                 groups={megaNavGroups}
                 latestPost={latestPost}
-                upcomingEvent={upcomingEvent}
+                latestAnnouncement={latestAnnouncement}
+                latestDocument={latestDocument}
               />
             </div>
           </div>
