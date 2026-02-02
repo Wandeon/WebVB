@@ -17,6 +17,7 @@ const publicDocumentsQuerySchema = z
     limit: z.coerce.number().int().positive().max(100).default(20),
     category: z.enum(categoryKeys).optional(),
     year: z.coerce.number().int().optional(),
+    search: z.string().min(2).max(100).optional(),
   })
   .strict();
 
@@ -25,6 +26,8 @@ const mapDocument = (doc: DocumentWithUploader) => ({
   title: doc.title,
   fileUrl: doc.fileUrl,
   fileSize: doc.fileSize ?? 0,
+  category: doc.category,
+  year: doc.year,
   createdAt: doc.createdAt,
 });
 
@@ -43,6 +46,7 @@ export async function GET(request: Request) {
       limit: searchParams.get('limit') ?? undefined,
       category: searchParams.get('category') ?? undefined,
       year: searchParams.get('year') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
     });
 
     if (!queryResult.success) {
@@ -52,10 +56,10 @@ export async function GET(request: Request) {
       );
     }
 
-    const { page, limit, category, year } = queryResult.data;
+    const { page, limit, category, year, search } = queryResult.data;
 
     const [documentsResult, years, counts] = await Promise.all([
-      documentsRepository.findAll({ page, limit, category, year }),
+      documentsRepository.findAll({ page, limit, category, year, search }),
       documentsRepository.getDistinctYears(),
       documentsRepository.getCategoryCounts(year),
     ]);
