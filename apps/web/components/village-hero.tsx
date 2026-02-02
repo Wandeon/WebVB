@@ -213,9 +213,8 @@ export function VillageHero() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/95 via-neutral-900/40 to-neutral-900/50" />
-      <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/70 via-transparent to-neutral-900/50 lg:from-neutral-900/80" />
+      {/* Minimal gradient for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/80 via-transparent to-transparent" />
 
       {/* Content */}
       <div className="container relative z-10 mx-auto flex h-full flex-col justify-between px-4 pb-8 pt-24">
@@ -400,13 +399,8 @@ export function VillageHero() {
                     sizes="(max-width: 640px) 96px, (max-width: 768px) 128px, (max-width: 1024px) 176px, 208px"
                   />
 
-                  {/* Glass overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/80 via-neutral-900/20 to-transparent" />
-
-                  {/* Glow effect on active */}
-                  {index === displayIndex && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary-500/30 to-transparent" />
-                  )}
+                  {/* Minimal overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/60 via-transparent to-transparent" />
 
                   {/* Village name */}
                   <div className="absolute inset-x-0 bottom-0 p-2 text-center sm:p-3 lg:text-left">
