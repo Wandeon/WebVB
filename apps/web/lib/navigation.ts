@@ -163,12 +163,4 @@ export const footerLinks = [
       { title: 'opcinavk@gmail.com', href: 'mailto:opcinavk@gmail.com' },
     ],
   },
-  {
-    title: 'Pravne informacije',
-    items: [
-      { title: 'Politika privatnosti', href: '/privatnost' },
-      { title: 'Uvjeti korištenja', href: '/uvjeti-koristenja' },
-      { title: 'Izjava o pristupačnosti', href: '/izjava-o-pristupacnosti' },
-    ],
-  },
 ];
