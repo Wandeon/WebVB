@@ -7,6 +7,8 @@ const ALLOWED_ORIGINS = [
   'https://velikibukovec.hr',
   'https://www.velikibukovec.hr',
   'https://velikibukovec-web.pages.dev',
+  // Tailscale access
+  'http://100.120.125.83',
   // Development
   'http://localhost:3000',
   'http://127.0.0.1:3000',
