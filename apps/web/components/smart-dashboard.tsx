@@ -140,13 +140,6 @@ export function SmartDashboard() {
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col p-6">
 
-        {/* Header with live indicator */}
-        <div className="flex items-center justify-between mb-6">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 text-xs font-medium text-sky-700 backdrop-blur-sm shadow-sm">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Pametna Općina
-          </span>
-        </div>
 
         {/* Time & Weather Row */}
         <div className="mb-6 rounded-2xl bg-white/60 p-5 backdrop-blur-sm shadow-sm">
@@ -162,7 +155,7 @@ export function SmartDashboard() {
           <OfficeStatus />
           <div className="mt-3 pt-3 border-t border-sky-200/50 text-xs text-sky-600">
             <p>Pon - Pet: 07:00 - 15:00</p>
-            <p className="text-sky-500">Trg S. Radića 28, Veliki Bukovec</p>
+            <p className="text-sky-500">Dravska 7, 42231 Mali Bukovec</p>
           </div>
         </div>
 
@@ -198,9 +191,9 @@ export function SmartDashboard() {
             <Phone className="h-3 w-3" />
             <span className="text-red-600 font-medium">Hitna: 112</span>
           </a>
-          <a href="tel:042719033" className="flex items-center gap-1.5 text-sky-700 hover:text-sky-900 transition-colors">
+          <a href="tel:042840040" className="flex items-center gap-1.5 text-sky-700 hover:text-sky-900 transition-colors">
             <Phone className="h-3 w-3" />
-            <span>Općina: 042/719-033</span>
+            <span>Općina: 042 840 040</span>
           </a>
         </div>
       </div>

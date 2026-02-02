@@ -252,29 +252,29 @@ export function MegaMenu({ groups, latestPost, upcomingEvent }: MegaMenuProps) {
             {/* Contact strip */}
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-primary-100/50 bg-white/50 px-6 py-3 text-xs text-neutral-600">
               <a
-                href="tel:042719033"
+                href="tel:042840040"
                 className="flex items-center gap-1.5 transition-colors hover:text-primary-600"
               >
                 <Phone className="h-3 w-3" />
-                042/719-033
+                042 840 040
               </a>
               <span className="hidden text-neutral-300 sm:inline">•</span>
               <a
-                href="https://maps.google.com/?q=Trg+S.+Radića+28+Veliki+Bukovec"
+                href="https://maps.google.com/?q=Dravska+7+Veliki+Bukovec"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 transition-colors hover:text-primary-600"
               >
                 <MapPin className="h-3 w-3" />
-                Trg S. Radića 28, Veliki Bukovec
+                Dravska 7, Veliki Bukovec
               </a>
               <span className="hidden text-neutral-300 sm:inline">•</span>
               <a
-                href="mailto:opcina@velikibukovec.hr"
+                href="mailto:opcinavk@gmail.com"
                 className="flex items-center gap-1.5 transition-colors hover:text-primary-600"
               >
                 <Mail className="h-3 w-3" />
-                opcina@velikibukovec.hr
+                opcinavk@gmail.com
               </a>
             </div>
           </div>

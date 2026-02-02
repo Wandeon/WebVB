@@ -24,10 +24,9 @@ galleries_path: /galerija
 
 # Organization Data
 legal_name: Općina Veliki Bukovec
-address: Trg svetog Franje 425, 42231 Veliki Bukovec, Hrvatska
-phone: +385 42 719 001
-email: opcina@velikibukovec.hr
-vat_id: HR92aborable
+address: Dravska 7, 42231 Mali Bukovec, Hrvatska
+phone: +385 42 840 040
+email: opcinavk@gmail.com
 mayor: Ivan Modrić
 
 # Settlements

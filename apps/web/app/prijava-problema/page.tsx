@@ -58,8 +58,8 @@ export default function ProblemReportPage() {
           <FadeIn delay={0.2}>
             <p className="mt-6 text-center text-sm text-neutral-500">
               Za hitne slučajeve nazovite{' '}
-              <a href="tel:042719001" className="font-medium text-primary-600 hover:underline">
-                042 719 001
+              <a href="tel:042840040" className="font-medium text-primary-600 hover:underline">
+                042 840 040
               </a>
             </p>
           </FadeIn>

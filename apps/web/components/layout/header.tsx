@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
 import { AccessibilityWidget } from './accessibility-widget';
-import { LanguageSwitcher, OfficeStatusBadge, SocialIcons, WeatherBadge } from './header-widgets';
+import { LanguageSwitcher, SocialIcons } from './header-widgets';
 import { MegaMenu } from './mega-menu';
 import { MobileMenu } from './mobile-menu';
 import { megaNavGroups } from '../../lib/navigation';
@@ -92,15 +92,10 @@ export function SiteHeader({ latestPost, upcomingEvent }: SiteHeaderProps) {
                 className="h-10 w-auto"
                 priority
               />
-              <span className="font-display text-base font-bold uppercase tracking-tight text-primary-700">
-                Veliki Bukovec
+              <span className="font-display text-sm font-bold uppercase tracking-tight text-primary-700">
+                {APP_NAME}
               </span>
             </Link>
-            {/* Desktop live widgets */}
-            <div className="hidden items-center gap-3 lg:flex">
-              <OfficeStatusBadge />
-              <WeatherBadge />
-            </div>
           </div>
 
           {/* Right: Search, Kontakt, and Menu */}

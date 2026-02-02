@@ -8,15 +8,15 @@ import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
-// Veliki Bukovec coordinates (approximate - verify actual location)
+// Veliki Bukovec coordinates
 const LOCATION = {
-  latitude: 46.3456,
-  longitude: 16.5789,
-  address: 'Trg svetog Franje 425',
+  latitude: 46.3210,
+  longitude: 16.8440,
+  address: 'Dravska 7',
   city: 'Veliki Bukovec',
-  postalCode: '42231',
-  phone: '042 719 001',
-  email: 'opcina@velikibukovec.hr',
+  postalCode: '42231 Mali Bukovec',
+  phone: '042 840 040',
+  email: 'opcinavk@gmail.com',
 };
 
 const WORKING_HOURS = [

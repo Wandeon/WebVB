@@ -283,7 +283,7 @@ export function VillageHero() {
               transition={{ delay: 0.8 }}
               className="mt-6 max-w-md text-lg text-white/70 lg:mt-10"
             >
-              Tri sela. Jedna općina. Otkrijte ljepote Podravine.
+              Tri sela. Jedna zajednica. Općina Veliki Bukovec.
             </motion.p>
           </div>
 

@@ -14,14 +14,14 @@ export const siteConfig = {
   creator: 'Općina Veliki Bukovec',
   logo: `${siteUrl}/apple-touch-icon.png`,
   address: {
-    streetAddress: 'Trg svetog Franje 425',
+    streetAddress: 'Dravska 7',
     addressLocality: 'Veliki Bukovec',
-    postalCode: '42231',
+    postalCode: '42231 Mali Bukovec',
     addressCountry: 'HR',
   },
   contactPoint: {
-    telephone: '042 719 001',
-    email: 'opcina@velikibukovec.hr',
+    telephone: '042 840 040',
+    email: 'opcinavk@gmail.com',
     contactType: 'customer service',
   },
 };

@@ -283,11 +283,11 @@ export function problemConfirmationTemplate(
           <h3>Kontakt podaci općine</h3>
           <div class="info-item">
             <span class="info-label">Adresa:</span>
-            <span>Trg svetog Franje 425, 42231 Veliki Bukovec</span>
+            <span>Dravska 7, 42231 Mali Bukovec</span>
           </div>
           <div class="info-item">
             <span class="info-label">E-mail:</span>
-            <span>opcina@velikibukovec.hr</span>
+            <span>opcinavk@gmail.com</span>
           </div>
           <div class="info-item">
             <span class="info-label">Radno vrijeme:</span>
@@ -338,8 +338,8 @@ SLJEDEĆI KORACI:
 4. Ako ste ostavili kontakt podatke, obavijestit ćemo vas o rješenju.
 
 KONTAKT PODACI OPĆINE:
-Adresa: Trg svetog Franje 425, 42231 Veliki Bukovec
-E-mail: opcina@velikibukovec.hr
+Adresa: Dravska 7, 42231 Mali Bukovec
+E-mail: opcinavk@gmail.com
 Radno vrijeme: Ponedjeljak - Petak, 07:00 - 15:00
 
 Ukoliko imate dodatnih informacija o prijavljenom problemu ili želite provjeriti status prijave, slobodno nas kontaktirajte putem e-maila ili nas posjetite tijekom radnog vremena.

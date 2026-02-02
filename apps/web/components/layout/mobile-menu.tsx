@@ -385,7 +385,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                 }}
               >
                 <a
-                  href="tel:042719033"
+                  href="tel:042840040"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -397,10 +397,10 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                   }}
                 >
                   <Phone style={{ width: 16, height: 16 }} />
-                  042/719-033
+                  042 840 040
                 </a>
                 <a
-                  href="mailto:opcina@velikibukovec.hr"
+                  href="mailto:opcinavk@gmail.com"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -415,7 +415,7 @@ export function MobileMenu({ groups, logo }: MobileMenuProps) {
                   Email
                 </a>
                 <a
-                  href="https://maps.google.com/?q=Trg+S.+Radića+28+Veliki+Bukovec"
+                  href="https://maps.google.com/?q=Dravska+7+Veliki+Bukovec"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{

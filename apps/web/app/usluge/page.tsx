@@ -62,8 +62,8 @@ const pageSections: PageSection[] = [
 const serviceFacts = {
   wastePickupDays: 2,
   officeHours: '8:00 - 14:00',
-  phone: '042 719 001',
-  email: 'opcina@velikibukovec.hr',
+  phone: '042 840 040',
+  email: 'opcinavk@gmail.com',
   responseTime: '3-5 dana',
   budgetYear: 2026,
 };
@@ -392,7 +392,7 @@ export default function UslugePage() {
             icon={Lightbulb}
             title="Javna rasvjeta"
             description="Održavanje i zamjena rasvjetnih tijela"
-            details="Prijava neispravne rasvjete: 042 719 001"
+            details="Prijava neispravne rasvjete: 042 840 040"
           />
           <ServiceCard
             icon={Droplets}

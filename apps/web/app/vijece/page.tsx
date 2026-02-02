@@ -455,10 +455,10 @@ export default function VjecePage() {
               </div>
               <div className="mt-2">
                 <a
-                  href="mailto:opcina@velikibukovec.hr"
+                  href="mailto:opcinavk@gmail.com"
                   className="font-medium text-neutral-900 hover:text-primary-600"
                 >
-                  opcina@velikibukovec.hr
+                  opcinavk@gmail.com
                 </a>
               </div>
             </div>

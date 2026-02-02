@@ -25,8 +25,8 @@ export function ContactBlock({ showMap = false }: ContactBlockProps) {
               <div>
                 <div className="font-medium text-neutral-900">Adresa</div>
                 <div className="text-sm text-neutral-600">
-                  Trg svetog Franje 425<br />
-                  42231 Veliki Bukovec
+                  Dravska 7, Veliki Bukovec<br />
+                  42231 Mali Bukovec
                 </div>
               </div>
             </div>
@@ -38,10 +38,10 @@ export function ContactBlock({ showMap = false }: ContactBlockProps) {
               <div>
                 <div className="font-medium text-neutral-900">Telefon</div>
                 <a
-                  href="tel:+38542719001"
+                  href="tel:+38542840040"
                   className="text-sm text-primary-600 hover:underline"
                 >
-                  042 719 001
+                  042 840 040
                 </a>
               </div>
             </div>
@@ -53,10 +53,10 @@ export function ContactBlock({ showMap = false }: ContactBlockProps) {
               <div>
                 <div className="font-medium text-neutral-900">Email</div>
                 <a
-                  href="mailto:opcina@velikibukovec.hr"
+                  href="mailto:opcinavk@gmail.com"
                   className="text-sm text-primary-600 hover:underline"
                 >
-                  opcina@velikibukovec.hr
+                  opcinavk@gmail.com
                 </a>
               </div>
             </div>

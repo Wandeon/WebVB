@@ -62,6 +62,7 @@ export const sidebarSections: NavSection[] = [
     title: 'Aktualno',
     icon: 'newspaper',
     items: [
+      { id: 'kontakt', label: 'Kontakt', href: '/kontakt' },
       { id: 'vijesti', label: 'Vijesti', href: '/vijesti' },
       { id: 'obavijesti', label: 'Obavijesti', href: '/obavijesti' },
       { id: 'galerija', label: 'Galerija', href: '/galerija' },
@@ -157,9 +158,9 @@ export const footerLinks = [
     title: 'Kontakt',
     items: [
       { title: 'Općina Veliki Bukovec', href: '/kontakt' },
-      { title: 'Trg svetog Franje 425', href: 'https://maps.google.com' },
-      { title: '42231 Veliki Bukovec', href: '/kontakt' },
-      { title: 'opcina@velikibukovec.hr', href: 'mailto:opcina@velikibukovec.hr' },
+      { title: 'Dravska 7, Veliki Bukovec', href: 'https://maps.google.com/?q=Dravska+7+Veliki+Bukovec' },
+      { title: '42231 Mali Bukovec', href: '/kontakt' },
+      { title: 'opcinavk@gmail.com', href: 'mailto:opcinavk@gmail.com' },
     ],
   },
   {

@@ -55,7 +55,7 @@ const sections: Section[] = [
           </div>
           <div>
             <h2 className="text-2xl font-bold text-neutral-900">
-              Zvonimir Stjepan Posavec
+              Ivan Modrić
             </h2>
             <p className="mt-1 text-lg text-primary-600">Općinski načelnik</p>
             <p className="mt-1 text-neutral-500">Mandat: 2021. - 2025.</p>
@@ -68,11 +68,11 @@ const sections: Section[] = [
                 nacelnik@velikibukovec.hr
               </a>
               <a
-                href="tel:+38542719001"
+                href="tel:+385914840040"
                 className="flex items-center gap-2 text-sm text-neutral-600 hover:text-primary-600"
               >
                 <Phone className="h-4 w-4" />
-                042 719 001
+                091 4840 040
               </a>
             </div>
           </div>
@@ -180,24 +180,21 @@ const sections: Section[] = [
         </div>
 
         <div className="mb-8 rounded-xl border border-primary-200 bg-primary-50 p-5">
-          <h3 className="font-semibold text-primary-900">Pročelnica JUO</h3>
-          <p className="mt-1 text-lg font-medium text-primary-800">
-            Lidija Posavec, mag. iur.
-          </p>
+          <h3 className="font-semibold text-primary-900">Jedinstveni upravni odjel</h3>
           <div className="mt-3 space-y-1">
             <a
-              href="mailto:opcina@velikibukovec.hr"
+              href="mailto:opcinavk@gmail.com"
               className="flex items-center gap-2 text-sm text-primary-700 hover:text-primary-900"
             >
               <Mail className="h-4 w-4" />
-              opcina@velikibukovec.hr
+              opcinavk@gmail.com
             </a>
             <a
-              href="tel:+38542719001"
+              href="tel:+38542840040"
               className="flex items-center gap-2 text-sm text-primary-700 hover:text-primary-900"
             >
               <Phone className="h-4 w-4" />
-              042 719 001
+              042 840 040
             </a>
           </div>
         </div>

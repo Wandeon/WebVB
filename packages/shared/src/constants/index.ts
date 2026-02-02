@@ -1,6 +1,6 @@
 // App-wide constants matching database constraints
 
-export const APP_NAME = 'Veliki Bukovec';
+export const APP_NAME = 'Općina Veliki Bukovec';
 
 export const ADMIN_APP_URL_DEFAULT = 'http://localhost:3001';
 export const PUBLIC_SITE_URL_DEFAULT = 'https://velikibukovec.hr';

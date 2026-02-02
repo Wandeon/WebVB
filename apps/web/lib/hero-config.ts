@@ -16,7 +16,7 @@ export const heroConfig = {
   trustLine: {
     hours: 'Pon-Pet 7:00-15:00',
     hoursHref: '/kontakt',
-    address: 'Trg A. Starčevića 1',
-    addressHref: 'https://maps.google.com/?q=Trg+A.+Starčevića+1,+Veliki+Bukovec',
+    address: 'Dravska 7, Veliki Bukovec',
+    addressHref: 'https://maps.google.com/?q=Dravska+7+Veliki+Bukovec',
   },
 };
