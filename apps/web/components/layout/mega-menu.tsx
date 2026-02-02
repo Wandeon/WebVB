@@ -143,24 +143,24 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
           {/* Glass container */}
           <div className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/95 via-sky-50/95 to-blue-50/95 shadow-2xl backdrop-blur-xl">
             {/* Main content */}
-            <div className="grid gap-6 p-6 md:grid-cols-4">
+            <div className="grid gap-6 p-6 md:grid-cols-[1fr_1fr_1fr_1.4fr]">
               {/* Navigation columns */}
               {groups.map((group) => {
                 const Icon = iconMap[group.icon] || Building2;
                 return (
                   <div
                     key={group.title}
-                    className="rounded-xl bg-white/60 p-4 shadow-sm backdrop-blur-sm transition-all hover:bg-white/80 hover:shadow-md"
+                    className="rounded-xl bg-white/60 p-3 shadow-sm backdrop-blur-sm transition-all hover:bg-white/80 hover:shadow-md"
                   >
-                    <div className="mb-4 flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100">
-                        <Icon className="h-4 w-4 text-primary-600" />
+                    <div className="mb-3 flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-100">
+                        <Icon className="h-3.5 w-3.5 text-primary-600" />
                       </div>
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-primary-700">
+                      <h3 className="text-[10px] font-bold uppercase tracking-wider text-primary-700">
                         {group.title}
                       </h3>
                     </div>
-                    <ul className="space-y-1" role="menu">
+                    <ul className="space-y-0.5" role="menu">
                       {group.items.map((item) => (
                         <li key={item.href} role="none">
                           {item.external ? (
@@ -168,7 +168,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                               href={item.href}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 transition-all hover:bg-primary-50 hover:text-primary-700 hover:translate-x-1"
+                              className="group flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-neutral-700 transition-all hover:bg-primary-50 hover:text-primary-700 hover:translate-x-1"
                               role="menuitem"
                             >
                               {item.title}
@@ -178,7 +178,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                             <Link
                               href={item.href}
                               onClick={closeMenu}
-                              className={`group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:translate-x-1 ${
+                              className={`group flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all hover:translate-x-1 ${
                                 isActive(item.href)
                                   ? 'bg-primary-100 text-primary-700'
                                   : 'text-neutral-700 hover:bg-primary-50 hover:text-primary-700'
@@ -196,30 +196,40 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                 );
               })}
 
-              {/* Featured content column */}
-              <div className="rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 p-4 text-white shadow-lg">
-                <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-primary-100">
-                  Brzi pristup
-                </h3>
-
-                {/* Kontakt link */}
-                <Link
-                  href="/kontakt"
-                  onClick={closeMenu}
-                  className="group mb-3 flex items-center gap-2 rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
-                >
-                  <Mail className="h-4 w-4 text-primary-200" />
-                  <span className="text-sm font-medium text-white group-hover:underline">
+              {/* Fourth column: Action buttons + Featured content */}
+              <div className="flex flex-col gap-3">
+                {/* Action buttons */}
+                <div className="flex gap-2">
+                  <Link
+                    href="/kontakt"
+                    onClick={closeMenu}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg"
+                  >
+                    <Mail className="h-4 w-4" />
                     Kontakt
-                  </span>
-                </Link>
+                  </Link>
+                  <Link
+                    href="/prijava-problema"
+                    onClick={closeMenu}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg"
+                  >
+                    <Bell className="h-4 w-4" />
+                    Prijava problema
+                  </Link>
+                </div>
 
-                {/* Latest news */}
+                {/* Featured content */}
+                <div className="flex-1 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 p-4 text-white shadow-lg">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary-100">
+                    Najnovije
+                  </h3>
+
+                  {/* Latest news */}
                 {latestPost && (
                   <Link
                     href={`/vijesti/${latestPost.slug}`}
                     onClick={closeMenu}
-                    className="group mb-3 block rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+                    className="group mb-2 block rounded-lg bg-white/10 p-2.5 backdrop-blur-sm transition-all hover:bg-white/20"
                   >
                     <div className="mb-1 flex items-center gap-2">
                       <Newspaper className="h-3 w-3 text-primary-200" />
@@ -227,7 +237,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                         Vijest
                       </span>
                     </div>
-                    <p className="line-clamp-2 text-sm font-medium leading-tight text-white group-hover:underline">
+                    <p className="line-clamp-2 text-[13px] font-medium leading-tight text-white group-hover:underline">
                       {latestPost.title}
                     </p>
                   </Link>
@@ -238,7 +248,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                   <Link
                     href={`/obavijesti/${latestAnnouncement.slug}`}
                     onClick={closeMenu}
-                    className="group mb-3 block rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+                    className="group mb-2 block rounded-lg bg-white/10 p-2.5 backdrop-blur-sm transition-all hover:bg-white/20"
                   >
                     <div className="mb-1 flex items-center gap-2">
                       <Bell className="h-3 w-3 text-primary-200" />
@@ -246,7 +256,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                         Obavijest
                       </span>
                     </div>
-                    <p className="line-clamp-2 text-sm font-medium leading-tight text-white group-hover:underline">
+                    <p className="line-clamp-2 text-[13px] font-medium leading-tight text-white group-hover:underline">
                       {latestAnnouncement.title}
                     </p>
                   </Link>
@@ -257,7 +267,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                   <Link
                     href={`/dokumenti/${latestDocument.slug}`}
                     onClick={closeMenu}
-                    className="group block rounded-lg bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+                    className="group block rounded-lg bg-white/10 p-2.5 backdrop-blur-sm transition-all hover:bg-white/20"
                   >
                     <div className="mb-1 flex items-center gap-2">
                       <FileText className="h-3 w-3 text-primary-200" />
@@ -265,11 +275,12 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                         Dokument
                       </span>
                     </div>
-                    <p className="line-clamp-2 text-sm font-medium leading-tight text-white group-hover:underline">
+                    <p className="line-clamp-2 text-[13px] font-medium leading-tight text-white group-hover:underline">
                       {latestDocument.title}
                     </p>
                   </Link>
                 )}
+                </div>
               </div>
             </div>
 

@@ -2,7 +2,6 @@
 
 import { APP_NAME } from '@repo/shared';
 import { SearchModal, SearchTrigger, useSearchShortcut } from '@repo/ui';
-import { Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
@@ -109,15 +108,6 @@ export function SiteHeader({ latestPost, latestAnnouncement, latestDocument }: S
             <LanguageSwitcher />
             <AccessibilityWidget />
             <SearchTrigger onOpen={handleOpenSearch} />
-
-            {/* Kontakt button - visible on desktop */}
-            <Link
-              href="/kontakt"
-              className="hidden items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 lg:flex"
-            >
-              <Mail className="h-4 w-4" />
-              Kontakt
-            </Link>
 
             {/* Desktop Mega Menu */}
             <div className="hidden lg:block">
