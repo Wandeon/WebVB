@@ -103,12 +103,12 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
   }
 
   return (
-    <div className="relative">
+    <div className="relative flex justify-center">
       {/* Trigger Button */}
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-full bg-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+        className="flex items-center justify-center gap-2 rounded-full bg-primary-600 px-8 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -137,21 +137,21 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute right-0 top-full z-50 mt-3 w-[calc(100vw-2rem)] max-w-5xl origin-top-right animate-in fade-in slide-in-from-top-2 duration-200"
+          className="fixed inset-x-0 top-16 z-50 mx-auto mt-0 w-full max-w-5xl origin-top animate-in fade-in slide-in-from-top-2 duration-200 md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-3 md:w-[calc(100vw-2rem)]"
           role="menu"
           aria-orientation="vertical"
         >
           {/* Glass container */}
-          <div className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/95 via-sky-50/95 to-blue-50/95 shadow-2xl backdrop-blur-xl">
+          <div className="overflow-hidden border-white/20 bg-gradient-to-br from-white/95 via-sky-50/95 to-blue-50/95 shadow-2xl backdrop-blur-xl md:rounded-2xl md:border">
             {/* Main content */}
-            <div className="grid gap-6 p-6 md:grid-cols-[1fr_1fr_1fr_1.4fr]">
+            <div className="grid gap-4 p-4 md:grid-cols-[1fr_1fr_1fr_1.2fr] md:gap-5 md:p-5">
               {/* Navigation columns */}
               {groups.map((group) => {
                 const Icon = iconMap[group.icon] || Building2;
                 return (
                   <div
                     key={group.title}
-                    className="rounded-xl bg-white/60 p-3 shadow-sm backdrop-blur-sm transition-all hover:bg-white/80 hover:shadow-md"
+                    className="flex flex-col rounded-xl bg-white/60 p-3 shadow-sm backdrop-blur-sm transition-all hover:bg-white/80 hover:shadow-md"
                   >
                     <div className="mb-3 flex items-center gap-2">
                       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-100">
@@ -204,7 +204,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                   <Link
                     href="/kontakt"
                     onClick={closeMenu}
-                    className="flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-br from-sky-500 to-sky-700 px-3 py-2 text-[13px] font-semibold text-white shadow-md transition-all hover:shadow-lg hover:brightness-110"
+                    className="flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-br from-sky-400 to-sky-600 px-3 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-105"
                   >
                     <Mail className="h-3.5 w-3.5" />
                     Kontakt
@@ -212,7 +212,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                   <Link
                     href="/prijava-problema"
                     onClick={closeMenu}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 px-3 py-2 text-[13px] font-semibold text-white shadow-md transition-all hover:shadow-lg hover:brightness-110"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 px-3 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-105"
                   >
                     <AlertTriangle className="h-3.5 w-3.5" />
                     Prijava problema
@@ -220,7 +220,7 @@ export function MegaMenu({ groups, latestPost, latestAnnouncement, latestDocumen
                 </div>
 
                 {/* Featured content */}
-                <div className="rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 p-3 text-white shadow-lg">
+                <div className="flex-1 rounded-xl bg-gradient-to-br from-rose-400 to-rose-600 p-3 text-white shadow-md">
                   <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-rose-100">
                     Najnovije
                   </h3>
