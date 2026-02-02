@@ -63,6 +63,7 @@ export const sidebarSections: NavSection[] = [
     icon: 'newspaper',
     items: [
       { id: 'kontakt', label: 'Kontakt', href: '/kontakt' },
+      { id: 'korisni-kontakti', label: 'Korisni kontakti', href: '/korisni-kontakti' },
       { id: 'vijesti', label: 'Vijesti', href: '/vijesti' },
       { id: 'obavijesti', label: 'Obavijesti', href: '/obavijesti' },
       { id: 'galerija', label: 'Galerija', href: '/galerija' },
@@ -151,6 +152,7 @@ export const footerLinks = [
       { title: 'Obavijesti', href: '/obavijesti' },
       { title: 'Dokumenti', href: '/dokumenti' },
       { title: 'Usluge', href: '/usluge' },
+      { title: 'Korisni kontakti', href: '/korisni-kontakti' },
       { title: 'Prijava problema', href: '/prijava-problema' },
     ],
   },
