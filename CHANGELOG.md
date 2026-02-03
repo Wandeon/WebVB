@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Audit EMB-03 - Logging, Error Reporting, and PII Leaks (2026-02-16)
+## Audit EMB-03 - Logging, Error Reporting, and PII Leaks (2026-02-03)
 
 ### Changed
 - Redacted sensitive fields from structured logging and standardized error serialization for safer log sharing
