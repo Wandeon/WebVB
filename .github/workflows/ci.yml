@@ -111,6 +111,19 @@ jobs:
           fi
           echo "✅ No 'any' types found"
 
+      - name: Secret scan (pattern-based)
+        run: |
+          if rg --hidden \
+            --glob '!.git/**' \
+            --glob '!node_modules/**' \
+            --glob '!pnpm-lock.yaml' \
+            "(BEGIN PRIVATE KEY|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|xoxb-[0-9A-Za-z-]+|xoxp-[0-9A-Za-z-]+|ghp_[0-9A-Za-z]{36,}|gho_[0-9A-Za-z]{36,}|glpat-[0-9A-Za-z-]{20,}|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----)" \
+            .; then
+            echo "❌ Potential secrets detected. Remove them before merging."
+            exit 1
+          fi
+          echo "✅ No obvious secrets found"
+
       - name: Lint
         run: pnpm lint
 
@@ -137,7 +150,7 @@ jobs:
         image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: ci-password
           POSTGRES_DB: velikibukovec_ci
         ports:
           - 5432:5432
@@ -147,7 +160,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/velikibukovec_ci"
+      DATABASE_URL: "postgresql://postgres:ci-password@localhost:5432/velikibukovec_ci"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

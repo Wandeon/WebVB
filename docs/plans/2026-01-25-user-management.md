@@ -997,7 +997,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New Admin',
           email: 'newadmin@example.com',
-          password: 'password123',
+          password: '<TEST_PASSWORD>',
           role: 'super_admin',
         }),
       });
@@ -1029,7 +1029,7 @@ describe('Users API', () => {
         body: JSON.stringify({
           name: 'New Staff',
           email: 'staff@example.com',
-          password: 'password123',
+          password: '<TEST_PASSWORD>',
           role: 'staff',
         }),
       });

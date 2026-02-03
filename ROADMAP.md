@@ -196,6 +196,7 @@ Gate: pnpm test:e2e (basic auth flow)
 | 1.12 ✅ | Admin integration test | 🔗 | 1.1-1.11 | All CRUD operations work end-to-end |
 
 Recent updates:
+- Audit EMB-01 completed: secret/credential sweep with CI secret scan guardrail.
 - Sprint 1.12 completed: Admin integration tests with Playwright E2E tests for all CRUD modules (posts, pages, events, galleries, settings, users).
 - Sprint 1.12 follow-up: Hardened E2E selectors, reused shared auth helper, and added session revocation coverage plus user removal verification.
 - Sprint 1.11 completed: User management with CRUD, role-based permissions, soft-delete deactivation, and login blocking for inactive users.
@@ -1057,3 +1058,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-02-03 | Audit 16: accessible files audit documented; gitignore hardened for backup/export artifacts |
 | 2026-02-03 | Audit EMB-03: logging/error reporting hardened; PII redaction in logs, user-agent hashing |
 | 2026-02-03 | Audit EMB-02: client bundle hardened; healthz simplified, waste-reminder auth, admin link removed |
+| 2026-02-03 | Audit EMB-01: secrets sweep; credential placeholders, CI secret scanner added |

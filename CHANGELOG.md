@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit EMB-01 - Secrets and Credential Sweep (2026-02-03)
+
+### Changed
+- Sanitized documented environment examples to use placeholders instead of real-looking credentials
+- Added a lightweight CI secret scan to flag common token and private key patterns early
+- Standardized CI database credentials to a non-default placeholder for local test services
+
 ## Audit EMB-02 - Client Bundle & Config Exposure (2026-02-03)
 
 ### Changed

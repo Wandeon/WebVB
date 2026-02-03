@@ -309,7 +309,7 @@ ports=80,443/tcp
 # ============================================
 # DATABASE
 # ============================================
-DATABASE_URL="postgresql://user:password@localhost:5432/velikibukovec"
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/velikibukovec"
 
 # ============================================
 # AUTHENTICATION (Better Auth)
@@ -336,11 +336,11 @@ GOOGLE_SEARCH_CX="your-search-engine-id"
 # ============================================
 # EMAIL (SMTP)
 # ============================================
-SMTP_HOST="mail.velikibukovec.hr"
+SMTP_HOST="smtp.example.com"
 SMTP_PORT="587"
-SMTP_USER="noreply@velikibukovec.hr"
+SMTP_USER="noreply@example.com"
 SMTP_PASSWORD="your-smtp-password"
-SMTP_FROM="Općina Veliki Bukovec <noreply@velikibukovec.hr>"
+SMTP_FROM="Općina Veliki Bukovec <noreply@example.com>"
 
 # ============================================
 # CLOUDFLARE
