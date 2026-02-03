@@ -5,6 +5,8 @@ import {
 } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import type { MetadataRoute } from 'next';
 
 // Required for static export - sitemap is generated at build time
@@ -43,16 +45,20 @@ const staticRoutes = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticEntries = staticRoutes.map((path) => ({
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, path),
+    lastModified: new Date(),
+  }));
+
+  if (shouldSkipDatabase()) {
+    return staticEntries;
+  }
+
   const [posts, events, galleries] = await Promise.all([
     postsRepository.findPublishedForSitemap(),
     eventsRepository.findAllForSitemap(),
     galleriesRepository.findAllForSitemap(),
   ]);
-
-  const staticEntries = staticRoutes.map((path) => ({
-    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, path),
-    lastModified: new Date(),
-  }));
 
   const postEntries = posts.map((post) => ({
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/vijesti/${post.slug}`),

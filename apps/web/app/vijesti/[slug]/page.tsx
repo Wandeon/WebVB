@@ -19,6 +19,8 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import { siteConfig } from '../../metadata';
 
 import type { Metadata } from 'next';
@@ -58,6 +60,13 @@ export async function generateMetadata({
   const { slug } = await params;
   let post: PostWithAuthor | null = null;
 
+  if (shouldSkipDatabase()) {
+    return {
+      title: 'Vijest trenutno nije dostupna',
+      description: 'Vijest će biti dostupna nakon učitavanja sadržaja.',
+    };
+  }
+
   try {
     post = await fetchPostBySlug(slug);
   } catch {
@@ -75,7 +84,7 @@ export async function generateMetadata({
   const description =
     post.excerpt ||
     truncateText(stripHtmlTags(post.content), META_DESCRIPTION_MAX_LENGTH);
-  const fallbackImage = `${NEXT_PUBLIC_SITE_URL}/og-image.jpg`;
+  const fallbackImage = `${NEXT_PUBLIC_SITE_URL}/images/logo-large.png`;
   const ogImage = post.featuredImage ?? fallbackImage;
   const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/vijesti/${post.slug}`);
 
@@ -108,6 +117,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all news pages at build time
 export const generateStaticParams = withStaticParams(async () => {
+  if (shouldSkipDatabase()) {
+    return [];
+  }
+
   const { posts } = await postsRepository.findPublished({ limit: 100 });
   return posts.map((post) => ({ slug: post.slug }));
 }, {
@@ -117,6 +130,11 @@ export const generateStaticParams = withStaticParams(async () => {
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;
+
+  if (shouldSkipDatabase()) {
+    notFound();
+  }
+
   const post = await fetchPostBySlug(slug);
 
   if (!post || !post.publishedAt) {

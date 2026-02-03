@@ -1,6 +1,6 @@
 'use client';
 
-import { DOCUMENT_CATEGORIES } from '@repo/shared';
+import { DOCUMENT_CATEGORIES, getPublicEnv } from '@repo/shared';
 import {
   Calendar,
   ChevronLeft,
@@ -39,7 +39,8 @@ interface DocumentsContentProps {
   counts: Record<string, number>;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 
 function formatFileSize(bytes: number | null): string {
   if (!bytes) return '';
@@ -85,13 +86,31 @@ export function DocumentsContent({
   const activeYear = yearParam ? parseInt(yearParam, 10) : undefined;
   const pageParam = searchParams.get('stranica');
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
-  const searchQuery = searchParams.get('pretraga') || undefined;
+  const rawSearchQuery = searchParams.get('pretraga') ?? searchParams.get('search') ?? '';
+  const normalizedSearchQuery = rawSearchQuery.trim();
+  const searchQuery = normalizedSearchQuery.length >= 2 ? normalizedSearchQuery : undefined;
 
-  const [searchInput, setSearchInput] = useState(searchQuery || '');
+  const [searchInput, setSearchInput] = useState(rawSearchQuery);
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [pagination, setPagination] = useState<Pagination>(initialPagination);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSearchInput(rawSearchQuery);
+  }, [rawSearchQuery]);
+
+  useEffect(() => {
+    const legacySearch = searchParams.get('search');
+    const canonicalSearch = searchParams.get('pretraga');
+
+    if (legacySearch && !canonicalSearch) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('search');
+      params.set('pretraga', legacySearch);
+      router.replace(`/dokumenti?${params.toString()}`, { scroll: false });
+    }
+  }, [router, searchParams]);
 
   // Check if we need to fetch (any filter active)
   const hasActiveFilters = activeCategory || activeYear || searchQuery || currentPage > 1;
@@ -144,7 +163,6 @@ export function DocumentsContent({
           return;
         }
         setError('Ne možemo učitati dokumente. Pokušajte ponovno.');
-        console.error('Error fetching documents:', err);
       } finally {
         setIsLoading(false);
       }

@@ -66,8 +66,7 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
         e.preventDefault();
         const selected = selectCurrent();
         if (selected) {
-          router.push(selected.url);
-          onClose();
+          handleResultSelect(selected);
         }
         break;
       }
@@ -78,6 +77,12 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
   };
 
   const handleResultSelect = (result: { url: string }) => {
+    if (/^https?:\/\//i.test(result.url)) {
+      onClose();
+      window.location.assign(result.url);
+      return;
+    }
+
     router.push(result.url);
     onClose();
   };
@@ -107,7 +112,7 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
               ref={inputRef}
               type="text"
               placeholder="Pretraži..."
-              aria-label="Pretraži..."
+              aria-label="Pretraži sadržaj"
               className="flex-1 bg-transparent text-lg outline-none placeholder:text-neutral-400"
               defaultValue={query}
               onChange={(e) => void search(e.target.value)}

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 14 - Search, SEO, Static Export, and Build Reliability (2026-02-07)
+
+### Changed
+- Added listbox/option accessibility hints and handled external search result navigation safely
+- Normalized document search query parameters and updated public links to the canonical `pretraga` filter
+- Switched public-facing API URL lookups to validated `getPublicEnv` helpers and wired robots sitemap to the configured site URL
+- Reused the existing logo asset as the OpenGraph fallback image to avoid new binaries
+- Switched to Google-hosted Inter and Plus Jakarta Sans fonts to remove bundled font binaries
+- Added optional `OLLAMA_LOCAL_URL` runtime validation and used it for hybrid search embeddings
+
 ## Audit 13 - Content Quality, Editorial Consistency, and Public Trust Details (2026-02-06)
 
 ### Changed

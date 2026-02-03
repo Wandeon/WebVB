@@ -16,6 +16,7 @@
     "db:studio": "prisma studio",
     "backfill-search": "tsx src/scripts/backfill-search-index.ts",
     "fix-page-slugs": "tsx src/scripts/fix-page-slugs.ts",
+    "postinstall": "prisma generate",
     "test": "pnpm exec vitest run",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/ --ignore-pattern '**/*.test.ts'",

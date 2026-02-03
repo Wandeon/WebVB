@@ -8,6 +8,7 @@ import {
   getDatabaseEnv,
   getOllamaCloudEnv,
   getOptionalAdminEmailEnv,
+  getOptionalDatabaseEnv,
   getOptionalOllamaCloudEnv,
   getPublicEnv,
   getPushEnv,
@@ -164,6 +165,15 @@ describe('env validation', () => {
       expect(env.DATABASE_URL).toContain('postgresql://');
     });
 
+    it('returns null when database env is missing', () => {
+      resetEnv();
+      delete process.env.DATABASE_URL;
+
+      const env = getOptionalDatabaseEnv();
+
+      expect(env).toBeNull();
+    });
+
     it('throws for invalid database url', () => {
       resetEnv();
       process.env.DATABASE_URL = 'mysql://user:password@localhost:3306/db';
@@ -180,6 +190,15 @@ describe('env validation', () => {
       const env = getRuntimeEnv();
 
       expect(env.LOG_LEVEL).toBe('warn');
+    });
+
+    it('parses optional Ollama local URL', () => {
+      resetEnv();
+      process.env.OLLAMA_LOCAL_URL = 'http://127.0.0.1:11434';
+
+      const env = getRuntimeEnv();
+
+      expect(env.OLLAMA_LOCAL_URL).toBe('http://127.0.0.1:11434');
     });
 
     it('rejects ALLOW_ANY_ORIGIN in production', () => {

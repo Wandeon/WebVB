@@ -3,6 +3,8 @@ import { documentsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import { DocumentsContent } from './documents-content';
 
 import type { Metadata } from 'next';
@@ -50,6 +52,15 @@ function DocumentsPageFallback() {
 }
 
 async function getInitialDocumentsData() {
+  if (shouldSkipDatabase()) {
+    return {
+      documents: [],
+      pagination: { page: 1, limit: 20, total: 0, totalPages: 1 },
+      years: [],
+      counts: {},
+    };
+  }
+
   const [documentsResult, years, counts] = await Promise.all([
     documentsRepository.findAll({
       page: 1,

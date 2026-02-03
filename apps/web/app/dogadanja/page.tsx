@@ -1,7 +1,8 @@
-
 import { eventsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
+
+import { shouldSkipDatabase } from '@/lib/build-flags';
 
 import { EventsPageClient } from './events-page-client';
 
@@ -42,6 +43,16 @@ async function getInitialEventsData(): Promise<EventsPageInitialData> {
   const today = new Date();
   const initialYear = today.getFullYear();
   const initialMonth = today.getMonth() + 1;
+
+  if (shouldSkipDatabase()) {
+    return {
+      events: [],
+      calendarEvents: [],
+      pagination: { page: 1, limit: 10, total: 0, totalPages: 1 },
+      initialYear,
+      initialMonth,
+    };
+  }
 
   const [eventsResult, calendarEvents] = await Promise.all([
     eventsRepository.findAll({ page: 1, limit: 10, upcoming: true }),

@@ -1,5 +1,6 @@
 'use client';
 
+import { getPublicEnv } from '@repo/shared';
 import { FadeIn, GalleryCard, Pagination } from '@repo/ui';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -51,7 +52,8 @@ interface GalleryPageClientProps {
   initialData: GalleryPageInitialData;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 const FETCH_TIMEOUT_MS = 10_000;
 
 const deserializeGallery = (gallery: SerializedGallery): Gallery => ({

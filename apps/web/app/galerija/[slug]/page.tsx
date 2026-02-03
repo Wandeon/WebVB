@@ -1,5 +1,3 @@
-
-
 import { galleriesRepository } from '@repo/database';
 import {
   buildCanonicalUrl,
@@ -15,6 +13,8 @@ import { ArrowLeft, Calendar, Images } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -26,6 +26,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all gallery pages at build time
 export const generateStaticParams = withStaticParams(async () => {
+  if (shouldSkipDatabase()) {
+    return [];
+  }
+
   const galleries = await galleriesRepository.findAllForSitemap();
   return galleries.map((gallery) => ({ slug: gallery.slug }));
 }, {
@@ -41,6 +45,11 @@ export async function generateMetadata({
   params,
 }: GalleryDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
+
+  if (shouldSkipDatabase()) {
+    return { title: 'Galerija trenutno nije dostupna' };
+  }
+
   const gallery = await galleriesRepository.findBySlug(slug);
 
   if (!gallery) {
@@ -73,6 +82,11 @@ export default async function GalleryDetailPage({
   params,
 }: GalleryDetailPageProps) {
   const { slug } = await params;
+
+  if (shouldSkipDatabase()) {
+    notFound();
+  }
+
   const gallery = await galleriesRepository.findBySlug(slug);
 
   if (!gallery) {

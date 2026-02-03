@@ -5,6 +5,8 @@ import {
 } from '@repo/database';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import './globals.css';
 import { baseMetadata } from './metadata';
 import { CookieConsent } from '../components/cookie-consent';
@@ -13,6 +15,10 @@ import { SiteHeader } from '../components/layout/header';
 import { PwaRegister } from '../components/pwa';
 
 async function getHeaderData() {
+  if (shouldSkipDatabase()) {
+    return { latestPost: null, latestAnnouncement: null, latestDocument: null };
+  }
+
   try {
     const [postsResult, announcementsResult, documentsResult] = await Promise.all([
       postsRepository.findPublished({ limit: 1 }),
@@ -73,9 +79,6 @@ export default async function RootLayout({
   return (
     <html lang="hr" className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
-        {/* Performance hints - Google Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Performance hints - R2 CDN for images */}
         <link rel="preconnect" href="https://pub-920c291ea0c74945936ae9819993768a.r2.dev" />
         <link rel="dns-prefetch" href="https://pub-920c291ea0c74945936ae9819993768a.r2.dev" />

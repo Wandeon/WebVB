@@ -314,19 +314,19 @@ export default function JavnaNabavaPage() {
             icon={Gavel}
             title="Pravilnik o provedbi postupaka javne nabave"
             description="Pravilnik koji uređuje provedbu postupaka javne nabave Općine Veliki Bukovec sukladno Zakonu o javnoj nabavi."
-            href="/dokumenti?search=pravilnik+javna+nabava"
+            href="/dokumenti?pretraga=pravilnik+javna+nabava"
           />
           <DocumentCard
             icon={Gavel}
             title="Pravilnik o provedbi jednostavne nabave"
             description="Pravilnik za nabave procijenjene vrijednosti manje od pragova za primjenu Zakona o javnoj nabavi."
-            href="/dokumenti?search=jednostavna+nabava"
+            href="/dokumenti?pretraga=jednostavna+nabava"
           />
           <DocumentCard
             icon={Gavel}
             title="Pravilnik o nabavi bagatelne vrijednosti"
             description="Pravilnik za nabave male vrijednosti do 26.540,00 EUR."
-            href="/dokumenti?search=bagatelna+nabava"
+            href="/dokumenti?pretraga=bagatelna+nabava"
           />
         </div>
       </section>
@@ -357,7 +357,7 @@ export default function JavnaNabavaPage() {
                   <td className="px-4 py-3 font-medium text-neutral-900">{year}</td>
                   <td className="px-4 py-3">
                     <Link
-                      href={`/dokumenti?search=evidencija+ugovora+${year}`}
+                      href={`/dokumenti?pretraga=evidencija+ugovora+${year}`}
                       className="text-primary-600 hover:underline"
                     >
                       Preuzmi
@@ -366,7 +366,7 @@ export default function JavnaNabavaPage() {
                   <td className="px-4 py-3">
                     {year < 2025 ? (
                       <Link
-                        href={`/dokumenti?search=izvrsenje+plana+${year}`}
+                        href={`/dokumenti?pretraga=izvrsenje+plana+${year}`}
                         className="text-primary-600 hover:underline"
                       >
                         Preuzmi

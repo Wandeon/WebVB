@@ -1,8 +1,10 @@
 'use client';
 
+import { getPublicEnv } from '@repo/shared';
 import { useCallback, useEffect, useState } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 const STORAGE_KEY = 'vb-waste-schedule';
 
 interface WasteEvent {

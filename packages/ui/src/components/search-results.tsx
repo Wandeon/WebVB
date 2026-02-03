@@ -3,8 +3,8 @@
 import { Calendar, File, FileText, Newspaper } from 'lucide-react';
 import { useState } from 'react';
 
+import { SearchHighlight } from './search-highlight';
 import { SearchResultItem } from './search-result-item';
-import { sanitizeInlineHtml } from '../lib/sanitize-html';
 
 import type { GroupedResults, SearchResult } from '../hooks/use-search';
 
@@ -118,7 +118,11 @@ export function SearchResults({
       </div>
 
       {/* Mobile: Single column for active tab */}
-      <div className="max-h-[350px] overflow-y-auto md:hidden">
+      <div
+        className="max-h-[350px] overflow-y-auto md:hidden"
+        role="listbox"
+        aria-label="Rezultati pretraživanja"
+      >
         {effectiveTab && (
           <div className="py-2">
             {results[effectiveTab].map((result, index) => (
@@ -149,7 +153,11 @@ export function SearchResults({
                     {items.length}
                   </span>
                 </h3>
-                <div className="space-y-1">
+                <div
+                  className="space-y-1"
+                  role="listbox"
+                  aria-label={`Rezultati za ${config.label}`}
+                >
                   {items.slice(0, 5).map((result, index) => (
                     <SearchResultItemCompact
                       key={result.id}
@@ -174,7 +182,11 @@ export function SearchResults({
                 {results.events.length}
               </span>
             </h3>
-            <div className="grid grid-cols-3 gap-2">
+            <div
+              className="grid grid-cols-3 gap-2"
+              role="listbox"
+              aria-label="Rezultati za Događanja"
+            >
               {results.events.slice(0, 3).map((result, index) => (
                 <SearchResultItemCompact
                   key={result.id}
@@ -205,15 +217,17 @@ function SearchResultItemCompact({
     <button
       type="button"
       onClick={onClick}
+      role="option"
+      aria-selected={isSelected}
       className={`block w-full rounded-lg px-2 py-1.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
         isSelected
           ? 'bg-primary-50 text-primary-900'
           : 'hover:bg-neutral-50'
       }`}
     >
-      <span
-        className="line-clamp-2 text-sm font-medium text-neutral-900"
-        dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(result.title) }}
+      <SearchHighlight
+        text={result.title}
+        className="block line-clamp-2 text-sm font-medium text-neutral-900"
       />
       {result.date && (
         <span className="mt-0.5 block text-xs text-neutral-500">{result.date}</span>
