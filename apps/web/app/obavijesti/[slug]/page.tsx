@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { AttachmentList } from '@/components/announcements';
+import { shouldSkipDatabase } from '@/lib/build-flags';
 
 import { siteConfig } from '../../metadata';
 
@@ -59,6 +60,13 @@ export async function generateMetadata({
 }: AnnouncementDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   let announcement: AnnouncementWithAuthor | null = null;
+
+  if (shouldSkipDatabase()) {
+    return {
+      title: 'Obavijest trenutno nije dostupna',
+      description: 'Obavijest će biti dostupna nakon učitavanja sadržaja.',
+    };
+  }
 
   try {
     announcement = await fetchAnnouncementBySlug(slug);
@@ -116,6 +124,10 @@ export const dynamic = 'force-static';
 // Required for static export - generate all announcement pages at build time
 export const generateStaticParams = withStaticParams(
   async () => {
+    if (shouldSkipDatabase()) {
+      return [];
+    }
+
     const { announcements } = await announcementsRepository.findPublished({
       limit: 100,
       activeOnly: false,
@@ -169,6 +181,11 @@ export default async function AnnouncementDetailPage({
   params,
 }: AnnouncementDetailPageProps) {
   const { slug } = await params;
+
+  if (shouldSkipDatabase()) {
+    notFound();
+  }
+
   const announcement = await fetchAnnouncementBySlug(slug);
 
   if (!announcement || !announcement.publishedAt) {

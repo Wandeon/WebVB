@@ -75,6 +75,7 @@ const runtimeEnvSchema = baseEnvSchema.extend({
   ALLOW_ANY_ORIGIN: z.enum(['true', 'false']).optional(),
   AI_WORKER_ENABLED: z.enum(['true', 'false']).optional(),
   AI_WORKER_ID: z.string().min(1).optional(),
+  OLLAMA_LOCAL_URL: z.string().url().optional(),
 });
 
 // Push notification VAPID keys - required for push functionality
@@ -166,6 +167,11 @@ export function getBuildEnv(): BuildEnv {
 
 export function getDatabaseEnv(): DatabaseEnv {
   return databaseEnvSchema.parse(process.env);
+}
+
+export function getOptionalDatabaseEnv(): DatabaseEnv | null {
+  const result = databaseEnvSchema.safeParse(process.env);
+  return result.success ? result.data : null;
 }
 
 export function getRuntimeEnv(): RuntimeEnv {

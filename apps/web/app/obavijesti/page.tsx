@@ -2,6 +2,8 @@ import { announcementsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import { AnnouncementsPageClient } from './announcements-page-client';
 
 import type { AnnouncementsPageInitialData } from './announcements-page-client';
@@ -43,6 +45,13 @@ function AnnouncementsPageFallback() {
 }
 
 async function getInitialAnnouncementsData(): Promise<AnnouncementsPageInitialData> {
+  if (shouldSkipDatabase()) {
+    return {
+      announcements: [],
+      pagination: { page: 1, limit: 12, total: 0, totalPages: 1 },
+    };
+  }
+
   const result = await announcementsRepository.findPublished({
     page: 1,
     limit: 12,

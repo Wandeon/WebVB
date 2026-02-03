@@ -1,11 +1,13 @@
 'use client';
 
+import { getPublicEnv } from '@repo/shared';
 import { Bell, BellOff, Download, Settings, Share, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { NotificationSettings } from './notification-settings';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 const INSTALL_PROMPT_COOLDOWN_DAYS = 30;
 const INSTALL_PROMPT_STORAGE_KEY = 'vb-install-prompt-dismissed';
 const IOS_INSTALL_STORAGE_KEY = 'vb-ios-install-dismissed';
@@ -88,8 +90,8 @@ export function PwaRegister() {
           }
         });
       })
-      .catch((err) => {
-        console.error('SW registration failed:', err);
+      .catch((error) => {
+        void error;
       });
 
     // Check notification permission
@@ -173,8 +175,8 @@ export function PwaRegister() {
       if (outcome === 'dismissed') {
         localStorage.setItem(INSTALL_PROMPT_STORAGE_KEY, new Date().toISOString());
       }
-    } catch (err) {
-      console.error('Install prompt error:', err);
+    } catch (error) {
+      void error;
     } finally {
       setDeferredPrompt(null);
       setShowInstallPrompt(false);
@@ -246,8 +248,8 @@ export function PwaRegister() {
       });
       localStorage.setItem(NOTIFICATION_STORAGE_KEY, 'true');
       setShowNotificationPrompt(false);
-    } catch (err) {
-      console.error('Notification subscription error:', err);
+    } catch (error) {
+      void error;
     } finally {
       setIsLoading(false);
     }
@@ -278,8 +280,8 @@ export function PwaRegister() {
       setIsSubscribed(false);
       setSubscriptionKeys(null);
       localStorage.removeItem(NOTIFICATION_STORAGE_KEY);
-    } catch (err) {
-      console.error('Unsubscribe error:', err);
+    } catch (error) {
+      void error;
     }
   }, [swRegistration, subscriptionKeys]);
 

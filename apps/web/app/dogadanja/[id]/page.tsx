@@ -1,5 +1,3 @@
-
-
 import { eventsRepository } from '@repo/database';
 import {
   buildCanonicalUrl,
@@ -14,6 +12,8 @@ import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -24,6 +24,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all event pages at build time
 export const generateStaticParams = withStaticParams(async () => {
+  if (shouldSkipDatabase()) {
+    return [];
+  }
+
   const events = await eventsRepository.findAllForSitemap();
   return events.map((event) => ({ id: event.id }));
 }, {
@@ -50,6 +54,11 @@ export async function generateMetadata({
   params,
 }: EventDetailPageProps): Promise<Metadata> {
   const { id } = await params;
+
+  if (shouldSkipDatabase()) {
+    return { title: 'Događanje trenutno nije dostupno' };
+  }
+
   const event = await eventsRepository.findById(id);
 
   if (!event) {
@@ -81,6 +90,11 @@ export default async function EventDetailPage({
   params,
 }: EventDetailPageProps) {
   const { id } = await params;
+
+  if (shouldSkipDatabase()) {
+    notFound();
+  }
+
   const event = await eventsRepository.findById(id);
 
   if (!event) {

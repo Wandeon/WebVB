@@ -28,6 +28,8 @@ import {
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import { siteConfig } from './metadata';
 import { ExternalServicesSection } from '../components/external-services-section';
 import { NewsletterSectionWithApi } from '../components/newsletter-section-with-api';
@@ -40,6 +42,16 @@ import { quickLinks } from '../lib/quick-links';
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 
 async function getHomepageData() {
+  if (shouldSkipDatabase()) {
+    return {
+      latestPosts: [] as PostWithAuthor[],
+      upcomingEvents: [] as Event[],
+      latestAnnouncements: [] as AnnouncementWithAuthor[],
+      latestDocuments: [] as DocumentWithUploader[],
+      featuredGalleries: [] as GalleryWithCount[],
+    };
+  }
+
   const [latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries] = await Promise.all([
     postsRepository.getLatestPosts(3),
     eventsRepository.getUpcomingEvents(3),

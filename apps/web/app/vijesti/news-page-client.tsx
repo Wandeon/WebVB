@@ -1,6 +1,6 @@
 'use client';
 
-import { POST_CATEGORIES, POST_CATEGORY_OPTIONS } from '@repo/shared';
+import { POST_CATEGORIES, POST_CATEGORY_OPTIONS, getPublicEnv } from '@repo/shared';
 import {
   CategoryFilter,
   ContentTypeSwitcher,
@@ -64,7 +64,8 @@ interface NewsPageClientProps {
   initialData: NewsPageInitialData;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 const FETCH_TIMEOUT_MS = 10_000;
 
 const deserializePost = (post: SerializedPost): Post => ({

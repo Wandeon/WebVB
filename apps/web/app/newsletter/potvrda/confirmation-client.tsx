@@ -1,12 +1,14 @@
 // apps/web/app/newsletter/potvrda/confirmation-client.tsx
 'use client';
 
+import { getPublicEnv } from '@repo/shared';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 
 interface ConfirmResponse {
   success: boolean;

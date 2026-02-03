@@ -1,4 +1,3 @@
-
 import { pagesRepository } from '@repo/database';
 import {
   buildCanonicalUrl,
@@ -9,6 +8,8 @@ import {
 } from '@repo/shared';
 import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
 import { notFound } from 'next/navigation';
+
+import { shouldSkipDatabase } from '@/lib/build-flags';
 
 import type { Metadata } from 'next';
 
@@ -50,6 +51,10 @@ export const dynamic = 'force-static';
 
 // Required for static export - generate all static pages at build time
 export const generateStaticParams = withStaticParams(async () => {
+  if (shouldSkipDatabase()) {
+    return [];
+  }
+
   const pages = await pagesRepository.findPublished();
   return pages.map((page) => ({
     slug: page.slug.split('/'),
@@ -64,6 +69,10 @@ export async function generateMetadata({
 }: StaticPageProps): Promise<Metadata> {
   const { slug } = await params;
   const slugPath = getSlugPath(slug);
+
+  if (shouldSkipDatabase()) {
+    return { title: 'Stranica trenutno nije dostupna' };
+  }
 
   if (!slugPath) {
     return { title: 'Stranica nije pronađena' };
@@ -93,6 +102,10 @@ export async function generateMetadata({
 export default async function StaticPage({ params }: StaticPageProps) {
   const { slug } = await params;
   const slugPath = getSlugPath(slug);
+
+  if (shouldSkipDatabase()) {
+    notFound();
+  }
 
   if (!slugPath) {
     notFound();

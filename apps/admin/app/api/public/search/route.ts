@@ -1,11 +1,10 @@
 import { searchIndex, type SearchIndexResultRow } from '@repo/database';
+import { getRuntimeEnv } from '@repo/shared';
 import { NextResponse } from 'next/server';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { searchLogger } from '@/lib/logger';
 import { getTextLogFields } from '@/lib/pii';
-
-const OLLAMA_URL = process.env.OLLAMA_LOCAL_URL || 'http://127.0.0.1:11434';
 
 interface SearchResult {
   id: string;
@@ -46,9 +45,14 @@ export function OPTIONS(request: Request) {
   return corsResponse(request);
 }
 
-async function getQueryEmbedding(query: string): Promise<number[] | null> {
+function getOllamaUrl(): string {
+  const { OLLAMA_LOCAL_URL } = getRuntimeEnv();
+  return OLLAMA_LOCAL_URL ?? 'http://127.0.0.1:11434';
+}
+
+async function getQueryEmbedding(query: string, ollamaUrl: string): Promise<number[] | null> {
   try {
-    const response = await fetch(`${OLLAMA_URL}/api/embeddings`, {
+    const response = await fetch(`${ollamaUrl}/api/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -89,7 +93,7 @@ export async function GET(request: Request) {
       .join(' & ');
 
     // Get query embedding for semantic search (async, don't block if it fails)
-    const embeddingPromise = getQueryEmbedding(query);
+    const embeddingPromise = getQueryEmbedding(query, getOllamaUrl());
 
     // Hybrid search query combining:
     // 1. Full-text search with prefix matching (keyword_score)

@@ -2,6 +2,8 @@ import { postsRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
+import { shouldSkipDatabase } from '@/lib/build-flags';
+
 import { NewsPageClient } from './news-page-client';
 
 import type { NewsPageInitialData } from './news-page-client';
@@ -43,6 +45,19 @@ function NewsPageFallback() {
 }
 
 async function getInitialNewsData(): Promise<NewsPageInitialData> {
+  if (shouldSkipDatabase()) {
+    return {
+      posts: [],
+      pagination: {
+        page: 1,
+        limit: 12,
+        total: 0,
+        totalPages: 1,
+      },
+      featuredPost: null,
+    };
+  }
+
   const [newsResult, featuredPost] = await Promise.all([
     postsRepository.findPublished({ page: 1, limit: 12 }),
     postsRepository.getFeaturedPost(),

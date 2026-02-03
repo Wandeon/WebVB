@@ -1,6 +1,6 @@
 'use client';
 
-import { APP_NAME } from '@repo/shared';
+import { APP_NAME, getPublicEnv } from '@repo/shared';
 import { SearchModal, SearchTrigger, useSearchShortcut } from '@repo/ui';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,7 +12,8 @@ import { MegaMenu } from './mega-menu';
 import { MobileMenu } from './mobile-menu';
 import { megaNavGroups } from '../../lib/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 
 interface SiteHeaderProps {
   latestPost?: {

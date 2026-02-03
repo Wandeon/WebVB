@@ -1,10 +1,12 @@
 'use client';
 
+import { getPublicEnv } from '@repo/shared';
 import { ContactForm } from '@repo/ui';
 
 import type { ContactFormData } from '@repo/shared';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const { NEXT_PUBLIC_API_URL } = getPublicEnv();
+const API_URL = NEXT_PUBLIC_API_URL;
 
 type ContactApiResponse = {
   success: boolean;

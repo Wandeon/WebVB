@@ -1,7 +1,8 @@
-
 import { galleriesRepository } from '@repo/database';
 import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
+
+import { shouldSkipDatabase } from '@/lib/build-flags';
 
 import { GalleryPageClient } from './gallery-page-client';
 
@@ -39,6 +40,13 @@ function GalleryPageFallback() {
 }
 
 async function getInitialGalleryData(): Promise<GalleryPageInitialData> {
+  if (shouldSkipDatabase()) {
+    return {
+      galleries: [],
+      pagination: { page: 1, limit: 12, total: 0, totalPages: 1 },
+    };
+  }
+
   const result = await galleriesRepository.findPublished({ page: 1, limit: 12 });
 
   return {

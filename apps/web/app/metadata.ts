@@ -9,7 +9,7 @@ export const siteConfig = {
   name: 'Općina Veliki Bukovec',
   description: 'Službena web stranica Općine Veliki Bukovec - vijesti, dokumenti, događanja i informacije za građane.',
   url: siteUrl,
-  ogImage: `${siteUrl}/og-image.jpg`,
+  ogImage: `${siteUrl}/images/logo-large.png`,
   locale: 'hr_HR',
   creator: 'Općina Veliki Bukovec',
   logo: `${siteUrl}/apple-touch-icon.png`,
