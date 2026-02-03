@@ -47,7 +47,9 @@ export function AnnouncementCompactCard({
               {categoryLabel}
             </Badge>
             {formattedDate && (
-              <span className="text-[10px] text-neutral-400">{formattedDate}</span>
+              <span className="text-[10px] text-neutral-400">
+                Objavljeno {formattedDate}
+              </span>
             )}
           </div>
           <h4 className="line-clamp-2 text-sm font-medium text-neutral-900 group-hover:text-primary-600">

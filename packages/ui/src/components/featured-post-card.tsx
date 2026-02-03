@@ -64,7 +64,9 @@ export function FeaturedPostCard({
             {categoryLabel}
           </Badge>
           {formattedDate && (
-            <span className="text-xs text-neutral-300">{formattedDate}</span>
+            <span className="text-xs text-neutral-300">
+              Objavljeno {formattedDate}
+            </span>
           )}
         </div>
         <h3 className="font-display text-xl font-bold text-white md:text-2xl lg:text-3xl">

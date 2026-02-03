@@ -21,8 +21,8 @@ interface AnnouncementCardProps {
 function formatDate(date: Date | null): string {
   if (!date) return '';
   return date.toLocaleDateString('hr-HR', {
-    day: '2-digit',
-    month: '2-digit',
+    day: 'numeric',
+    month: 'long',
     year: 'numeric',
   });
 }
@@ -89,7 +89,7 @@ export function AnnouncementCard({
             {publishedAt && (
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" aria-hidden="true" />
-                {formatDate(publishedAt)}
+                Objavljeno {formatDate(publishedAt)}
               </span>
             )}
             {validUntil && (

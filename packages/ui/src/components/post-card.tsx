@@ -53,7 +53,9 @@ export function PostCard({
             {category}
           </Badge>
           {formattedDate && (
-            <span className="text-xs text-neutral-500">{formattedDate}</span>
+            <span className="text-xs text-neutral-500">
+              Objavljeno {formattedDate}
+            </span>
           )}
         </div>
         <h3 className="font-display text-lg font-semibold text-neutral-900 group-hover:text-primary-600">

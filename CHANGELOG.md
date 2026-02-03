@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 13 - Content Quality, Editorial Consistency, and Public Trust Details (2026-02-06)
+
+### Changed
+- Standardized public-facing date labels for news, announcements, and documents with clearer "Objavljeno" context
+- Improved empty-state guidance across news, announcements, events, and documents with next-step links
+- Clarified external/download link cues and file type display for attachments and documents
+- Added timezone clarification and external map link indicator on event detail pages
+
 ## Audit 12 - Design System Consistency, UI Tokens, and Component Quality (2026-02-06)
 
 ### Changed

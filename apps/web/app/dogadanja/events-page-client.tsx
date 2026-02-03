@@ -297,7 +297,7 @@ export function EventsPageClient({ initialData }: EventsPageClientProps) {
         {/* Events list */}
         <FadeIn delay={0.2}>
           <h2 className="mb-4 text-lg font-semibold text-neutral-900">
-            {tab === 'upcoming' ? 'Nadolazeći događaji' : 'Prošli događaji'}
+            {tab === 'upcoming' ? 'Nadolazeća događanja' : 'Prošla događanja'}
           </h2>
 
           {listErrorMessage ? (
@@ -333,6 +333,29 @@ export function EventsPageClient({ initialData }: EventsPageClientProps) {
                 {tab === 'upcoming'
                   ? 'Trenutno nema nadolazećih događanja.'
                   : 'Nema prošlih događanja.'}
+              </p>
+              <p className="mt-2 text-sm text-neutral-500">
+                {tab === 'upcoming' ? (
+                  <>
+                    Pratite{' '}
+                    <Link href="/obavijesti" className="text-primary-600 hover:underline">
+                      obavijesti
+                    </Link>{' '}
+                    za nove termine ili{' '}
+                    <Link href="/kontakt" className="text-primary-600 hover:underline">
+                      kontaktirajte općinu
+                    </Link>
+                    .
+                  </>
+                ) : (
+                  <>
+                    Vratite se na{' '}
+                    <Link href="/dogadanja" className="text-primary-600 hover:underline">
+                      nadolazeća događanja
+                    </Link>
+                    .
+                  </>
+                )}
               </p>
             </div>
           )}

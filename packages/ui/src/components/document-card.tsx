@@ -62,7 +62,7 @@ export function DocumentCard({
         <div className="min-w-0">
           <h3 className="truncate font-medium text-neutral-900">{title}</h3>
           <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <span>{formatDate(createdAt)}</span>
+            <span>Objavljeno {formatDate(createdAt)}</span>
             {fileSize && (
               <>
                 <span>•</span>
