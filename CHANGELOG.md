@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 11 - Testing, Quality Gates, and Regression Safety (2026-02-15)
+
+### Changed
+- Added API coverage for newsletter draft/count endpoints to prevent auth, validation, and error regressions
+- Re-enabled TODO/FIXME guardrail enforcement in CI (with content-page exclusions) to keep quality gates blocking
+
 ## Audit 15 - Performance, Scalability, and Resource Efficiency (2026-02-14)
 
 ### Changed
