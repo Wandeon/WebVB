@@ -64,10 +64,8 @@ jobs:
         run: pnpm db:generate
 
       # Guardrails: Check changed TypeScript files for code quality issues
-      # Note: TODO/FIXME check disabled - content pages have valid photo placeholder TODOs
-      # Re-enable when content is complete, or use a more targeted check
+      # Note: Content pages with photo placeholders are excluded.
       - name: Check for TODO/FIXME in changed files
-        continue-on-error: true
         run: |
           CHANGED=$(git diff --name-only origin/main...HEAD -- '*.ts' '*.tsx' 2>/dev/null || true)
           if [ -z "$CHANGED" ]; then
@@ -81,8 +79,8 @@ jobs:
             exit 0
           fi
           if echo "$FILTERED" | xargs -r grep -l "TODO\|FIXME" 2>/dev/null; then
-            echo "⚠️ Found TODO/FIXME comments in changed files (warning only)"
-            exit 0
+            echo "❌ Found TODO/FIXME comments in changed files"
+            exit 1
           fi
           echo "✅ No TODO/FIXME found"
 
