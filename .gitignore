@@ -31,6 +31,7 @@ pnpm-debug.log*
 
 # Backups & exports
 *.sql
+!packages/database/prisma/migrations/**/*.sql
 *.sql.gz
 *.dump
 *.bak

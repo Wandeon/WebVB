@@ -1054,4 +1054,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-02-02 | NEXT_PUBLIC_APP_URL fix: GitHub secret updated with port :3001 |
 | 2026-02-02 | Stakeholder presentation: docs/prezentacija-dionici-2026.md |
 | 2026-02-02 | Public access: Web at 159.195.61.215:80 (public), Admin at 100.120.125.83:3001 (Tailscale) |
-| 2026-02-16 | Audit 16: accessible files audit documented; gitignore hardened for backup/export artifacts |
+| 2026-02-03 | Audit 16: accessible files audit documented; gitignore hardened for backup/export artifacts |

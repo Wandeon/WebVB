@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - Added API coverage for newsletter draft/count endpoints to prevent auth, validation, and error regressions
 - Re-enabled TODO/FIXME guardrail enforcement in CI (with content-page exclusions) to keep quality gates blocking
 
-## Audit 16 - Accessible Files and Backup Exposure (2026-02-16)
+## Audit 16 - Accessible Files and Backup Exposure (2026-02-03)
 
 ### Changed
 - Documented the EMB-04 accessible-files audit with scope, checks, and findings
