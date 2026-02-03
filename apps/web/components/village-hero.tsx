@@ -1,9 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { ChevronDown, MapPin, Users, Building2, Landmark, Shield } from 'lucide-react';
+import { ChevronDown, MapPin, Users, Building2, Landmark } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 interface VillageFact {
@@ -437,16 +436,6 @@ export function VillageHero() {
         </motion.div>
       </motion.div>
 
-      {/* Subtle admin access - for staff who know about it */}
-      <a
-        href={process.env.NEXT_PUBLIC_APP_URL || '/admin'}
-        className="absolute right-4 top-20 flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-white/25 transition-colors hover:bg-white/10 hover:text-white/50"
-        title="Upravljanje"
-        aria-label="Pristup administraciji"
-      >
-        <Shield className="h-4 w-4" />
-        <span className="hidden text-xs sm:inline">Uprava</span>
-      </a>
     </section>
   );
 }

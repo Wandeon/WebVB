@@ -6,6 +6,7 @@ import {
   getBaseEnv,
   getBuildEnv,
   getDatabaseEnv,
+  getAdminPublicEnv,
   getOllamaCloudEnv,
   getOptionalAdminEmailEnv,
   getOptionalDatabaseEnv,
@@ -40,26 +41,51 @@ describe('env validation', () => {
     expect(env.NODE_ENV).toBe('development');
   });
 
-  it('uses default public app url when missing in development', () => {
+  it('uses default public web urls when missing in development', () => {
+    resetEnv();
+    process.env.NODE_ENV = 'development';
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.NEXT_PUBLIC_API_URL;
+
+    const env = getPublicEnv();
+
+    expect(env.NEXT_PUBLIC_SITE_URL).toBe(PUBLIC_SITE_URL_DEFAULT);
+    expect(env.NEXT_PUBLIC_API_URL).toBe(ADMIN_APP_URL_DEFAULT);
+  });
+
+  it('uses default admin app url when missing in development', () => {
     resetEnv();
     process.env.NODE_ENV = 'development';
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.NEXT_PUBLIC_API_URL;
 
-    const env = getPublicEnv();
+    const env = getAdminPublicEnv();
 
     expect(env.NEXT_PUBLIC_APP_URL).toBe(ADMIN_APP_URL_DEFAULT);
     expect(env.NEXT_PUBLIC_SITE_URL).toBe(PUBLIC_SITE_URL_DEFAULT);
+    expect(env.NEXT_PUBLIC_API_URL).toBe(ADMIN_APP_URL_DEFAULT);
   });
 
-  it('requires explicit public URLs in production', () => {
+  it('requires explicit public web URLs in production', () => {
+    resetEnv();
+    process.env.NODE_ENV = 'production';
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.NEXT_PUBLIC_API_URL;
+
+    expect(() => getPublicEnv()).toThrow(
+      'Missing required public environment variables in production: NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL.'
+    );
+  });
+
+  it('requires explicit admin public URLs in production', () => {
     resetEnv();
     process.env.NODE_ENV = 'production';
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.NEXT_PUBLIC_SITE_URL;
     delete process.env.NEXT_PUBLIC_API_URL;
 
-    expect(() => getPublicEnv()).toThrow(
+    expect(() => getAdminPublicEnv()).toThrow(
       'Missing required public environment variables in production: NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL.'
     );
   });

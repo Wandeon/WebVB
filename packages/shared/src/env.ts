@@ -28,9 +28,14 @@ const adminAuthEnvSchema = baseEnvSchema
   });
 
 const publicEnvSchema = z.object({
-  NEXT_PUBLIC_APP_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
   NEXT_PUBLIC_SITE_URL: z.string().url().default(PUBLIC_SITE_URL_DEFAULT),
   // API URL for the static web app to call (defaults to admin app URL)
+  NEXT_PUBLIC_API_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
+});
+
+const adminPublicEnvSchema = z.object({
+  NEXT_PUBLIC_APP_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
+  NEXT_PUBLIC_SITE_URL: z.string().url().default(PUBLIC_SITE_URL_DEFAULT),
   NEXT_PUBLIC_API_URL: z.string().url().default(ADMIN_APP_URL_DEFAULT),
 });
 
@@ -101,6 +106,7 @@ export type NodeEnv = 'development' | 'test' | 'production';
 export type BaseEnv = z.infer<typeof baseEnvSchema>;
 export type AdminAuthEnv = z.infer<typeof adminAuthEnvSchema>;
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
+export type AdminPublicEnv = z.infer<typeof adminPublicEnvSchema>;
 export type AdminR2Env = z.infer<typeof adminR2EnvSchema>;
 export type AdminEmailEnv = z.infer<typeof adminEmailEnvSchema>;
 export type SeedEnv = z.infer<typeof seedEnvSchema>;
@@ -126,6 +132,25 @@ export function getAdminAuthEnv(): AdminAuthEnv {
 
 export function getPublicEnv(): PublicEnv {
   const env = publicEnvSchema.parse(process.env);
+  const baseEnv = getBaseEnv();
+
+  if (baseEnv.NODE_ENV === 'production') {
+    const missing: string[] = [];
+    if (!process.env.NEXT_PUBLIC_SITE_URL) missing.push('NEXT_PUBLIC_SITE_URL');
+    if (!process.env.NEXT_PUBLIC_API_URL) missing.push('NEXT_PUBLIC_API_URL');
+
+    if (missing.length > 0) {
+      throw new Error(
+        `Missing required public environment variables in production: ${missing.join(', ')}.`
+      );
+    }
+  }
+
+  return env;
+}
+
+export function getAdminPublicEnv(): AdminPublicEnv {
+  const env = adminPublicEnvSchema.parse(process.env);
   const baseEnv = getBaseEnv();
 
   if (baseEnv.NODE_ENV === 'production') {

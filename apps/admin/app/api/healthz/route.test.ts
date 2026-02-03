@@ -7,16 +7,14 @@ vi.mock('@repo/database', () => ({
 }));
 
 // eslint-disable-next-line import/order -- Must be after vi.mock calls
-import { checkDatabaseHealth, type DatabaseHealth } from '@repo/database';
+import { checkDatabaseHealth } from '@repo/database';
 
 const mockedCheckDatabaseHealth = vi.mocked(checkDatabaseHealth);
 
 interface HealthResponse {
   ok: boolean;
   status: string;
-  checks: {
-    database: DatabaseHealth;
-  };
+  timestamp: string;
 }
 
 describe('Healthz API', () => {
@@ -29,7 +27,7 @@ describe('Healthz API', () => {
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
     expect(payload.status).toBe('healthy');
-    expect(payload.checks.database.ok).toBe(true);
+    expect(Number.isNaN(Date.parse(payload.timestamp))).toBe(false);
   });
 
   it('returns degraded response when database is unreachable', async () => {
@@ -41,6 +39,6 @@ describe('Healthz API', () => {
     expect(response.status).toBe(503);
     expect(payload.ok).toBe(false);
     expect(payload.status).toBe('degraded');
-    expect(payload.checks.database.ok).toBe(false);
+    expect(Number.isNaN(Date.parse(payload.timestamp))).toBe(false);
   });
 });
