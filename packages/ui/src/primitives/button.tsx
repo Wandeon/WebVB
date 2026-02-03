@@ -14,7 +14,7 @@ const buttonVariants = cva(
         secondary: 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 active:bg-neutral-300',
         outline: 'border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-50 active:bg-neutral-100',
         ghost: 'text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200',
-        danger: 'bg-error text-white hover:bg-red-600 active:bg-red-700',
+        danger: 'bg-error text-white hover:bg-error/90 active:bg-error/80',
         link: 'text-primary-600 underline-offset-4 hover:underline',
       },
       size: {

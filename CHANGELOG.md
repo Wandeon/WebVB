@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 12 - Design System Consistency, UI Tokens, and Component Quality (2026-02-06)
+
+### Changed
+- Sanitized search result highlight markup before rendering and added coverage for the sanitizer helper
+- Improved focus-visible states and error semantics across search UI elements
+- Standardized danger button styling to use error design tokens
+
 ## Admin Login & Deployment Fixes (2026-02-02)
 
 ### Added

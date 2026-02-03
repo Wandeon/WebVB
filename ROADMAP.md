@@ -8,9 +8,9 @@
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Admin login redesign, stakeholder presentation, deployment fixes
+**Recent:** Design system consistency sweep (search UI a11y, sanitization, button tokens)
 **Target Launch:** Domain setup pending
-**Latest Audit:** Audit 05 - events, gallery, static pages, and content-type edge cases
+**Latest Audit:** Audit 12 - design system consistency, UI tokens, and component quality
 **Staging:** Frontend at http://159.195.61.215/ (public) | Admin at http://100.120.125.83:3001 (Tailscale only)
 
 ---

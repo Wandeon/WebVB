@@ -96,7 +96,7 @@ export function CategoryFilter({
         onClick={() => handleCategoryChange(null)}
         aria-pressed={!activeCategory}
         className={cn(
-          'relative shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-all',
+          'relative shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
           'sm:px-4 sm:py-2',
           !activeCategory
             ? 'text-white'
@@ -120,7 +120,7 @@ export function CategoryFilter({
           onClick={() => handleCategoryChange(cat.value)}
           aria-pressed={activeCategory === cat.value}
           className={cn(
-            'relative shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-all',
+            'relative shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
             'sm:px-4 sm:py-2',
             activeCategory === cat.value
               ? 'text-white'

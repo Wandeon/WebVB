@@ -13,7 +13,7 @@ export function SearchTrigger({ onOpen }: SearchTriggerProps) {
       <button
         type="button"
         onClick={onOpen}
-        className="hidden items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:border-neutral-300 hover:bg-neutral-100 md:flex"
+        className="hidden items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:border-neutral-300 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 md:flex"
         aria-label="Pretraži stranicu"
       >
         <Search className="h-4 w-4" />
@@ -27,7 +27,7 @@ export function SearchTrigger({ onOpen }: SearchTriggerProps) {
       <button
         type="button"
         onClick={onOpen}
-        className="flex items-center justify-center rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 md:hidden"
+        className="flex items-center justify-center rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 md:hidden"
         aria-label="Pretraži stranicu"
       >
         <Search className="h-5 w-5" />
