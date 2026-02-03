@@ -161,6 +161,7 @@ model Post {
 
   @@index([publishedAt(sort: Desc)])
   @@index([category])
+  @@index([category, publishedAt(sort: Desc)])
   @@index([isFeatured])
   @@index([authorId])
   @@map("posts")
@@ -475,6 +476,7 @@ model Announcement {
 
   @@index([category])
   @@index([publishedAt(sort: Desc)])
+  @@index([category, publishedAt(sort: Desc)])
   @@index([validUntil])
   @@index([authorId])
   @@map("announcements")

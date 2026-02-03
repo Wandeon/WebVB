@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit 15 - Performance, Scalability, and Resource Efficiency (2026-02-14)
+
+### Changed
+- Added bounded caching for document filter metadata (years + category counts) with invalidation on document writes
+- Added timeout + LRU cache for semantic search embeddings to avoid slow Ollama requests
+- Parallelized push subscription topic counts to reduce admin stats latency
+- Added composite indexes for category + published_at on posts and announcements to speed public listings
+
 ## Audit 14 - Search, SEO, Static Export, and Build Reliability (2026-02-07)
 
 ### Changed

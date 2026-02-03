@@ -23,11 +23,13 @@ export async function GET(request: NextRequest) {
     const totalActive = await pushSubscriptionsRepository.countActive();
 
     // Get counts by topic
-    const topicCounts: Record<string, number> = {};
-    for (const topic of TOPICS) {
-      if (topic === 'all') continue;
-      topicCounts[topic] = await pushSubscriptionsRepository.countByTopic(topic);
-    }
+    const topicCountEntries = await Promise.all(
+      TOPICS.filter((topic) => topic !== 'all').map(async (topic) => [
+        topic,
+        await pushSubscriptionsRepository.countByTopic(topic),
+      ] as const)
+    );
+    const topicCounts: Record<string, number> = Object.fromEntries(topicCountEntries);
 
     // Get recent sends
     const recentSends = await pushSubscriptionsRepository.getRecentSends(5);

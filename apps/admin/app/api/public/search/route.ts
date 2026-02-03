@@ -33,6 +33,9 @@ interface SearchResponse {
 const MAX_RESULTS_PER_TYPE = 5;
 const MAX_TOTAL_RESULTS = 20;
 const MIN_QUERY_LENGTH = 2;
+const EMBEDDING_TIMEOUT_MS = 2000;
+const EMBEDDING_CACHE_TTL_MS = 10 * 60 * 1000;
+const EMBEDDING_CACHE_MAX_ENTRIES = 200;
 
 // Weights for hybrid scoring
 const WEIGHTS = {
@@ -40,6 +43,42 @@ const WEIGHTS = {
   fuzzy: 0.2,      // Typo tolerance
   semantic: 0.4,   // AI understanding
 };
+
+type EmbeddingCacheEntry = {
+  value: number[];
+  expiresAt: number;
+};
+
+const embeddingCache = new Map<string, EmbeddingCacheEntry>();
+
+function getCachedEmbedding(key: string): number[] | null {
+  const entry = embeddingCache.get(key);
+  if (!entry) {
+    return null;
+  }
+
+  if (entry.expiresAt <= Date.now()) {
+    embeddingCache.delete(key);
+    return null;
+  }
+
+  return entry.value;
+}
+
+function setCachedEmbedding(key: string, value: number[]): void {
+  if (embeddingCache.has(key)) {
+    embeddingCache.delete(key);
+  }
+
+  embeddingCache.set(key, { value, expiresAt: Date.now() + EMBEDDING_CACHE_TTL_MS });
+
+  if (embeddingCache.size > EMBEDDING_CACHE_MAX_ENTRIES) {
+    const oldestKey = embeddingCache.keys().next().value;
+    if (oldestKey) {
+      embeddingCache.delete(oldestKey);
+    }
+  }
+}
 
 export function OPTIONS(request: Request) {
   return corsResponse(request);
@@ -51,6 +90,14 @@ function getOllamaUrl(): string {
 }
 
 async function getQueryEmbedding(query: string, ollamaUrl: string): Promise<number[] | null> {
+  const cacheKey = query.toLowerCase();
+  const cached = getCachedEmbedding(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), EMBEDDING_TIMEOUT_MS);
   try {
     const response = await fetch(`${ollamaUrl}/api/embeddings`, {
       method: 'POST',
@@ -59,14 +106,26 @@ async function getQueryEmbedding(query: string, ollamaUrl: string): Promise<numb
         model: 'nomic-embed-text',
         prompt: query,
       }),
+      signal: controller.signal,
     });
 
     if (!response.ok) return null;
 
     const data = await response.json() as { embedding?: number[] };
-    return data.embedding ?? null;
-  } catch {
+    if (!data.embedding) {
+      return null;
+    }
+
+    setCachedEmbedding(cacheKey, data.embedding);
+    return data.embedding;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return null;
+    }
+
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
