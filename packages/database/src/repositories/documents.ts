@@ -3,6 +3,79 @@ import { clampLimit, normalizePagination } from './pagination';
 
 import type { Document, Prisma } from '@prisma/client';
 
+interface CacheEntry<T> {
+  value: T;
+  expiresAt: number;
+}
+
+const DISTINCT_YEARS_CACHE_TTL_MS = 5 * 60 * 1000;
+const CATEGORY_COUNTS_CACHE_TTL_MS = 5 * 60 * 1000;
+const CATEGORY_COUNTS_CACHE_MAX_ENTRIES = 12;
+
+let distinctYearsCache: CacheEntry<number[]> | null = null;
+const categoryCountsCache = new Map<string, CacheEntry<Record<string, number>>>();
+
+function getDistinctYearsCache(): number[] | null {
+  if (!distinctYearsCache) {
+    return null;
+  }
+
+  if (distinctYearsCache.expiresAt <= Date.now()) {
+    distinctYearsCache = null;
+    return null;
+  }
+
+  return distinctYearsCache.value;
+}
+
+function getCategoryCountsCache(key: string): Record<string, number> | null {
+  const entry = categoryCountsCache.get(key);
+  if (!entry) {
+    return null;
+  }
+
+  if (entry.expiresAt <= Date.now()) {
+    categoryCountsCache.delete(key);
+    return null;
+  }
+
+  return entry.value;
+}
+
+function setDistinctYearsCache(value: number[]): void {
+  distinctYearsCache = {
+    value,
+    expiresAt: Date.now() + DISTINCT_YEARS_CACHE_TTL_MS,
+  };
+}
+
+function setCategoryCountsCache(key: string, value: Record<string, number>): void {
+  if (categoryCountsCache.has(key)) {
+    categoryCountsCache.delete(key);
+  }
+
+  categoryCountsCache.set(key, {
+    value,
+    expiresAt: Date.now() + CATEGORY_COUNTS_CACHE_TTL_MS,
+  });
+
+  if (categoryCountsCache.size > CATEGORY_COUNTS_CACHE_MAX_ENTRIES) {
+    const oldestKey = categoryCountsCache.keys().next().value;
+    if (oldestKey) {
+      categoryCountsCache.delete(oldestKey);
+    }
+  }
+}
+
+function clearDocumentCaches(): void {
+  distinctYearsCache = null;
+  categoryCountsCache.clear();
+}
+
+export function resetDocumentsCacheForTests(): void {
+  clearDocumentCaches();
+}
+
 export interface DocumentWithUploader extends Document {
   uploader: {
     id: string;
@@ -127,7 +200,7 @@ export const documentsRepository = {
    * Create a new document
    */
   async create(data: CreateDocumentData): Promise<DocumentWithUploader> {
-    return db.document.create({
+    const document = await db.document.create({
       data: {
         title: data.title,
         fileUrl: data.fileUrl,
@@ -139,24 +212,36 @@ export const documentsRepository = {
       },
       include: { uploader: { select: uploaderSelect } },
     });
+
+    clearDocumentCaches();
+
+    return document;
   },
 
   /**
    * Update an existing document
    */
   async update(id: string, data: UpdateDocumentData): Promise<DocumentWithUploader> {
-    return db.document.update({
+    const document = await db.document.update({
       where: { id },
       data,
       include: { uploader: { select: uploaderSelect } },
     });
+
+    clearDocumentCaches();
+
+    return document;
   },
 
   /**
    * Delete a document
    */
   async delete(id: string): Promise<Document> {
-    return db.document.delete({ where: { id } });
+    const document = await db.document.delete({ where: { id } });
+
+    clearDocumentCaches();
+
+    return document;
   },
 
   /**
@@ -171,27 +256,42 @@ export const documentsRepository = {
    * Get distinct years from documents for year filter dropdown
    */
   async getDistinctYears(): Promise<number[]> {
+    const cached = getDistinctYearsCache();
+    if (cached) {
+      return cached;
+    }
+
     const results = await db.document.findMany({
       where: { year: { not: null } },
       select: { year: true },
       distinct: ['year'],
       orderBy: { year: 'desc' },
     });
-    return results.map((r) => r.year!);
+    const years = results.map((r) => r.year!);
+    setDistinctYearsCache(years);
+    return years;
   },
 
   /**
    * Get document counts per category for sidebar badges
    */
   async getCategoryCounts(year?: number): Promise<Record<string, number>> {
+    const cacheKey = typeof year === 'number' ? String(year) : 'all';
+    const cached = getCategoryCountsCache(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const results = await db.document.groupBy({
       by: ['category'],
       _count: { id: true },
       ...(typeof year === 'number' ? { where: { year } } : {}),
     });
-    return Object.fromEntries(
+    const counts = Object.fromEntries(
       results.map((r) => [r.category, r._count.id])
     );
+    setCategoryCountsCache(cacheKey, counts);
+    return counts;
   },
 
   /**
