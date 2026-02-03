@@ -3,6 +3,7 @@
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ChevronDown, MapPin, Users, Building2, Landmark } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 interface VillageFact {
