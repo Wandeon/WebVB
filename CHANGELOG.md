@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit EMB-02 - Client Bundle & Config Exposure (2026-02-03)
+
+### Changed
+- Split public environment validation to keep admin URLs out of the web bundle while retaining explicit production checks
+- Removed admin access link from the public hero to avoid exposing admin endpoints in client markup
+- Reduced health check responses to status-only metadata and protected the waste reminder status endpoint with cron auth
+
 ## Audit EMB-03 - Logging, Error Reporting, and PII Leaks (2026-02-03)
 
 ### Changed

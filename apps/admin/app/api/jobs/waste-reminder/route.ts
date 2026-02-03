@@ -240,14 +240,19 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint for status check (no auth required, just returns if configured)
-export function GET() {
+// GET endpoint for status check (requires cron auth header)
+export function GET(request: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
+  const providedSecret = request.headers.get('x-cron-secret');
+
+  if (!cronSecret || providedSecret !== cronSecret) {
+    return apiError(ErrorCodes.UNAUTHORIZED, 'Invalid cron secret', 401);
+  }
+
   const configured = isPushConfigured();
-  const hasCronSecret = !!process.env.CRON_SECRET;
 
   return apiSuccess({
     configured,
-    hasCronSecret,
-    status: configured && hasCronSecret ? 'ready' : 'not_configured',
+    status: configured ? 'ready' : 'not_configured',
   });
 }
