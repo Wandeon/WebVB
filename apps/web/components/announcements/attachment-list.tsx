@@ -21,6 +21,15 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function getFileTypeLabel(fileName: string, mimeType: string): string {
+  if (mimeType.includes('pdf')) return 'PDF';
+  if (mimeType.includes('word')) return 'DOC';
+  if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'XLS';
+  if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'PPT';
+  const extension = fileName.split('.').pop()?.trim();
+  return extension ? extension.toUpperCase() : 'Datoteka';
+}
+
 export function AttachmentList({ attachments }: AttachmentListProps) {
   if (attachments.length === 0) return null;
 
@@ -41,6 +50,7 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 download={attachment.fileName}
+                aria-label={`${attachment.fileName} (otvara se u novoj kartici)`}
                 className="group flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 transition-colors hover:border-primary-300 hover:bg-primary-50"
               >
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600">
@@ -51,13 +61,18 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
                     {attachment.fileName}
                   </p>
                   <p className="text-sm text-neutral-500">
-                    PDF - {formatFileSize(attachment.fileSize)}
+                    {getFileTypeLabel(attachment.fileName, attachment.mimeType)} •{' '}
+                    {formatFileSize(attachment.fileSize)}
+                  </p>
+                  <p className="text-xs text-neutral-400">
+                    Otvara se u novoj kartici
                   </p>
                 </div>
                 <Download
                   className="h-5 w-5 flex-shrink-0 text-neutral-400 transition-colors group-hover:text-primary-600"
                   aria-hidden="true"
                 />
+                <span className="sr-only">Preuzmi dokument</span>
               </a>
             </li>
           ))}

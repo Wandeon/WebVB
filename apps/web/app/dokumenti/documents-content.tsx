@@ -48,6 +48,12 @@ function formatFileSize(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function getFileTypeLabel(fileUrl: string): string {
+  const urlWithoutQuery = fileUrl.split('?')[0] ?? '';
+  const extension = urlWithoutQuery.split('.').pop()?.trim();
+  return extension ? extension.toUpperCase() : 'Datoteka';
+}
+
 const categoryIcons: Record<string, string> = {
   sjednice: '📋',
   proracun: '💰',
@@ -259,7 +265,7 @@ export function DocumentsContent({
                       type="text"
                       value={searchInput}
                       onChange={(e) => setSearchInput(e.target.value)}
-                      placeholder="Unesite pojam..."
+                      placeholder="Unesite pojam pretraživanja..."
                       className="w-full rounded-lg border border-neutral-200 bg-neutral-50 py-2.5 pl-4 pr-10 text-sm transition-colors focus:border-primary-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
                     />
                     {searchInput && (
@@ -453,6 +459,7 @@ export function DocumentsContent({
                     href={doc.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`${doc.title} (otvara se u novoj kartici)`}
                     className="group flex items-start gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:border-primary-200 hover:shadow-md md:items-center"
                   >
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-2xl transition-colors group-hover:bg-primary-100">
@@ -462,23 +469,25 @@ export function DocumentsContent({
                       <h3 className="font-medium text-neutral-900 group-hover:text-primary-700">
                         {doc.title}
                       </h3>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-500">
-                        <span className="inline-flex items-center gap-1">
-                          <FolderOpen className="h-3.5 w-3.5" />
-                          {DOCUMENT_CATEGORIES[doc.category as keyof typeof DOCUMENT_CATEGORIES] || doc.category}
-                        </span>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-500">
+                      <span className="inline-flex items-center gap-1">
+                        <FolderOpen className="h-3.5 w-3.5" />
+                        {DOCUMENT_CATEGORIES[doc.category as keyof typeof DOCUMENT_CATEGORIES] || doc.category}
+                      </span>
                         {doc.year && (
                           <span className="inline-flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5" />
                             {doc.year}
                           </span>
                         )}
-                        {doc.fileSize && (
-                          <span className="inline-flex items-center gap-1">
-                            <FileText className="h-3.5 w-3.5" />
-                            {formatFileSize(doc.fileSize)}
-                          </span>
-                        )}
+                        <span className="inline-flex items-center gap-1">
+                          <FileText className="h-3.5 w-3.5" />
+                          {getFileTypeLabel(doc.fileUrl)}
+                          {doc.fileSize ? ` • ${formatFileSize(doc.fileSize)}` : ''}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
+                          Otvara se u novoj kartici
+                        </span>
                       </div>
                     </div>
                     <div className="shrink-0">
@@ -505,6 +514,15 @@ export function DocumentsContent({
                   >
                     Očisti filtere
                   </button>
+                )}
+                {!hasActiveFilters && (
+                  <p className="mt-3 text-sm text-neutral-500">
+                    Trebate određeni dokument? Javite nam se putem{' '}
+                    <Link href="/kontakt" className="text-primary-600 hover:underline">
+                      kontakt obrasca
+                    </Link>
+                    .
+                  </p>
                 )}
               </div>
             )}

@@ -131,7 +131,7 @@ export const generateStaticParams = withStaticParams(
 function formatDate(date: Date | null): string {
   if (!date) return '';
   return date.toLocaleDateString('hr-HR', {
-    day: '2-digit',
+    day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
@@ -313,7 +313,7 @@ export default async function AnnouncementDetailPage({
                       </h3>
                       {related.publishedAt && (
                         <p className="text-sm text-neutral-500">
-                          {formatDate(related.publishedAt)}
+                          Objavljeno {formatDate(related.publishedAt)}
                         </p>
                       )}
                     </Link>

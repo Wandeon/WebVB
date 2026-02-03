@@ -8,6 +8,7 @@ import {
   Pagination,
   SectionHeader,
 } from '@repo/ui';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -229,6 +230,29 @@ export function AnnouncementsPageClient({ initialData }: AnnouncementsPageClient
                 {category
                   ? 'Nema obavijesti u odabranoj kategoriji.'
                   : 'Trenutno nema objavljenih obavijesti.'}
+              </p>
+              <p className="mt-2 text-sm text-neutral-500">
+                {category ? (
+                  <>
+                    Pokušajte s drugom kategorijom ili{' '}
+                    <Link href="/obavijesti" className="text-primary-600 hover:underline">
+                      pogledajte sve obavijesti
+                    </Link>
+                    .
+                  </>
+                ) : (
+                  <>
+                    Za službene informacije pratite{' '}
+                    <Link href="/vijesti" className="text-primary-600 hover:underline">
+                      vijesti
+                    </Link>{' '}
+                    ili nas{' '}
+                    <Link href="/kontakt" className="text-primary-600 hover:underline">
+                      kontaktirajte
+                    </Link>
+                    .
+                  </>
+                )}
               </p>
             </div>
           </FadeIn>

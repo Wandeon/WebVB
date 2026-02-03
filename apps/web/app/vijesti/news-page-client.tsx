@@ -11,6 +11,7 @@ import {
   PostCardSkeleton,
   SectionHeader,
 } from '@repo/ui';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -219,6 +220,29 @@ export function NewsPageClient({ initialData }: NewsPageClientProps) {
                 <div className="rounded-lg bg-neutral-100 py-12 text-center">
                   <p className="text-neutral-600">
                     {category ? 'Nema vijesti u odabranoj kategoriji.' : 'Trenutno nema objavljenih vijesti.'}
+                  </p>
+                  <p className="mt-2 text-sm text-neutral-500">
+                    {category ? (
+                      <>
+                        Pokušajte s drugom kategorijom ili{' '}
+                        <Link href="/vijesti" className="text-primary-600 hover:underline">
+                          pogledajte sve vijesti
+                        </Link>
+                        .
+                      </>
+                    ) : (
+                      <>
+                        Provjerite{' '}
+                        <Link href="/obavijesti" className="text-primary-600 hover:underline">
+                          obavijesti
+                        </Link>{' '}
+                        ili nas{' '}
+                        <Link href="/kontakt" className="text-primary-600 hover:underline">
+                          kontaktirajte
+                        </Link>
+                        .
+                      </>
+                    )}
                   </p>
                 </div>
               </FadeIn>

@@ -255,7 +255,11 @@ export default async function HomePage() {
                     </div>
                   ) : (
                     <p className="py-4 text-center text-sm text-neutral-500">
-                      Nema aktivnih obavijesti
+                      Trenutno nema aktivnih obavijesti.{' '}
+                      <Link href="/obavijesti" className="text-primary-600 hover:underline">
+                        Pogledajte arhivu
+                      </Link>
+                      .
                     </p>
                   )}
                 </div>
@@ -289,7 +293,11 @@ export default async function HomePage() {
                     </div>
                   ) : (
                     <p className="py-4 text-center text-sm text-neutral-500">
-                      Nema dokumenata
+                      Trenutno nema objavljenih dokumenata.{' '}
+                      <Link href="/dokumenti" className="text-primary-600 hover:underline">
+                        Pogledajte repozitorij
+                      </Link>
+                      .
                     </p>
                   )}
                 </div>

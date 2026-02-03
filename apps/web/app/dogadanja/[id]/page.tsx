@@ -194,6 +194,11 @@ export default async function EventDetailPage({
                   {timeLabel && ` • ${timeLabel}`}
                 </span>
               </div>
+              {timeLabel && (
+                <p className="text-sm text-neutral-500">
+                  Vrijeme je prikazano prema vremenskoj zoni Europe/Zagreb.
+                </p>
+              )}
               {event.location && (
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-neutral-400" />
@@ -204,8 +209,9 @@ export default async function EventDetailPage({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-primary-600 hover:underline"
+                      aria-label="Prikaži na karti (otvara se u novoj kartici)"
                     >
-                      Prikaži na karti →
+                      Prikaži na karti ↗
                     </a>
                   )}
                 </div>
