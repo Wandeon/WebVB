@@ -132,9 +132,11 @@ export function getAdminAuthEnv(): AdminAuthEnv {
 
 export function getPublicEnv(): PublicEnv {
   const env = publicEnvSchema.parse(process.env);
-  const baseEnv = getBaseEnv();
 
-  if (baseEnv.NODE_ENV === 'production') {
+  // Check production requirements without calling getBaseEnv() - this function
+  // may be called client-side where NODE_ENV validation via Zod fails.
+  // process.env.NODE_ENV is inlined by Next.js at build time.
+  if (process.env.NODE_ENV === 'production') {
     const missing: string[] = [];
     if (!process.env.NEXT_PUBLIC_SITE_URL) missing.push('NEXT_PUBLIC_SITE_URL');
     if (!process.env.NEXT_PUBLIC_API_URL) missing.push('NEXT_PUBLIC_API_URL');
