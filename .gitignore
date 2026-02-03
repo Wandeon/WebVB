@@ -29,6 +29,20 @@ Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
 
+# Backups & exports
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.backup
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+backups/
+exports/
+
 # Testing
 coverage
 .nyc_output
