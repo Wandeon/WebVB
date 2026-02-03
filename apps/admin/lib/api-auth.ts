@@ -4,7 +4,7 @@ import { USER_ROLES } from '@repo/shared';
 import { apiError, ErrorCodes } from '@/lib/api-response';
 import { auth } from '@/lib/auth';
 import { isAdmin, normalizeRole } from '@/lib/permissions';
-import { anonymizeIp } from '@/lib/pii';
+import { anonymizeIp, hashValue } from '@/lib/pii';
 
 type Role = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
@@ -136,9 +136,11 @@ export function getAuditMetadata(request: Request) {
   const ipAddress = anonymizeIp(
     forwardedFor?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip')
   );
+  const rawUserAgent = request.headers.get('user-agent');
+  const userAgent = rawUserAgent ? hashValue(rawUserAgent) : null;
 
   return {
     ipAddress,
-    userAgent: request.headers.get('user-agent'),
+    userAgent,
   };
 }

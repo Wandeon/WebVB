@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { contactLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 import type { PushTopic } from '@repo/database';
@@ -64,7 +65,10 @@ export async function POST(request: Request) {
       topics: (topics ?? ['all']) as PushTopic[],
     });
 
-    contactLogger.info({ endpoint: endpoint.slice(0, 50) }, 'Push subscription created/updated');
+    contactLogger.info(
+      { endpoint: getTextLogFields(endpoint) },
+      'Push subscription created/updated'
+    );
 
     return NextResponse.json(
       {

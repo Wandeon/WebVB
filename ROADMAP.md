@@ -8,9 +8,9 @@
 
 **Active Sprint:** Phase 8 (Testing & Launch)
 **Overall Progress:** 67/72 sprints (93%) - Phase 0-6 complete; Phase 4.5 complete; 7.1+7.5+7.6+7.7+7.8 done
-**Recent:** Accessible files (Audit 16), performance (Audit 15), Search/SEO (Audit 14), content quality (Audit 13), design system (Audit 12)
+**Recent:** Logging/PII safety (Audit EMB-03), accessible files (Audit 16), performance (Audit 15), Search/SEO (Audit 14), content quality (Audit 13)
 **Target Launch:** Domain setup pending
-**Latest Audit:** Audit 16 - accessible files, dumps, and backup exposure
+**Latest Audit:** Audit EMB-03 - logging, error reporting, and PII leaks
 **Staging:** Frontend at http://159.195.61.215/ (public) | Admin at http://100.120.125.83:3001 (Tailscale only)
 
 ---
@@ -1055,3 +1055,4 @@ Gate: https://velikibukovec.hr shows new site
 | 2026-02-02 | Stakeholder presentation: docs/prezentacija-dionici-2026.md |
 | 2026-02-02 | Public access: Web at 159.195.61.215:80 (public), Admin at 100.120.125.83:3001 (Tailscale) |
 | 2026-02-03 | Audit 16: accessible files audit documented; gitignore hardened for backup/export artifacts |
+| 2026-02-03 | Audit EMB-03: logging/error reporting hardened; PII redaction in logs, user-agent hashing |

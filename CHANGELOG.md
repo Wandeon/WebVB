@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Audit EMB-03 - Logging, Error Reporting, and PII Leaks (2026-02-03)
+
+### Changed
+- Redacted sensitive fields from structured logging and standardized error serialization for safer log sharing
+- Replaced push endpoint and document filename logging with hashed summaries to avoid token/PII leakage
+- Hashed stored audit user-agent metadata to minimize persistent PII exposure
+
 ## Audit 11 - Testing, Quality Gates, and Regression Safety (2026-02-15)
 
 ### Changed

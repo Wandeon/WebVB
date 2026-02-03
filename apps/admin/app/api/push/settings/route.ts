@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { contactLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 import type { PushTopic, PushPreferences } from '@repo/database';
@@ -121,7 +122,10 @@ export async function PUT(request: Request) {
       );
     }
 
-    contactLogger.info({ endpoint: endpoint.slice(0, 50) }, 'Push subscription settings updated');
+    contactLogger.info(
+      { endpoint: getTextLogFields(endpoint) },
+      'Push subscription settings updated'
+    );
 
     // Cast to access preferences field (added in migration, may not be in current Prisma types)
     const subscriptionData = subscription as typeof subscription & { preferences?: unknown };

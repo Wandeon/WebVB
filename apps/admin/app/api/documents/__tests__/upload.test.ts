@@ -158,7 +158,13 @@ describe('POST /api/documents/upload', () => {
     expect(mockedUploadToR2).not.toHaveBeenCalled();
     // File name may be 'blob' in test environment due to FormData handling
     expect(mockedLoggerWarn).toHaveBeenCalledWith(
-      expect.objectContaining({ filename: expect.any(String) as string }),
+      expect.objectContaining({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Vitest matcher
+        fileName: expect.objectContaining({
+          textHash: expect.any(String) as string,
+          textLength: expect.any(Number) as number,
+        }),
+      }),
       'Invalid PDF file'
     );
   });

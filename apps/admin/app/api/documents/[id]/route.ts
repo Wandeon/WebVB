@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
 import { parseUuidParam } from '@/lib/request-validation';
 
@@ -142,17 +143,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     if (r2Key) {
       try {
         await deleteFromR2(r2Key);
-        documentsLogger.info({ documentId, r2Key }, 'Document file deleted from R2');
+        documentsLogger.info(
+          { documentId, r2Key: getTextLogFields(r2Key) },
+          'Document file deleted from R2'
+        );
       } catch (r2Error) {
         documentsLogger.error(
-          { documentId, r2Key, error: r2Error },
+          { documentId, r2Key: getTextLogFields(r2Key), error: r2Error },
           'Failed to delete document file from R2 (DB record already deleted)'
         );
       }
     }
 
     documentsLogger.info(
-      { documentId, title: deletedDocument.title },
+      { documentId, title: getTextLogFields(deletedDocument.title) },
       'Document deleted successfully'
     );
 
