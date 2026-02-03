@@ -63,7 +63,7 @@ describe('Waste reminder job status', () => {
   });
 
   it('rejects status checks without cron secret', async () => {
-    const response = await GET(
+    const response = GET(
       new Request('http://localhost/api/jobs/waste-reminder') as never
     );
     const data = (await response.json()) as ApiResponse;
@@ -75,7 +75,7 @@ describe('Waste reminder job status', () => {
   it('returns configuration status for authorized checks', async () => {
     mockedIsPushConfigured.mockReturnValue(true);
 
-    const response = await GET(
+    const response = GET(
       new Request('http://localhost/api/jobs/waste-reminder', {
         headers: { 'x-cron-secret': 'test-secret' },
       }) as never
