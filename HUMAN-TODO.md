@@ -347,7 +347,7 @@ SMTP_PASSWORD=
 SENTRY_DSN=
 
 # === DATABASE ===
-DATABASE_URL=postgresql://user:password@localhost:5432/velikibukovec
+DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/velikibukovec
 ```
 
 ---
@@ -378,4 +378,3 @@ If you're stuck on any task, note it here and we'll solve it together:
 Task: ________________
 Stuck on: ________________
 ```
-

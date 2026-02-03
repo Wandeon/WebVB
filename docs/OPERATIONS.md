@@ -167,7 +167,7 @@ logger.info({ action: 'post_created' }, 'User created post');
 Use the repo script to perform a manual backup or validate the cron job on the VPS:
 
 ```bash
-export DATABASE_URL="postgresql://user:password@localhost:5432/velikibukovec"
+export DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/velikibukovec"
 export CLOUDFLARE_ACCOUNT_ID="your-account-id"
 export CLOUDFLARE_R2_ACCESS_KEY_ID="your-access-key"
 export CLOUDFLARE_R2_SECRET_ACCESS_KEY="your-secret-key"
@@ -182,7 +182,7 @@ export RETENTION_DAYS="90" # Optional override (default: 90)
 Restores require explicit confirmation and can target the latest backup or a specific key:
 
 ```bash
-export DATABASE_URL="postgresql://user:password@localhost:5432/velikibukovec"
+export DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/velikibukovec"
 export CLOUDFLARE_ACCOUNT_ID="your-account-id"
 export CLOUDFLARE_R2_ACCESS_KEY_ID="your-access-key"
 export CLOUDFLARE_R2_SECRET_ACCESS_KEY="your-secret-key"
