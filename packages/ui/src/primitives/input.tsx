@@ -11,6 +11,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <input
         type={type}
+        aria-invalid={error || undefined}
         className={cn(
           'flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm transition-colors duration-fast',
           'placeholder:text-neutral-400',

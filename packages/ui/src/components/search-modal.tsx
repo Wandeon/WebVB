@@ -107,6 +107,7 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
               ref={inputRef}
               type="text"
               placeholder="Pretraži..."
+              aria-label="Pretraži..."
               className="flex-1 bg-transparent text-lg outline-none placeholder:text-neutral-400"
               defaultValue={query}
               onChange={(e) => void search(e.target.value)}
@@ -114,7 +115,7 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="rounded-lg p-1 hover:bg-neutral-100"
+                className="rounded-lg p-1 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                 aria-label="Zatvori"
               >
                 <X className="h-5 w-5 text-neutral-500" />
@@ -125,7 +126,9 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
           {/* Content */}
           <div className="min-h-[200px]">
             {error && (
-              <div className="p-4 text-center text-red-600">{error}</div>
+              <div className="p-4 text-center text-error" role="alert">
+                {error}
+              </div>
             )}
 
             {showRecentSearches && (
@@ -137,7 +140,7 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
                   <button
                     type="button"
                     onClick={clearRecentSearches}
-                    className="text-xs text-neutral-500 hover:text-neutral-700"
+                    className="text-xs text-neutral-500 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                   >
                     Obriši sve
                   </button>
@@ -151,7 +154,7 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
                       <button
                         type="button"
                         onClick={() => handleRecentSearchClick(recent.query)}
-                        className="flex flex-1 items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-neutral-700 hover:bg-neutral-50"
+                        className="flex flex-1 items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-neutral-700 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                       >
                         <Clock className="h-4 w-4 text-neutral-400" />
                         {recent.query}
@@ -159,7 +162,7 @@ export function SearchModal({ isOpen, onClose, apiUrl = '' }: SearchModalProps) 
                       <button
                         type="button"
                         onClick={() => removeRecentSearch(recent.query)}
-                        className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                        className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                         aria-label={`Ukloni "${recent.query}"`}
                       >
                         <X className="h-3 w-3" />

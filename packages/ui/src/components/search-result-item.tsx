@@ -2,6 +2,8 @@
 
 import { Calendar, File, FileText, Newspaper } from 'lucide-react';
 
+import { sanitizeInlineHtml } from '../lib/sanitize-html';
+
 import type { SearchResult } from '../hooks/use-search';
 
 const typeIcons: Record<string, typeof Newspaper> = {
@@ -29,6 +31,10 @@ export function SearchResultItem({
   isSelected,
   onClick,
 }: SearchResultItemProps) {
+  const sanitizedTitle = sanitizeInlineHtml(result.title);
+  const sanitizedHighlights = result.highlights
+    ? sanitizeInlineHtml(result.highlights)
+    : '';
   const Icon = typeIcons[result.sourceType] ?? File;
   const typeLabel = typeLabels[result.sourceType] ?? 'Sadržaj';
 
@@ -36,7 +42,7 @@ export function SearchResultItem({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-start gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
+      className={`flex w-full items-start gap-3 rounded-lg px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
         isSelected
           ? 'bg-primary-50 text-primary-900'
           : 'hover:bg-neutral-50'
@@ -53,7 +59,7 @@ export function SearchResultItem({
         <div className="flex items-center gap-2">
           <span
             className="truncate font-medium text-neutral-900"
-            dangerouslySetInnerHTML={{ __html: result.title }}
+            dangerouslySetInnerHTML={{ __html: sanitizedTitle }}
           />
           <span className="flex-shrink-0 text-xs text-neutral-500">
             {typeLabel}
@@ -62,7 +68,7 @@ export function SearchResultItem({
         {result.highlights && (
           <p
             className="mt-0.5 line-clamp-2 text-sm text-neutral-600"
-            dangerouslySetInnerHTML={{ __html: result.highlights }}
+            dangerouslySetInnerHTML={{ __html: sanitizedHighlights }}
           />
         )}
         <div className="mt-1 flex items-center gap-2 text-xs text-neutral-500">

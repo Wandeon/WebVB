@@ -5,6 +5,8 @@ import { useState } from 'react';
 
 import { SearchResultItem } from './search-result-item';
 
+import { sanitizeInlineHtml } from '../lib/sanitize-html';
+
 import type { GroupedResults, SearchResult } from '../hooks/use-search';
 
 const groupConfig: Record<keyof GroupedResults, { label: string; icon: typeof Newspaper }> = {
@@ -98,7 +100,7 @@ export function SearchResults({
               key={groupKey}
               type="button"
               onClick={() => setActiveTab(groupKey)}
-              className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
                 isActive
                   ? 'border-b-2 border-primary-500 text-primary-700'
                   : 'text-neutral-500 hover:text-neutral-700'
@@ -204,7 +206,7 @@ function SearchResultItemCompact({
     <button
       type="button"
       onClick={onClick}
-      className={`block w-full rounded-lg px-2 py-1.5 text-left transition-colors ${
+      className={`block w-full rounded-lg px-2 py-1.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
         isSelected
           ? 'bg-primary-50 text-primary-900'
           : 'hover:bg-neutral-50'
@@ -212,7 +214,7 @@ function SearchResultItemCompact({
     >
       <span
         className="line-clamp-2 text-sm font-medium text-neutral-900"
-        dangerouslySetInnerHTML={{ __html: result.title }}
+        dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(result.title) }}
       />
       {result.date && (
         <span className="mt-0.5 block text-xs text-neutral-500">{result.date}</span>
