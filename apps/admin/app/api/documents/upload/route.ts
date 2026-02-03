@@ -11,6 +11,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 import { uploadToR2 } from '@/lib/r2';
 
 const PDF_SIGNATURE = '%PDF-';
@@ -54,7 +55,10 @@ export async function POST(request: Request) {
 
     // Validate MIME type
     if (file.type !== 'application/pdf') {
-      documentsLogger.warn({ mimeType: file.type, filename: file.name }, 'Invalid MIME type');
+      documentsLogger.warn(
+        { mimeType: file.type, fileName: getTextLogFields(file.name) },
+        'Invalid MIME type'
+      );
       return apiError(
         ErrorCodes.VALIDATION_ERROR,
         'Datoteka nije valjani PDF',
@@ -66,7 +70,7 @@ export async function POST(request: Request) {
 
     // Validate PDF signature
     if (!isPdfFile(buffer)) {
-      documentsLogger.warn({ filename: file.name }, 'Invalid PDF file');
+      documentsLogger.warn({ fileName: getTextLogFields(file.name) }, 'Invalid PDF file');
       return apiError(
         ErrorCodes.VALIDATION_ERROR,
         'Datoteka nije valjani PDF',

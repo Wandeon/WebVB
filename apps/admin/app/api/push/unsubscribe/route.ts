@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { contactLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const RATE_LIMIT = 10;
@@ -70,7 +71,10 @@ export async function POST(request: Request) {
       );
     }
 
-    contactLogger.info({ endpoint: endpoint.slice(0, 50) }, 'Push subscription deactivated');
+    contactLogger.info(
+      { endpoint: getTextLogFields(endpoint) },
+      'Push subscription deactivated'
+    );
 
     return NextResponse.json(
       {

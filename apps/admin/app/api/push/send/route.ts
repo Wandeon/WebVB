@@ -5,6 +5,7 @@ import { sendNotificationSchema } from '@repo/shared';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { contactLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 import { isWebPushError, webpush } from '@/lib/web-push';
 
 import type { PushTopic } from '@repo/database';
@@ -99,17 +100,23 @@ export async function POST(request: NextRequest) {
           if (error.statusCode === 410 || error.statusCode === 404) {
             // Subscription expired or not found - mark as gone
             await pushSubscriptionsRepository.markGone(sub.endpoint);
-            contactLogger.info({ endpoint: sub.endpoint.slice(0, 50) }, 'Push subscription expired (410)');
+            contactLogger.info(
+              { endpoint: getTextLogFields(sub.endpoint) },
+              'Push subscription expired (410)'
+            );
           } else {
             // Other error - mark as failed
             await pushSubscriptionsRepository.markFailed(sub.endpoint, error.message);
             contactLogger.warn(
-              { endpoint: sub.endpoint.slice(0, 50), statusCode: error.statusCode },
+              { endpoint: getTextLogFields(sub.endpoint), statusCode: error.statusCode },
               'Push send failed'
             );
           }
         } else {
-          contactLogger.error({ error, endpoint: sub.endpoint.slice(0, 50) }, 'Push send error');
+          contactLogger.error(
+            { error, endpoint: getTextLogFields(sub.endpoint) },
+            'Push send error'
+          );
         }
       }
     });

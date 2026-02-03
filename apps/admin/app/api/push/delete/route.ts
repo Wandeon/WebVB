@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { contactLogger } from '@/lib/logger';
+import { getTextLogFields } from '@/lib/pii';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const RATE_LIMIT = 5;
@@ -85,7 +86,10 @@ export async function DELETE(request: Request) {
       );
     }
 
-    contactLogger.info({ endpoint: endpoint.slice(0, 50) }, 'Push subscription permanently deleted (GDPR)');
+    contactLogger.info(
+      { endpoint: getTextLogFields(endpoint) },
+      'Push subscription permanently deleted (GDPR)'
+    );
 
     return NextResponse.json(
       {
