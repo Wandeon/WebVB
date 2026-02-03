@@ -4,7 +4,6 @@ import { Calendar, File, FileText, Newspaper } from 'lucide-react';
 import { useState } from 'react';
 
 import { SearchResultItem } from './search-result-item';
-
 import { sanitizeInlineHtml } from '../lib/sanitize-html';
 
 import type { GroupedResults, SearchResult } from '../hooks/use-search';
