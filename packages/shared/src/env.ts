@@ -131,7 +131,13 @@ export function getAdminAuthEnv(): AdminAuthEnv {
 }
 
 export function getPublicEnv(): PublicEnv {
-  const env = publicEnvSchema.parse(process.env);
+  // Construct object explicitly so Next.js inlines each process.env.NEXT_PUBLIC_*
+  // reference at build time. Passing process.env directly to Zod doesn't work
+  // because Next.js only replaces direct property access patterns, not dynamic access.
+  const env = publicEnvSchema.parse({
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  });
 
   // Check production requirements without calling getBaseEnv() - this function
   // may be called client-side where NODE_ENV validation via Zod fails.
