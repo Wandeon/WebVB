@@ -68,8 +68,8 @@ export async function GET(request: NextRequest) {
     }
 
     const result = past
-      ? await eventsRepository.getPastEvents({ page, limit, excludeWaste })
-      : await eventsRepository.findAll({ page, limit, upcoming: true, excludeWaste });
+      ? await eventsRepository.getPastEvents({ page, limit, ...(excludeWaste != null && { excludeWaste }) })
+      : await eventsRepository.findAll({ page, limit, upcoming: true, ...(excludeWaste != null && { excludeWaste }) });
 
     return apiSuccess({
       events: result.events.map(mapEvent),
