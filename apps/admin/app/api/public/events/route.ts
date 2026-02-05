@@ -23,6 +23,7 @@ const publicEventsQuerySchema = z
     limit: z.coerce.number().int().positive().max(100).default(10),
     upcoming: booleanParamSchema,
     past: booleanParamSchema,
+    excludeWaste: booleanParamSchema,
   })
   .strict();
 
@@ -45,6 +46,7 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get('limit') ?? undefined,
       upcoming: searchParams.get('upcoming') ?? undefined,
       past: searchParams.get('past') ?? undefined,
+      excludeWaste: searchParams.get('excludeWaste') ?? undefined,
     });
 
     if (!queryResult.success) {
@@ -55,7 +57,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { page, limit, upcoming, past } = queryResult.data;
+    const { page, limit, upcoming, past, excludeWaste } = queryResult.data;
 
     if (upcoming && past) {
       return apiError(
@@ -66,8 +68,8 @@ export async function GET(request: NextRequest) {
     }
 
     const result = past
-      ? await eventsRepository.getPastEvents({ page, limit })
-      : await eventsRepository.findAll({ page, limit, upcoming: true });
+      ? await eventsRepository.getPastEvents({ page, limit, excludeWaste })
+      : await eventsRepository.findAll({ page, limit, upcoming: true, excludeWaste });
 
     return apiSuccess({
       events: result.events.map(mapEvent),

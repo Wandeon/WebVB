@@ -169,8 +169,8 @@ export function EventsPageClient({ initialData }: EventsPageClientProps) {
       try {
         const eventsUrl =
           tab === 'upcoming'
-            ? `${API_URL}/api/public/events?upcoming=true&page=${page}&limit=10`
-            : `${API_URL}/api/public/events?past=true&page=${page}&limit=10`;
+            ? `${API_URL}/api/public/events?upcoming=true&excludeWaste=true&page=${page}&limit=10`
+            : `${API_URL}/api/public/events?past=true&excludeWaste=true&page=${page}&limit=10`;
 
         const response = await fetch(eventsUrl, { signal: controller.signal });
         const payload = (await response.json()) as PublicEventsResponse;

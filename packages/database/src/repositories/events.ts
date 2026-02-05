@@ -10,6 +10,7 @@ export interface FindAllEventsOptions {
   from?: Date | undefined;
   to?: Date | undefined;
   upcoming?: boolean | undefined;
+  excludeWaste?: boolean | undefined;
   sortBy?: 'eventDate' | 'createdAt' | 'title' | undefined;
   sortOrder?: 'asc' | 'desc' | undefined;
 }
@@ -59,6 +60,7 @@ export const eventsRepository = {
       from,
       to,
       upcoming,
+      excludeWaste,
       sortBy = 'eventDate',
       sortOrder = 'asc',
     } = options;
@@ -94,6 +96,12 @@ export const eventsRepository = {
           { eventDate: { gte: today } },
           { endDate: { gte: today } },
         ],
+      });
+    }
+
+    if (excludeWaste) {
+      andFilters.push({
+        NOT: { title: { startsWith: 'Odvoz otpada:', mode: 'insensitive' } },
       });
     }
 
@@ -161,17 +169,23 @@ export const eventsRepository = {
   /**
    * Get upcoming events (from today onwards)
    */
-  async getUpcomingEvents(limit: number = 5): Promise<Event[]> {
+  async getUpcomingEvents(limit: number = 5, excludeWaste: boolean = false): Promise<Event[]> {
     const today = getZagrebStartOfDay();
     const safeLimit = clampLimit(limit, 5);
 
+    const where: Prisma.EventWhereInput = {
+      OR: [
+        { eventDate: { gte: today } },
+        { endDate: { gte: today } },
+      ],
+    };
+
+    if (excludeWaste) {
+      where.NOT = { title: { startsWith: 'Odvoz otpada:', mode: 'insensitive' } };
+    }
+
     return db.event.findMany({
-      where: {
-        OR: [
-          { eventDate: { gte: today } },
-          { endDate: { gte: today } },
-        ],
-      },
+      where,
       orderBy: { eventDate: 'asc' },
       take: safeLimit,
     });
@@ -211,9 +225,9 @@ export const eventsRepository = {
    * Get past events with pagination
    */
   async getPastEvents(
-    options: { page?: number; limit?: number } = {}
+    options: { page?: number; limit?: number; excludeWaste?: boolean } = {}
   ): Promise<FindAllEventsResult> {
-    const { page = 1, limit = 20 } = options;
+    const { page = 1, limit = 20, excludeWaste } = options;
     const { page: safePage, limit: safeLimit, skip } = normalizePagination({
       page,
       limit,
@@ -233,6 +247,10 @@ export const eventsRepository = {
         },
       ],
     };
+
+    if (excludeWaste) {
+      where.NOT = { title: { startsWith: 'Odvoz otpada:', mode: 'insensitive' } };
+    }
 
     const [total, events] = await Promise.all([
       db.event.count({ where }),

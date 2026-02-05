@@ -55,7 +55,7 @@ async function getInitialEventsData(): Promise<EventsPageInitialData> {
   }
 
   const [eventsResult, calendarEvents] = await Promise.all([
-    eventsRepository.findAll({ page: 1, limit: 10, upcoming: true }),
+    eventsRepository.findAll({ page: 1, limit: 10, upcoming: true, excludeWaste: true }),
     eventsRepository.getEventsByMonth(initialYear, initialMonth),
   ]);
 
