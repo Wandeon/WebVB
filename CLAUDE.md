@@ -464,43 +464,42 @@ logger.info({ password, token }); // NEVER DO THIS
 
 ## VPS Infrastructure
 
-### Tailscale Access
+### Domains
+```
+n.velikibukovec.hr     → public website (temporary, will become velikibukovec.hr)
+admin.velikibukovec.hr → admin panel + API
+```
+
+### SSH Access (via Tailscale)
 ```bash
-# VPS Tailscale IP
-100.120.125.83
-
-# SSH access
 ssh deploy@100.120.125.83
-
-# Never expose services to public internet
 ```
 
 ### Services on VPS
 ```
-Caddy (port 80)     → serves /home/deploy/apps/web-static (static web app)
-Admin App (port 3001) → pm2 process "vb-admin", runs from /home/deploy/apps/admin-repo/apps/admin
+Caddy (port 80/443)    → n.velikibukovec.hr serves /home/deploy/apps/web-static
+                        → admin.velikibukovec.hr proxies to 127.0.0.1:3001
+Admin App (port 3001)  → pm2 process "vb-admin", binds to 127.0.0.1 only
 PostgreSQL (port 5432) → listens on localhost AND Tailscale IP
-Ollama (port 11434) → local embeddings with nomic-embed-text model
+Ollama (port 11434)    → local embeddings with nomic-embed-text model
 ```
 
 ### Database
 ```bash
-# Connection string (from VPS or via Tailscale)
+# Connection string (via Tailscale from dev machine)
 postgresql://velikibukovec:<password>@100.120.125.83:5432/velikibukovec
 
-# Password is in /home/deploy/apps/admin-repo/.env on VPS
+# Password is in /home/deploy/apps/admin-repo/apps/admin/.env on VPS
 ```
 
-### Deployment
+### Manual Deployment
 ```bash
 # Build web app locally (needs DB access via Tailscale)
 cd /home/wandeon/WebVB
-echo 'NEXT_PUBLIC_API_URL=http://100.120.125.83:3001' > apps/web/.env.local
-echo 'DATABASE_URL="postgresql://velikibukovec:<password>@100.120.125.83:5432/velikibukovec"' >> apps/web/.env.local
 pnpm build --filter=@repo/web
 
 # Deploy to VPS
-scp -r apps/web/out/* deploy@100.120.125.83:~/apps/web-static/
+rsync -avz --delete apps/web/out/ deploy@100.120.125.83:~/apps/web-static/
 
 # Reload Caddy if needed
 ssh deploy@100.120.125.83 "sudo systemctl reload caddy"

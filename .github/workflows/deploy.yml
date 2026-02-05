@@ -149,7 +149,7 @@ jobs:
           # Load environment and restart PM2
           source apps/admin/.env
           export PORT=3001
-          export HOSTNAME=0.0.0.0
+          export HOSTNAME=127.0.0.1
           export NODE_ENV=production
 
           pm2 delete vb-admin 2>/dev/null || true
@@ -174,7 +174,7 @@ jobs:
 
       - name: Deployment summary
         run: |
-          echo "✅ Deployment complete!"
+          echo "Deployment complete!"
           echo ""
-          echo "Web:   http://${{ secrets.VPS_SSH_HOST }}/"
-          echo "Admin: http://${{ secrets.VPS_SSH_HOST }}:3001/"
+          echo "Web:   https://n.velikibukovec.hr/"
+          echo "Admin: https://admin.velikibukovec.hr/"

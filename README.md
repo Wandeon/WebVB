@@ -15,9 +15,9 @@ Modern website with AI features for Općina Veliki Bukovec, a Croatian municipal
 - ✅ **Phase 3:** Infrastructure (9/9 sprints)
 - ✅ **Phase 4:** Content Migration (7/7 sprints)
 
-### Staging Environment
-- **Frontend:** http://100.120.125.83/ (via Tailscale)
-- **Admin:** http://100.120.125.83:3001/ (via Tailscale)
+### Production Environment
+- **Frontend:** https://n.velikibukovec.hr/ (will become velikibukovec.hr)
+- **Admin:** https://admin.velikibukovec.hr/
 - **Auto-deploy:** Push to main triggers GitHub Actions → VPS
 
 ## Tech Stack
