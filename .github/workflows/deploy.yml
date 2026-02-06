@@ -36,18 +36,7 @@ jobs:
         uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-
-      - name: Wait for Tailscale connection
-        run: |
-          for i in {1..30}; do
-            if tailscale status | grep -q "100."; then
-              echo "Tailscale connected"
-              break
-            fi
-            echo "Waiting for Tailscale... ($i/30)"
-            sleep 1
-          done
-          tailscale status
+          ephemeral: true
 
       - name: Cache dependencies
         uses: actions/cache@v4
