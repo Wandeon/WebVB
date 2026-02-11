@@ -56,36 +56,38 @@ interface MailLogsErrorResponse {
 
 type MailLogsResponse = MailLogsSuccessResponse | MailLogsErrorResponse;
 
-const MOCK_STALWART_RESPONSE = [
+const MOCK_STALWART_ITEMS = [
   {
     timestamp: '2026-02-11T10:00:00Z',
-    level: 'info',
+    level: 'INFO',
     event: 'Authentication successful',
-    eventId: 'auth.success',
+    event_id: 'auth.success',
     details: 'accountName = "mayor@velikibukovec.hr", remoteIp = "10.0.0.1"',
   },
   {
     timestamp: '2026-02-11T10:01:00Z',
-    level: 'warn',
+    level: 'WARN',
     event: 'Authentication failed',
-    eventId: 'auth.failed',
+    event_id: 'auth.failed',
     details: 'accountName = "unknown@test.com", remoteIp = "192.168.1.1"',
   },
   {
     timestamp: '2026-02-11T10:02:00Z',
-    level: 'info',
+    level: 'INFO',
     event: 'Message delivered',
-    eventId: 'delivery.delivered',
+    event_id: 'delivery.delivered',
     details: 'from = "mayor@velikibukovec.hr", to = "citizen@example.com"',
   },
   {
     timestamp: '2026-02-11T10:03:00Z',
-    level: 'info',
+    level: 'INFO',
     event: 'Irrelevant event',
-    eventId: 'some.other.event',
+    event_id: 'some.other.event',
     details: 'data = "should be filtered out"',
   },
 ];
+
+const MOCK_STALWART_RESPONSE = { data: { items: MOCK_STALWART_ITEMS } };
 
 function mockAdminAuth() {
   mockedRequireAuth.mockResolvedValue({
@@ -159,6 +161,7 @@ describe('GET /api/mail-logs', () => {
     expect(data.data.items).toHaveLength(3);
     expect(data.data.total).toBe(3);
     expect(data.data.items[0]?.category).toBe('auth');
+    expect(data.data.items[0]?.level).toBe('info');
     expect(data.data.items[2]?.category).toBe('delivery');
   });
 
@@ -210,18 +213,22 @@ describe('GET /api/mail-logs', () => {
   it('parses details string correctly', async () => {
     mockAdminAuth();
 
-    const itemsWithDetails = [
-      {
-        timestamp: '2026-02-11T10:00:00Z',
-        level: 'info',
-        event: 'Authentication successful',
-        eventId: 'auth.success',
-        details: 'accountName = "mayor@velikibukovec.hr", remoteIp = "10.0.0.1", protocol = "imap"',
+    const stalwartResponse = {
+      data: {
+        items: [
+          {
+            timestamp: '2026-02-11T10:00:00Z',
+            level: 'INFO',
+            event: 'Authentication successful',
+            event_id: 'auth.success',
+            details: 'accountName = "mayor@velikibukovec.hr", remoteIp = "10.0.0.1", protocol = "imap"',
+          },
+        ],
       },
-    ];
+    };
 
     vi.mocked(global.fetch).mockResolvedValue(
-      new Response(JSON.stringify(itemsWithDetails), { status: 200 })
+      new Response(JSON.stringify(stalwartResponse), { status: 200 })
     );
 
     const response = await GET(makeRequest());

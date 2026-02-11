@@ -14,8 +14,9 @@ const EVENT_CATEGORIES = {
     'security.ip-blocked',
     'security.abuse-ban',
     'security.authentication-ban',
+    'security.scan-ban',
   ],
-  smtp: ['smtp.ehlo', 'smtp.mail-from', 'smtp.rcpt-to'],
+  smtp: ['smtp.ehlo', 'smtp.mail-from', 'smtp.rcpt-to', 'smtp.spf-ehlo-fail'],
   delivery: [
     'delivery.delivered',
     'delivery.failed',
@@ -64,8 +65,14 @@ interface StalwartLogItem {
   timestamp: string;
   level: string;
   event: string;
-  eventId: string;
+  event_id: string;
   details: string;
+}
+
+interface StalwartApiResponse {
+  data: {
+    items: StalwartLogItem[];
+  };
 }
 
 export async function GET(request: NextRequest) {
@@ -124,20 +131,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const rawItems = (await response.json()) as StalwartLogItem[];
+    const body = (await response.json()) as StalwartApiResponse;
+    const rawItems = body.data.items;
 
     const allowedIds: Set<string> = category
       ? new Set(EVENT_CATEGORIES[category])
       : RELEVANT_EVENT_IDS;
 
     const items = rawItems
-      .filter((item) => allowedIds.has(item.eventId))
+      .filter((item) => allowedIds.has(item.event_id))
       .map((item) => ({
         timestamp: item.timestamp,
-        level: item.level,
+        level: item.level.toLowerCase(),
         event: item.event,
-        eventId: item.eventId,
-        category: CATEGORY_BY_EVENT_ID.get(item.eventId) ?? 'auth',
+        eventId: item.event_id,
+        category: CATEGORY_BY_EVENT_ID.get(item.event_id) ?? 'auth',
         details: parseDetails(item.details),
       }));
 
