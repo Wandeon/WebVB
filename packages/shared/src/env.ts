@@ -101,6 +101,11 @@ const ollamaCloudEnvSchema = z.object({
   OLLAMA_CLOUD_MODEL: z.string().min(1).optional(),
 });
 
+const stalwartEnvSchema = z.object({
+  STALWART_API_URL: z.string().url().default('http://127.0.0.1:8080'),
+  STALWART_API_CREDENTIALS: z.string().min(3),
+});
+
 // Types inferred from schemas - no manual interface duplication
 export type NodeEnv = 'development' | 'test' | 'production';
 export type BaseEnv = z.infer<typeof baseEnvSchema>;
@@ -116,6 +121,7 @@ export type RuntimeEnv = z.infer<typeof runtimeEnvSchema>;
 export type PushEnv = z.infer<typeof pushEnvSchema>;
 export type CronEnv = z.infer<typeof cronEnvSchema>;
 export type OllamaCloudEnv = z.infer<typeof ollamaCloudEnvSchema>;
+export type StalwartEnv = z.infer<typeof stalwartEnvSchema>;
 
 // Validated env getters - Zod parse returns the inferred type
 export function getBaseEnv(): BaseEnv {
@@ -249,5 +255,14 @@ export function getOllamaCloudEnv(): OllamaCloudEnv {
 
 export function getOptionalOllamaCloudEnv(): OllamaCloudEnv | null {
   const result = ollamaCloudEnvSchema.safeParse(process.env);
+  return result.success ? result.data : null;
+}
+
+export function getStalwartEnv(): StalwartEnv {
+  return stalwartEnvSchema.parse(process.env);
+}
+
+export function getOptionalStalwartEnv(): StalwartEnv | null {
+  const result = stalwartEnvSchema.safeParse(process.env);
   return result.success ? result.data : null;
 }

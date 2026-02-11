@@ -10,6 +10,7 @@ import {
   Mail,
   MessageSquare,
   Settings,
+  Shield,
   Users,
 } from 'lucide-react';
 
@@ -119,6 +120,11 @@ export const adminNavigation: NavSection[] = [
         title: 'Korisnici',
         href: '/users',
         icon: icon(Users),
+      },
+      {
+        title: 'Evidencija e-pošte',
+        href: '/mail-logs',
+        icon: icon(Shield),
       },
       {
         title: 'Postavke',
