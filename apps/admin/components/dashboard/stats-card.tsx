@@ -3,6 +3,8 @@ import { type LucideIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
+import type { ReactNode } from 'react';
+
 interface StatsCardProps {
   title: string;
   value: string | number;
@@ -13,6 +15,7 @@ interface StatsCardProps {
     isPositive: boolean;
   };
   className?: string;
+  children?: ReactNode;
 }
 
 export function StatsCard({
@@ -22,6 +25,7 @@ export function StatsCard({
   icon: Icon,
   trend,
   className,
+  children,
 }: StatsCardProps) {
   return (
     <Card className={cn('relative overflow-hidden', className)}>
@@ -51,6 +55,7 @@ export function StatsCard({
         {description && (
           <p className="mt-1 text-xs text-neutral-500">{description}</p>
         )}
+        {children}
       </CardContent>
     </Card>
   );

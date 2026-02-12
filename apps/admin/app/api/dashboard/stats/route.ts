@@ -4,6 +4,7 @@ import { POST_CATEGORIES, getOptionalUmamiEnv } from '@repo/shared';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { dashboardLogger } from '@/lib/logger';
+import { fetchStats } from '@/lib/umami';
 
 import type { NextRequest } from 'next/server';
 
@@ -31,16 +32,10 @@ async function fetchUmamiStats(): Promise<UmamiStats | null> {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    const url = `${env.UMAMI_API_URL}/api/websites/${env.UMAMI_WEBSITE_ID}/stats?startAt=${startOfDay.getTime()}&endAt=${now}`;
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${env.UMAMI_API_TOKEN}` },
-      next: { revalidate: 300 },
-    });
+    const stats = await fetchStats(env, startOfDay.getTime(), now);
+    if (!stats) return null;
 
-    if (!response.ok) return null;
-
-    const data = await response.json() as { visitors: number; pageviews: number };
-    return { visitors: data.visitors, pageviews: data.pageviews };
+    return { visitors: stats.visitors.value, pageviews: stats.pageviews.value };
   } catch {
     dashboardLogger.warn('Failed to fetch Umami stats');
     return null;

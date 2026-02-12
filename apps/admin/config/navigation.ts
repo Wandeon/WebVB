@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Bell,
   BellRing,
   Brain,
@@ -40,6 +41,11 @@ export const adminNavigation: NavSection[] = [
         title: 'Nadzorna ploča',
         href: '/',
         icon: icon(LayoutDashboard),
+      },
+      {
+        title: 'Analitika',
+        href: '/analytics',
+        icon: icon(BarChart3),
       },
     ],
   },

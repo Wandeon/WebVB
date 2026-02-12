@@ -102,3 +102,4 @@ export const newsletterLogger = logger.child({ module: 'newsletter' });
 export const aiLogger = logger.child({ module: 'ai' });
 export const mailLogsLogger = logger.child({ module: 'mail-logs' });
 export const dashboardLogger = logger.child({ module: 'dashboard' });
+export const analyticsLogger = logger.child({ module: 'analytics' });

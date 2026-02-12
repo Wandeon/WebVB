@@ -2,8 +2,11 @@
 
 import { Eye, FileText, FolderOpen, Inbox } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { Line, LineChart, ResponsiveContainer } from 'recharts';
 
 import { CategoryChart, QuickActions, RecentActivity, StatsCard } from '@/components/dashboard';
+
+import type { SparklineData } from '@/lib/umami-types';
 
 // Types matching the API response
 interface DashboardStats {
@@ -38,15 +41,28 @@ interface DashboardData {
 
 export function DashboardContent() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [sparkline, setSparkline] = useState<SparklineData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch('/api/dashboard/stats');
-      if (!response.ok) return;
-      const json = await response.json() as { success: boolean; data: DashboardData };
-      if (json.success) {
-        setData(json.data);
+      const [statsRes, sparklineRes] = await Promise.all([
+        fetch('/api/dashboard/stats'),
+        fetch('/api/analytics/sparkline'),
+      ]);
+
+      if (statsRes.ok) {
+        const json = (await statsRes.json()) as { success: boolean; data: DashboardData };
+        if (json.success) {
+          setData(json.data);
+        }
+      }
+
+      if (sparklineRes.ok) {
+        const json = (await sparklineRes.json()) as { success: boolean; data: SparklineData };
+        if (json.success) {
+          setSparkline(json.data);
+        }
       }
     } catch {
       // Silently fail - dashboard will show empty state
@@ -95,14 +111,16 @@ export function DashboardContent() {
           icon={Inbox}
           description="Čeka odgovor"
         />
-        {data.stats.visitorsToday !== null && (
+        {sparkline ? (
+          <SparklineCard sparkline={sparkline} />
+        ) : data.stats.visitorsToday !== null ? (
           <StatsCard
             title="Posjetitelji danas"
             value={data.stats.visitorsToday}
             icon={Eye}
             description={`${data.stats.pageviewsToday ?? 0} pregleda stranica`}
           />
-        )}
+        ) : null}
       </div>
 
       {/* Charts Row */}
@@ -114,5 +132,32 @@ export function DashboardContent() {
       {/* Quick Actions */}
       <QuickActions />
     </>
+  );
+}
+
+function SparklineCard({ sparkline }: { sparkline: SparklineData }) {
+  return (
+    <StatsCard
+      title="Posjetitelji (7 dana)"
+      value={sparkline.totalVisitors}
+      icon={Eye}
+      description={`Danas: ${sparkline.visitorsToday} posjetitelja`}
+    >
+      {sparkline.daily.length > 0 && (
+        <div className="mt-2 h-[40px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sparkline.daily}>
+              <Line
+                type="monotone"
+                dataKey="visitors"
+                stroke="#3b82f6"
+                strokeWidth={1.5}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </StatsCard>
   );
 }
