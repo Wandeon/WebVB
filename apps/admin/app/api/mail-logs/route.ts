@@ -25,6 +25,7 @@ const EVENT_CATEGORIES = {
     'message-ingest.spam',
     'message-ingest.error',
   ],
+  imap: ['imap.fetch', 'imap.select', 'imap.store', 'imap.copy', 'imap.move', 'imap.expunge'],
 } as const;
 
 type EventCategory = keyof typeof EVENT_CATEGORIES;
@@ -41,7 +42,7 @@ const CATEGORY_BY_EVENT_ID = new Map<string, EventCategory>(
 
 const querySchema = z.object({
   category: z
-    .enum(['auth', 'security', 'smtp', 'delivery'])
+    .enum(['auth', 'security', 'smtp', 'delivery', 'imap'])
     .optional(),
 });
 

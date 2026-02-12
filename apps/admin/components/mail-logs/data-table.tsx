@@ -42,6 +42,7 @@ const CATEGORY_OPTIONS = [
   { value: 'security', label: 'Sigurnost' },
   { value: 'smtp', label: 'SMTP' },
   { value: 'delivery', label: 'Dostava' },
+  { value: 'imap', label: 'IMAP' },
 ];
 
 export function DataTable<TData>({

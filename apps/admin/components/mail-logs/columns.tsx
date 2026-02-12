@@ -12,7 +12,7 @@ export interface MailLogEvent {
   level: string;
   event: string;
   eventId: string;
-  category: 'auth' | 'security' | 'smtp' | 'delivery';
+  category: 'auth' | 'security' | 'smtp' | 'delivery' | 'imap';
   details: Record<string, string>;
 }
 
@@ -21,6 +21,7 @@ const CATEGORY_LABELS: Record<MailLogEvent['category'], string> = {
   security: 'Sigurnost',
   smtp: 'SMTP',
   delivery: 'Dostava',
+  imap: 'IMAP',
 };
 
 const CATEGORY_VARIANTS: Record<MailLogEvent['category'], BadgeProps['variant']> = {
@@ -28,6 +29,7 @@ const CATEGORY_VARIANTS: Record<MailLogEvent['category'], BadgeProps['variant']>
   security: 'danger',
   smtp: 'secondary',
   delivery: 'outline',
+  imap: 'warning',
 };
 
 export function getColumns(): ColumnDef<MailLogEvent, unknown>[] {

@@ -79,6 +79,13 @@ const MOCK_STALWART_ITEMS = [
     details: 'from = "mayor@velikibukovec.hr", to = "citizen@example.com"',
   },
   {
+    timestamp: '2026-02-11T10:02:30Z',
+    level: 'INFO',
+    event: 'IMAP FETCH command',
+    event_id: 'imap.fetch',
+    details: 'accountName = "test@velikibukovec.hr", mailboxName = "INBOX", remoteIp = "10.0.0.5"',
+  },
+  {
     timestamp: '2026-02-11T10:03:00Z',
     level: 'INFO',
     event: 'Irrelevant event',
@@ -158,11 +165,12 @@ describe('GET /api/mail-logs', () => {
     const data = (await response.json()) as MailLogsSuccessResponse;
 
     expect(data.success).toBe(true);
-    expect(data.data.items).toHaveLength(3);
-    expect(data.data.total).toBe(3);
+    expect(data.data.items).toHaveLength(4);
+    expect(data.data.total).toBe(4);
     expect(data.data.items[0]?.category).toBe('auth');
     expect(data.data.items[0]?.level).toBe('info');
     expect(data.data.items[2]?.category).toBe('delivery');
+    expect(data.data.items[3]?.category).toBe('imap');
   });
 
   it('filters by category query param', async () => {
@@ -180,6 +188,18 @@ describe('GET /api/mail-logs', () => {
     expect(data.success).toBe(true);
     expect(data.data.items).toHaveLength(1);
     expect(data.data.items[0]?.eventId).toBe('delivery.delivered');
+  });
+
+  it('filters by imap category', async () => {
+    mockAdminAuth();
+    vi.mocked(global.fetch).mockResolvedValue(
+      new Response(JSON.stringify(MOCK_STALWART_RESPONSE), { status: 200 })
+    );
+    const response = await GET(makeRequest('http://localhost/api/mail-logs?category=imap'));
+    const data = (await response.json()) as MailLogsSuccessResponse;
+    expect(data.success).toBe(true);
+    expect(data.data.items).toHaveLength(1);
+    expect(data.data.items[0]?.eventId).toBe('imap.fetch');
   });
 
   it('handles Stalwart API error (returns 502)', async () => {
