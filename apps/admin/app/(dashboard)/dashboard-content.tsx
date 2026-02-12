@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, FolderOpen, Inbox } from 'lucide-react';
+import { Eye, FileText, FolderOpen, Inbox } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { CategoryChart, QuickActions, RecentActivity, StatsCard } from '@/components/dashboard';
@@ -12,6 +12,8 @@ interface DashboardStats {
   totalDocuments: number;
   documentsTrend: number;
   unreadMessages: number;
+  visitorsToday: number | null;
+  pageviewsToday: number | null;
 }
 
 interface CategoryDataPoint {
@@ -60,8 +62,8 @@ export function DashboardContent() {
   if (isLoading || !data) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-28 rounded-xl bg-neutral-100" />
           ))}
         </div>
@@ -71,8 +73,8 @@ export function DashboardContent() {
 
   return (
     <>
-      {/* Stats Cards - 3 cards, no visitor card */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Objave ovog mjeseca"
           value={data.stats.postsThisMonth}
@@ -93,9 +95,17 @@ export function DashboardContent() {
           icon={Inbox}
           description="Čeka odgovor"
         />
+        {data.stats.visitorsToday !== null && (
+          <StatsCard
+            title="Posjetitelji danas"
+            value={data.stats.visitorsToday}
+            icon={Eye}
+            description={`${data.stats.pageviewsToday ?? 0} pregleda stranica`}
+          />
+        )}
       </div>
 
-      {/* Charts Row - only category chart, no visitors chart */}
+      {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         <CategoryChart data={data.categoryData} />
         <RecentActivity items={data.recentActivity} />

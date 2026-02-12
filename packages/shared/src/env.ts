@@ -101,6 +101,12 @@ const ollamaCloudEnvSchema = z.object({
   OLLAMA_CLOUD_MODEL: z.string().min(1).optional(),
 });
 
+const umamiEnvSchema = z.object({
+  UMAMI_API_URL: z.string().url().default('http://127.0.0.1:3000'),
+  UMAMI_API_TOKEN: z.string().min(1),
+  UMAMI_WEBSITE_ID: z.string().uuid(),
+});
+
 const stalwartEnvSchema = z.object({
   STALWART_API_URL: z.string().url().default('http://127.0.0.1:8080'),
   STALWART_API_CREDENTIALS: z.string().min(3),
@@ -121,6 +127,7 @@ export type RuntimeEnv = z.infer<typeof runtimeEnvSchema>;
 export type PushEnv = z.infer<typeof pushEnvSchema>;
 export type CronEnv = z.infer<typeof cronEnvSchema>;
 export type OllamaCloudEnv = z.infer<typeof ollamaCloudEnvSchema>;
+export type UmamiEnv = z.infer<typeof umamiEnvSchema>;
 export type StalwartEnv = z.infer<typeof stalwartEnvSchema>;
 
 // Validated env getters - Zod parse returns the inferred type
@@ -255,6 +262,11 @@ export function getOllamaCloudEnv(): OllamaCloudEnv {
 
 export function getOptionalOllamaCloudEnv(): OllamaCloudEnv | null {
   const result = ollamaCloudEnvSchema.safeParse(process.env);
+  return result.success ? result.data : null;
+}
+
+export function getOptionalUmamiEnv(): UmamiEnv | null {
+  const result = umamiEnvSchema.safeParse(process.env);
   return result.success ? result.data : null;
 }
 

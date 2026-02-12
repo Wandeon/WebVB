@@ -9,6 +9,7 @@ import { shouldSkipDatabase } from '@/lib/build-flags';
 
 import './globals.css';
 import { baseMetadata } from './metadata';
+import { AnalyticsTracker } from '../components/analytics-tracker';
 import { CookieConsent } from '../components/cookie-consent';
 import { SiteFooter } from '../components/layout/footer';
 import { SiteHeader } from '../components/layout/header';
@@ -100,6 +101,7 @@ export default async function RootLayout({
         <main id="main-content" className="flex-1">{children}</main>
         <SiteFooter />
         <CookieConsent />
+        <AnalyticsTracker />
         <PwaRegister />
       </body>
     </html>

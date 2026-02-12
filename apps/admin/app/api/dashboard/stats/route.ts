@@ -1,5 +1,5 @@
 import { db } from '@repo/database';
-import { POST_CATEGORIES } from '@repo/shared';
+import { POST_CATEGORIES, getOptionalUmamiEnv } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
@@ -16,6 +16,36 @@ const CATEGORY_COLORS: Record<string, string> = {
   obrazovanje: '#06b6d4',
   ostalo: '#64748b',
 };
+
+interface UmamiStats {
+  visitors: number;
+  pageviews: number;
+}
+
+async function fetchUmamiStats(): Promise<UmamiStats | null> {
+  const env = getOptionalUmamiEnv();
+  if (!env) return null;
+
+  try {
+    const now = Date.now();
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const url = `${env.UMAMI_API_URL}/api/websites/${env.UMAMI_WEBSITE_ID}/stats?startAt=${startOfDay.getTime()}&endAt=${now}`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${env.UMAMI_API_TOKEN}` },
+      next: { revalidate: 300 },
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json() as { visitors: number; pageviews: number };
+    return { visitors: data.visitors, pageviews: data.pageviews };
+  } catch {
+    dashboardLogger.warn('Failed to fetch Umami stats');
+    return null;
+  }
+}
 
 function getMonthRange(date: Date): { start: Date; end: Date } {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -37,7 +67,7 @@ export async function GET(request: NextRequest) {
     const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastMonth = getMonthRange(lastMonthDate);
 
-    // Run all independent DB queries in parallel
+    // Run all independent DB queries + Umami stats in parallel
     const [
       postsThisMonth,
       postsLastMonth,
@@ -46,6 +76,7 @@ export async function GET(request: NextRequest) {
       unreadMessages,
       categoryGroups,
       auditLogs,
+      umamiStats,
     ] = await Promise.all([
       db.post.count({
         where: {
@@ -75,6 +106,7 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
         include: { user: { select: { name: true } } },
       }),
+      fetchUmamiStats(),
     ]);
 
     const postsTrend = Math.round(
@@ -181,6 +213,8 @@ export async function GET(request: NextRequest) {
         totalDocuments,
         documentsTrend: documentsThisMonth,
         unreadMessages,
+        visitorsToday: umamiStats?.visitors ?? null,
+        pageviewsToday: umamiStats?.pageviews ?? null,
       },
       categoryData,
       recentActivity,
