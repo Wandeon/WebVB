@@ -1,7 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui';
 import { FileText, Inbox, MessageSquare, Pencil } from 'lucide-react';
 
-import { mockRecentActivity } from '@/lib/mock-data';
+interface ActivityItem {
+  id: string;
+  action: string;
+  target: string;
+  user: string;
+  timestamp: string;
+}
+
+interface RecentActivityProps {
+  items: ActivityItem[];
+}
 
 const actionIcons: Record<string, typeof FileText> = {
   objavio: FileText,
@@ -17,7 +27,37 @@ const actionColors: Record<string, string> = {
   ažurirao: 'bg-purple-100 text-purple-600',
 };
 
-export function RecentActivity() {
+function formatTimeAgo(isoString: string): string {
+  const now = new Date();
+  const date = new Date(isoString);
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Upravo';
+  if (diffMins < 60) return `Prije ${diffMins} min`;
+  if (diffHours < 24) return `Prije ${diffHours} h`;
+  if (diffDays === 1) return 'Jučer';
+  if (diffDays < 7) return `Prije ${diffDays} dana`;
+  return date.toLocaleDateString('hr-HR');
+}
+
+export function RecentActivity({ items }: RecentActivityProps) {
+  if (items.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Nedavna aktivnost</CardTitle>
+          <CardDescription>Posljednje akcije u sustavu</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="py-8 text-center text-sm text-neutral-500">Nema nedavne aktivnosti.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -26,7 +66,7 @@ export function RecentActivity() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {mockRecentActivity.map((activity) => {
+          {items.map((activity) => {
             const Icon = actionIcons[activity.action] ?? MessageSquare;
             const colorClass = actionColors[activity.action] ?? 'bg-neutral-100 text-neutral-600';
 
@@ -41,7 +81,7 @@ export function RecentActivity() {
                     <span className="text-neutral-500">{activity.action}</span>{' '}
                     <span className="font-medium">{activity.target}</span>
                   </p>
-                  <p className="text-xs text-neutral-400">{activity.timestamp}</p>
+                  <p className="text-xs text-neutral-400">{formatTimeAgo(activity.timestamp)}</p>
                 </div>
               </div>
             );

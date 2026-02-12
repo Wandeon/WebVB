@@ -3,9 +3,31 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui';
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { mockContentByCategory } from '@/lib/mock-data';
+interface CategoryDataPoint {
+  category: string;
+  count: number;
+  fill: string;
+}
 
-export function CategoryChart() {
+interface CategoryChartProps {
+  data: CategoryDataPoint[];
+}
+
+export function CategoryChart({ data }: CategoryChartProps) {
+  if (data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Sadržaj po kategoriji</CardTitle>
+          <CardDescription>Broj objava po kategoriji</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="py-8 text-center text-sm text-neutral-500">Nema objava.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -15,7 +37,7 @@ export function CategoryChart() {
       <CardContent>
         <div className="h-[300px]" role="img" aria-label="Sadržaj po kategoriji">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={mockContentByCategory} layout="vertical">
+            <BarChart data={data} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200" horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
               <YAxis
@@ -37,7 +59,7 @@ export function CategoryChart() {
                 formatter={(value) => [`${String(value ?? 0)} objava`, 'Broj']}
               />
               <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                {mockContentByCategory.map((entry, index) => (
+                {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
               </Bar>
