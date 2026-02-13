@@ -107,7 +107,7 @@ export async function fetchSessions(
 
 export async function fetchActive(env: UmamiEnv): Promise<number> {
   const result = await umamiGetActive(env);
-  return result?.x ?? 0;
+  return result?.visitors ?? 0;
 }
 
 type Period = '7d' | '30d' | '90d';

@@ -6,11 +6,18 @@ export interface TimeSeriesPoint {
 }
 
 export interface UmamiStatsResponse {
-  pageviews: { value: number; prev: number };
-  visitors: { value: number; prev: number };
-  visits: { value: number; prev: number };
-  bounces: { value: number; prev: number };
-  totaltime: { value: number; prev: number };
+  pageviews: number;
+  visitors: number;
+  visits: number;
+  bounces: number;
+  totaltime: number;
+  comparison: {
+    pageviews: number;
+    visitors: number;
+    visits: number;
+    bounces: number;
+    totaltime: number;
+  };
 }
 
 export interface UmamiPageviewsResponse {
@@ -44,7 +51,7 @@ export interface UmamiSessionsResponse {
 }
 
 export interface UmamiActiveResponse {
-  x: number;
+  visitors: number;
 }
 
 export interface AnalyticsData {

@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       fetchStats(env, startAt, endAt),
       fetchStats(env, prevStartAt, prevEndAt),
       fetchPageviews(env, startAt, endAt, unit),
-      fetchMetrics(env, startAt, endAt, 'url', 10),
+      fetchMetrics(env, startAt, endAt, 'path', 10),
       fetchMetrics(env, startAt, endAt, 'referrer', 10),
       fetchMetrics(env, startAt, endAt, 'browser', 10),
       fetchMetrics(env, startAt, endAt, 'os', 10),
@@ -66,19 +66,19 @@ export async function GET(request: NextRequest) {
       fetchActive(env),
     ]);
 
-    const visitors = currentStats?.visitors.value ?? 0;
-    const pv = currentStats?.pageviews.value ?? 0;
-    const visits = currentStats?.visits.value ?? 0;
-    const bounces = currentStats?.bounces.value ?? 0;
-    const totalTime = currentStats?.totaltime.value ?? 0;
+    const visitors = currentStats?.visitors ?? 0;
+    const pv = currentStats?.pageviews ?? 0;
+    const visits = currentStats?.visits ?? 0;
+    const bounces = currentStats?.bounces ?? 0;
+    const totalTime = currentStats?.totaltime ?? 0;
 
     const bounceRate = visits > 0 ? Math.round((bounces / visits) * 100) : 0;
     const avgSessionTime = visits > 0 ? Math.round(totalTime / visits) : 0;
 
-    const prevVisitors = prevStats?.visitors.value ?? 0;
-    const prevPv = prevStats?.pageviews.value ?? 0;
-    const prevVisits = prevStats?.visits.value ?? 0;
-    const prevBounces = prevStats?.bounces.value ?? 0;
+    const prevVisitors = prevStats?.visitors ?? 0;
+    const prevPv = prevStats?.pageviews ?? 0;
+    const prevVisits = prevStats?.visits ?? 0;
+    const prevBounces = prevStats?.bounces ?? 0;
     const prevBounceRate = prevVisits > 0 ? Math.round((prevBounces / prevVisits) * 100) : 0;
 
     const data: AnalyticsData = {

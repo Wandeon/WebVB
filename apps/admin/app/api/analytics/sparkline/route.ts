@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
     const data: SparklineData = {
       daily,
       totalVisitors,
-      visitorsToday: todayStats?.visitors.value ?? 0,
-      pageviewsToday: todayStats?.pageviews.value ?? 0,
+      visitorsToday: todayStats?.visitors ?? 0,
+      pageviewsToday: todayStats?.pageviews ?? 0,
     };
 
     return apiSuccess(data);

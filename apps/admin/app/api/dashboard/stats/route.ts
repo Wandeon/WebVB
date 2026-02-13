@@ -35,7 +35,7 @@ async function fetchUmamiStats(): Promise<UmamiStats | null> {
     const stats = await fetchStats(env, startOfDay.getTime(), now);
     if (!stats) return null;
 
-    return { visitors: stats.visitors.value, pageviews: stats.pageviews.value };
+    return { visitors: stats.visitors, pageviews: stats.pageviews };
   } catch {
     dashboardLogger.warn('Failed to fetch Umami stats');
     return null;
