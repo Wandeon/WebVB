@@ -26,7 +26,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Općina Veliki Bukovec | Cvjetno središte Hrvatske',
   description:
-    'Općina Veliki Bukovec u Varaždinskoj županiji - troselska zajednica s 500 godina povijesti, nacionalno središte cvjećarstva i drvne industrije. 1.325 stanovnika, 23 km².',
+    'Općina Veliki Bukovec u Varaždinskoj županiji - troselska zajednica s 500 godina povijesti, nacionalno središte cvjećarstva i drvne industrije. 1.325 stanovnika, ~13 km².',
   openGraph: {
     title: 'Općina Veliki Bukovec | Cvjetno središte Hrvatske',
     description:
@@ -47,7 +47,7 @@ const pageSections: PageSection[] = [
 const keyFacts = {
   population: '1.325',
   populationYear: 2021,
-  area: '23,42',
+  area: '~13',
   settlements: 3,
   founded: 1997,
   county: 'Varaždinska',
@@ -450,7 +450,7 @@ export default function OpcinaPage() {
           <p className="mt-1 text-sm text-amber-700">
             Tuča u svibnju 2022. uništila je 50% hrvatske proizvodnje cvijeća -
             jer se toliko proizvodi upravo ovdje. {`"Sve što smo gradili 30 godina
-            uništeno je u 15 minuta"`}, rekao je jedan cvjećar za Večernji list.
+            uništeno je u 15 minuta"`}, kazao je jedan od pogođenih cvjećara.
           </p>
         </div>
 
@@ -476,8 +476,8 @@ export default function OpcinaPage() {
         <h3>Ostale djelatnosti</h3>
         <p>
           Uz cvjećarstvo i drvo, opstaju obiteljska gospodarstva koja uzgajaju
-          kukuruz, pšenicu i povrće. Transport šljunka (Smontara), uzgoj pataka
-          (PG Orehovec), i brojni obrtnici dopunjuju ekonomsku sliku. Siva
+          kukuruz, pšenicu i povrće. Transport šljunka (Smontara) i brojni
+          obrtnici dopunjuju ekonomsku sliku. Siva
           ekonomija - domaća rakija, sezonski rad - također igra ulogu koju
           statistika ne bilježi.
         </p>
@@ -588,7 +588,7 @@ export default function OpcinaPage() {
       <footer className="not-prose mt-12 border-t border-neutral-100 pt-6">
         <p className="text-xs text-neutral-400">
           Posljednja izmjena: 31. siječnja 2026. • Izvori: Popis stanovništva
-          2021., SECAP Općina Veliki Bukovec, Večernji list, Wikipedia
+          2021., SECAP Općina Veliki Bukovec, Wikipedia
         </p>
       </footer>
     </PageLayoutV2>

@@ -58,7 +58,6 @@ const kindergartenFacts = {
   type: 'Podružnica',
   mainLocation: 'Mali Bukovec',
   ageRange: '3-6 godina',
-  recentInvestment: '48.124 EUR',
   investmentYear: 2026,
 };
 
@@ -509,10 +508,9 @@ export default function ObrazovanjePage() {
                 Ulaganje u kvalitetu (2026.)
               </h4>
               <p className="mt-2 text-sm text-green-800">
-                U okviru projekta &quot;Dostupnost kvalitetne skrbi za djecu u lokalnim
-                zajednicama&quot;, podružnica vrtića u Velikom Bukovcu dobila je značajna
-                ulaganja. Projekt vrijedan <strong>48.124 EUR</strong> financiran je
-                iz sredstava Ministarstva demografije i useljeništva (38.499 EUR potpore).
+                Prema podacima općinske uprave, podružnica vrtića u Velikom Bukovcu
+                dobila je značajna ulaganja u okviru projekta poboljšanja uvjeta za
+                predškolski odgoj, uz potporu Ministarstva demografije i useljeništva.
               </p>
               <p className="mt-2 text-sm text-green-700">
                 Cilj: poboljšati materijalne uvjete stvarajući sigurno, poticajno i

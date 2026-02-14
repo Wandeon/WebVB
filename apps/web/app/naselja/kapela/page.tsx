@@ -598,9 +598,9 @@ export default function KapelaPage() {
                 društveni događaj.
               </p>
               <p className="mt-2 text-sm text-neutral-600">
-                Za razliku od NK Croatia Dubovica koja je prestala s radom zbog
-                nedostatka mladih, Poljoprivrednik opstaje - mozda zato što je
-                Kapela ekonomski stabilnija i zadrzava vise mladih obitelji.
+                Za razliku od NK Croatia Dubovica koja je prestala s radom,
+                Poljoprivrednik nastavlja s aktivnostima, iako se suočava s
+                izazovima poput ostalih malih ruralnih klubova.
               </p>
             </div>
           </div>

@@ -211,9 +211,8 @@ export default function DubovicaPage() {
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
               Dubovica se prvi put pojavljuje u pisanim izvorima pod imenom
-              {`"Dudowycz"`}. Selo možda vodi porijeklo od ranijeg naselja
-              {`"Keljanovec"`} ili {`"Kilijanovci"`} koje se spominje u starijim
-              dokumentima.
+              {`"Dudowycz"`}. Ime vjerojatno potječe od staroslavenskog {`"dub"`}
+              (hrast), ukazujući na nekadašnje hrastove šume u okolici.
             </p>
           </div>
 
@@ -305,10 +304,11 @@ export default function DubovicaPage() {
               Katastrofalni pad stanovništva
             </h4>
             <p className="mt-2 text-sm text-neutral-600">
-              U samo jednom desetljeću stanovništvo Dubovice pada s oko{' '}
-              <strong>420 na oko 200</strong> - više od polovice sela odlazi u
-              potrazi za poslom u gradove ili inozemstvo. Ovaj demografski udar
-              selo nikad nije potpuno prebrodilo.
+              Stanovništvo Dubovice pada s oko <strong>420 (1971.)</strong> na
+              otprilike polovicu te brojke - više od polovice sela odlazi u
+              potrazi za poslom u gradove ili inozemstvo. Tijekom narednih
+              desetljeća brojka se stabilizira na oko 260 stanovnika (2021.),
+              ali selo se nikad nije potpuno oporavilo.
             </p>
           </div>
 
@@ -485,8 +485,7 @@ export default function DubovicaPage() {
                 1974. • Preč. Ivan Lončar i mještani
               </p>
               <p className="mt-3 text-sm text-neutral-600">
-                Kapela izgrađena 1974. godine na mjestu koje je nekada bilo
-                {`"šikara i močvara"`}. Gradnju je vodio preč. Ivan Lončar uz pomoć
+                Kapela izgrađena 1974. godine zaslugom preč. Ivana Lončara uz pomoć
                 mještana koji su <strong>vlastitim rukama i sredstvima</strong>{' '}
                 podigli ovo svetište - primjer zajedničkog rada koji definira
                 Dubovicu.
