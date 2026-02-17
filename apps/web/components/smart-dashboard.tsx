@@ -37,10 +37,10 @@ function weatherCodeToCondition(code: number): WeatherCondition {
   return 'sunny';
 }
 
-function conditionIcon(condition: WeatherCondition) {
-  if (condition === 'rainy') return CloudRain;
-  if (condition === 'cloudy') return CloudSun;
-  return Sun;
+function ConditionIcon({ condition, className }: { condition: WeatherCondition; className?: string }) {
+  if (condition === 'rainy') return <CloudRain className={className} />;
+  if (condition === 'cloudy') return <CloudSun className={className} />;
+  return <Sun className={className} />;
 }
 
 interface WeatherData {
@@ -82,14 +82,11 @@ function WeatherWidget() {
       });
   }, []);
 
-  const WeatherIcon = weather ? conditionIcon(weather.condition) : Sun;
-  const TomorrowIcon = weather?.tomorrowCondition ? conditionIcon(weather.tomorrowCondition) : null;
-
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="flex items-center gap-3">
         <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
-          <WeatherIcon className="h-6 w-6 text-amber-600" />
+          <ConditionIcon condition={weather?.condition ?? 'sunny'} className="h-6 w-6 text-amber-600" />
         </div>
         <div>
           <div className="text-2xl font-bold text-sky-900">{weather?.temp ?? '--'}°C</div>
@@ -100,10 +97,10 @@ function WeatherWidget() {
           )}
         </div>
       </div>
-      {TomorrowIcon && weather?.tomorrowHigh != null && (
+      {weather?.tomorrowCondition && weather.tomorrowHigh != null && (
         <div className="flex items-center gap-1.5 text-xs text-sky-600">
           <span>Sutra:</span>
-          <TomorrowIcon className="h-3.5 w-3.5" />
+          <ConditionIcon condition={weather.tomorrowCondition} className="h-3.5 w-3.5" />
           <span>↑ {weather.tomorrowHigh}° ↓ {weather.tomorrowLow}°</span>
         </div>
       )}
