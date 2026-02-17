@@ -309,6 +309,24 @@ export const eventsRepository = {
       orderBy: { title: 'asc' },
     });
   },
+
+  /**
+   * Get next upcoming waste collection events (for homepage card)
+   * Returns up to `limit` events starting from today
+   */
+  async getNextWasteEvents(limit: number = 2): Promise<Event[]> {
+    const today = getZagrebStartOfDay();
+    const safeLimit = clampLimit(limit, 5);
+
+    return db.event.findMany({
+      where: {
+        eventDate: { gte: today },
+        title: { startsWith: 'Odvoz otpada:', mode: 'insensitive' },
+      },
+      orderBy: { eventDate: 'asc' },
+      take: safeLimit,
+    });
+  },
 };
 
 function getZagrebStartOfDay(): Date {
