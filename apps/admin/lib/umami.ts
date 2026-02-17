@@ -1,5 +1,3 @@
-import { getOptionalUmamiEnv } from '@repo/shared';
-
 import { analyticsLogger } from '@/lib/logger';
 
 import type {
@@ -10,6 +8,7 @@ import type {
   UmamiSessionsResponse,
   UmamiStatsResponse,
 } from '@/lib/umami-types';
+import type { getOptionalUmamiEnv } from '@repo/shared';
 
 type UmamiEnv = NonNullable<ReturnType<typeof getOptionalUmamiEnv>>;
 

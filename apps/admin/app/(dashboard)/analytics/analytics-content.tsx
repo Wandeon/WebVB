@@ -2,13 +2,10 @@
 // Exceeds 300-line guideline due to coordination of 5 visual rows + state management.
 'use client';
 
-import { Activity, Clock, Eye, FileText, Users } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { Activity, Clock, Eye, FileText, ShieldCheck, Users } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
-import { ShieldCheck } from 'lucide-react';
-
-import { StatsCard } from '@/components/dashboard';
 import {
   BrowserOsCharts,
   DevicesCountries,
@@ -17,6 +14,7 @@ import {
   TopPagesTable,
   TrafficChart,
 } from '@/components/analytics';
+import { StatsCard } from '@/components/dashboard';
 
 import type { AnalyticsData } from '@/lib/umami-types';
 

@@ -34,20 +34,20 @@ export interface QuickLink {
 export const quickLinks: QuickLink[] = [
   {
     // Area 'a' - Large featured (2x2)
-    title: 'Prijava problema',
-    description: 'Prijavite komunalne probleme brzo i jednostavno. Pratite status vaše prijave u realnom vremenu.',
-    href: '/prijava-problema',
-    icon: 'alertTriangle',
+    title: 'Odvoz otpada',
+    description: 'Raspored odvoza komunalnog otpada i upute za razvrstavanje. Provjerite sljedeći termin odvoza.',
+    href: '/odvoz-otpada',
+    icon: 'trash2',
     color: 'green',
     size: 'large',
   },
   {
     // Area 'b' - Wide (2x1)
-    title: 'Odvoz otpada',
-    description: 'Raspored odvoza i upute za razvrstavanje',
-    href: '/odvoz-otpada',
-    icon: 'trash2',
-    color: 'sky',
+    title: 'Prijava problema',
+    description: 'Prijavite komunalne probleme',
+    href: '/prijava-problema',
+    icon: 'alertTriangle',
+    color: 'green',
     size: 'small',
   },
   {
@@ -72,18 +72,18 @@ export const quickLinks: QuickLink[] = [
     // Area 'e' - Wide (2x1)
     title: 'Natječaji',
     description: 'Aktivni natječaji i javni pozivi',
-    href: '/natjecaji',
+    href: '/obavijesti?category=natjecaj',
     icon: 'fileText',
     color: 'gold',
     size: 'small',
   },
   {
     // Area 'f' - Wide (2x1)
-    title: 'Financiranje udruga',
-    description: 'Podrška udrugama civilnog društva',
-    href: '/rad-uprave/udruge',
-    icon: 'users',
-    color: 'sky',
+    title: 'Virtualni asistent',
+    description: 'Postavite pitanje o općini',
+    href: '/asistent',
+    icon: 'messageSquare',
+    color: 'slate',
     size: 'small',
   },
 ];

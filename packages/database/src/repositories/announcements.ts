@@ -100,6 +100,11 @@ export interface PublishedAnnouncementSitemapEntry {
   publishedAt: Date | null;
 }
 
+export interface TenderSummary {
+  count: number;
+  latestTitle: string | null;
+}
+
 const authorSelect = {
   id: true,
   name: true,
@@ -451,6 +456,33 @@ export const announcementsRepository = {
       orderBy: { publishedAt: 'desc' },
       take: safeLimit,
     });
+  },
+
+  /**
+   * Get summary of active tenders for homepage card
+   * Returns count and latest title of published natječaj announcements
+   */
+  async getActiveTenderSummary(): Promise<TenderSummary> {
+    const now = new Date();
+    const where: Prisma.AnnouncementWhereInput = {
+      category: 'natjecaj',
+      publishedAt: { not: null },
+      OR: [
+        { validUntil: null },
+        { validUntil: { gte: now } },
+      ],
+    };
+
+    const [count, latest] = await Promise.all([
+      db.announcement.count({ where }),
+      db.announcement.findFirst({
+        where,
+        orderBy: { publishedAt: 'desc' },
+        select: { title: true },
+      }),
+    ]);
+
+    return { count, latestTitle: latest?.title ?? null };
   },
 
   /**

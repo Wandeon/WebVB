@@ -1,6 +1,8 @@
 'use client';
 
-import { CloudRain, CloudSun, MessageCircle, Phone, Sun } from 'lucide-react';
+import { ArrowRight, CloudRain, CloudSun, ExternalLink, ImageIcon, Phone, Sun } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 function LiveClock() {
@@ -27,44 +29,90 @@ function LiveClock() {
   );
 }
 
+type WeatherCondition = 'sunny' | 'cloudy' | 'rainy';
+
+function weatherCodeToCondition(code: number): WeatherCondition {
+  if (code >= 61 && code <= 67) return 'rainy';
+  if ((code >= 1 && code <= 3) || (code >= 45 && code <= 48)) return 'cloudy';
+  return 'sunny';
+}
+
+function ConditionIcon({ condition, className }: { condition: WeatherCondition; className?: string }) {
+  if (condition === 'rainy') return <CloudRain className={className} />;
+  if (condition === 'cloudy') return <CloudSun className={className} />;
+  return <Sun className={className} />;
+}
+
+interface WeatherData {
+  temp: number;
+  condition: WeatherCondition;
+  todayHigh: number | null;
+  todayLow: number | null;
+  tomorrowCondition: WeatherCondition | null;
+  tomorrowHigh: number | null;
+  tomorrowLow: number | null;
+}
+
 function WeatherWidget() {
-  const [weather, setWeather] = useState<{ temp: number; condition: string } | null>(null);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
 
   useEffect(() => {
-    // Fetch weather from Open-Meteo (free, no API key needed)
-    // Veliki Bukovec coordinates: 46.35, 16.75
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=46.35&longitude=16.75&current=temperature_2m,weather_code&timezone=Europe/Zagreb')
-      .then(res => res.json() as Promise<{ current?: { weather_code?: number; temperature_2m?: number } }>)
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=46.35&longitude=16.75&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=2&timezone=Europe/Zagreb')
+      .then(res => res.json() as Promise<{
+        current?: { weather_code?: number; temperature_2m?: number };
+        daily?: { temperature_2m_max?: number[]; temperature_2m_min?: number[]; weather_code?: number[] };
+      }>)
       .then(data => {
-        const weatherCode = data.current?.weather_code ?? 0;
-        let condition = 'sunny';
-        if (weatherCode >= 61 && weatherCode <= 67) condition = 'rainy';
-        else if (weatherCode >= 1 && weatherCode <= 3) condition = 'cloudy';
-        else if (weatherCode >= 45 && weatherCode <= 48) condition = 'cloudy';
+        const dailyMax = data.daily?.temperature_2m_max;
+        const dailyMin = data.daily?.temperature_2m_min;
+        const dailyCodes = data.daily?.weather_code;
 
         setWeather({
           temp: Math.round(data.current?.temperature_2m ?? 0),
-          condition,
+          condition: weatherCodeToCondition(data.current?.weather_code ?? 0),
+          todayHigh: dailyMax?.[0] != null ? Math.round(dailyMax[0]) : null,
+          todayLow: dailyMin?.[0] != null ? Math.round(dailyMin[0]) : null,
+          tomorrowCondition: dailyCodes?.[1] != null ? weatherCodeToCondition(dailyCodes[1]) : null,
+          tomorrowHigh: dailyMax?.[1] != null ? Math.round(dailyMax[1]) : null,
+          tomorrowLow: dailyMin?.[1] != null ? Math.round(dailyMin[1]) : null,
         });
       })
       .catch(() => {
-        // Fallback if API fails
-        setWeather({ temp: 5, condition: 'cloudy' });
+        setWeather({ temp: 5, condition: 'cloudy', todayHigh: null, todayLow: null, tomorrowCondition: null, tomorrowHigh: null, tomorrowLow: null });
       });
   }, []);
 
-  const WeatherIcon = weather?.condition === 'rainy' ? CloudRain :
-                      weather?.condition === 'cloudy' ? CloudSun : Sun;
-
   return (
-    <div className="flex items-center gap-3">
-      <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
-        <WeatherIcon className="h-6 w-6 text-amber-600" />
+    <div className="flex flex-col items-end gap-1">
+      <div className="flex items-center gap-3">
+        <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
+          <ConditionIcon condition={weather?.condition ?? 'sunny'} className="h-6 w-6 text-amber-600" />
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-sky-900">{weather?.temp ?? '--'}°C</div>
+          {weather?.todayHigh != null && weather?.todayLow != null && (
+            <div className="text-xs text-sky-600">
+              ↑ {weather.todayHigh}° ↓ {weather.todayLow}°
+            </div>
+          )}
+        </div>
       </div>
-      <div>
-        <div className="text-2xl font-bold text-sky-900">{weather?.temp ?? '--'}°C</div>
-        <div className="text-xs text-sky-600">Veliki Bukovec</div>
-      </div>
+      {weather?.tomorrowCondition && weather.tomorrowHigh != null && (
+        <div className="flex items-center gap-1.5 text-xs text-sky-600">
+          <span>Sutra:</span>
+          <ConditionIcon condition={weather.tomorrowCondition} className="h-3.5 w-3.5" />
+          <span>↑ {weather.tomorrowHigh}° ↓ {weather.tomorrowLow}°</span>
+        </div>
+      )}
+      <a
+        href="https://meteo.hr/prognoze.php?section=prognoze&param=n_maprog"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 text-xs text-sky-500 hover:text-sky-700"
+      >
+        Detaljna prognoza
+        <ExternalLink className="h-3 w-3" />
+      </a>
     </div>
   );
 }
@@ -129,7 +177,11 @@ function OfficeStatus() {
   );
 }
 
-export function SmartDashboard() {
+interface SmartDashboardProps {
+  galleries?: Array<{ name: string; slug: string; coverImage: string | null; imageCount: number }>;
+}
+
+export function SmartDashboard({ galleries }: SmartDashboardProps) {
   return (
     <div className="relative h-full min-h-[500px] overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50 via-sky-100 to-blue-100">
       {/* Decorative elements */}
@@ -159,31 +211,50 @@ export function SmartDashboard() {
           </div>
         </div>
 
-        {/* AI Assistant Mini Widget */}
-        <button
-          className="flex-1 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 p-4 text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer text-left"
-          onClick={() => {/* TODO: Open full chatbot */}}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-              <MessageCircle className="h-5 w-5" />
+        {/* Latest Galleries */}
+        {galleries && galleries.length > 0 && (
+          <div className="flex-1 rounded-2xl bg-white/60 p-4 backdrop-blur-sm">
+            <h3 className="mb-3 text-sm font-semibold text-sky-900">Galerija</h3>
+            <div className="space-y-3">
+              {galleries.slice(0, 2).map((gallery) => (
+                <Link
+                  key={gallery.slug}
+                  href={`/galerija/${gallery.slug}`}
+                  className="group flex items-center gap-3"
+                >
+                  <div className="relative h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-200">
+                    {gallery.coverImage ? (
+                      <Image
+                        src={gallery.coverImage}
+                        alt={gallery.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="64px"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <ImageIcon className="h-4 w-4 text-neutral-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-sky-900 group-hover:text-primary-600">
+                      {gallery.name}
+                    </p>
+                    <p className="text-xs text-sky-600">{gallery.imageCount} fotografija</p>
+                  </div>
+                </Link>
+              ))}
             </div>
-            <div>
-              <h3 className="font-semibold text-sm">Virtualni asistent</h3>
-              <p className="text-xs text-white/70">Kliknite za razgovor</p>
-            </div>
-            <span className="ml-auto text-[10px] bg-amber-400/30 text-amber-100 px-2 py-1 rounded-full">Uskoro</span>
+            <Link
+              href="/galerija"
+              className="mt-3 inline-flex items-center gap-1 text-xs text-sky-500 hover:text-sky-700"
+            >
+              Sve galerije
+              <ArrowRight className="h-3 w-3" />
+            </Link>
           </div>
-
-          <div className="flex gap-2">
-            <div className="h-6 w-6 rounded-full bg-white/20 flex-shrink-0 flex items-center justify-center">
-              <span className="text-[10px]">AI</span>
-            </div>
-            <div className="rounded-2xl rounded-tl-sm bg-white/10 px-3 py-2 text-sm">
-              Kako vam mogu pomoći? 👋
-            </div>
-          </div>
-        </button>
+        )}
 
         {/* Emergency Contacts */}
         <div className="mt-4 flex items-center justify-center gap-6 text-xs">

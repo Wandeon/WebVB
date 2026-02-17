@@ -9,6 +9,7 @@ import {
   type Event,
   type GalleryWithCount,
   type PostWithAuthor,
+  type TenderSummary,
 } from '@repo/database';
 import { createOrganizationJsonLd, createLocalBusinessJsonLd, getPublicEnv } from '@repo/shared';
 import {
@@ -49,22 +50,63 @@ async function getHomepageData() {
       latestAnnouncements: [] as AnnouncementWithAuthor[],
       latestDocuments: [] as DocumentWithUploader[],
       featuredGalleries: [] as GalleryWithCount[],
+      nextWasteEvents: [] as Event[],
+      tenderSummary: { count: 0, latestTitle: null } as TenderSummary,
     };
   }
 
-  const [latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries] = await Promise.all([
+  const [latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary] = await Promise.all([
     postsRepository.getLatestPosts(3),
     eventsRepository.getUpcomingEvents(3),
     announcementsRepository.getLatestActive(4),
     documentsRepository.getLatestDocuments(4),
     galleriesRepository.getFeaturedForHomepage(12),
+    eventsRepository.getNextWasteEvents(2),
+    announcementsRepository.getActiveTenderSummary(),
   ]);
 
-  return { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries };
+  return { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary };
+}
+
+const WASTE_TYPE_NAMES: Record<string, string> = {
+  'miješani komunalni otpad': 'MKO',
+  'biootpad': 'Bio',
+  'plastika': 'Plastika',
+  'papir i karton': 'Papir',
+  'metal': 'Metal',
+  'pelene': 'Pelene',
+  'staklo': 'Staklo',
+};
+
+function extractWasteType(title: string): string {
+  const match = title.match(/^Odvoz otpada:\s*(.+)$/i);
+  if (!match) return 'Otpad';
+  const raw = match[1]!.toLowerCase().trim();
+  return WASTE_TYPE_NAMES[raw] ?? raw;
+}
+
+function formatWastePickup(events: Event[]): string | null {
+  if (events.length === 0) return null;
+  const first = events[0]!;
+  const date = new Date(first.eventDate);
+  const dayName = date.toLocaleDateString('hr-HR', { weekday: 'short' });
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const typeName = extractWasteType(first.title);
+
+  const sameDay = events.filter(e => {
+    const d = new Date(e.eventDate);
+    return d.toDateString() === date.toDateString();
+  });
+
+  if (sameDay.length > 1) {
+    return `${typeName} + ${sameDay.length - 1} više • ${dayName}, ${day}.${month}.`;
+  }
+  return `${typeName} • ${dayName}, ${day}.${month}.`;
 }
 
 export default async function HomePage() {
-  const { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries } = await getHomepageData();
+  const { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary } = await getHomepageData();
   const organizationStructuredData = createOrganizationJsonLd({
     name: siteConfig.name,
     url: NEXT_PUBLIC_SITE_URL,
@@ -129,7 +171,14 @@ export default async function HomePage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-8">
             {/* Left: Smart Municipality Dashboard (hidden on mobile, shown on lg+) */}
             <FadeIn className="hidden lg:block">
-              <SmartDashboard />
+              <SmartDashboard
+                galleries={featuredGalleries.slice(0, 2).map((g: GalleryWithCount) => ({
+                  name: g.name,
+                  slug: g.slug,
+                  coverImage: g.coverImage,
+                  imageCount: g._count.images,
+                }))}
+              />
             </FadeIn>
 
             {/* Right: Bento Grid */}
@@ -143,22 +192,63 @@ export default async function HomePage() {
               </FadeIn>
 
               <BentoGrid>
-                {quickLinks.slice(0, 6).map((link, index) => (
-                  <BentoGridItem key={link.href} area={gridAreas[index] as 'a' | 'b' | 'c' | 'd' | 'e' | 'f'}>
-                    <FadeIn delay={index * 0.05} className="h-full flex-1">
-                      <QuickLinkCard
-                        title={link.title}
-                        description={link.description}
-                        href={link.href}
-                        icon={link.icon}
-                        variant="bento"
-                        color={link.color}
-                        size={link.size}
-                        className="h-full"
-                      />
-                    </FadeIn>
-                  </BentoGridItem>
-                ))}
+                {quickLinks.slice(0, 6).map((link, index) => {
+                  const area = gridAreas[index] as 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
+
+                  let dynamicContent: React.ReactNode = null;
+                  if (area === 'a') {
+                    const wasteText = formatWastePickup(nextWasteEvents);
+                    dynamicContent = wasteText ? (
+                      <p className="text-sm font-semibold text-white/90">
+                        Sljedeći odvoz: {wasteText}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-white/70">
+                        Trenutno nema nadolazećih termina u kalendaru.{' '}
+                        <span className="underline">Pogledajte raspored</span>
+                      </p>
+                    );
+                  }
+
+                  if (area === 'f') {
+                    dynamicContent = (
+                      <span className="inline-flex items-center rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-200">
+                        Uskoro
+                      </span>
+                    );
+                  }
+
+                  if (area === 'e') {
+                    dynamicContent = tenderSummary.count > 0 ? (
+                      <div className="text-xs text-white/80">
+                        <span className="font-bold text-white">{tenderSummary.count}</span>{' '}
+                        {tenderSummary.count === 1 ? 'aktivan natječaj' : 'aktivna natječaja'}
+                        {tenderSummary.latestTitle && (
+                          <p className="mt-1 truncate">{tenderSummary.latestTitle}</p>
+                        )}
+                      </div>
+                    ) : null;
+                  }
+
+                  return (
+                    <BentoGridItem key={link.href} area={area}>
+                      <FadeIn delay={index * 0.05} className="h-full flex-1">
+                        <QuickLinkCard
+                          title={link.title}
+                          description={link.description}
+                          href={link.href}
+                          icon={link.icon}
+                          variant="bento"
+                          color={link.color}
+                          size={link.size}
+                          className="h-full"
+                        >
+                          {dynamicContent}
+                        </QuickLinkCard>
+                      </FadeIn>
+                    </BentoGridItem>
+                  );
+                })}
               </BentoGrid>
             </div>
           </div>

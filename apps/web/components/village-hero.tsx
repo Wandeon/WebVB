@@ -304,7 +304,7 @@ export function VillageHero() {
 
               {/* Gonfalon image with subtle wind animation */}
               <motion.div
-                className="relative h-[36rem] w-80 xl:h-[48rem] xl:w-[26rem]"
+                className="relative h-[18rem] w-40 xl:h-[24rem] xl:w-52"
                 style={{
                   transformOrigin: '50% 4%', // Anchored near top like a hanging banner
                 }}
@@ -326,7 +326,7 @@ export function VillageHero() {
                   alt="Gonfalon Općine Veliki Bukovec"
                   fill
                   className="pointer-events-none select-none object-contain drop-shadow-2xl"
-                  sizes="(max-width: 1280px) 320px, 416px"
+                  sizes="(max-width: 1280px) 160px, 208px"
                   priority
                   draggable={false}
                 />
