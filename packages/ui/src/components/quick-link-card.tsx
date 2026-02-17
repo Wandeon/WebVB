@@ -6,6 +6,7 @@ import {
   CalendarDays,
   FileSearch,
   FileText,
+  MessageSquare,
   Trash2,
   Users,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ const iconMap: Record<string, LucideIcon> = {
   calendarDays: CalendarDays,
   fileSearch: FileSearch,
   fileText: FileText,
+  messageSquare: MessageSquare,
   trash2: Trash2,
   users: Users,
 };
@@ -49,6 +51,8 @@ export interface QuickLinkCardProps {
   /** Size affects padding and typography */
   size?: 'small' | 'large';
   className?: string;
+  /** Optional dynamic content rendered below description in bento variant */
+  children?: React.ReactNode;
 }
 
 // Color configurations with gradients and accents
@@ -99,6 +103,7 @@ export function QuickLinkCard({
   color = 'green',
   size = 'large',
   className,
+  children,
 }: QuickLinkCardProps) {
   const isExternal = href.startsWith('http');
   const isBento = variant === 'bento';
@@ -208,6 +213,8 @@ export function QuickLinkCard({
         >
           {description}
         </p>
+
+        {children && <div className="mt-3">{children}</div>}
 
         {/* CTA */}
         <div className={cn(
