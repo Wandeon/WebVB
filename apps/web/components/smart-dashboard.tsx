@@ -1,6 +1,8 @@
 'use client';
 
-import { CloudRain, CloudSun, ExternalLink, MessageCircle, Phone, Sun } from 'lucide-react';
+import { ArrowRight, CloudRain, CloudSun, ExternalLink, ImageIcon, Phone, Sun } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 function LiveClock() {
@@ -178,7 +180,11 @@ function OfficeStatus() {
   );
 }
 
-export function SmartDashboard() {
+interface SmartDashboardProps {
+  galleries?: Array<{ name: string; slug: string; coverImage: string | null; imageCount: number }>;
+}
+
+export function SmartDashboard({ galleries }: SmartDashboardProps) {
   return (
     <div className="relative h-full min-h-[500px] overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50 via-sky-100 to-blue-100">
       {/* Decorative elements */}
@@ -208,31 +214,50 @@ export function SmartDashboard() {
           </div>
         </div>
 
-        {/* AI Assistant Mini Widget */}
-        <button
-          className="flex-1 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 p-4 text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer text-left"
-          onClick={() => {/* TODO: Open full chatbot */}}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-              <MessageCircle className="h-5 w-5" />
+        {/* Latest Galleries */}
+        {galleries && galleries.length > 0 && (
+          <div className="flex-1 rounded-2xl bg-white/60 p-4 backdrop-blur-sm">
+            <h3 className="mb-3 text-sm font-semibold text-sky-900">Galerija</h3>
+            <div className="space-y-3">
+              {galleries.slice(0, 2).map((gallery) => (
+                <Link
+                  key={gallery.slug}
+                  href={`/galerija/${gallery.slug}`}
+                  className="group flex items-center gap-3"
+                >
+                  <div className="relative h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-200">
+                    {gallery.coverImage ? (
+                      <Image
+                        src={gallery.coverImage}
+                        alt={gallery.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="64px"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <ImageIcon className="h-4 w-4 text-neutral-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-sky-900 group-hover:text-primary-600">
+                      {gallery.name}
+                    </p>
+                    <p className="text-xs text-sky-600">{gallery.imageCount} fotografija</p>
+                  </div>
+                </Link>
+              ))}
             </div>
-            <div>
-              <h3 className="font-semibold text-sm">Virtualni asistent</h3>
-              <p className="text-xs text-white/70">Kliknite za razgovor</p>
-            </div>
-            <span className="ml-auto text-[10px] bg-amber-400/30 text-amber-100 px-2 py-1 rounded-full">Uskoro</span>
+            <Link
+              href="/galerija"
+              className="mt-3 inline-flex items-center gap-1 text-xs text-sky-500 hover:text-sky-700"
+            >
+              Sve galerije
+              <ArrowRight className="h-3 w-3" />
+            </Link>
           </div>
-
-          <div className="flex gap-2">
-            <div className="h-6 w-6 rounded-full bg-white/20 flex-shrink-0 flex items-center justify-center">
-              <span className="text-[10px]">AI</span>
-            </div>
-            <div className="rounded-2xl rounded-tl-sm bg-white/10 px-3 py-2 text-sm">
-              Kako vam mogu pomoći? 👋
-            </div>
-          </div>
-        </button>
+        )}
 
         {/* Emergency Contacts */}
         <div className="mt-4 flex items-center justify-center gap-6 text-xs">

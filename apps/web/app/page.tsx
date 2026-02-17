@@ -171,7 +171,14 @@ export default async function HomePage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-8">
             {/* Left: Smart Municipality Dashboard (hidden on mobile, shown on lg+) */}
             <FadeIn className="hidden lg:block">
-              <SmartDashboard />
+              <SmartDashboard
+                galleries={featuredGalleries.slice(0, 2).map((g: GalleryWithCount) => ({
+                  name: g.name,
+                  slug: g.slug,
+                  coverImage: g.coverImage,
+                  imageCount: g._count.images,
+                }))}
+              />
             </FadeIn>
 
             {/* Right: Bento Grid */}
