@@ -204,8 +204,17 @@ export default async function HomePage() {
                       </p>
                     ) : (
                       <p className="text-sm text-white/70">
-                        Trenutno nema nadolazećih termina u kalendaru.
+                        Trenutno nema nadolazećih termina u kalendaru.{' '}
+                        <span className="underline">Pogledajte raspored</span>
                       </p>
+                    );
+                  }
+
+                  if (area === 'f') {
+                    dynamicContent = (
+                      <span className="inline-flex items-center rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-200">
+                        Uskoro
+                      </span>
                     );
                   }
 
