@@ -83,35 +83,38 @@ function WeatherWidget() {
   }, []);
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
-          <ConditionIcon condition={weather?.condition ?? 'sunny'} className="h-6 w-6 text-amber-600" />
+    <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+        <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center">
+          <ConditionIcon condition={weather?.condition ?? 'sunny'} className="h-5 w-5 text-amber-600" />
         </div>
         <div>
-          <div className="text-2xl font-bold text-sky-900">{weather?.temp ?? '--'}°C</div>
+          <div className="text-xl font-bold text-sky-900">{weather?.temp ?? '--'}°C</div>
           {weather?.todayHigh != null && weather?.todayLow != null && (
-            <div className="text-xs text-sky-600">
-              ↑ {weather.todayHigh}° ↓ {weather.todayLow}°
-            </div>
+            <div className="text-[10px] text-sky-600">↑{weather.todayHigh}° ↓{weather.todayLow}°</div>
           )}
         </div>
       </div>
       {weather?.tomorrowCondition && weather.tomorrowHigh != null && (
-        <div className="flex items-center gap-1.5 text-xs text-sky-600">
-          <span>Sutra:</span>
-          <ConditionIcon condition={weather.tomorrowCondition} className="h-3.5 w-3.5" />
-          <span>↑ {weather.tomorrowHigh}° ↓ {weather.tomorrowLow}°</span>
-        </div>
+        <>
+          <div className="h-8 w-px bg-sky-200" />
+          <div className="flex items-center gap-1.5">
+            <ConditionIcon condition={weather.tomorrowCondition} className="h-4 w-4 text-sky-500" />
+            <div>
+              <div className="text-[10px] text-sky-500">Sutra</div>
+              <div className="text-xs font-medium text-sky-700">↑{weather.tomorrowHigh}° ↓{weather.tomorrowLow}°</div>
+            </div>
+          </div>
+        </>
       )}
       <a
         href="https://meteo.hr/prognoze.php?section=prognoze&param=n_maprog"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-xs text-sky-500 hover:text-sky-700"
+        className="ml-auto inline-flex items-center gap-1 text-[10px] text-sky-400 hover:text-sky-600"
       >
-        Detaljna prognoza
-        <ExternalLink className="h-3 w-3" />
+        DHMZ
+        <ExternalLink className="h-2.5 w-2.5" />
       </a>
     </div>
   );
@@ -214,45 +217,46 @@ export function SmartDashboard({ galleries }: SmartDashboardProps) {
         {/* Latest Galleries */}
         {galleries && galleries.length > 0 && (
           <div className="flex-1 rounded-2xl bg-white/60 p-4 backdrop-blur-sm">
-            <h3 className="mb-3 text-sm font-semibold text-sky-900">Galerija</h3>
-            <div className="space-y-3">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-sky-900">Galerija</h3>
+              <Link
+                href="/galerija"
+                className="inline-flex items-center gap-1 text-xs text-sky-500 hover:text-sky-700"
+              >
+                Sve galerije
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               {galleries.slice(0, 2).map((gallery) => (
                 <Link
                   key={gallery.slug}
                   href={`/galerija/${gallery.slug}`}
-                  className="group flex items-center gap-3"
+                  className="group relative overflow-hidden rounded-xl bg-neutral-200"
                 >
-                  <div className="relative h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-200">
+                  <div className="relative aspect-[4/3]">
                     {gallery.coverImage ? (
                       <Image
                         src={gallery.coverImage}
                         alt={gallery.name}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
-                        sizes="64px"
+                        sizes="200px"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
-                        <ImageIcon className="h-4 w-4 text-neutral-400" />
+                        <ImageIcon className="h-8 w-8 text-neutral-400" />
                       </div>
                     )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-sky-900 group-hover:text-primary-600">
-                      {gallery.name}
-                    </p>
-                    <p className="text-xs text-sky-600">{gallery.imageCount} fotografija</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-2">
+                      <p className="truncate text-xs font-medium text-white">{gallery.name}</p>
+                      <p className="text-[10px] text-white/70">{gallery.imageCount} fotografija</p>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
-            <Link
-              href="/galerija"
-              className="mt-3 inline-flex items-center gap-1 text-xs text-sky-500 hover:text-sky-700"
-            >
-              Sve galerije
-              <ArrowRight className="h-3 w-3" />
-            </Link>
           </div>
         )}
 

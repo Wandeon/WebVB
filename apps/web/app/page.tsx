@@ -51,7 +51,7 @@ async function getHomepageData() {
       latestDocuments: [] as DocumentWithUploader[],
       featuredGalleries: [] as GalleryWithCount[],
       nextWasteEvents: [] as Event[],
-      tenderSummary: { count: 0, latestTitle: null } as TenderSummary,
+      tenderSummary: { count: 0, latestTitle: null, items: [] } as TenderSummary,
     };
   }
 
@@ -61,7 +61,7 @@ async function getHomepageData() {
     announcementsRepository.getLatestActive(4),
     documentsRepository.getLatestDocuments(4),
     galleriesRepository.getFeaturedForHomepage(12),
-    eventsRepository.getNextWasteEvents(2),
+    eventsRepository.getNextWasteEvents(5),
     announcementsRepository.getActiveTenderSummary(),
   ]);
 
@@ -69,10 +69,10 @@ async function getHomepageData() {
 }
 
 const WASTE_TYPE_NAMES: Record<string, string> = {
-  'miješani komunalni otpad': 'MKO',
-  'biootpad': 'Bio',
+  'miješani komunalni otpad': 'Komunalni',
+  'biootpad': 'Biootpad',
   'plastika': 'Plastika',
-  'papir i karton': 'Papir',
+  'papir i karton': 'Papir i karton',
   'metal': 'Metal',
   'pelene': 'Pelene',
   'staklo': 'Staklo',
@@ -85,24 +85,12 @@ function extractWasteType(title: string): string {
   return WASTE_TYPE_NAMES[raw] ?? raw;
 }
 
-function formatWastePickup(events: Event[]): string | null {
-  if (events.length === 0) return null;
-  const first = events[0]!;
-  const date = new Date(first.eventDate);
+function formatWasteDate(eventDate: Date | string): string {
+  const date = new Date(eventDate);
   const dayName = date.toLocaleDateString('hr-HR', { weekday: 'short' });
   const day = date.getDate();
   const month = date.getMonth() + 1;
-  const typeName = extractWasteType(first.title);
-
-  const sameDay = events.filter(e => {
-    const d = new Date(e.eventDate);
-    return d.toDateString() === date.toDateString();
-  });
-
-  if (sameDay.length > 1) {
-    return `${typeName} + ${sameDay.length - 1} više • ${dayName}, ${day}.${month}.`;
-  }
-  return `${typeName} • ${dayName}, ${day}.${month}.`;
+  return `${dayName}, ${day}.${month}.`;
 }
 
 export default async function HomePage() {
@@ -197,11 +185,17 @@ export default async function HomePage() {
 
                   let dynamicContent: React.ReactNode = null;
                   if (area === 'a') {
-                    const wasteText = formatWastePickup(nextWasteEvents);
-                    dynamicContent = wasteText ? (
-                      <p className="text-sm font-semibold text-white/90">
-                        Sljedeći odvoz: {wasteText}
-                      </p>
+                    dynamicContent = nextWasteEvents.length > 0 ? (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium uppercase tracking-wider text-white/60">Sljedeći odvozi:</p>
+                        {nextWasteEvents.map((evt) => (
+                          <p key={evt.id} className="text-sm text-white/90">
+                            <span className="font-semibold">{extractWasteType(evt.title)}</span>
+                            {' — '}
+                            {formatWasteDate(evt.eventDate)}
+                          </p>
+                        ))}
+                      </div>
                     ) : (
                       <p className="text-sm text-white/70">
                         Trenutno nema nadolazećih termina u kalendaru.{' '}
@@ -219,12 +213,19 @@ export default async function HomePage() {
                   }
 
                   if (area === 'e') {
-                    dynamicContent = tenderSummary.count > 0 ? (
-                      <div className="text-xs text-white/80">
-                        <span className="font-bold text-white">{tenderSummary.count}</span>{' '}
-                        {tenderSummary.count === 1 ? 'aktivan natječaj' : 'aktivna natječaja'}
-                        {tenderSummary.latestTitle && (
-                          <p className="mt-1 truncate">{tenderSummary.latestTitle}</p>
+                    dynamicContent = tenderSummary.items.length > 0 ? (
+                      <div className="space-y-1.5 text-xs text-white/80">
+                        {tenderSummary.items.map((item, i) => (
+                          <div key={i}>
+                            <p className="truncate font-medium text-white/90">{item.title}</p>
+                            <p className="text-white/60">
+                              {item.publishedAt && `Objavljeno: ${new Date(item.publishedAt).toLocaleDateString('hr-HR')}`}
+                              {item.validUntil && ` · Rok: ${new Date(item.validUntil).toLocaleDateString('hr-HR')}`}
+                            </p>
+                          </div>
+                        ))}
+                        {tenderSummary.count > 2 && (
+                          <p className="text-white/60">+ {tenderSummary.count - 2} {tenderSummary.count - 2 === 1 ? 'natječaj' : 'natječaja'} više</p>
                         )}
                       </div>
                     ) : null;

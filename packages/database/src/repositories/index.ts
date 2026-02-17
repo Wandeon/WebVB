@@ -89,6 +89,7 @@ export {
   type FindPublishedAnnouncementsOptions,
   type FindPublishedAnnouncementsResult,
   type PublishedAnnouncementSitemapEntry,
+  type TenderItem,
   type TenderSummary,
 } from './announcements';
 

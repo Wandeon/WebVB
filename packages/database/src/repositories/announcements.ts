@@ -100,9 +100,16 @@ export interface PublishedAnnouncementSitemapEntry {
   publishedAt: Date | null;
 }
 
+export interface TenderItem {
+  title: string;
+  publishedAt: Date | null;
+  validUntil: Date | null;
+}
+
 export interface TenderSummary {
   count: number;
   latestTitle: string | null;
+  items: TenderItem[];
 }
 
 const authorSelect = {
@@ -473,16 +480,21 @@ export const announcementsRepository = {
       ],
     };
 
-    const [count, latest] = await Promise.all([
+    const [count, items] = await Promise.all([
       db.announcement.count({ where }),
-      db.announcement.findFirst({
+      db.announcement.findMany({
         where,
         orderBy: { publishedAt: 'desc' },
-        select: { title: true },
+        select: { title: true, publishedAt: true, validUntil: true },
+        take: 2,
       }),
     ]);
 
-    return { count, latestTitle: latest?.title ?? null };
+    return {
+      count,
+      latestTitle: items[0]?.title ?? null,
+      items: items.map(i => ({ title: i.title, publishedAt: i.publishedAt, validUntil: i.validUntil })),
+    };
   },
 
   /**

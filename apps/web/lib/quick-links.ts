@@ -47,7 +47,7 @@ export const quickLinks: QuickLink[] = [
     description: 'Prijavite komunalne probleme',
     href: '/prijava-problema',
     icon: 'alertTriangle',
-    color: 'green',
+    color: 'sky',
     size: 'small',
   },
   {
@@ -81,9 +81,9 @@ export const quickLinks: QuickLink[] = [
     // Area 'f' - Wide (2x1)
     title: 'Virtualni asistent',
     description: 'Postavite pitanje o općini',
-    href: '/asistent',
+    href: '#',
     icon: 'messageSquare',
-    color: 'slate',
+    color: 'sky',
     size: 'small',
   },
 ];
