@@ -32,6 +32,19 @@
   font-size: 0.75rem;
   padding: 2px 4px;
   border-radius: 4px;
+  white-space: normal;
+}
+
+.event-calendar .fc-event-title {
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.event-calendar .fc-daygrid-event-harness {
+  margin-bottom: 2px;
 }
 
 .event-calendar .fc-day-today {

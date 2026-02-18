@@ -23,48 +23,20 @@ export interface EventCalendarProps {
 
 const EVENT_TIME_ZONE = 'Europe/Zagreb';
 
-// Waste type color mapping
-const WASTE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  'miješani komunalni otpad': { bg: '#525252', border: '#404040', text: '#ffffff' }, // gray-600
-  'biootpad': { bg: '#16a34a', border: '#15803d', text: '#ffffff' }, // green-600
-  'plastika': { bg: '#eab308', border: '#ca8a04', text: '#000000' }, // yellow-500
-  'papir i karton': { bg: '#2563eb', border: '#1d4ed8', text: '#ffffff' }, // blue-600
-  'metal': { bg: '#ea580c', border: '#c2410c', text: '#ffffff' }, // orange-600
-  'pelene': { bg: '#a855f7', border: '#9333ea', text: '#ffffff' }, // purple-500
-  'staklo': { bg: '#06b6d4', border: '#0891b2', text: '#ffffff' }, // cyan-500
-};
-
-// Short labels for calendar display
-const WASTE_LABELS: Record<string, string> = {
-  'miješani komunalni otpad': 'MKO',
-  'biootpad': 'Bio',
-  'plastika': 'Plastika',
-  'papir i karton': 'Papir',
-  'metal': 'Metal',
-  'pelene': 'Pelene',
-  'staklo': 'Staklo',
-};
+// Event color mapping for special event types
+const WASTE_COLORS: Record<string, { bg: string; border: string; text: string }> = {};
 
 function getEventDisplayInfo(title: string): { label: string; colors: typeof WASTE_COLORS[string] | null } {
-  // Check if it's a waste collection event
-  const wasteMatch = title.match(/^Odvoz otpada:\s*(.+)$/i);
-  if (wasteMatch) {
-    const wasteType = wasteMatch[1]!.toLowerCase().trim();
-    const colors = WASTE_COLORS[wasteType] || null;
-    const label = WASTE_LABELS[wasteType] || wasteMatch[1]!;
-    return { label, colors };
-  }
-
   // Check for recycling yard events
   if (title.toLowerCase().includes('reciklažno dvorište') || title.toLowerCase().includes('mobilno reciklažno')) {
     return {
-      label: 'Reciklažno',
+      label: title,
       colors: { bg: '#059669', border: '#047857', text: '#ffffff' } // emerald-600
     };
   }
 
-  // Default: first word of title
-  return { label: title.split(' ')[0] || title, colors: null };
+  // Default: show full title
+  return { label: title, colors: null };
 }
 
 export function formatCalendarDate(date: Date): string {
@@ -139,6 +111,7 @@ export function EventCalendar({
           right: 'next',
         }}
         {...(initialDate ? { initialDate } : {})}
+        dayMaxEvents={3}
         events={calendarEvents}
         eventClick={(info) => {
           info.jsEvent.preventDefault();

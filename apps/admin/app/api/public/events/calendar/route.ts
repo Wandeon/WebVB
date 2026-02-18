@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { year, month } = queryResult.data;
-    const events = await eventsRepository.getEventsByMonth(year, month);
+    const events = await eventsRepository.getEventsByMonth(year, month, true);
 
     return apiSuccess({
       events: events.map((event) => ({

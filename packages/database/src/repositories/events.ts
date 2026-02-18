@@ -194,29 +194,35 @@ export const eventsRepository = {
   /**
    * Get events for a specific month (for calendar display)
    */
-  async getEventsByMonth(year: number, month: number): Promise<Event[]> {
+  async getEventsByMonth(year: number, month: number, excludeWaste: boolean = false): Promise<Event[]> {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
+    const where: Prisma.EventWhereInput = {
+      OR: [
+        {
+          eventDate: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        {
+          endDate: {
+            gte: startDate,
+          },
+          eventDate: {
+            lte: endDate,
+          },
+        },
+      ],
+    };
+
+    if (excludeWaste) {
+      where.NOT = { title: { startsWith: 'Odvoz otpada:', mode: 'insensitive' } };
+    }
+
     return db.event.findMany({
-      where: {
-        OR: [
-          {
-            eventDate: {
-              gte: startDate,
-              lte: endDate,
-            },
-          },
-          {
-            endDate: {
-              gte: startDate,
-            },
-            eventDate: {
-              lte: endDate,
-            },
-          },
-        ],
-      },
+      where,
       orderBy: { eventDate: 'asc' },
     });
   },

@@ -37,7 +37,7 @@ import { VillageHero } from '../components/village-hero';
 import { experienceItems } from '../lib/experience-items';
 import { externalServices } from '../lib/external-services';
 import { fetchAllExternalNews, type ExternalNewsItem } from '../lib/external-news';
-import { obrti, getTotalCompanies } from '../lib/business-directory';
+import { obrti, getTotalCompanies, getTotalEmployees } from '../lib/business-directory';
 import { quickLinks } from '../lib/quick-links';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -59,7 +59,7 @@ async function getHomepageData() {
   const [latestPosts, externalNews, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary] = await Promise.all([
     postsRepository.getLatestPosts(5, false),
     fetchAllExternalNews(),
-    eventsRepository.getUpcomingEvents(3),
+    eventsRepository.getUpcomingEvents(3, true),
     announcementsRepository.getLatestActive(5),
     documentsRepository.getLatestDocuments(4),
     galleriesRepository.getFeaturedForHomepage(12),
@@ -255,31 +255,44 @@ export default async function HomePage() {
 
                   if (area === 'f') {
                     dynamicContent = (
-                      <div className="flex gap-3 text-xs">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 font-medium text-white/90">
-                          <span className="text-sm font-bold">{obrti.length}</span> Obrti
-                        </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 font-medium text-white/90">
-                          <span className="text-sm font-bold">{getTotalCompanies()}</span> Poduzeća
-                        </span>
+                      <div className="space-y-1.5">
+                        <div className="flex gap-2">
+                          <div className="flex-1 rounded-lg bg-white/10 px-3 py-1.5">
+                            <span className="text-sm font-bold text-white">{obrti.length}</span>
+                            <span className="ml-1.5 text-xs text-white/70">Aktivna obrta</span>
+                          </div>
+                          <div className="flex-1 rounded-lg bg-white/10 px-3 py-1.5">
+                            <span className="text-sm font-bold text-white">{getTotalCompanies()}</span>
+                            <span className="ml-1.5 text-xs text-white/70">Aktivnih poduzeća</span>
+                          </div>
+                        </div>
+                        <div className="rounded-lg bg-white/10 px-3 py-1.5">
+                          <span className="text-sm font-bold text-white">{getTotalEmployees()}</span>
+                          <span className="ml-1.5 text-xs text-white/70">Zaposlenih na području općine</span>
+                        </div>
                       </div>
                     );
                   }
 
                   if (area === 'e') {
                     dynamicContent = tenderSummary.items.length > 0 ? (
-                      <div className="space-y-1.5 text-xs text-white/80">
+                      <div className="space-y-1.5">
                         {tenderSummary.items.map((item, i) => (
-                          <div key={i}>
-                            <p className="truncate font-medium text-white/90">{item.title}</p>
-                            <p className="text-white/60">
-                              {item.publishedAt && `Objavljeno: ${new Date(item.publishedAt).toLocaleDateString('hr-HR')}`}
-                              {item.validUntil && ` · Rok: ${new Date(item.validUntil).toLocaleDateString('hr-HR')}`}
-                            </p>
+                          <div key={i} className="flex items-center gap-2.5 rounded-lg bg-white/10 px-3 py-1.5">
+                            <span className="shrink-0 text-xs text-white/60">
+                              {item.validUntil
+                                ? new Date(item.validUntil).toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' })
+                                : item.publishedAt
+                                  ? new Date(item.publishedAt).toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' })
+                                  : ''}
+                            </span>
+                            <span className="truncate text-sm font-medium text-white/90">{item.title}</span>
                           </div>
                         ))}
                         {tenderSummary.count > 2 && (
-                          <p className="text-white/60">+ {tenderSummary.count - 2} {tenderSummary.count - 2 === 1 ? 'natječaj' : 'natječaja'} više</p>
+                          <div className="rounded-lg bg-white/5 px-3 py-1.5 text-center text-xs text-white/50">
+                            + {tenderSummary.count - 2} {tenderSummary.count - 2 === 1 ? 'natječaj' : 'natječaja'} više
+                          </div>
                         )}
                       </div>
                     ) : null;
