@@ -35,7 +35,7 @@ export const quickLinks: QuickLink[] = [
   {
     // Area 'a' - Large featured (2x2)
     title: 'Odvoz otpada',
-    description: 'Raspored odvoza komunalnog otpada i upute za razvrstavanje. Provjerite sljedeći termin odvoza.',
+    description: 'Provjerite sljedeći termin',
     href: '/odvoz-otpada',
     icon: 'trash2',
     color: 'green',
@@ -79,10 +79,10 @@ export const quickLinks: QuickLink[] = [
   },
   {
     // Area 'f' - Wide (2x1)
-    title: 'Virtualni asistent',
-    description: 'Postavite pitanje o općini',
-    href: '#',
-    icon: 'messageSquare',
+    title: 'Poduzetništvo',
+    description: 'Obrti i tvrtke na području općine',
+    href: '/poduzetnistvo',
+    icon: 'store',
     color: 'sky',
     size: 'small',
   },

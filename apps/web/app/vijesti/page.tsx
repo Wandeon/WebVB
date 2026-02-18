@@ -3,10 +3,11 @@ import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
 import { shouldSkipDatabase } from '@/lib/build-flags';
+import { fetchAllExternalNews } from '../../lib/external-news';
 
 import { NewsPageClient } from './news-page-client';
 
-import type { NewsPageInitialData } from './news-page-client';
+import type { ExternalColumn, NewsPageInitialData } from './news-page-client';
 import type { Metadata } from 'next';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -44,23 +45,27 @@ function NewsPageFallback() {
   );
 }
 
-async function getInitialNewsData(): Promise<NewsPageInitialData> {
+async function getInitialNewsData(): Promise<{ initialData: NewsPageInitialData; externalColumns: ExternalColumn[] }> {
   if (shouldSkipDatabase()) {
     return {
-      posts: [],
-      pagination: {
-        page: 1,
-        limit: 12,
-        total: 0,
-        totalPages: 1,
+      initialData: {
+        posts: [],
+        pagination: {
+          page: 1,
+          limit: 12,
+          total: 0,
+          totalPages: 1,
+        },
+        featuredPost: null,
       },
-      featuredPost: null,
+      externalColumns: [],
     };
   }
 
-  const [newsResult, featuredPost] = await Promise.all([
+  const [newsResult, featuredPost, externalNews] = await Promise.all([
     postsRepository.findPublished({ page: 1, limit: 12 }),
     postsRepository.getFeaturedPost(),
+    fetchAllExternalNews(),
   ]);
 
   const posts = newsResult.posts.map((post) => ({
@@ -73,29 +78,38 @@ async function getInitialNewsData(): Promise<NewsPageInitialData> {
     publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
   }));
 
+  const externalColumns: ExternalColumn[] = [
+    { label: 'ŽUPA', fullName: 'Župa sv. Franje Asiškoga', color: 'text-purple-700', accent: 'bg-purple-500', url: 'https://zupa-sv-franje-asiskog.hr', items: externalNews.filter((n) => n.source.shortName === 'Župa').slice(0, 4).map((n) => ({ title: n.title, url: n.url, date: n.date.toISOString(), excerpt: n.excerpt })) },
+    { label: 'ŠKOLA', fullName: 'OŠ Veliki Bukovec', color: 'text-emerald-700', accent: 'bg-emerald-500', url: 'http://www.os-veliki-bukovec.skole.hr', items: externalNews.filter((n) => n.source.shortName === 'Škola').slice(0, 4).map((n) => ({ title: n.title, url: n.url, date: n.date.toISOString(), excerpt: n.excerpt })) },
+    { label: 'VRTIĆ', fullName: 'DV Krijesnica', color: 'text-amber-700', accent: 'bg-amber-500', url: 'https://www.vrtic-krijesnica.hr', items: externalNews.filter((n) => n.source.shortName === 'Vrtić').slice(0, 4).map((n) => ({ title: n.title, url: n.url, date: n.date.toISOString(), excerpt: n.excerpt })) },
+  ].filter((col) => col.items.length > 0);
+
   return {
-    posts,
-    pagination: newsResult.pagination,
-    featuredPost: featuredPost
-      ? {
-          id: featuredPost.id,
-          title: featuredPost.title,
-          excerpt: featuredPost.excerpt,
-          slug: featuredPost.slug,
-          category: featuredPost.category,
-          featuredImage: featuredPost.featuredImage,
-          publishedAt: featuredPost.publishedAt ? featuredPost.publishedAt.toISOString() : null,
-        }
-      : null,
+    initialData: {
+      posts,
+      pagination: newsResult.pagination,
+      featuredPost: featuredPost
+        ? {
+            id: featuredPost.id,
+            title: featuredPost.title,
+            excerpt: featuredPost.excerpt,
+            slug: featuredPost.slug,
+            category: featuredPost.category,
+            featuredImage: featuredPost.featuredImage,
+            publishedAt: featuredPost.publishedAt ? featuredPost.publishedAt.toISOString() : null,
+          }
+        : null,
+    },
+    externalColumns,
   };
 }
 
 export default async function NewsPage() {
-  const initialData = await getInitialNewsData();
+  const { initialData, externalColumns } = await getInitialNewsData();
 
   return (
     <Suspense fallback={<NewsPageFallback />}>
-      <NewsPageClient initialData={initialData} />
+      <NewsPageClient initialData={initialData} externalColumns={externalColumns} />
     </Suspense>
   );
 }

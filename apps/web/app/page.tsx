@@ -13,20 +13,18 @@ import {
 } from '@repo/database';
 import { createOrganizationJsonLd, createLocalBusinessJsonLd, getPublicEnv } from '@repo/shared';
 import {
-  AnnouncementCompactCard,
   BentoGrid,
   BentoGridItem,
-  DocumentListItem,
   EventCard,
   ExperienceCard,
   FadeIn,
-  FeaturedPostCard,
   GalleryShowcase,
-  PostCard,
   QuickLinkCard,
   SectionHeader,
 } from '@repo/ui';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Baby, ExternalLink, FileText, GlassWater, Leaf, Newspaper, Recycle, Trash2, Wrench } from 'lucide-react';
+
+import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 
 import { shouldSkipDatabase } from '@/lib/build-flags';
@@ -38,6 +36,7 @@ import { SmartDashboard } from '../components/smart-dashboard';
 import { VillageHero } from '../components/village-hero';
 import { experienceItems } from '../lib/experience-items';
 import { externalServices } from '../lib/external-services';
+import { fetchAllExternalNews, type ExternalNewsItem } from '../lib/external-news';
 import { quickLinks } from '../lib/quick-links';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -46,6 +45,7 @@ async function getHomepageData() {
   if (shouldSkipDatabase()) {
     return {
       latestPosts: [] as PostWithAuthor[],
+      externalNews: [] as ExternalNewsItem[],
       upcomingEvents: [] as Event[],
       latestAnnouncements: [] as AnnouncementWithAuthor[],
       latestDocuments: [] as DocumentWithUploader[],
@@ -55,46 +55,85 @@ async function getHomepageData() {
     };
   }
 
-  const [latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary] = await Promise.all([
-    postsRepository.getLatestPosts(3),
+  const [latestPosts, externalNews, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary] = await Promise.all([
+    postsRepository.getLatestPosts(5, false),
+    fetchAllExternalNews(),
     eventsRepository.getUpcomingEvents(3),
-    announcementsRepository.getLatestActive(4),
+    announcementsRepository.getLatestActive(5),
     documentsRepository.getLatestDocuments(4),
     galleriesRepository.getFeaturedForHomepage(12),
-    eventsRepository.getNextWasteEvents(5),
+    eventsRepository.getWeekWasteEvents(),
     announcementsRepository.getActiveTenderSummary(),
   ]);
 
-  return { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary };
+  return { latestPosts, externalNews, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary };
 }
 
-const WASTE_TYPE_NAMES: Record<string, string> = {
-  'miješani komunalni otpad': 'Komunalni',
-  'biootpad': 'Biootpad',
-  'plastika': 'Plastika',
-  'papir i karton': 'Papir i karton',
-  'metal': 'Metal',
-  'pelene': 'Pelene',
-  'staklo': 'Staklo',
+interface WasteTypeInfo {
+  name: string;
+  color: string;
+  icon: LucideIcon;
+}
+
+const WASTE_TYPE_MAP: Record<string, WasteTypeInfo> = {
+  'miješani komunalni otpad': { name: 'Komunalni', color: 'text-gray-300', icon: Trash2 },
+  'biootpad': { name: 'Biootpad', color: 'text-emerald-400', icon: Leaf },
+  'plastika': { name: 'Plastika', color: 'text-yellow-400', icon: Recycle },
+  'papir i karton': { name: 'Papir i karton', color: 'text-blue-400', icon: Newspaper },
+  'metal': { name: 'Metal', color: 'text-slate-300', icon: Wrench },
+  'pelene': { name: 'Pelene', color: 'text-pink-400', icon: Baby },
+  'staklo': { name: 'Staklo', color: 'text-teal-400', icon: GlassWater },
 };
 
-function extractWasteType(title: string): string {
+function extractWasteInfo(title: string): WasteTypeInfo {
   const match = title.match(/^Odvoz otpada:\s*(.+)$/i);
-  if (!match) return 'Otpad';
+  if (!match) return { name: 'Otpad', color: 'text-gray-400', icon: Trash2 };
   const raw = match[1]!.toLowerCase().trim();
-  return WASTE_TYPE_NAMES[raw] ?? raw;
+  return WASTE_TYPE_MAP[raw] ?? { name: raw, color: 'text-gray-400', icon: Trash2 };
 }
 
-function formatWasteDate(eventDate: Date | string): string {
+function formatWasteDayDate(eventDate: Date | string): string {
   const date = new Date(eventDate);
-  const dayName = date.toLocaleDateString('hr-HR', { weekday: 'short' });
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  return `${dayName}, ${day}.${month}.`;
+  const dayName = date.toLocaleDateString('hr-HR', { weekday: 'long' });
+  const capitalized = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${capitalized}, ${dd}.${mm}.${yyyy}`;
+}
+
+interface WasteDay {
+  dateKey: string;
+  dateLabel: string;
+  types: WasteTypeInfo[];
+}
+
+function groupWasteByDate(events: Array<{ title: string; eventDate: Date | string }>): WasteDay[] {
+  const map = new Map<string, WasteDay>();
+  for (const evt of events) {
+    const d = new Date(evt.eventDate);
+    const key = d.toISOString().slice(0, 10);
+    if (!map.has(key)) {
+      map.set(key, { dateKey: key, dateLabel: formatWasteDayDate(d), types: [] });
+    }
+    map.get(key)!.types.push(extractWasteInfo(evt.title));
+  }
+  return Array.from(map.values());
 }
 
 export default async function HomePage() {
-  const { latestPosts, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary } = await getHomepageData();
+  const { latestPosts, externalNews, upcomingEvents, latestAnnouncements, latestDocuments, featuredGalleries, nextWasteEvents, tenderSummary } = await getHomepageData();
+
+  // Hero + featured: all from our own site
+  const heroPost = latestPosts[0] ?? null;
+  const featuredPosts = latestPosts.slice(1, 4);
+
+  // External news grouped by source for 3-column layout
+  const externalColumns = [
+    { label: 'ŽUPA', fullName: 'Župa sv. Franje Asiškoga', color: 'text-purple-700', accent: 'bg-purple-500', url: 'https://zupa-sv-franje-asiskog.hr', items: externalNews.filter((n) => n.source.shortName === 'Župa').slice(0, 4) },
+    { label: 'ŠKOLA', fullName: 'OŠ Veliki Bukovec', color: 'text-emerald-700', accent: 'bg-emerald-500', url: 'http://www.os-veliki-bukovec.skole.hr', items: externalNews.filter((n) => n.source.shortName === 'Škola').slice(0, 4) },
+    { label: 'VRTIĆ', fullName: 'DV Krijesnica', color: 'text-amber-700', accent: 'bg-amber-500', url: 'https://www.vrtic-krijesnica.hr', items: externalNews.filter((n) => n.source.shortName === 'Vrtić').slice(0, 4) },
+  ].filter((col) => col.items.length > 0);
   const organizationStructuredData = createOrganizationJsonLd({
     name: siteConfig.name,
     url: NEXT_PUBLIC_SITE_URL,
@@ -185,20 +224,29 @@ export default async function HomePage() {
 
                   let dynamicContent: React.ReactNode = null;
                   if (area === 'a') {
-                    dynamicContent = nextWasteEvents.length > 0 ? (
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium uppercase tracking-wider text-white/60">Sljedeći odvozi:</p>
-                        {nextWasteEvents.map((evt) => (
-                          <p key={evt.id} className="text-sm text-white/90">
-                            <span className="font-semibold">{extractWasteType(evt.title)}</span>
-                            {' — '}
-                            {formatWasteDate(evt.eventDate)}
-                          </p>
+                    const wasteDays = groupWasteByDate(nextWasteEvents);
+                    dynamicContent = wasteDays.length > 0 ? (
+                      <div className="space-y-4">
+                        {wasteDays.map((day) => (
+                          <div key={day.dateKey}>
+                            <p className="text-sm sm:text-base font-bold text-white">{day.dateLabel}</p>
+                            <div className="mt-1.5 space-y-1">
+                              {day.types.map((t, i) => {
+                                const WasteIcon = t.icon;
+                                return (
+                                  <div key={i} className="flex items-center gap-2.5 rounded-lg bg-white/10 px-3 py-1.5">
+                                    <WasteIcon className={`h-4 w-4 flex-shrink-0 ${t.color}`} />
+                                    <span className="text-sm font-medium text-white/90">{t.name}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
                         ))}
                       </div>
                     ) : (
                       <p className="text-sm text-white/70">
-                        Trenutno nema nadolazećih termina u kalendaru.{' '}
+                        Nema odvoza ovaj tjedan.{' '}
                         <span className="underline">Pogledajte raspored</span>
                       </p>
                     );
@@ -231,6 +279,9 @@ export default async function HomePage() {
                     ) : null;
                   }
 
+                  // Wide areas (a=2x2, b/e/f=2x1) use horizontal layout; narrow (c/d=1x1) use vertical
+                  const areaLayout = (area === 'c' || area === 'd') ? 'vertical' as const : 'horizontal' as const;
+
                   return (
                     <BentoGridItem key={link.href} area={area}>
                       <FadeIn delay={index * 0.05} className="h-full flex-1">
@@ -242,6 +293,7 @@ export default async function HomePage() {
                           variant="bento"
                           color={link.color}
                           size={link.size}
+                          layout={areaLayout}
                           className="h-full"
                         >
                           {dynamicContent}
@@ -257,156 +309,265 @@ export default async function HomePage() {
       </section>
 
       {/* News Portal Section */}
-      <section className="overflow-x-hidden bg-neutral-100 py-12 md:py-16 lg:py-20">
+      <section className="overflow-x-hidden bg-neutral-50 py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
           <FadeIn>
             <SectionHeader
               title="Vijesti i obavijesti"
-              description="Pratite najnovije informacije iz općine"
+              description="Pratite najnovije informacije iz općine i zajednice"
             />
           </FadeIn>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_340px] lg:gap-8">
-            {/* Main News Column */}
-            <div className="min-w-0">
-              {latestPosts.length > 0 && latestPosts[0] ? (
-                <div className="space-y-4">
-                  {/* Featured Post */}
-                  <FadeIn>
-                    <FeaturedPostCard
-                      title={latestPosts[0].title}
-                      excerpt={latestPosts[0].excerpt}
-                      slug={latestPosts[0].slug}
-                      category={latestPosts[0].category}
-                      featuredImage={latestPosts[0].featuredImage}
-                      publishedAt={latestPosts[0].publishedAt}
-                    />
-                  </FadeIn>
-
-                  {/* Secondary Posts */}
-                  {latestPosts.length > 1 && (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {latestPosts.slice(1, 3).map((post: PostWithAuthor, index: number) => (
-                        <FadeIn key={post.id} delay={(index + 1) * 0.05}>
-                          <PostCard
-                            title={post.title}
-                            excerpt={post.excerpt}
-                            slug={post.slug}
-                            category={post.category}
-                            featuredImage={post.featuredImage}
-                            publishedAt={post.publishedAt}
-                            className="h-full"
-                          />
-                        </FadeIn>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* View All Link */}
-                  <FadeIn delay={0.15}>
-                    <Link
-                      href="/vijesti"
-                      className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
-                    >
-                      Sve vijesti
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                  </FadeIn>
-                </div>
-              ) : (
+          {/* Top: Hero + Featured (our posts) + Sidebar */}
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_280px]">
+            {/* Main: our own posts only */}
+            <div className="min-w-0 space-y-6">
+              {/* Hero: single primary story */}
+              {heroPost && (
                 <FadeIn>
-                  <div className="rounded-xl bg-white p-8 text-center">
-                    <p className="text-neutral-600">
-                      Trenutno nema objavljenih vijesti.{' '}
-                      <Link href="/vijesti" className="text-primary-600 hover:underline">
-                        Pogledajte arhivu
-                      </Link>
-                    </p>
-                  </div>
+                  <Link
+                    href={`/vijesti/${heroPost.slug}`}
+                    className="group relative block overflow-hidden rounded-2xl bg-neutral-900"
+                  >
+                    <div className="aspect-[5/2] w-full overflow-hidden">
+                      {heroPost.featuredImage ? (
+                        <img
+                          src={heroPost.featuredImage}
+                          alt={heroPost.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-gradient-to-br from-primary-600 to-primary-800" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/90 via-neutral-900/40 to-transparent" />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                      {heroPost.publishedAt && (
+                        <span className="text-xs text-white/70">
+                          {new Date(heroPost.publishedAt).toLocaleDateString('hr-HR')}
+                        </span>
+                      )}
+                      <h3 className="mt-1 line-clamp-2 text-lg font-bold text-white md:text-xl">
+                        {heroPost.title}
+                      </h3>
+                      {heroPost.excerpt && (
+                        <p className="mt-1 line-clamp-2 text-sm text-white/70">
+                          {heroPost.excerpt}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
                 </FadeIn>
               )}
+
+              {/* Featured: 3 own post cards */}
+              {featuredPosts.length > 0 && (
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {featuredPosts.map((post: PostWithAuthor, i: number) => (
+                    <FadeIn key={post.id} delay={i * 0.05}>
+                      <Link href={`/vijesti/${post.slug}`} className="group block">
+                        <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white transition-shadow group-hover:shadow-md">
+                          <div className="aspect-[16/9] overflow-hidden">
+                            {post.featuredImage ? (
+                              <img
+                                src={post.featuredImage}
+                                alt={post.title}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-gradient-to-br from-primary-500 to-primary-700" />
+                            )}
+                          </div>
+                          <div className="p-3.5">
+                            {post.publishedAt && (
+                              <span className="text-[10px] text-neutral-400">
+                                {new Date(post.publishedAt).toLocaleDateString('hr-HR')}
+                              </span>
+                            )}
+                            <h4 className="mt-1 line-clamp-2 text-sm font-semibold text-neutral-900 group-hover:text-primary-600">
+                              {post.title}
+                            </h4>
+                            {post.excerpt && (
+                              <p className="mt-1 line-clamp-2 text-xs text-neutral-500">{post.excerpt}</p>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    </FadeIn>
+                  ))}
+                </div>
+              )}
+
+              {/* View all link */}
+              <FadeIn delay={0.15}>
+                <Link
+                  href="/vijesti"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
+                >
+                  Sve vijesti
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </FadeIn>
             </div>
 
-            {/* Sidebar - Announcements & Documents */}
+            {/* Right Rail - with color accents */}
             <div className="min-w-0 space-y-6">
-              {/* Announcements */}
+              {/* Obavijesti */}
               <FadeIn>
-                <div className="rounded-xl bg-white p-4 shadow-sm">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-display text-lg font-semibold text-neutral-900">
-                      Obavijesti
-                    </h3>
-                    <Link
-                      href="/obavijesti"
-                      className="text-xs font-medium text-primary-600 hover:text-primary-700"
-                    >
-                      Sve obavijesti
-                    </Link>
-                  </div>
-                  {latestAnnouncements.length > 0 ? (
-                    <div className="space-y-2">
-                      {latestAnnouncements.map((announcement: AnnouncementWithAuthor) => (
-                        <AnnouncementCompactCard
-                          key={announcement.id}
-                          title={announcement.title}
-                          slug={announcement.slug}
-                          category={announcement.category}
-                          publishedAt={announcement.publishedAt}
-                          attachmentCount={announcement.attachments?.length ?? 0}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="py-4 text-center text-sm text-neutral-500">
-                      Trenutno nema aktivnih obavijesti.{' '}
-                      <Link href="/obavijesti" className="text-primary-600 hover:underline">
-                        Pogledajte arhivu
+                <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                  <div className="h-1.5 bg-primary-500" />
+                  <div className="p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-neutral-900">Obavijesti</h3>
+                      <Link
+                        href="/obavijesti"
+                        className="text-xs font-medium text-primary-600 hover:text-primary-700"
+                      >
+                        Sve
                       </Link>
-                      .
-                    </p>
-                  )}
+                    </div>
+                    {latestAnnouncements.length > 0 ? (
+                      <div className="mt-3 divide-y divide-neutral-100">
+                        {latestAnnouncements.map((a: AnnouncementWithAuthor) => (
+                          <Link
+                            key={a.id}
+                            href={`/obavijesti/${a.slug}`}
+                            className="group block py-2.5"
+                          >
+                            <p className="line-clamp-2 text-sm text-neutral-700 group-hover:text-primary-600">
+                              {a.title}
+                            </p>
+                            {a.publishedAt && (
+                              <p className="mt-0.5 text-xs text-neutral-400">
+                                {new Date(a.publishedAt).toLocaleDateString('hr-HR')}
+                              </p>
+                            )}
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-neutral-400">
+                        Nema aktivnih obavijesti.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </FadeIn>
 
-              {/* Latest Documents */}
+              {/* Dokumenti */}
               <FadeIn delay={0.1}>
-                <div className="rounded-xl bg-white p-4 shadow-sm">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-display text-lg font-semibold text-neutral-900">
-                      Dokumenti
-                    </h3>
-                    <Link
-                      href="/dokumenti"
-                      className="text-xs font-medium text-primary-600 hover:text-primary-700"
-                    >
-                      Svi dokumenti
-                    </Link>
-                  </div>
-                  {latestDocuments.length > 0 ? (
-                    <div className="-mx-2">
-                      {latestDocuments.map((doc: DocumentWithUploader) => (
-                        <DocumentListItem
-                          key={doc.id}
-                          title={doc.title}
-                          category={doc.category}
-                          fileUrl={doc.fileUrl}
-                          fileSize={doc.fileSize}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="py-4 text-center text-sm text-neutral-500">
-                      Trenutno nema objavljenih dokumenata.{' '}
-                      <Link href="/dokumenti" className="text-primary-600 hover:underline">
-                        Pogledajte repozitorij
+                <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                  <div className="h-1.5 bg-amber-500" />
+                  <div className="p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-neutral-900">Dokumenti</h3>
+                      <Link
+                        href="/dokumenti"
+                        className="text-xs font-medium text-primary-600 hover:text-primary-700"
+                      >
+                        Svi
                       </Link>
-                      .
-                    </p>
-                  )}
+                    </div>
+                    {latestDocuments.length > 0 ? (
+                      <div className="mt-3 divide-y divide-neutral-100">
+                        {latestDocuments.map((doc: DocumentWithUploader) => (
+                          <a
+                            key={doc.id}
+                            href={doc.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-3 py-2.5"
+                          >
+                            <FileText className="h-4 w-4 flex-shrink-0 text-neutral-400" />
+                            <p className="min-w-0 flex-1 truncate text-sm text-neutral-700 group-hover:text-primary-600">
+                              {doc.title}
+                            </p>
+                            {doc.fileSize != null && (
+                              <span className="flex-shrink-0 text-xs text-neutral-400">
+                                {doc.fileSize > 1048576
+                                  ? `${(doc.fileSize / 1048576).toFixed(1)} MB`
+                                  : `${Math.round(doc.fileSize / 1024)} KB`}
+                              </span>
+                            )}
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-neutral-400">
+                        Nema dokumenata.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </FadeIn>
             </div>
           </div>
+
+          {/* Bottom: External news - full width, 3 columns by source */}
+          {externalColumns.length > 0 && (
+            <div className="mt-12">
+              <FadeIn>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                  Najnovije iz zajednice
+                </h3>
+              </FadeIn>
+              <div className="mt-5 grid gap-6 md:grid-cols-3">
+                {externalColumns.map((col, colIdx) => (
+                  <FadeIn key={col.label} delay={colIdx * 0.05}>
+                    <div>
+                      {/* Column header with colored accent */}
+                      <a
+                        href={col.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center gap-2.5"
+                      >
+                        <span className={`h-6 w-1 rounded-full ${col.accent}`} />
+                        <div>
+                          <h4 className={`text-xs font-bold uppercase tracking-wider ${col.color}`}>
+                            {col.label}
+                          </h4>
+                          <p className="text-xs text-neutral-400 group-hover:text-neutral-600">
+                            {col.fullName}
+                          </p>
+                        </div>
+                        <ExternalLink className="ml-auto h-3 w-3 text-neutral-300" />
+                      </a>
+
+                      {/* Cards */}
+                      <div className="mt-3 space-y-3">
+                        {col.items.map((item) => {
+                          const d = new Date(item.date);
+                          const dateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}.`;
+                          return (
+                            <a
+                              key={item.url}
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group block rounded-lg border border-neutral-100 bg-white p-4 transition-shadow hover:shadow-sm"
+                            >
+                              <p className="text-xs font-medium text-neutral-400">
+                                {dateStr}
+                              </p>
+                              <h4 className="mt-1.5 line-clamp-2 text-sm font-semibold text-neutral-900 group-hover:text-primary-600">
+                                {item.title}
+                              </h4>
+                              {item.excerpt && (
+                                <p className="mt-1 line-clamp-2 text-xs text-neutral-500">
+                                  {item.excerpt}
+                                </p>
+                              )}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </FadeIn>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

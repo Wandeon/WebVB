@@ -7,6 +7,7 @@ import {
   FileSearch,
   FileText,
   MessageSquare,
+  Store,
   Trash2,
   Users,
 } from 'lucide-react';
@@ -23,6 +24,7 @@ const iconMap: Record<string, LucideIcon> = {
   fileSearch: FileSearch,
   fileText: FileText,
   messageSquare: MessageSquare,
+  store: Store,
   trash2: Trash2,
   users: Users,
 };
@@ -38,6 +40,7 @@ export type QuickLinkIconName = keyof typeof iconMap;
  * - slate: Neutral slate (documents/formal)
  */
 export type QuickLinkColorVariant = 'sky' | 'gold' | 'green' | 'rose' | 'slate';
+export type QuickLinkLayout = 'horizontal' | 'vertical';
 
 export interface QuickLinkCardProps {
   title: string;
@@ -50,6 +53,8 @@ export interface QuickLinkCardProps {
   color?: QuickLinkColorVariant;
   /** Size affects padding and typography */
   size?: 'small' | 'large';
+  /** Layout direction for bento cards: horizontal puts icon beside title */
+  layout?: QuickLinkLayout;
   className?: string;
   /** Optional dynamic content rendered below description in bento variant */
   children?: React.ReactNode;
@@ -102,12 +107,14 @@ export function QuickLinkCard({
   variant = 'standard',
   color = 'green',
   size = 'large',
+  layout = 'vertical',
   className,
   children,
 }: QuickLinkCardProps) {
   const isExternal = href.startsWith('http');
   const isBento = variant === 'bento';
   const isLarge = size === 'large';
+  const isHorizontal = layout === 'horizontal';
 
   // Resolve icon - can be a string name or direct component
   const Icon = typeof icon === 'string' ? iconMap[icon] || FileText : icon;
@@ -182,54 +189,65 @@ export function QuickLinkCard({
         )} />
       </div>
 
-      <div className="relative z-10 flex h-full flex-col">
-        {/* Icon */}
-        <div
-          className={cn(
-            'flex items-center justify-center rounded-lg sm:rounded-xl transition-transform duration-300 group-hover:scale-110',
-            colorCfg.iconBg,
-            isLarge ? 'mb-2 h-10 w-10 sm:mb-4 sm:h-12 sm:w-12 md:mb-5 md:h-14 md:w-14' : 'mb-2 h-8 w-8 sm:mb-3 sm:h-10 sm:w-10 md:h-12 md:w-12'
-          )}
-        >
-          <Icon className={isLarge ? 'h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7' : 'h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6'} />
+      {isHorizontal ? (
+        /* Horizontal: icon+title row, then children + CTA full-width at bottom */
+        <div className="relative z-10 flex h-full flex-col">
+          <div className={cn('flex items-start', isLarge ? 'gap-3 sm:gap-4' : 'gap-2.5 sm:gap-3')}>
+            <div
+              className={cn(
+                'flex flex-shrink-0 items-center justify-center rounded-lg sm:rounded-xl transition-transform duration-300 group-hover:scale-110',
+                colorCfg.iconBg,
+                isLarge ? 'h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14' : 'h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12'
+              )}
+            >
+              <Icon className={isLarge ? 'h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7' : 'h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6'} />
+            </div>
+            <div className="min-w-0">
+              <h3 className={cn('font-display font-bold text-white', isLarge ? 'text-base sm:text-lg md:text-xl' : 'text-sm sm:text-base md:text-lg')}>
+                {title}
+              </h3>
+              <p className={cn('mt-0.5 text-white/85', isLarge ? 'text-xs sm:text-sm md:text-base' : 'line-clamp-2 text-xs sm:text-sm')}>
+                {description}
+              </p>
+            </div>
+          </div>
+
+          {children && <div className={cn('flex-1', isLarge ? 'mt-3' : 'mt-2')}>{children}</div>}
+
+          <div className={cn('flex items-center text-xs sm:text-sm font-semibold text-white', isLarge ? 'mt-2 sm:mt-4 md:mt-5' : 'mt-2 sm:mt-3')}>
+            <span>Saznaj više</span>
+            <ArrowRight className={cn('ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-2', isLarge ? 'md:h-5 md:w-5' : '')} />
+          </div>
         </div>
-
-        {/* Title */}
-        <h3
-          className={cn(
-            'font-display font-bold text-white',
-            isLarge ? 'text-base sm:text-lg md:text-xl' : 'text-sm sm:text-base md:text-lg'
-          )}
-        >
-          {title}
-        </h3>
-
-        {/* Description - hidden on very small screens for non-large cards */}
-        <p
-          className={cn(
-            'mt-1 sm:mt-2 flex-1 text-white/85',
-            isLarge ? 'text-xs sm:text-sm md:text-base' : 'hidden sm:block line-clamp-2 text-xs sm:text-sm'
-          )}
-        >
-          {description}
-        </p>
-
-        {children && <div className="mt-3">{children}</div>}
-
-        {/* CTA */}
-        <div className={cn(
-          'mt-2 sm:mt-4 flex items-center text-xs sm:text-sm font-semibold text-white',
-          isLarge ? 'md:mt-5' : ''
-        )}>
-          <span>Saznaj više</span>
-          <ArrowRight
+      ) : (
+        /* Vertical: stacked layout for narrow cards */
+        <div className="relative z-10 flex h-full flex-col">
+          <div
             className={cn(
-              'ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-2',
-              isLarge ? 'md:h-5 md:w-5' : ''
+              'flex items-center justify-center rounded-lg sm:rounded-xl transition-transform duration-300 group-hover:scale-110',
+              colorCfg.iconBg,
+              isLarge ? 'mb-2 h-10 w-10 sm:mb-4 sm:h-12 sm:w-12 md:mb-5 md:h-14 md:w-14' : 'mb-2 h-8 w-8 sm:mb-3 sm:h-10 sm:w-10 md:h-12 md:w-12'
             )}
-          />
+          >
+            <Icon className={isLarge ? 'h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7' : 'h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6'} />
+          </div>
+
+          <h3 className={cn('font-display font-bold text-white', isLarge ? 'text-base sm:text-lg md:text-xl' : 'text-sm sm:text-base md:text-lg')}>
+            {title}
+          </h3>
+
+          <p className={cn('mt-1 sm:mt-2 flex-1 text-white/85', isLarge ? 'text-xs sm:text-sm md:text-base' : 'hidden sm:block line-clamp-2 text-xs sm:text-sm')}>
+            {description}
+          </p>
+
+          {children && <div className="mt-3">{children}</div>}
+
+          <div className={cn('flex items-center text-xs sm:text-sm font-semibold text-white', isLarge ? 'mt-2 sm:mt-4 md:mt-5' : 'mt-2 sm:mt-4')}>
+            <span>Saznaj više</span>
+            <ArrowRight className={cn('ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-2', isLarge ? 'md:h-5 md:w-5' : '')} />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 

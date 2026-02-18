@@ -43,6 +43,7 @@ export const sidebarSections: NavSection[] = [
       { id: 'zupa', label: 'Župa', href: '/zupa' },
       { id: 'skola', label: 'Škola', href: '/skola' },
       { id: 'udruge', label: 'Udruge', href: '/udruge' },
+      { id: 'poduzetnistvo', label: 'Poduzetništvo', href: '/poduzetnistvo' },
     ],
   },
   {

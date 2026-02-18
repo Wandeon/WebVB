@@ -121,62 +121,68 @@ function WeatherWidget() {
 }
 
 function OfficeStatus() {
-  const [isOpen, setIsOpen] = useState(false);
   const [statusText, setStatusText] = useState('');
 
   useEffect(() => {
     const checkStatus = () => {
       const now = new Date();
-      const day = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-      const hour = now.getHours();
-      const minute = now.getMinutes();
-      const currentMinutes = hour * 60 + minute;
-
-      // Office hours: Mon-Fri, 7:00-15:00
-      const openTime = 7 * 60; // 7:00
-      const closeTime = 15 * 60; // 15:00
+      const day = now.getDay();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const openTime = 420; // 7:00
+      const closeTime = 900; // 15:00
 
       if (day >= 1 && day <= 5 && currentMinutes >= openTime && currentMinutes < closeTime) {
-        setIsOpen(true);
         const remainingMinutes = closeTime - currentMinutes;
         const hours = Math.floor(remainingMinutes / 60);
         const mins = remainingMinutes % 60;
         setStatusText(`Zatvara za ${hours}h ${mins}min`);
+      } else if (day === 0 || day === 6) {
+        setStatusText('Otvara u ponedjeljak u 7:00');
+      } else if (currentMinutes < openTime) {
+        setStatusText('Otvara danas u 7:00');
       } else {
-        setIsOpen(false);
-        // Calculate when it opens next
-        if (day === 0) {
-          setStatusText('Otvara u ponedjeljak u 7:00');
-        } else if (day === 6) {
-          setStatusText('Otvara u ponedjeljak u 7:00');
-        } else if (currentMinutes < openTime) {
-          setStatusText('Otvara danas u 7:00');
-        } else {
-          setStatusText(day === 5 ? 'Otvara u ponedjeljak u 7:00' : 'Otvara sutra u 7:00');
-        }
+        setStatusText(day === 5 ? 'Otvara u ponedjeljak u 7:00' : 'Otvara sutra u 7:00');
       }
     };
 
     checkStatus();
-    const interval = setInterval(checkStatus, 60000); // Update every minute
+    const interval = setInterval(checkStatus, 60000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <div className="text-sm font-medium text-sky-900">Upravni odjel</div>
-        <div className="text-xs text-sky-600">{statusText || 'Provjeravam...'}</div>
-      </div>
-      <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-        isOpen
-          ? 'bg-emerald-100 text-emerald-700'
-          : 'bg-red-100 text-red-700'
-      }`}>
-        <span className={`h-1.5 w-1.5 rounded-full ${isOpen ? 'bg-emerald-500' : 'bg-red-500'}`} />
-        {isOpen ? 'Otvoreno' : 'Zatvoreno'}
-      </span>
+    <div>
+      <div className="text-sm font-medium text-sky-900">Upravni odjel</div>
+      <div className="text-xs text-sky-600">{statusText || 'Provjeravam...'}</div>
     </div>
+  );
+}
+
+function OfficeStatusPill() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const checkStatus = () => {
+      const now = new Date();
+      const day = now.getDay();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      setIsOpen(day >= 1 && day <= 5 && currentMinutes >= 420 && currentMinutes < 900);
+    };
+
+    checkStatus();
+    const interval = setInterval(checkStatus, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+      isOpen
+        ? 'bg-emerald-100 text-emerald-700'
+        : 'bg-red-100 text-red-700'
+    }`}>
+      <span className={`h-2 w-2 rounded-full ${isOpen ? 'bg-emerald-500' : 'bg-red-500'}`} />
+      {isOpen ? 'Otvoreno' : 'Zatvoreno'}
+    </span>
   );
 }
 
@@ -207,10 +213,31 @@ export function SmartDashboard({ galleries }: SmartDashboardProps) {
 
         {/* Office Status */}
         <div className="mb-4 rounded-2xl bg-white/60 p-4 backdrop-blur-sm shadow-sm">
-          <OfficeStatus />
+          <div className="grid grid-cols-3 gap-3">
+            <OfficeStatus />
+            <a href="tel:042840040" className="flex items-center justify-center gap-2 text-sky-700 hover:text-sky-900 transition-colors">
+              <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+              <div>
+                <div className="text-[10px] text-sky-500">Uprava</div>
+                <div className="text-xs font-medium">042 840 040</div>
+              </div>
+            </a>
+            <a href="tel:0914840040" className="flex items-center justify-center gap-2 text-sky-700 hover:text-sky-900 transition-colors">
+              <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+              <div>
+                <div className="text-[10px] text-sky-500">Načelnik</div>
+                <div className="text-xs font-medium">091 4840 040</div>
+              </div>
+            </a>
+          </div>
           <div className="mt-3 pt-3 border-t border-sky-200/50 text-xs text-sky-600">
-            <p>Pon - Pet: 07:00 - 15:00</p>
-            <p className="text-sky-500">Dravska 7, 42231 Mali Bukovec</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p>Pon - Pet: 07:00 - 15:00</p>
+                <p className="text-sky-500">Dravska 7, 42231 Mali Bukovec</p>
+              </div>
+              <OfficeStatusPill />
+            </div>
           </div>
         </div>
 

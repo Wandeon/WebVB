@@ -327,6 +327,37 @@ export const eventsRepository = {
       take: safeLimit,
     });
   },
+
+  /**
+   * Get waste collection events for the current week (Mon-Sun).
+   * On Saturday, returns next week's events instead.
+   */
+  async getWeekWasteEvents(): Promise<Event[]> {
+    const now = new Date();
+    const zagrebNow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Zagreb' }));
+    const day = zagrebNow.getDay(); // 0=Sun, 1=Mon...
+
+    const monday = new Date(zagrebNow);
+    if (day === 6) {
+      // Saturday: show next week
+      monday.setDate(monday.getDate() + 2);
+    } else {
+      const daysFromMonday = day === 0 ? 6 : day - 1;
+      monday.setDate(monday.getDate() - daysFromMonday);
+    }
+    monday.setHours(0, 0, 0, 0);
+
+    const nextMonday = new Date(monday);
+    nextMonday.setDate(nextMonday.getDate() + 7);
+
+    return db.event.findMany({
+      where: {
+        eventDate: { gte: monday, lt: nextMonday },
+        title: { startsWith: 'Odvoz otpada:', mode: 'insensitive' },
+      },
+      orderBy: { eventDate: 'asc' },
+    });
+  },
 };
 
 function getZagrebStartOfDay(): Date {
