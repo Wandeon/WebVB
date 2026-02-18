@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { reorderImagesSchema } from '@/lib/validations/gallery';
 
 import type { NextRequest } from 'next/server';
@@ -91,6 +92,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { galleryId: id, imageCount: imageIds.length },
       'Redoslijed slika uspješno ažuriran'
     );
+
+    triggerRebuild(`gallery-reordered:${id}`);
 
     return apiSuccess({ reordered: true });
   } catch (error) {

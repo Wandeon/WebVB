@@ -6,6 +6,7 @@ import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { eventsLogger } from '@/lib/logger';
 import { deleteImageVariantsFromUrl } from '@/lib/r2';
+import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 import { updateEventSchema } from '@/lib/validations/event';
 
@@ -158,6 +159,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     eventsLogger.info({ eventId }, 'Događaj uspješno ažuriran');
 
+    triggerRebuild(`event-updated:${event.id}`);
+
     return apiSuccess(event);
   } catch (error) {
     eventsLogger.error({ error }, 'Greška prilikom ažuriranja događaja');
@@ -231,6 +234,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { eventId, title: deletedEvent.title },
       'Događaj uspješno obrisan'
     );
+
+    triggerRebuild(`event-deleted:${deletedEvent.id}`);
 
     return apiSuccess({ deleted: true });
   } catch (error) {

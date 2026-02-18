@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { pagesLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { generateSlug } from '@/lib/utils/slug';
 import { createPageSchema, pageQuerySchema } from '@/lib/validations/page';
 
@@ -133,6 +134,8 @@ export async function POST(request: NextRequest) {
     });
 
     pagesLogger.info({ pageId: page.id, slug }, 'Stranica uspješno stvorena');
+
+    triggerRebuild(`page-created:${page.id}`);
 
     return apiSuccess(page, 201);
   } catch (error) {

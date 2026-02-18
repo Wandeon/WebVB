@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
 import { updateAnnouncementSchema } from '@/lib/validations/announcement';
@@ -138,6 +139,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     announcementsLogger.info({ announcementId }, 'Obavijest uspješno ažurirana');
 
+    if (announcement.publishedAt || existingAnnouncement.publishedAt) {
+      triggerRebuild(`announcement-updated:${announcement.id}`);
+    }
+
     return apiSuccess(announcement);
   } catch (error) {
     announcementsLogger.error({ error }, 'Greška prilikom ažuriranja obavijesti');
@@ -185,6 +190,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
 
     announcementsLogger.info({ announcementId }, 'Obavijest uspješno obrisana');
+
+    if (existingAnnouncement.publishedAt) {
+      triggerRebuild(`announcement-deleted:${existingAnnouncement.id}`);
+    }
 
     return apiSuccess({ deleted: true });
   } catch (error) {

@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { postsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
 import { updatePostSchema } from '@/lib/validations/post';
@@ -149,6 +150,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     postsLogger.info({ postId }, 'Objava uspješno ažurirana');
 
+    // Rebuild if post is published or was just unpublished
+    if (post.publishedAt || existingPost.publishedAt) {
+      triggerRebuild(`post-updated:${post.id}`);
+    }
+
     return apiSuccess(post);
   } catch (error) {
     postsLogger.error({ error }, 'Greška prilikom ažuriranja objave');
@@ -205,6 +211,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
 
     postsLogger.info({ postId }, 'Objava uspješno obrisana');
+
+    if (existingPost.publishedAt) {
+      triggerRebuild(`post-deleted:${existingPost.id}`);
+    }
 
     return apiSuccess({ deleted: true });
   } catch (error) {

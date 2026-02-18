@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { generateSlug } from '@/lib/utils/slug';
 import { announcementQuerySchema, createAnnouncementSchema } from '@/lib/validations/announcement';
 
@@ -133,6 +134,10 @@ export async function POST(request: NextRequest) {
       { announcementId: announcement.id, slug },
       'Obavijest uspješno stvorena'
     );
+
+    if (announcement.publishedAt) {
+      triggerRebuild(`announcement-created:${announcement.id}`);
+    }
 
     return apiSuccess(announcement, 201);
   } catch (error) {

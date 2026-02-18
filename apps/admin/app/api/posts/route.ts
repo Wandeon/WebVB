@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { postsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { generateSlug } from '@/lib/utils/slug';
 import { createPostSchema, postQuerySchema } from '@/lib/validations/post';
 
@@ -141,6 +142,10 @@ export async function POST(request: NextRequest) {
     });
 
     postsLogger.info({ postId: post.id, slug }, 'Objava uspješno stvorena');
+
+    if (post.publishedAt) {
+      triggerRebuild(`post-created:${post.id}`);
+    }
 
     return apiSuccess(post, 201);
   } catch (error) {

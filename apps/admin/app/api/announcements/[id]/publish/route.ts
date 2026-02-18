@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 
 import type { NextRequest } from 'next/server';
 
@@ -53,6 +54,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     announcementsLogger.info({ announcementId: id }, 'Obavijest uspješno objavljena');
+
+    triggerRebuild(`announcement-published:${announcement.id}`);
 
     return apiSuccess(announcement);
   } catch (error) {
@@ -106,6 +109,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
 
     announcementsLogger.info({ announcementId: id }, 'Obavijest uspješno povučena');
+
+    triggerRebuild(`announcement-unpublished:${announcement.id}`);
 
     return apiSuccess(announcement);
   } catch (error) {

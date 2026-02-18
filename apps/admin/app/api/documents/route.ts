@@ -10,6 +10,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 
 import type { NextRequest } from 'next/server';
 
@@ -127,6 +128,8 @@ export async function POST(request: NextRequest) {
       { documentId: document.id, category, title },
       'Document created successfully'
     );
+
+    triggerRebuild(`document-created:${document.id}`);
 
     return apiSuccess(document, 201);
   } catch (error) {

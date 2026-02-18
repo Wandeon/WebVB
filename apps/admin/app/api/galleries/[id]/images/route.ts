@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { addGalleryImagesSchema } from '@/lib/validations/gallery';
 
 import type { NextRequest } from 'next/server';
@@ -60,6 +61,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { galleryId: id, count: addedImages.length },
       'Slike uspješno dodane u galeriju'
     );
+
+    triggerRebuild(`gallery-images-added:${id}`);
 
     return apiSuccess(addedImages, 201);
   } catch (error) {

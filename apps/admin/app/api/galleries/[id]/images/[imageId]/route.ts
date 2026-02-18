@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { galleriesLogger } from '@/lib/logger';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
+import { triggerRebuild } from '@/lib/rebuild';
 import { updateImageCaptionSchema } from '@/lib/validations/gallery';
 
 import type { NextRequest } from 'next/server';
@@ -60,6 +61,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { galleryId: id, imageId },
       'Opis slike uspješno ažuriran'
     );
+
+    triggerRebuild(`gallery-image-updated:${id}`);
 
     return apiSuccess(updatedImage);
   } catch (error) {
@@ -148,6 +151,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { galleryId: id, imageId },
       'Slika uspješno obrisana iz galerije'
     );
+
+    triggerRebuild(`gallery-image-deleted:${id}`);
 
     return apiSuccess({ deleted: true });
   } catch (error) {

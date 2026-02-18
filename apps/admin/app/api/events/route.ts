@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { eventsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { createEventSchema, eventQuerySchema } from '@/lib/validations/event';
 
 import type { NextRequest } from 'next/server';
@@ -143,6 +144,8 @@ export async function POST(request: NextRequest) {
       { eventId: event.id, title },
       'Događaj uspješno stvoren'
     );
+
+    triggerRebuild(`event-created:${event.id}`);
 
     return apiSuccess(event, 201);
   } catch (error) {

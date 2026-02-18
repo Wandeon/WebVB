@@ -6,6 +6,7 @@ import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
+import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
 import { updateGallerySchema } from '@/lib/validations/gallery';
@@ -148,6 +149,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     galleriesLogger.info({ galleryId, slug: gallery.slug }, 'Galerija uspješno ažurirana');
 
+    triggerRebuild(`gallery-updated:${gallery.id}`);
+
     return apiSuccess(gallery);
   } catch (error) {
     galleriesLogger.error({ error }, 'Greška prilikom ažuriranja galerije');
@@ -262,6 +265,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { galleryId, name: deletedGallery.name },
       'Galerija uspješno obrisana'
     );
+
+    triggerRebuild(`gallery-deleted:${deletedGallery.id}`);
 
     return apiSuccess({ deleted: true });
   } catch (error) {

@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 
 import type { NextRequest } from 'next/server';
 
@@ -58,6 +59,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { announcementId: id, attachmentId },
       'Privitak uspješno uklonjen'
     );
+
+    triggerRebuild(`announcement-attachment-removed:${id}`);
 
     return apiSuccess({ deleted: true });
   } catch (error) {

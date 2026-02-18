@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { addAttachmentSchema, reorderAttachmentsSchema } from '@/lib/validations/announcement';
 
 import type { NextRequest } from 'next/server';
@@ -66,6 +67,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       'Privitak uspješno dodan obavijesti'
     );
 
+    triggerRebuild(`announcement-attachment-added:${id}`);
+
     return apiSuccess(attachment, 201);
   } catch (error) {
     announcementsLogger.error({ error }, 'Greška prilikom dodavanja privitka');
@@ -124,6 +127,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { announcementId: id },
       'Redoslijed privitaka uspješno ažuriran'
     );
+
+    triggerRebuild(`announcement-attachments-reordered:${id}`);
 
     // Return updated announcement with attachments
     const announcement = await announcementsRepository.findById(id);

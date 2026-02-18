@@ -7,6 +7,7 @@ import { createAuditLog } from '@/lib/audit-log';
 import { documentsLogger } from '@/lib/logger';
 import { getTextLogFields } from '@/lib/pii';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
+import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 
 import type { NextRequest } from 'next/server';
@@ -85,6 +86,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     documentsLogger.info({ documentId }, 'Document updated successfully');
 
+    triggerRebuild(`document-updated:${document.id}`);
+
     return apiSuccess(document);
   } catch (error) {
     documentsLogger.error({ error }, 'Failed to update document');
@@ -159,6 +162,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { documentId, title: getTextLogFields(deletedDocument.title) },
       'Document deleted successfully'
     );
+
+    triggerRebuild(`document-deleted:${deletedDocument.id}`);
 
     return apiSuccess({ deleted: true });
   } catch (error) {

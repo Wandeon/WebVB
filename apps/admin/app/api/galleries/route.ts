@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { generateSlug } from '@/lib/utils/slug';
 import { createGallerySchema, galleryQuerySchema } from '@/lib/validations/gallery';
 
@@ -115,6 +116,8 @@ export async function POST(request: NextRequest) {
       { galleryId: gallery.id, slug },
       'Galerija uspješno stvorena'
     );
+
+    triggerRebuild(`gallery-created:${gallery.id}`);
 
     return apiSuccess(gallery, 201);
   } catch (error) {

@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { pagesLogger } from '@/lib/logger';
+import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
 import { updatePageSchema } from '@/lib/validations/page';
@@ -154,6 +155,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     pagesLogger.info({ pageId: page.id, slug: page.slug }, 'Stranica uspješno ažurirana');
 
+    triggerRebuild(`page-updated:${page.id}`);
+
     return apiSuccess(page);
   } catch (error) {
     pagesLogger.error({ error }, 'Greška prilikom ažuriranja stranice');
@@ -202,6 +205,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
 
     pagesLogger.info({ pageId }, 'Stranica uspješno obrisana');
+
+    triggerRebuild(`page-deleted:${existingPage.id}`);
 
     return apiSuccess({ deleted: true });
   } catch (error) {
