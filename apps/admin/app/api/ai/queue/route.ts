@@ -141,6 +141,9 @@ export async function GET(request: NextRequest) {
       requestType: query.data.requestType,
       page: query.data.page,
       limit: query.data.limit,
+      userId: authResult.context.role === 'admin' || authResult.context.role === 'super_admin'
+        ? undefined  // Admins see all
+        : authResult.context.userId,  // Staff sees own only
     });
 
     return apiSuccess({ jobs, pagination });

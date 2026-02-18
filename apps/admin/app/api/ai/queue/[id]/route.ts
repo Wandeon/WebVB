@@ -35,6 +35,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'AI zadatak nije pronađen', 404);
     }
 
+    // Check ownership for non-admin users
+    if (job.userId !== authResult.context.userId
+        && authResult.context.role !== 'admin'
+        && authResult.context.role !== 'super_admin') {
+      return apiError(ErrorCodes.FORBIDDEN, 'Nemate pristup ovom zadatku', 403);
+    }
+
     return apiSuccess(job);
   } catch (error) {
     aiLogger.error({ error }, 'Greška pri dohvaćanju AI zadatka');
@@ -62,6 +69,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     if ('response' in authResult) {
       return authResult.response;
+    }
+
+    // Check existence and ownership before cancelling
+    const existingJob = await aiQueueRepository.findById(jobId);
+
+    if (!existingJob) {
+      return apiError(ErrorCodes.NOT_FOUND, 'AI zadatak nije pronađen', 404);
+    }
+
+    // Check ownership for non-admin users
+    if (existingJob.userId !== authResult.context.userId
+        && authResult.context.role !== 'admin'
+        && authResult.context.role !== 'super_admin') {
+      return apiError(ErrorCodes.FORBIDDEN, 'Nemate pristup ovom zadatku', 403);
     }
 
     const job = await aiQueueRepository.cancel(jobId);

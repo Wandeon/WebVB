@@ -1,3 +1,5 @@
+import { timingSafeEqual } from 'node:crypto';
+
 import { Prisma } from '@prisma/client';
 
 import { db } from '../client';
@@ -74,6 +76,12 @@ export async function getByEndpoint(endpoint: string): Promise<PushSubscription 
   });
 }
 
+// Constant-time string comparison to prevent timing attacks
+function constantTimeEquals(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
 // Verify ownership by checking endpoint + keys match
 export async function verifyOwnership(
   endpoint: string,
@@ -90,10 +98,7 @@ export async function verifyOwnership(
   }
 
   // Constant-time comparison to prevent timing attacks
-  const p256dhMatch = subscription.p256dh === p256dh;
-  const authMatch = subscription.auth === auth;
-
-  return p256dhMatch && authMatch;
+  return constantTimeEquals(subscription.p256dh, p256dh) && constantTimeEquals(subscription.auth, auth);
 }
 
 // Update subscription topics

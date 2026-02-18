@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 // PUT /api/newsletter/draft - Update intro text
 export async function PUT(request: NextRequest) {
   try {
-    const authResult = await requireAuth(request);
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
       return authResult.response;
@@ -70,7 +70,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/newsletter/draft - Clear draft
 export async function DELETE(request: NextRequest) {
   try {
-    const authResult = await requireAuth(request);
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
       return authResult.response;
