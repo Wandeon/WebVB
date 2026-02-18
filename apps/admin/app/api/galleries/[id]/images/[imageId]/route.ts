@@ -5,6 +5,7 @@ import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { galleriesLogger } from '@/lib/logger';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
 import { triggerRebuild } from '@/lib/rebuild';
+import { parseUuidParam } from '@/lib/request-validation';
 import { updateImageCaptionSchema } from '@/lib/validations/gallery';
 
 import type { NextRequest } from 'next/server';
@@ -17,6 +18,16 @@ interface RouteParams {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id, imageId } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const galleryId = idResult.id;
+    const imageIdResult = parseUuidParam(imageId);
+    if (!imageIdResult.success) {
+      return imageIdResult.response;
+    }
+    const validatedImageId = imageIdResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
@@ -26,21 +37,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const body: unknown = await request.json();
 
     // Validate gallery exists
-    const galleryExists = await galleriesRepository.exists(id);
+    const galleryExists = await galleriesRepository.exists(galleryId);
 
     if (!galleryExists) {
       return apiError(ErrorCodes.NOT_FOUND, 'Galerija nije pronađena', 404);
     }
 
     // Validate image exists
-    const existingImage = await galleriesRepository.getImageById(imageId);
+    const existingImage = await galleriesRepository.getImageById(validatedImageId);
 
     if (!existingImage) {
       return apiError(ErrorCodes.NOT_FOUND, 'Slika nije pronađena', 404);
     }
 
     // Validate image belongs to this gallery
-    if (existingImage.galleryId !== id) {
+    if (existingImage.galleryId !== galleryId) {
       return apiError(ErrorCodes.NOT_FOUND, 'Slika ne pripada ovoj galeriji', 404);
     }
 
@@ -55,14 +66,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const { caption } = validationResult.data;
 
-    const updatedImage = await galleriesRepository.updateImageCaption(imageId, caption ?? null);
+    const updatedImage = await galleriesRepository.updateImageCaption(validatedImageId, caption ?? null);
 
     galleriesLogger.info(
-      { galleryId: id, imageId },
+      { galleryId, imageId: validatedImageId },
       'Opis slike uspješno ažuriran'
     );
 
-    triggerRebuild(`gallery-image-updated:${id}`);
+    triggerRebuild(`gallery-image-updated:${galleryId}`);
 
     return apiSuccess(updatedImage);
   } catch (error) {
@@ -79,6 +90,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id, imageId } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const galleryId = idResult.id;
+    const imageIdResult = parseUuidParam(imageId);
+    if (!imageIdResult.success) {
+      return imageIdResult.response;
+    }
+    const validatedImageId = imageIdResult.id;
     const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
@@ -86,14 +107,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Validate gallery exists
-    const galleryExists = await galleriesRepository.exists(id);
+    const galleryExists = await galleriesRepository.exists(galleryId);
 
     if (!galleryExists) {
       return apiError(ErrorCodes.NOT_FOUND, 'Galerija nije pronađena', 404);
     }
 
     // Validate image exists
-    const existingImage = await galleriesRepository.getImageById(imageId);
+    const existingImage = await galleriesRepository.getImageById(validatedImageId);
 
     if (!existingImage) {
       return apiError(
@@ -104,12 +125,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Validate image belongs to this gallery
-    if (existingImage.galleryId !== id) {
+    if (existingImage.galleryId !== galleryId) {
       return apiError(ErrorCodes.NOT_FOUND, 'Slika ne pripada ovoj galeriji', 404);
     }
 
     // Delete from DB first
-    await galleriesRepository.deleteImage(imageId);
+    await galleriesRepository.deleteImage(validatedImageId);
 
     // Best-effort R2 deletion for main image
     const imageR2Key = getR2KeyFromUrl(existingImage.imageUrl);
@@ -117,12 +138,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       try {
         await deleteFromR2(imageR2Key);
         galleriesLogger.info(
-          { galleryId: id, imageId, r2Key: imageR2Key },
+          { galleryId, imageId: validatedImageId, r2Key: imageR2Key },
           'Slika obrisana iz R2'
         );
       } catch (r2Error) {
         galleriesLogger.error(
-          { galleryId: id, imageId, r2Key: imageR2Key, error: r2Error },
+          { galleryId, imageId: validatedImageId, r2Key: imageR2Key, error: r2Error },
           'Nije uspjelo brisanje slike iz R2 (DB zapis već obrisan)'
         );
       }
@@ -135,12 +156,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         try {
           await deleteFromR2(thumbnailR2Key);
           galleriesLogger.info(
-            { galleryId: id, imageId, r2Key: thumbnailR2Key },
+            { galleryId, imageId: validatedImageId, r2Key: thumbnailR2Key },
             'Sličica obrisana iz R2'
           );
         } catch (r2Error) {
           galleriesLogger.error(
-            { galleryId: id, imageId, r2Key: thumbnailR2Key, error: r2Error },
+            { galleryId, imageId: validatedImageId, r2Key: thumbnailR2Key, error: r2Error },
             'Nije uspjelo brisanje sličice iz R2 (DB zapis već obrisan)'
           );
         }
@@ -148,11 +169,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     galleriesLogger.info(
-      { galleryId: id, imageId },
+      { galleryId, imageId: validatedImageId },
       'Slika uspješno obrisana iz galerije'
     );
 
-    triggerRebuild(`gallery-image-deleted:${id}`);
+    triggerRebuild(`gallery-image-deleted:${galleryId}`);
 
     return apiSuccess({ deleted: true });
   } catch (error) {

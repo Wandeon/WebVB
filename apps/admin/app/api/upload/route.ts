@@ -1,11 +1,14 @@
 import { randomUUID } from 'crypto';
 
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 import sharp from 'sharp';
 
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { postsLogger } from '@/lib/logger';
 import { deleteFromR2, uploadToR2 } from '@/lib/r2';
+import { parseUuidParam } from '@/lib/request-validation';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
@@ -84,7 +87,7 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const authResult = await requireAuth(request);
+    const authResult = await requireAuth(request, { requireAdmin: true });
 
     if ('response' in authResult) {
       return authResult.response;
@@ -97,13 +100,27 @@ export async function DELETE(request: Request) {
       return apiError(ErrorCodes.VALIDATION_ERROR, 'ID slike je obavezan', 400);
     }
 
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const uploadId = idResult.id;
+
     await Promise.all([
-      deleteFromR2(`uploads/${id}/thumb.webp`),
-      deleteFromR2(`uploads/${id}/medium.webp`),
-      deleteFromR2(`uploads/${id}/large.webp`),
+      deleteFromR2(`uploads/${uploadId}/thumb.webp`),
+      deleteFromR2(`uploads/${uploadId}/medium.webp`),
+      deleteFromR2(`uploads/${uploadId}/large.webp`),
     ]);
 
-    postsLogger.info({ imageId: id }, 'Image deleted successfully');
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.UPLOAD,
+      entityId: uploadId,
+    });
+
+    postsLogger.info({ imageId: uploadId }, 'Image deleted successfully');
 
     return apiSuccess({ deleted: true });
   } catch (error) {

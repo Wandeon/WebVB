@@ -3,6 +3,7 @@ import { aiQueueRepository } from '@repo/database';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { aiLogger } from '@/lib/logger';
+import { parseUuidParam } from '@/lib/request-validation';
 
 import type { NextRequest } from 'next/server';
 
@@ -16,14 +17,19 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const jobId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const { id } = await params;
-    const job = await aiQueueRepository.findById(id);
+    const job = await aiQueueRepository.findById(jobId);
 
     if (!job) {
       return apiError(ErrorCodes.NOT_FOUND, 'AI zadatak nije pronađen', 404);
@@ -46,14 +52,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id } = await params;
+    const idResult = parseUuidParam(id);
+    if (!idResult.success) {
+      return idResult.response;
+    }
+    const jobId = idResult.id;
     const authResult = await requireAuth(request);
 
     if ('response' in authResult) {
       return authResult.response;
     }
 
-    const { id } = await params;
-    const job = await aiQueueRepository.cancel(id);
+    const job = await aiQueueRepository.cancel(jobId);
 
     if (!job) {
       return apiError(
@@ -63,7 +74,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    aiLogger.info({ jobId: id }, 'AI job cancelled');
+    aiLogger.info({ jobId }, 'AI job cancelled');
     return apiSuccess({ message: 'AI zadatak je otkazan', job });
   } catch (error) {
     aiLogger.error({ error }, 'Greška pri otkazivanju AI zadatka');

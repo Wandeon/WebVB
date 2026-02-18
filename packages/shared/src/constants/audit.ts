@@ -13,6 +13,7 @@ export const AUDIT_ENTITY_TYPES = {
   GALLERY: 'gallery',
   PAGE: 'page',
   POST: 'post',
+  UPLOAD: 'upload',
   USER: 'user',
 } as const;
 
