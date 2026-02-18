@@ -37,6 +37,7 @@ import { VillageHero } from '../components/village-hero';
 import { experienceItems } from '../lib/experience-items';
 import { externalServices } from '../lib/external-services';
 import { fetchAllExternalNews, type ExternalNewsItem } from '../lib/external-news';
+import { obrti, getTotalCompanies } from '../lib/business-directory';
 import { quickLinks } from '../lib/quick-links';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
@@ -254,9 +255,14 @@ export default async function HomePage() {
 
                   if (area === 'f') {
                     dynamicContent = (
-                      <span className="inline-flex items-center rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-200">
-                        Uskoro
-                      </span>
+                      <div className="flex gap-3 text-xs">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 font-medium text-white/90">
+                          <span className="text-sm font-bold">{obrti.length}</span> Obrti
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 font-medium text-white/90">
+                          <span className="text-sm font-bold">{getTotalCompanies()}</span> Poduzeća
+                        </span>
+                      </div>
                     );
                   }
 

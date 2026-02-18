@@ -26,11 +26,11 @@ import type { PageSection } from '../../lib/navigation';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Obrazovanje | Općina Veliki Bukovec',
+  title: 'Škola i vrtić | Općina Veliki Bukovec',
   description:
     'Obrazovanje u općini Veliki Bukovec - OŠ Veliki Bukovec (od 1830.) i Dječji vrtić Krijesnica. Od vrtića do osmog razreda, sve u lokalnoj zajednici.',
   openGraph: {
-    title: 'Obrazovanje | Općina Veliki Bukovec',
+    title: 'Škola i vrtić | Općina Veliki Bukovec',
     description:
       'Škola i vrtić za našu djecu - obrazovna tradicija od gotovo dva stoljeća.',
     images: ['/images/hero/veliki-bukovec-hero-1.jpg'],
