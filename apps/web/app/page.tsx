@@ -266,7 +266,7 @@ export default async function HomePage() {
                             <span className="ml-1.5 text-xs text-white/70">Aktivnih poduzeća</span>
                           </div>
                         </div>
-                        <div className="rounded-lg bg-white/10 px-3 py-1.5">
+                        <div className="hidden rounded-lg bg-white/10 px-3 py-1.5 sm:block">
                           <span className="text-sm font-bold text-white">{getTotalEmployees()}</span>
                           <span className="ml-1.5 text-xs text-white/70">Zaposlenih na području općine</span>
                         </div>
@@ -278,7 +278,7 @@ export default async function HomePage() {
                     dynamicContent = tenderSummary.items.length > 0 ? (
                       <div className="space-y-1.5">
                         {tenderSummary.items.map((item, i) => (
-                          <div key={i} className="flex items-center gap-2.5 rounded-lg bg-white/10 px-3 py-1.5">
+                          <div key={i} className={`flex items-center gap-2.5 rounded-lg bg-white/10 px-3 py-1.5${i > 0 ? ' hidden sm:flex' : ''}`}>
                             <span className="shrink-0 text-xs text-white/60">
                               {item.validUntil
                                 ? new Date(item.validUntil).toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' })
@@ -290,7 +290,7 @@ export default async function HomePage() {
                           </div>
                         ))}
                         {tenderSummary.count > 2 && (
-                          <div className="rounded-lg bg-white/5 px-3 py-1.5 text-center text-xs text-white/50">
+                          <div className="hidden rounded-lg bg-white/5 px-3 py-1.5 text-center text-xs text-white/50 sm:block">
                             + {tenderSummary.count - 2} {tenderSummary.count - 2 === 1 ? 'natječaj' : 'natječaja'} više
                           </div>
                         )}
