@@ -131,7 +131,7 @@ export const aiQueueRepository = {
       where: {
         userId: userId ?? null,
         requestType,
-        status: { not: 'cancelled' },
+        status: { notIn: ['failed', 'dead_letter', 'cancelled'] },
         inputData: {
           path: ['idempotencyKey'],
           equals: idempotencyKey,
@@ -184,8 +184,9 @@ export const aiQueueRepository = {
   },
 
   /**
-   * Claim the next available job with a lease to prevent duplicate processing.
-   * Allows reclaiming stale processing jobs with expired leases.
+   * Atomically claim the next available job using FOR UPDATE SKIP LOCKED.
+   * Prevents double-claiming and handles expired leases in a single query.
+   * The WHERE clause enforces attempts < max_attempts, fixing the dead-letter guard.
    */
   async claimNext({
     workerId,
@@ -197,65 +198,78 @@ export const aiQueueRepository = {
     const now = new Date();
     const leaseExpiresAt = new Date(now.getTime() + leaseMs);
 
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      const job = await db.aiQueue.findFirst({
-        where: {
-          status: { in: ['pending', 'processing'] },
-          OR: [
-            { status: 'pending' },
-            { status: 'processing', leaseExpiresAt: { lt: now } },
-            { status: 'processing', leaseExpiresAt: null },
-          ],
-        },
-        orderBy: { createdAt: 'asc' },
-      });
+    // Single atomic claim using FOR UPDATE SKIP LOCKED
+    const jobs = await db.$queryRaw<Array<{
+      id: string;
+      user_id: string | null;
+      request_type: string;
+      input_data: unknown;
+      status: string;
+      result: unknown;
+      error_message: string | null;
+      attempts: number;
+      max_attempts: number;
+      locked_at: Date | null;
+      locked_by: string | null;
+      lease_expires_at: Date | null;
+      created_at: Date;
+      processed_at: Date | null;
+    }>>`
+      UPDATE ai_queue
+      SET status = 'processing',
+          locked_by = ${workerId},
+          locked_at = ${now},
+          lease_expires_at = ${leaseExpiresAt},
+          attempts = attempts + 1,
+          error_message = NULL
+      WHERE id = (
+        SELECT id FROM ai_queue
+        WHERE (status = 'pending' OR (status = 'processing' AND lease_expires_at < ${now}))
+          AND attempts < max_attempts
+        ORDER BY created_at ASC
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED
+      )
+      RETURNING *
+    `;
 
-      if (!job) {
-        return null;
-      }
+    if (jobs.length === 0) return null;
 
-      if (job.attempts >= job.maxAttempts) {
-        await db.aiQueue.update({
-          where: { id: job.id },
-          data: {
-            status: 'dead_letter',
-            errorMessage: 'Maksimalni broj pokušaja je prekoračen',
-            processedAt: new Date(),
-            lockedAt: null,
-            lockedBy: null,
-            leaseExpiresAt: null,
-          },
-        });
-        continue;
-      }
+    const raw = jobs[0]!;
+    return {
+      id: raw.id,
+      userId: raw.user_id,
+      requestType: raw.request_type,
+      inputData: raw.input_data as Record<string, unknown>,
+      status: raw.status,
+      result: raw.result as Record<string, unknown> | null,
+      errorMessage: raw.error_message,
+      attempts: raw.attempts,
+      maxAttempts: raw.max_attempts,
+      lockedAt: raw.locked_at,
+      lockedBy: raw.locked_by,
+      leaseExpiresAt: raw.lease_expires_at,
+      createdAt: raw.created_at,
+      processedAt: raw.processed_at,
+    };
+  },
 
-      const claimed = await db.aiQueue.updateMany({
-        where: {
-          id: job.id,
-          status: job.status,
-          ...(job.status === 'processing'
-            ? { leaseExpiresAt: job.leaseExpiresAt }
-            : {}),
-        },
-        data: {
-          status: 'processing',
-          attempts: { increment: 1 },
-          lockedAt: now,
-          lockedBy: workerId,
-          leaseExpiresAt,
-          errorMessage: null,
-        },
-      });
-
-      if (claimed.count === 0) {
-        continue;
-      }
-
-      const claimedJob = await db.aiQueue.findUnique({ where: { id: job.id } });
-      return claimedJob ? transformToRecord(claimedJob) : null;
-    }
-
-    return null;
+  /**
+   * Atomically extend the lease for a job owned by a specific worker.
+   * Only succeeds if the job is still processing and locked by the given worker.
+   */
+  async extendLease(jobId: string, workerId: string, leaseMs: number): Promise<boolean> {
+    const result = await db.aiQueue.updateMany({
+      where: {
+        id: jobId,
+        lockedBy: workerId,
+        status: 'processing',
+      },
+      data: {
+        leaseExpiresAt: new Date(Date.now() + leaseMs),
+      },
+    });
+    return result.count > 0;
   },
 
   /**
@@ -321,20 +335,17 @@ export const aiQueueRepository = {
   },
 
   /**
-   * Cancel a pending job (only works for pending jobs)
-   * Returns null if job doesn't exist or is not pending
+   * Atomically cancel a pending job.
+   * Uses updateMany with status guard to prevent race conditions.
+   * Returns null if job doesn't exist or is not pending.
    */
   async cancel(id: string): Promise<AiQueueRecord | null> {
-    const existing = await db.aiQueue.findUnique({
-      where: { id },
-    });
-
-    if (!existing || existing.status !== 'pending') {
-      return null;
-    }
-
-    const job = await db.aiQueue.update({
-      where: { id },
+    // Atomic cancel -- only cancels pending jobs
+    const result = await db.aiQueue.updateMany({
+      where: {
+        id,
+        status: 'pending',
+      },
       data: {
         status: 'cancelled',
         errorMessage: 'Otkazano od strane korisnika',
@@ -344,7 +355,11 @@ export const aiQueueRepository = {
         leaseExpiresAt: null,
       },
     });
-    return transformToRecord(job);
+
+    if (result.count === 0) return null;
+
+    const job = await db.aiQueue.findUnique({ where: { id } });
+    return job ? transformToRecord(job) : null;
   },
 
   /**
