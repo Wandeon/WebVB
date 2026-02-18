@@ -219,8 +219,8 @@ export async function generate(
         stream: false,
         ...(options.system && { system: options.system }),
         options: {
-          temperature: options.temperature ?? 0.7,
-          max_tokens: options.maxTokens ?? 2048,
+          temperature: options.temperature ?? 0.3,
+          max_tokens: options.maxTokens ?? 4096,
         },
       };
 

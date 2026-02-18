@@ -65,6 +65,13 @@ describe('banned-words', () => {
 
       expect(found).toHaveLength(0);
     });
+
+    it('does not flag normal Croatian connectors', () => {
+      const text = 'Naravno, zapravo je osim toga štoviše nadalje u konačnici sve u svemu.';
+      const found = findBannedPhrases(text);
+
+      expect(found).toHaveLength(0);
+    });
   });
 
   describe('findAllBanned', () => {
@@ -79,16 +86,9 @@ describe('banned-words', () => {
 });
 
 describe('review parser', () => {
-  it('parses valid review response', () => {
+  it('parses valid issue-only review response', () => {
     const response = `
     {
-      "scores": {
-        "clarity": 8,
-        "localRelevance": 7,
-        "slopScore": 9,
-        "flow": 8
-      },
-      "overall": 8,
       "pass": true,
       "issues": []
     }
@@ -97,7 +97,6 @@ describe('review parser', () => {
     const result = parseReviewResponse(response);
 
     expect(result).not.toBeNull();
-    expect(result?.scores.clarity).toBe(8);
     expect(result?.pass).toBe(true);
     expect(result?.issues).toHaveLength(0);
   });
@@ -105,13 +104,6 @@ describe('review parser', () => {
   it('parses review with issues', () => {
     const response = `
     {
-      "scores": {
-        "clarity": 6,
-        "localRelevance": 5,
-        "slopScore": 4,
-        "flow": 6
-      },
-      "overall": 5.25,
       "pass": false,
       "issues": [
         {
@@ -137,8 +129,6 @@ describe('review parser', () => {
     Evo moje analize:
 
     {
-      "scores": { "clarity": 8, "localRelevance": 7, "slopScore": 9, "flow": 8 },
-      "overall": 8,
       "pass": true,
       "issues": []
     }
@@ -161,7 +151,7 @@ describe('review parser', () => {
   });
 
   it('returns null for missing required fields', () => {
-    const response = '{ "scores": { "clarity": 8 } }';
+    const response = '{ "something": "else" }';
 
     const result = parseReviewResponse(response);
 
@@ -171,8 +161,8 @@ describe('review parser', () => {
 
 describe('pipeline config', () => {
   it('has correct default values', () => {
-    expect(PIPELINE_CONFIG.qualityThreshold).toBe(7.0);
     expect(PIPELINE_CONFIG.maxRewriteAttempts).toBe(2);
-    expect(PIPELINE_CONFIG.maxSentenceWords).toBe(30);
+    expect(PIPELINE_CONFIG.maxSentenceWords).toBe(25);
+    expect(PIPELINE_CONFIG.maxParagraphSentences).toBe(4);
   });
 });

@@ -75,6 +75,9 @@ vi.mock('@/lib/logger', () => ({
     info: vi.fn(),
     error: vi.fn(),
   },
+  logger: {
+    child: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
+  },
 }));
 
 // Mock the validations to handle null values from searchParams.get()

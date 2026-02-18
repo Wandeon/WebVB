@@ -52,5 +52,6 @@ export type {
 
 // Pipeline
 export { runArticlePipeline } from './pipeline';
-export type { ReviewResult, ReviewScores, ReviewIssue } from './prompts';
+export type { ReviewResult, ReviewIssue } from './prompts';
+export type { PipelineResult, PipelineFailure } from './pipeline';
 export { PIPELINE_CONFIG } from './prompts';

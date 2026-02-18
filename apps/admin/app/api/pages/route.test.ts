@@ -57,6 +57,9 @@ vi.mock('@/lib/logger', () => ({
     info: vi.fn(),
     error: vi.fn(),
   },
+  logger: {
+    child: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
+  },
 }));
 
 vi.mock('@/lib/api-auth', () => ({

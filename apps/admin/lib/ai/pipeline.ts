@@ -1,6 +1,7 @@
 /**
  * AI Article Pipeline
- * Processes articles through REVIEW → REWRITE → POLISH stages
+ * Processes articles through REVIEW -> REWRITE -> POLISH stages
+ * Issue-only review: pass/fail based on concrete violations, not scores
  */
 
 import { aiLogger } from '../logger';
@@ -29,13 +30,32 @@ interface Article {
   excerpt: string;
 }
 
-interface PipelineResult {
+export interface PipelineResult {
+  success: true;
   article: Article;
   reviewHistory: ReviewResult[];
   rewriteCount: number;
-  finalScore: number;
   passed: boolean;
 }
+
+export interface PipelineFailure {
+  success: false;
+  stage: 'review' | 'rewrite' | 'polish';
+  reason: string;
+  rawSample: string;
+  article: Article;
+}
+
+// =============================================================================
+// Per-Stage Temperature
+// =============================================================================
+
+const STAGE_TEMPERATURE = {
+  generate: 0.3,
+  review: 0.15,
+  rewrite: 0.2,
+  polish: 0.15,
+} as const;
 
 // =============================================================================
 // Pipeline Stages
@@ -54,7 +74,7 @@ function preCheck(article: Article): ReviewIssue[] {
   for (const word of banned.words) {
     issues.push({
       type: 'slop_word',
-      location: 'članak',
+      location: 'article',
       text: word,
       fix: `Zamijeni riječ "${word}" s konkretnim opisom`,
     });
@@ -63,7 +83,7 @@ function preCheck(article: Article): ReviewIssue[] {
   for (const phrase of banned.phrases) {
     issues.push({
       type: 'slop_phrase',
-      location: 'članak',
+      location: 'article',
       text: phrase,
       fix: `Ukloni frazu "${phrase}" ili je zamijeni konkretnom informacijom`,
     });
@@ -73,62 +93,52 @@ function preCheck(article: Article): ReviewIssue[] {
 }
 
 /**
- * REVIEW stage: Score article and identify issues
+ * REVIEW stage: Identify concrete issues (no scores)
  */
-async function reviewArticle(article: Article): Promise<ReviewResult> {
-  // First do pre-check for banned words
+async function reviewArticle(
+  article: Article
+): Promise<{ review: ReviewResult; parseError?: string }> {
   const preCheckIssues = preCheck(article);
 
-  // Call LLM for full review
   const prompt = buildReviewUserPrompt(article);
-  const result = await generate(prompt, { system: REVIEW_SYSTEM_PROMPT });
+  const result = await generate(prompt, {
+    system: REVIEW_SYSTEM_PROMPT,
+    temperature: STAGE_TEMPERATURE.review,
+  });
 
   if (!result.success) {
-    aiLogger.error({ error: result.error }, 'Review stage failed');
-    // Return a failing review with pre-check issues
+    aiLogger.error({ error: result.error }, 'Review stage LLM call failed');
+    // Return pre-check issues only; if none, pass
     return {
-      scores: { clarity: 5, localRelevance: 5, slopScore: 5, flow: 5 },
-      overall: 5,
-      pass: false,
-      issues: preCheckIssues.length > 0 ? preCheckIssues : [{
-        type: 'grammar',
-        location: 'članak',
-        fix: 'Pregledaj članak i ispravi moguće probleme',
-      }],
+      review: {
+        pass: preCheckIssues.length === 0,
+        issues: preCheckIssues,
+      },
     };
   }
 
   const parsed = parseReviewResponse(result.data.response);
 
   if (!parsed) {
-    aiLogger.warn('Failed to parse review response');
+    const rawSample = result.data.response.slice(0, 200);
+    aiLogger.warn({ rawSample }, 'Failed to parse review response');
     return {
-      scores: { clarity: 5, localRelevance: 5, slopScore: 5, flow: 5 },
-      overall: 5,
-      pass: false,
-      issues: preCheckIssues,
+      review: {
+        pass: preCheckIssues.length === 0,
+        issues: preCheckIssues,
+      },
+      parseError: `Review JSON parse failed. Raw: ${rawSample}`,
     };
   }
 
-  // Merge pre-check issues with LLM issues
+  // Merge pre-check issues with LLM issues (pre-check takes priority)
   const allIssues = [...preCheckIssues, ...parsed.issues];
 
-  // If we found banned words, force fail
-  if (preCheckIssues.length > 0) {
-    parsed.pass = false;
-    // Reduce slop score if banned words found
-    parsed.scores.slopScore = Math.min(parsed.scores.slopScore, 4);
-    parsed.overall = (
-      parsed.scores.clarity +
-      parsed.scores.localRelevance +
-      parsed.scores.slopScore +
-      parsed.scores.flow
-    ) / 4;
-  }
-
   return {
-    ...parsed,
-    issues: allIssues,
+    review: {
+      pass: allIssues.length === 0,
+      issues: allIssues,
+    },
   };
 }
 
@@ -138,23 +148,31 @@ async function reviewArticle(article: Article): Promise<ReviewResult> {
 async function rewriteArticle(
   article: Article,
   issues: ReviewIssue[]
-): Promise<Article> {
+): Promise<{ article: Article; parseError?: string }> {
   if (issues.length === 0) {
-    return article;
+    return { article };
   }
 
   const prompt = buildRewriteUserPrompt(article, issues);
-  const result = await generate(prompt, { system: REWRITE_SYSTEM_PROMPT });
+  const result = await generate(prompt, {
+    system: REWRITE_SYSTEM_PROMPT,
+    temperature: STAGE_TEMPERATURE.rewrite,
+  });
 
   if (!result.success) {
-    aiLogger.error({ error: result.error }, 'Rewrite stage failed');
-    return article; // Return original if rewrite fails
+    aiLogger.error({ error: result.error }, 'Rewrite stage LLM call failed');
+    return { article };
   }
 
-  // Parse response
   try {
     const jsonMatch = result.data.response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return article;
+    if (!jsonMatch) {
+      const rawSample = result.data.response.slice(0, 200);
+      return {
+        article,
+        parseError: `Rewrite JSON extraction failed. Raw: ${rawSample}`,
+      };
+    }
 
     const parsed = JSON.parse(jsonMatch[0]) as unknown;
 
@@ -168,34 +186,52 @@ async function rewriteArticle(
       typeof (parsed as Article).content === 'string' &&
       typeof (parsed as Article).excerpt === 'string'
     ) {
-      return parsed as Article;
+      return { article: parsed as Article };
     }
+
+    return {
+      article,
+      parseError: `Rewrite response missing required fields`,
+    };
   } catch (error) {
+    const rawSample = result.data.response.slice(0, 200);
     aiLogger.warn(
       { error: error instanceof Error ? error.message : String(error) },
       'Failed to parse rewrite response'
     );
+    return {
+      article,
+      parseError: `Rewrite JSON parse error: ${error instanceof Error ? error.message : 'unknown'}. Raw: ${rawSample}`,
+    };
   }
-
-  return article;
 }
 
 /**
  * POLISH stage: Final grammar/spelling pass
  */
-async function polishArticle(article: Article): Promise<Article> {
+async function polishArticle(
+  article: Article
+): Promise<{ article: Article; parseError?: string }> {
   const prompt = buildPolishUserPrompt(article);
-  const result = await generate(prompt, { system: POLISH_SYSTEM_PROMPT });
+  const result = await generate(prompt, {
+    system: POLISH_SYSTEM_PROMPT,
+    temperature: STAGE_TEMPERATURE.polish,
+  });
 
   if (!result.success) {
-    aiLogger.error({ error: result.error }, 'Polish stage failed');
-    return article; // Return original if polish fails
+    aiLogger.error({ error: result.error }, 'Polish stage LLM call failed');
+    return { article };
   }
 
-  // Parse response
   try {
     const jsonMatch = result.data.response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return article;
+    if (!jsonMatch) {
+      const rawSample = result.data.response.slice(0, 200);
+      return {
+        article,
+        parseError: `Polish JSON extraction failed. Raw: ${rawSample}`,
+      };
+    }
 
     const parsed = JSON.parse(jsonMatch[0]) as unknown;
 
@@ -209,16 +245,24 @@ async function polishArticle(article: Article): Promise<Article> {
       typeof (parsed as Article).content === 'string' &&
       typeof (parsed as Article).excerpt === 'string'
     ) {
-      return parsed as Article;
+      return { article: parsed as Article };
     }
+
+    return {
+      article,
+      parseError: `Polish response missing required fields`,
+    };
   } catch (error) {
+    const rawSample = result.data.response.slice(0, 200);
     aiLogger.warn(
       { error: error instanceof Error ? error.message : String(error) },
       'Failed to parse polish response'
     );
+    return {
+      article,
+      parseError: `Polish JSON parse error: ${error instanceof Error ? error.message : 'unknown'}. Raw: ${rawSample}`,
+    };
   }
-
-  return article;
 }
 
 // =============================================================================
@@ -226,9 +270,12 @@ async function polishArticle(article: Article): Promise<Article> {
 // =============================================================================
 
 /**
- * Run the full article pipeline: REVIEW → REWRITE (loop) → POLISH
+ * Run the full article pipeline: REVIEW -> REWRITE (loop) -> POLISH
+ * Returns structured success or failure with stage/reason/rawSample
  */
-export async function runArticlePipeline(article: Article): Promise<PipelineResult> {
+export async function runArticlePipeline(
+  article: Article
+): Promise<PipelineResult | PipelineFailure> {
   const reviewHistory: ReviewResult[] = [];
   let currentArticle = article;
   let rewriteCount = 0;
@@ -237,10 +284,15 @@ export async function runArticlePipeline(article: Article): Promise<PipelineResu
 
   // Stage 1: Initial REVIEW
   aiLogger.info('Pipeline stage: REVIEW');
-  let review = await reviewArticle(currentArticle);
+  const reviewResult = await reviewArticle(currentArticle);
+  let review = reviewResult.review;
   reviewHistory.push(review);
 
-  // Stage 2: REWRITE loop (max 2 attempts)
+  if (reviewResult.parseError) {
+    aiLogger.warn({ parseError: reviewResult.parseError }, 'Review parse issue (continuing with pre-check only)');
+  }
+
+  // Stage 2: REWRITE loop (max attempts)
   while (
     !review.pass &&
     review.issues.length > 0 &&
@@ -251,37 +303,47 @@ export async function runArticlePipeline(article: Article): Promise<PipelineResu
       'Pipeline stage: REWRITE'
     );
 
-    currentArticle = await rewriteArticle(currentArticle, review.issues);
+    const rewriteResult = await rewriteArticle(currentArticle, review.issues);
+    currentArticle = rewriteResult.article;
     rewriteCount++;
+
+    if (rewriteResult.parseError) {
+      aiLogger.warn({ parseError: rewriteResult.parseError }, 'Rewrite parse issue');
+    }
 
     // Re-review after rewrite
     aiLogger.info('Pipeline stage: REVIEW (post-rewrite)');
-    review = await reviewArticle(currentArticle);
+    const reReviewResult = await reviewArticle(currentArticle);
+    review = reReviewResult.review;
     reviewHistory.push(review);
   }
 
   // Stage 3: POLISH (always run, even if review didn't pass)
   aiLogger.info('Pipeline stage: POLISH');
-  currentArticle = await polishArticle(currentArticle);
+  const polishResult = await polishArticle(currentArticle);
+  currentArticle = polishResult.article;
 
-  const finalScore = review.overall;
+  if (polishResult.parseError) {
+    aiLogger.warn({ parseError: polishResult.parseError }, 'Polish parse issue');
+  }
+
   const passed = review.pass;
 
   aiLogger.info(
     {
-      finalScore,
       passed,
       rewriteCount,
       reviewCount: reviewHistory.length,
+      finalIssueCount: review.issues.length,
     },
     'Article pipeline complete'
   );
 
   return {
+    success: true,
     article: currentArticle,
     reviewHistory,
     rewriteCount,
-    finalScore,
     passed,
   };
 }

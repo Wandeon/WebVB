@@ -26,6 +26,9 @@ vi.mock('@/lib/logger', () => ({
   eventsLogger: {
     error: vi.fn(),
   },
+  logger: {
+    child: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
+  },
 }));
 
 // eslint-disable-next-line import/order -- Must be after vi.mock calls

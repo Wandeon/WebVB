@@ -51,7 +51,7 @@ export const BANNED_WORDS = [
 // =============================================================================
 
 export const BANNED_PHRASES = [
-  // Filler phrases (Croatian)
+  // AI filler phrases (Croatian)
   'u današnjem svijetu',
   'u svijetu koji se stalno mijenja',
   'nije tajna da',
@@ -59,33 +59,21 @@ export const BANNED_PHRASES = [
   'vrijedi spomenuti',
   'kao što svi znamo',
   'bez sumnje',
-  'naravno',
-  'zapravo',
-  'u biti',
-  'u konačnici',
-  'na kraju krajeva',
-  'sve u svemu',
   'jednostavno rečeno',
-  'drugim riječima',
 
   // Overly formal openings
   'ovim putem',
   's poštovanjem',
-  'drago nam je',
   'sa zadovoljstvom',
 
-  // AI-style transitions
-  'štoviše',
-  'nadalje',
-  'osim toga',
+  // AI-style empty transitions
   'u tom kontekstu',
   'u tom smislu',
   's tim u vezi',
 
-  // Vague value statements
+  // Vague hype statements
   'iznimno važno',
   'od velike važnosti',
-  'ključno je',
   'bitno je naglasiti',
   'posebno treba istaknuti',
 ] as const;

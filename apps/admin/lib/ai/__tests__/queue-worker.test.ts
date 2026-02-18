@@ -441,6 +441,7 @@ describe('queue-worker', () => {
         }),
       });
       mockRunArticlePipeline.mockResolvedValue({
+        success: true,
         article: {
           title: 'Test Title',
           content: '<p>Test content paragraph.</p>',
@@ -448,7 +449,6 @@ describe('queue-worker', () => {
         },
         reviewHistory: [],
         rewriteCount: 0,
-        finalScore: 8,
         passed: true,
       });
 
@@ -495,6 +495,7 @@ I hope this helps!`;
         }),
       });
       mockRunArticlePipeline.mockResolvedValue({
+        success: true,
         article: {
           title: 'Embedded Title',
           content: '<p>Embedded content here.</p>',
@@ -502,7 +503,6 @@ I hope this helps!`;
         },
         reviewHistory: [],
         rewriteCount: 0,
-        finalScore: 7.5,
         passed: true,
       });
 
@@ -643,6 +643,7 @@ I hope this helps!`;
         }),
       });
       mockRunArticlePipeline.mockResolvedValue({
+        success: true,
         article: {
           title: 'Test Title',
           content: '<p>Test content paragraph.</p>',
@@ -650,7 +651,6 @@ I hope this helps!`;
         },
         reviewHistory: [],
         rewriteCount: 2,
-        finalScore: 5,
         passed: false,
       });
 

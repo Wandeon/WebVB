@@ -5,6 +5,7 @@ export * from './types';
 export * from './banned-words';
 
 // Stage prompts
+export * from './generate';
 export * from './review';
 export * from './rewrite';
 export * from './polish';

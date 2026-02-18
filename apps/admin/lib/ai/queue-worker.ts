@@ -210,13 +210,35 @@ async function processJob(job: AiQueueRecord): Promise<void> {
 
       aiLogger.info({ jobId: job.id }, 'Running article through quality pipeline');
 
-      // Run through REVIEW → REWRITE → POLISH pipeline
+      // Run through REVIEW -> REWRITE -> POLISH pipeline
       const pipelineResult = await runArticlePipeline(validated.result);
+
+      if (!pipelineResult.success) {
+        aiLogger.error(
+          {
+            jobId: job.id,
+            stage: pipelineResult.stage,
+            reason: pipelineResult.reason,
+            rawSample: pipelineResult.rawSample,
+          },
+          'Article pipeline parse failure'
+        );
+        await aiQueueRepository.markFailed(
+          job.id,
+          `Pipeline greška u fazi "${pipelineResult.stage}": ${pipelineResult.reason}`,
+          {
+            ...resultData,
+            pipelineStage: pipelineResult.stage,
+            pipelineReason: pipelineResult.reason,
+            pipelineRawSample: pipelineResult.rawSample,
+          }
+        );
+        return;
+      }
 
       aiLogger.info(
         {
           jobId: job.id,
-          finalScore: pipelineResult.finalScore,
           passed: pipelineResult.passed,
           rewriteCount: pipelineResult.rewriteCount,
         },
@@ -229,8 +251,7 @@ async function processJob(job: AiQueueRecord): Promise<void> {
           'AI članak nije prošao provjeru kvalitete',
           {
             ...resultData,
-            pipelineScore: pipelineResult.finalScore,
-            pipelinePassed: pipelineResult.passed,
+            pipelinePassed: false,
             pipelineRewriteCount: pipelineResult.rewriteCount,
           }
         );
@@ -240,7 +261,6 @@ async function processJob(job: AiQueueRecord): Promise<void> {
       resultData.title = pipelineResult.article.title;
       resultData.content = pipelineResult.article.content;
       resultData.excerpt = pipelineResult.article.excerpt;
-      resultData.pipelineScore = pipelineResult.finalScore;
       resultData.pipelinePassed = pipelineResult.passed;
       resultData.pipelineRewriteCount = pipelineResult.rewriteCount;
     } else {
