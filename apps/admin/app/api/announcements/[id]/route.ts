@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
 import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
@@ -174,6 +175,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     if (!existingAnnouncement) {
       return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
+    }
+
+    // Clean up R2 files for attachments (best-effort)
+    if (existingAnnouncement.attachments && existingAnnouncement.attachments.length > 0) {
+      await Promise.allSettled(
+        existingAnnouncement.attachments.map(async (att) => {
+          const key = getR2KeyFromUrl(att.fileUrl);
+          if (key) {
+            await deleteFromR2(key);
+          }
+        })
+      );
     }
 
     await announcementsRepository.delete(announcementId);

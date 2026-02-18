@@ -1,7 +1,9 @@
 import { galleriesRepository } from '@repo/database';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { createAuditLog } from '@/lib/audit-log';
 import { galleriesLogger } from '@/lib/logger';
 import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
 import { triggerRebuild } from '@/lib/rebuild';
@@ -67,6 +69,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const { caption } = validationResult.data;
 
     const updatedImage = await galleriesRepository.updateImageCaption(validatedImageId, caption ?? null);
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.GALLERY,
+      entityId: validatedImageId,
+      changes: { before: { caption: existingImage.caption }, after: { caption: caption ?? null } },
+    });
 
     galleriesLogger.info(
       { galleryId, imageId: validatedImageId },
@@ -167,6 +178,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         }
       }
     }
+
+    await createAuditLog({
+      request,
+      context: authResult.context,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.GALLERY,
+      entityId: validatedImageId,
+      changes: { before: { imageUrl: existingImage.imageUrl } },
+    });
 
     galleriesLogger.info(
       { galleryId, imageId: validatedImageId },

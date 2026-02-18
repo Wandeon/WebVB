@@ -1,4 +1,4 @@
-import { indexPost, postsRepository, removeFromIndex } from '@repo/database';
+import { indexPost, postsRepository, removeEmbeddings, removeFromIndex } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -198,6 +198,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Remove from search index
     await removeFromIndex('post', postId);
+
+    // Clean up embedding records
+    try {
+      await removeEmbeddings('post', postId);
+    } catch (embeddingError) {
+      postsLogger.error({ postId, error: embeddingError }, 'Failed to clean embedding records');
+    }
 
     await createAuditLog({
       request,
