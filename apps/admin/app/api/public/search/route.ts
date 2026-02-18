@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { corsResponse, getCorsHeaders } from '@/lib/cors';
 import { searchLogger } from '@/lib/logger';
 import { getTextLogFields } from '@/lib/pii';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 interface SearchResult {
   id: string;
@@ -36,6 +37,8 @@ const MIN_QUERY_LENGTH = 2;
 const EMBEDDING_TIMEOUT_MS = 2000;
 const EMBEDDING_CACHE_TTL_MS = 10 * 60 * 1000;
 const EMBEDDING_CACHE_MAX_ENTRIES = 200;
+const SEARCH_RATE_LIMIT = 30;
+const SEARCH_RATE_WINDOW = 60 * 1000; // 1 minute
 
 // Weights for hybrid scoring
 const WEIGHTS = {
@@ -131,6 +134,17 @@ async function getQueryEmbedding(query: string, ollamaUrl: string): Promise<numb
 
 export async function GET(request: Request) {
   const corsHeaders = getCorsHeaders(request);
+
+  // Rate limit check
+  const ip = getClientIp(request);
+  const rateCheck = checkRateLimit(`search:${ip}`, SEARCH_RATE_LIMIT, SEARCH_RATE_WINDOW);
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { error: 'Previše zahtjeva. Pokušajte ponovno.', results: { posts: [], documents: [], pages: [], events: [] }, totalCount: 0, query: '' },
+      { status: 429, headers: { ...corsHeaders, 'Retry-After': String(Math.ceil((rateCheck.resetAt - Date.now()) / 1000)) } }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q')?.trim();
 

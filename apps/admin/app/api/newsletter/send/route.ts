@@ -22,13 +22,13 @@ const SEND_RATE_WINDOW = 2 * 60 * 1000; // 2 minutes
 
 // POST /api/newsletter/send - Send the newsletter
 export async function POST(request: NextRequest) {
-  const authResult = await requireAuth(request, { requireAdmin: true });
-
-  if ('response' in authResult) {
-    return authResult.response;
-  }
-
   try {
+    const authResult = await requireAuth(request, { requireAdmin: true });
+
+    if ('response' in authResult) {
+      return authResult.response;
+    }
+
     const rateCheck = checkRateLimit(
       `newsletter-send:${authResult.context.userId}`,
       SEND_RATE_LIMIT,
