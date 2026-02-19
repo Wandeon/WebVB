@@ -106,17 +106,17 @@ async function fetchRssFeed(
       headers: { 'User-Agent': 'VelikiBukovecWeb/1.0' },
     });
     if (!res.ok) {
-      console.log(`[external-news] ${source.shortName}: HTTP ${res.status}`);
+      console.info(`[external-news] ${source.shortName}: HTTP ${res.status}`);
       return [];
     }
     const xml = await res.text();
     const items = parseRss(xml, source);
-    console.log(
+    console.info(
       `[external-news] ${source.shortName}: ${items.length} items fetched`,
     );
     return items;
   } catch (err) {
-    console.log(
+    console.info(
       `[external-news] ${source.shortName}: failed -`,
       err instanceof Error ? err.message : 'unknown error',
     );
@@ -182,17 +182,17 @@ async function fetchKindergartenNews(
       },
     );
     if (!res.ok) {
-      console.log(`[external-news] ${source.shortName}: HTTP ${res.status}`);
+      console.info(`[external-news] ${source.shortName}: HTTP ${res.status}`);
       return [];
     }
     const html = await res.text();
     const items = parseKindergartenHtml(html, source);
-    console.log(
+    console.info(
       `[external-news] ${source.shortName}: ${items.length} items scraped`,
     );
     return items;
   } catch (err) {
-    console.log(
+    console.info(
       `[external-news] ${source.shortName}: failed -`,
       err instanceof Error ? err.message : 'unknown error',
     );

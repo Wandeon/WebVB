@@ -145,16 +145,16 @@ async function validateUrl(entry: FoundUrl): Promise<ValidationResult> {
  * When changing either value, update both locations and redeploy.
  */
 function checkCspApiSync(): void {
-  console.log('');
-  console.log('CSP / API URL Configuration Sync');
-  console.log('-'.repeat(40));
+  console.info('');
+  console.info('CSP / API URL Configuration Sync');
+  console.info('-'.repeat(40));
 
   const apiUrl = process.env['NEXT_PUBLIC_API_URL'];
 
   if (apiUrl) {
-    console.log(`  NEXT_PUBLIC_API_URL = ${apiUrl}`);
+    console.info(`  NEXT_PUBLIC_API_URL = ${apiUrl}`);
   } else {
-    console.log('  NEXT_PUBLIC_API_URL is not set (OK for static-only builds)');
+    console.info('  NEXT_PUBLIC_API_URL is not set (OK for static-only builds)');
   }
 
   // Read the Caddyfile example to check for connect-src
@@ -165,44 +165,44 @@ function checkCspApiSync(): void {
     const connectSrcMatch = caddyContent.match(/connect-src\s+([^;]+)/);
     if (connectSrcMatch) {
       const connectSrcValue = connectSrcMatch[1] ?? '';
-      console.log(`  Caddyfile connect-src = ${connectSrcValue.trim()}`);
+      console.info(`  Caddyfile connect-src = ${connectSrcValue.trim()}`);
     } else {
-      console.log('  Caddyfile has no connect-src directive (static-only, no API calls)');
+      console.info('  Caddyfile has no connect-src directive (static-only, no API calls)');
     }
 
     if (apiUrl && connectSrcMatch) {
       const connectSrc = connectSrcMatch[1] ?? '';
       if (!connectSrc.includes(apiUrl)) {
-        console.log('');
-        console.log('  WARNING: NEXT_PUBLIC_API_URL is not in Caddyfile connect-src!');
-        console.log('  The browser will block API requests unless CSP is updated.');
-        console.log('  Update scripts/caddy/Caddyfile.example and redeploy Caddy.');
+        console.info('');
+        console.info('  WARNING: NEXT_PUBLIC_API_URL is not in Caddyfile connect-src!');
+        console.info('  The browser will block API requests unless CSP is updated.');
+        console.info('  Update scripts/caddy/Caddyfile.example and redeploy Caddy.');
       } else {
-        console.log('  Status: API URL matches CSP connect-src');
+        console.info('  Status: API URL matches CSP connect-src');
       }
     }
   } catch {
-    console.log('  Could not read scripts/caddy/Caddyfile.example');
+    console.info('  Could not read scripts/caddy/Caddyfile.example');
     if (apiUrl) {
-      console.log('  Manually verify NEXT_PUBLIC_API_URL matches connect-src in production Caddyfile.');
+      console.info('  Manually verify NEXT_PUBLIC_API_URL matches connect-src in production Caddyfile.');
     }
   }
 
-  console.log('');
+  console.info('');
 }
 
 /**
  * Main entry point
  */
 async function main(): Promise<void> {
-  console.log('CDN URL Validation Audit');
-  console.log('='.repeat(50));
-  console.log('');
+  console.info('CDN URL Validation Audit');
+  console.info('='.repeat(50));
+  console.info('');
 
   const startTime = Date.now();
 
   // Phase 1: Scan for R2 URLs
-  console.log('Scanning apps/web for R2 CDN URLs...');
+  console.info('Scanning apps/web for R2 CDN URLs...');
   const foundUrls = scanForR2Urls();
 
   // Deduplicate URLs (same URL may appear in multiple files)
@@ -213,19 +213,19 @@ async function main(): Promise<void> {
     }
   }
 
-  console.log(`  Found ${foundUrls.length} R2 URL references across source files`);
-  console.log(`  ${uniqueUrls.size} unique URLs to validate`);
-  console.log('');
+  console.info(`  Found ${foundUrls.length} R2 URL references across source files`);
+  console.info(`  ${uniqueUrls.size} unique URLs to validate`);
+  console.info('');
 
   if (uniqueUrls.size === 0) {
-    console.log('No R2 CDN URLs found. Nothing to validate.');
+    console.info('No R2 CDN URLs found. Nothing to validate.');
     checkCspApiSync();
     return;
   }
 
   // Phase 2: Validate each unique URL
-  console.log(`Validating URLs with ${DELAY_MS}ms rate limiting...`);
-  console.log('');
+  console.info(`Validating URLs with ${DELAY_MS}ms rate limiting...`);
+  console.info('');
 
   const results: ValidationResult[] = [];
   const entries = Array.from(uniqueUrls.values());
@@ -240,7 +240,7 @@ async function main(): Promise<void> {
     // Progress indicator every 10 URLs
     if ((i + 1) % 10 === 0 || i === entries.length - 1) {
       const broken = results.filter((r) => r.status !== 'ok').length;
-      console.log(`  Progress: ${i + 1}/${entries.length} -- Broken so far: ${broken}`);
+      console.info(`  Progress: ${i + 1}/${entries.length} -- Broken so far: ${broken}`);
     }
 
     // Rate limiting delay (skip on last item)
@@ -250,20 +250,20 @@ async function main(): Promise<void> {
   }
 
   // Phase 3: Report results
-  console.log('');
-  console.log('Results');
-  console.log('-'.repeat(40));
+  console.info('');
+  console.info('Results');
+  console.info('-'.repeat(40));
 
   const broken = results.filter((r) => r.status !== 'ok');
   const valid = results.filter((r) => r.status === 'ok');
 
-  console.log(`  Valid:       ${valid.length}`);
-  console.log(`  Broken:      ${broken.length}`);
-  console.log(`  Total:       ${results.length}`);
+  console.info(`  Valid:       ${valid.length}`);
+  console.info(`  Broken:      ${broken.length}`);
+  console.info(`  Total:       ${results.length}`);
 
   if (broken.length > 0) {
-    console.log('');
-    console.log('Broken URLs:');
+    console.info('');
+    console.info('Broken URLs:');
     for (const result of broken) {
       const label = result.status === 'broken' ? 'BROKEN' : 'UNREACHABLE';
       const detail = result.httpStatus ? `HTTP ${result.httpStatus}` : (result.error ?? 'Unknown');
@@ -274,7 +274,7 @@ async function main(): Promise<void> {
     }
 
     // List all files referencing broken URLs
-    console.log('All references to broken URLs:');
+    console.info('All references to broken URLs:');
     for (const brokenResult of broken) {
       const references = foundUrls.filter((u) => u.url === brokenResult.url);
       for (const ref of references) {
@@ -289,17 +289,17 @@ async function main(): Promise<void> {
   // Timing
   const elapsedMs = Date.now() - startTime;
   const elapsedSec = Math.floor(elapsedMs / 1000);
-  console.log(`Completed in ${elapsedSec}s`);
+  console.info(`Completed in ${elapsedSec}s`);
 
   // Exit with error code if any URLs are broken
   if (broken.length > 0) {
-    console.log('');
+    console.info('');
     console.error(`FAIL: ${broken.length} broken CDN URL(s) detected.`);
     process.exit(1);
   }
 
-  console.log('');
-  console.log('PASS: All CDN URLs are reachable.');
+  console.info('');
+  console.info('PASS: All CDN URLs are reachable.');
 }
 
 main().catch((error: unknown) => {
