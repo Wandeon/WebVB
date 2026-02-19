@@ -29,6 +29,7 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let buildInProgress = false;
 let pendingReasons: string[] = [];
 let lastBuildCompletedAt = 0;
+let lastBuildError: string | null = null;
 
 // ---------------------------------------------------------------------------
 // Pending state persistence (survives process restarts)
@@ -60,6 +61,22 @@ function checkPendingRebuild(): void {
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
+export interface BuildStatus {
+  buildInProgress: boolean;
+  pendingReasons: string[];
+  lastBuildCompletedAt: number | null;
+  lastBuildError: string | null;
+}
+
+export function getBuildStatus(): BuildStatus {
+  return {
+    buildInProgress,
+    pendingReasons: [...pendingReasons],
+    lastBuildCompletedAt: lastBuildCompletedAt || null,
+    lastBuildError,
+  };
+}
+
 /**
  * Triggers a static site rebuild after content changes.
  * Debounced (5 min) so bulk edits only cause one build.
@@ -116,8 +133,10 @@ function startBuild(reason: string): void {
     (error, _stdout, stderr) => {
       try {
         if (error) {
+          lastBuildError = error.message;
           rebuildLogger.error({ error: error.message, stderr }, 'Rebuild failed');
         } else {
+          lastBuildError = null;
           rebuildLogger.info({ reason }, 'Rebuild completed successfully');
         }
       } finally {
