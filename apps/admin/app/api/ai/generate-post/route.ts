@@ -2,8 +2,8 @@ import { aiQueueRepository } from '@repo/database';
 import { z } from 'zod';
 
 import { isSupportedMimeType, parseDocument } from '@/lib/ai';
-import { buildGenerateUserPrompt, GENERATE_SYSTEM_PROMPT } from '@/lib/ai/prompts';
 import { hashText, sanitizeDocumentText, wrapDocumentForPrompt } from '@/lib/ai/prompt-utils';
+import { buildGenerateUserPrompt, GENERATE_SYSTEM_PROMPT } from '@/lib/ai/prompts';
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { aiLogger } from '@/lib/logger';

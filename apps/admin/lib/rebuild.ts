@@ -27,7 +27,7 @@ const MIN_BUILD_COOLDOWN_MS = 60_000; // 1 minute between builds
 // ---------------------------------------------------------------------------
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let buildInProgress = false;
-let pendingReasons: string[] = [];
+const pendingReasons: string[] = [];
 let lastBuildCompletedAt = 0;
 let lastBuildError: string | null = null;
 

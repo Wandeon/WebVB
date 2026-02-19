@@ -13,8 +13,8 @@ import { z } from 'zod';
 import { aiLogger } from '../logger';
 import { generate, isOllamaCloudConfigured } from './ollama-cloud';
 import { runArticlePipeline, STAGE_TEMPERATURE } from './pipeline';
-import { FEW_SHOT_EXAMPLES } from './prompts/generate';
 import { extractJson, hashText } from './prompt-utils';
+import { FEW_SHOT_EXAMPLES } from './prompts/generate';
 
 import type { AiQueueRecord } from '@repo/database';
 

@@ -1,6 +1,6 @@
 import { requireAuth } from '@/lib/api-auth';
-import { getBuildStatus } from '@/lib/rebuild';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
+import { getBuildStatus } from '@/lib/rebuild';
 
 import type { NextRequest } from 'next/server';
 
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     if ('response' in authResult) return authResult.response;
 
     return apiSuccess(getBuildStatus());
-  } catch (error) {
+  } catch {
     return apiError(ErrorCodes.INTERNAL_ERROR, 'Greška pri dohvaćanju statusa', 500);
   }
 }

@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { parseReviewResponse } from '../prompts/review';
-import { PIPELINE_CONFIG } from '../prompts/types';
-
 // =============================================================================
 // review parser tests (#147 -- issue validation)
 // =============================================================================
@@ -200,6 +197,8 @@ vi.mock('../../logger', () => ({
 import { generate } from '../ollama-cloud';
 import { runArticlePipeline, STAGE_TEMPERATURE } from '../pipeline';
 import { FEW_SHOT_EXAMPLES } from '../prompts/generate';
+import { parseReviewResponse } from '../prompts/review';
+import { PIPELINE_CONFIG } from '../prompts/types';
 
 import type { OllamaGenerateResponse } from '../types';
 

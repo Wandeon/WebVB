@@ -34,7 +34,7 @@ vi.mock('../ollama-cloud', () => ({
 }));
 
 vi.mock('../pipeline', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../pipeline')>();
+  const actual: Record<string, unknown> = await importOriginal();
   return {
     ...actual,
     runArticlePipeline: vi.fn(),
