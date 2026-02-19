@@ -154,16 +154,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Index for search (only if published)
-    await indexPost({
-      id: post.id,
-      title: post.title,
-      slug: post.slug,
-      content: post.content,
-      excerpt: post.excerpt,
-      category: post.category,
-      publishedAt: post.publishedAt,
-    });
+    // Index for search (best-effort -- core create must succeed even if indexing fails)
+    try {
+      await indexPost({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        content: post.content,
+        excerpt: post.excerpt,
+        category: post.category,
+        publishedAt: post.publishedAt,
+      });
+    } catch (indexError) {
+      postsLogger.error(
+        { postId: post.id, error: indexError instanceof Error ? indexError.message : 'Unknown error' },
+        'Failed to index post, will retry on next update',
+      );
+    }
 
     postsLogger.info({ postId: post.id, slug }, 'Objava uspješno stvorena');
 

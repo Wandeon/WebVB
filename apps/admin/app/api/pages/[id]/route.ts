@@ -163,13 +163,20 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // Update search index
-    await indexPage({
-      id: page.id,
-      title: page.title,
-      slug: page.slug,
-      content: page.content,
-    });
+    // Update search index (best-effort -- core update must succeed even if indexing fails)
+    try {
+      await indexPage({
+        id: page.id,
+        title: page.title,
+        slug: page.slug,
+        content: page.content,
+      });
+    } catch (indexError) {
+      pagesLogger.error(
+        { pageId: page.id, error: indexError instanceof Error ? indexError.message : 'Unknown error' },
+        'Failed to index page, will retry on next update',
+      );
+    }
 
     pagesLogger.info({ pageId: page.id, slug: page.slug }, 'Stranica uspješno ažurirana');
 
@@ -206,10 +213,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Stranica nije pronađena', 404);
     }
 
+    // Reassign children to this page's parent (or null for root) to prevent orphans
+    await pagesRepository.reassignChildren(pageId, existingPage.parentId ?? null);
+
     await pagesRepository.delete(pageId);
 
-    // Remove from search index
-    await removeFromIndex('page', pageId);
+    // Remove from search index (best-effort -- core delete must succeed even if cleanup fails)
+    try {
+      await removeFromIndex('page', pageId);
+    } catch (indexError) {
+      pagesLogger.error(
+        { pageId, error: indexError instanceof Error ? indexError.message : 'Unknown error' },
+        'Failed to clean search index',
+      );
+    }
 
     await createAuditLog({
       request,

@@ -153,16 +153,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // Update search index (handles publish/unpublish)
-    await indexPost({
-      id: post.id,
-      title: post.title,
-      slug: post.slug,
-      content: post.content,
-      excerpt: post.excerpt,
-      category: post.category,
-      publishedAt: post.publishedAt,
-    });
+    // Update search index (best-effort -- core update must succeed even if indexing fails)
+    try {
+      await indexPost({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        content: post.content,
+        excerpt: post.excerpt,
+        category: post.category,
+        publishedAt: post.publishedAt,
+      });
+    } catch (indexError) {
+      postsLogger.error(
+        { postId: post.id, error: indexError instanceof Error ? indexError.message : 'Unknown error' },
+        'Failed to index post, will retry on next update',
+      );
+    }
 
     postsLogger.info({ postId }, 'Objava uspješno ažurirana');
 
@@ -210,17 +217,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
-    await postsRepository.delete(postId);
-
-    // Remove from search index
-    await removeFromIndex('post', postId);
-
-    // Clean up embedding records
+    // Clean search index and embeddings (best-effort -- core delete must succeed even if cleanup fails)
     try {
+      await removeFromIndex('post', postId);
       await removeEmbeddings('post', postId);
-    } catch (embeddingError) {
-      postsLogger.error({ postId, error: embeddingError }, 'Failed to clean embedding records');
+    } catch (indexError) {
+      postsLogger.error(
+        { postId, error: indexError instanceof Error ? indexError.message : 'Unknown error' },
+        'Failed to clean search index',
+      );
     }
+
+    await postsRepository.delete(postId);
 
     await createAuditLog({
       request,

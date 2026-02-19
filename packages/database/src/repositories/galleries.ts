@@ -169,27 +169,29 @@ export const galleriesRepository = {
   },
 
   async addImages(galleryId: string, images: AddImageData[]): Promise<GalleryImage[]> {
-    const maxOrder = await db.galleryImage.aggregate({
-      where: { galleryId },
-      _max: { sortOrder: true },
+    return db.$transaction(async (tx) => {
+      const maxOrder = await tx.galleryImage.aggregate({
+        where: { galleryId },
+        _max: { sortOrder: true },
+      });
+      const startOrder = (maxOrder._max.sortOrder ?? -1) + 1;
+
+      const created = await Promise.all(
+        images.map((img, index) =>
+          tx.galleryImage.create({
+            data: {
+              galleryId,
+              imageUrl: img.imageUrl,
+              thumbnailUrl: img.thumbnailUrl ?? null,
+              caption: img.caption ?? null,
+              sortOrder: startOrder + index,
+            },
+          })
+        )
+      );
+
+      return created;
     });
-    const startOrder = (maxOrder._max.sortOrder ?? -1) + 1;
-
-    const created = await db.$transaction(
-      images.map((img, index) =>
-        db.galleryImage.create({
-          data: {
-            galleryId,
-            imageUrl: img.imageUrl,
-            thumbnailUrl: img.thumbnailUrl ?? null,
-            caption: img.caption ?? null,
-            sortOrder: startOrder + index,
-          },
-        })
-      )
-    );
-
-    return created;
   },
 
   async updateImageCaption(imageId: string, caption: string | null): Promise<GalleryImage> {
