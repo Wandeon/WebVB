@@ -20,6 +20,7 @@ const rebuildLogger = logger.child({ module: 'rebuild' });
 const REBUILD_SCRIPT = '/home/deploy/scripts/rebuild-web.sh';
 const DEBOUNCE_MS = 300_000; // 5 minutes
 const PENDING_FILE = '/tmp/webvb-rebuild-pending.json';
+const MIN_BUILD_COOLDOWN_MS = 60_000; // 1 minute between builds
 
 // ---------------------------------------------------------------------------
 // State
@@ -27,6 +28,7 @@ const PENDING_FILE = '/tmp/webvb-rebuild-pending.json';
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let buildInProgress = false;
 let pendingReasons: string[] = [];
+let lastBuildCompletedAt = 0;
 
 // ---------------------------------------------------------------------------
 // Pending state persistence (survives process restarts)
@@ -88,6 +90,23 @@ function startBuild(reason: string): void {
     return;
   }
 
+  const timeSinceLastBuild = Date.now() - lastBuildCompletedAt;
+  if (timeSinceLastBuild < MIN_BUILD_COOLDOWN_MS) {
+    rebuildLogger.info(
+      { reason, cooldownRemaining: MIN_BUILD_COOLDOWN_MS - timeSinceLastBuild },
+      'Cooldown active, queuing'
+    );
+    pendingReasons.push(reason);
+    persistPendingRebuild(pendingReasons);
+    setTimeout(() => {
+      if (pendingReasons.length > 0 && !buildInProgress) {
+        const next = pendingReasons.splice(0).join(', ');
+        startBuild(next);
+      }
+    }, MIN_BUILD_COOLDOWN_MS - timeSinceLastBuild);
+    return;
+  }
+
   buildInProgress = true;
   rebuildLogger.info({ reason }, 'Starting static site rebuild');
 
@@ -102,6 +121,7 @@ function startBuild(reason: string): void {
           rebuildLogger.info({ reason }, 'Rebuild completed successfully');
         }
       } finally {
+        lastBuildCompletedAt = Date.now();
         buildInProgress = false;
 
         if (pendingReasons.length > 0) {

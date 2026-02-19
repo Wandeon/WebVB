@@ -159,6 +159,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     eventsLogger.info({ eventId }, 'Događaj uspješno ažuriran');
 
+    // Events are always public -- every change triggers rebuild (no draft concept)
     triggerRebuild(`event-updated:${event.id}`);
 
     return apiSuccess(event);
@@ -235,6 +236,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       'Događaj uspješno obrisan'
     );
 
+    // Events are always public -- every change triggers rebuild (no draft concept)
     triggerRebuild(`event-deleted:${deletedEvent.id}`);
 
     return apiSuccess({ deleted: true });

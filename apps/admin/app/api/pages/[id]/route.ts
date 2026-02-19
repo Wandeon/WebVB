@@ -180,7 +180,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     pagesLogger.info({ pageId: page.id, slug: page.slug }, 'Stranica uspješno ažurirana');
 
-    triggerRebuild(`page-updated:${page.id}`);
+    // Only rebuild if visible content changed (#146)
+    const contentChanged =
+      existingPage.title !== page.title ||
+      existingPage.content !== page.content ||
+      existingPage.slug !== page.slug ||
+      existingPage.parentId !== page.parentId ||
+      existingPage.menuOrder !== page.menuOrder;
+
+    if (contentChanged) {
+      triggerRebuild(`page-updated:${page.id}`);
+    }
 
     return apiSuccess(page);
   } catch (error) {
