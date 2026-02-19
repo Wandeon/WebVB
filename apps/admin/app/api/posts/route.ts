@@ -1,4 +1,4 @@
-import { indexPost, postsRepository } from '@repo/database';
+import { indexPost, Prisma, postsRepository } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -96,28 +96,52 @@ export async function POST(request: NextRequest) {
       featuredImage,
     } = validationResult.data;
 
-    // Generate unique slug
+    // Generate unique slug with cap to prevent infinite loops
+    const MAX_SLUG_ATTEMPTS = 10;
     let slug = generateSlug(title);
     let slugSuffix = 1;
 
-    // Check for existing slug and make it unique
     while (await postsRepository.slugExists(slug)) {
+      if (slugSuffix > MAX_SLUG_ATTEMPTS) {
+        return apiError(ErrorCodes.INTERNAL_ERROR, 'Ne mogu generirati jedinstveni slug', 500);
+      }
       slug = `${generateSlug(title)}-${slugSuffix}`;
       slugSuffix++;
     }
 
-    // Create post
-    const post = await postsRepository.create({
-      title,
-      slug,
-      content,
-      excerpt: excerpt ?? null,
-      category,
-      isFeatured,
-      publishedAt: publishedAt ?? null,
-      featuredImage: featuredImage ?? null,
-      authorId: authResult.context.userId,
-    });
+    // Create post -- handle concurrent slug collision via unique constraint
+    let post;
+    try {
+      post = await postsRepository.create({
+        title,
+        slug,
+        content,
+        excerpt: excerpt ?? null,
+        category,
+        isFeatured,
+        publishedAt: publishedAt ?? null,
+        featuredImage: featuredImage ?? null,
+        authorId: authResult.context.userId,
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Slug collision from concurrent request -- retry with timestamp suffix
+        slug = `${generateSlug(title)}-${Date.now().toString(36).slice(-4)}`;
+        post = await postsRepository.create({
+          title,
+          slug,
+          content,
+          excerpt: excerpt ?? null,
+          category,
+          isFeatured,
+          publishedAt: publishedAt ?? null,
+          featuredImage: featuredImage ?? null,
+          authorId: authResult.context.userId,
+        });
+      } else {
+        throw error;
+      }
+    }
 
     await createAuditLog({
       request,

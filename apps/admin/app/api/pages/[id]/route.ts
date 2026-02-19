@@ -1,4 +1,4 @@
-import { indexPage, pagesRepository, removeFromIndex } from '@repo/database';
+import { indexPage, pagesRepository, Prisma, removeFromIndex } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES, isReservedPageSlug } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -106,8 +106,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (title !== undefined) {
       updateData.title = title;
 
-      // Regenerate slug if title changed
+      // Regenerate slug if title changed (cap to prevent infinite loops)
       if (title !== existingPage.title) {
+        const MAX_SLUG_ATTEMPTS = 10;
         let slug = generateSlug(title);
         let slugSuffix = 1;
 
@@ -120,6 +121,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         while (await pagesRepository.slugExists(slug, pageId)) {
+          if (slugSuffix > MAX_SLUG_ATTEMPTS) {
+            return apiError(ErrorCodes.INTERNAL_ERROR, 'Ne mogu generirati jedinstveni slug', 500);
+          }
           slug = `${generateSlug(title)}-${slugSuffix}`;
           slugSuffix++;
         }
@@ -131,7 +135,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (parentId !== undefined) updateData.parentId = parentId;
     if (menuOrder !== undefined) updateData.menuOrder = menuOrder;
 
-    const page = await pagesRepository.update(pageId, updateData);
+    // Update page -- handle concurrent slug collision via unique constraint
+    let page;
+    try {
+      page = await pagesRepository.update(pageId, updateData);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Slug collision from concurrent request -- retry with timestamp suffix
+        if (updateData.slug) {
+          updateData.slug = `${updateData.slug}-${Date.now().toString(36).slice(-4)}`;
+        }
+        page = await pagesRepository.update(pageId, updateData);
+      } else {
+        throw error;
+      }
+    }
 
     await createAuditLog({
       request,
