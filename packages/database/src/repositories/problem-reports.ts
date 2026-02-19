@@ -115,7 +115,7 @@ export const problemReportsRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
-    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+    const { page: safePage, limit: safeLimit } = normalizePagination({
       page,
       limit,
       defaultLimit: 20,
@@ -139,15 +139,17 @@ export const problemReportsRepository = {
       ];
     }
 
-    const [total, reports] = await Promise.all([
-      db.problemReport.count({ where }),
-      db.problemReport.findMany({
-        where,
-        orderBy: { [sortBy]: sortOrder },
-        skip,
-        take: safeLimit,
-      }),
-    ]);
+    const total = await db.problemReport.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = Math.min(safePage, Math.max(totalPages, 1));
+    const skip = (clampedPage - 1) * safeLimit;
+
+    const reports = await db.problemReport.findMany({
+      where,
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: safeLimit,
+    });
 
     return {
       reports: reports.map((report) => ({
@@ -155,10 +157,10 @@ export const problemReportsRepository = {
         images: report.images as ProblemReportImage[] | null,
       })),
       pagination: {
-        page: safePage,
+        page: clampedPage,
         limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages,
       },
     };
   },

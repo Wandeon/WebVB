@@ -66,7 +66,7 @@ export const galleriesRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
-    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+    const { page: safePage, limit: safeLimit } = normalizePagination({
       page,
       limit,
       defaultLimit: 20,
@@ -81,24 +81,26 @@ export const galleriesRepository = {
       ];
     }
 
-    const [total, galleries] = await Promise.all([
-      db.gallery.count({ where }),
-      db.gallery.findMany({
-        where,
-        include: { _count: { select: { images: true } } },
-        orderBy: { [sortBy]: sortOrder },
-        skip,
-        take: safeLimit,
-      }),
-    ]);
+    const total = await db.gallery.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = Math.min(safePage, Math.max(totalPages, 1));
+    const skip = (clampedPage - 1) * safeLimit;
+
+    const galleries = await db.gallery.findMany({
+      where,
+      include: { _count: { select: { images: true } } },
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: safeLimit,
+    });
 
     return {
       galleries,
       pagination: {
-        page: safePage,
+        page: clampedPage,
         limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages,
       },
     };
   },

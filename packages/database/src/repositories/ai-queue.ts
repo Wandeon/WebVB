@@ -377,7 +377,7 @@ export const aiQueueRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
-    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+    const { page: safePage, limit: safeLimit } = normalizePagination({
       page,
       limit,
       defaultLimit: 20,
@@ -398,23 +398,25 @@ export const aiQueueRepository = {
       where.userId = userId;
     }
 
-    const [total, jobs] = await Promise.all([
-      db.aiQueue.count({ where }),
-      db.aiQueue.findMany({
-        where,
-        orderBy: { [sortBy]: sortOrder },
-        skip,
-        take: safeLimit,
-      }),
-    ]);
+    const total = await db.aiQueue.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = Math.min(safePage, Math.max(totalPages, 1));
+    const skip = (clampedPage - 1) * safeLimit;
+
+    const jobs = await db.aiQueue.findMany({
+      where,
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: safeLimit,
+    });
 
     return {
       jobs: jobs.map(transformToRecord),
       pagination: {
-        page: safePage,
+        page: clampedPage,
         limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages,
       },
     };
   },

@@ -64,7 +64,7 @@ export const eventsRepository = {
       sortBy = 'eventDate',
       sortOrder = 'asc',
     } = options;
-    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+    const { page: safePage, limit: safeLimit } = normalizePagination({
       page,
       limit,
       defaultLimit: 20,
@@ -109,23 +109,25 @@ export const eventsRepository = {
       where.AND = andFilters;
     }
 
-    const [total, events] = await Promise.all([
-      db.event.count({ where }),
-      db.event.findMany({
-        where,
-        orderBy: { [sortBy]: sortOrder },
-        skip,
-        take: safeLimit,
-      }),
-    ]);
+    const total = await db.event.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = Math.min(safePage, Math.max(totalPages, 1));
+    const skip = (clampedPage - 1) * safeLimit;
+
+    const events = await db.event.findMany({
+      where,
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: safeLimit,
+    });
 
     return {
       events,
       pagination: {
-        page: safePage,
+        page: clampedPage,
         limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages,
       },
     };
   },

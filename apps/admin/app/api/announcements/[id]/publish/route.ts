@@ -1,4 +1,4 @@
-import { announcementsRepository } from '@repo/database';
+import { announcementsRepository, db } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -29,39 +29,37 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return authResult.response;
     }
 
-    // Check if announcement exists
-    const existingAnnouncement = await announcementsRepository.findById(announcementId);
+    // Atomic conditional publish: only updates if currently unpublished
+    const result = await db.announcement.updateMany({
+      where: { id: announcementId, publishedAt: null },
+      data: { publishedAt: new Date() },
+    });
 
-    if (!existingAnnouncement) {
-      return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
-    }
-
-    // Check if already published
-    if (existingAnnouncement.publishedAt) {
+    if (result.count === 0) {
       return apiError(
         ErrorCodes.VALIDATION_ERROR,
-        'Obavijest je već objavljena',
+        'Obavijest je već objavljena ili ne postoji',
         400
       );
     }
 
-    const announcement = await announcementsRepository.publish(announcementId);
+    // Fetch the updated record for audit log and response
+    const announcement = await announcementsRepository.findById(announcementId);
 
     await createAuditLog({
       request,
       context: authResult.context,
       action: AUDIT_ACTIONS.UPDATE,
       entityType: AUDIT_ENTITY_TYPES.ANNOUNCEMENT,
-      entityId: announcement.id,
+      entityId: announcementId,
       changes: {
-        before: existingAnnouncement,
-        after: announcement,
+        publishedAt: { before: null, after: announcement?.publishedAt },
       },
     });
 
     announcementsLogger.info({ announcementId }, 'Obavijest uspješno objavljena');
 
-    triggerRebuild(`announcement-published:${announcement.id}`);
+    triggerRebuild(`announcement-published:${announcementId}`);
 
     return apiSuccess(announcement);
   } catch (error) {
@@ -89,39 +87,37 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return authResult.response;
     }
 
-    // Check if announcement exists
-    const existingAnnouncement = await announcementsRepository.findById(announcementId);
+    // Atomic conditional unpublish: only updates if currently published
+    const result = await db.announcement.updateMany({
+      where: { id: announcementId, publishedAt: { not: null } },
+      data: { publishedAt: null },
+    });
 
-    if (!existingAnnouncement) {
-      return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
-    }
-
-    // Check if already unpublished
-    if (!existingAnnouncement.publishedAt) {
+    if (result.count === 0) {
       return apiError(
         ErrorCodes.VALIDATION_ERROR,
-        'Obavijest nije objavljena',
+        'Obavijest nije objavljena ili ne postoji',
         400
       );
     }
 
-    const announcement = await announcementsRepository.unpublish(announcementId);
+    // Fetch the updated record for audit log and response
+    const announcement = await announcementsRepository.findById(announcementId);
 
     await createAuditLog({
       request,
       context: authResult.context,
       action: AUDIT_ACTIONS.UPDATE,
       entityType: AUDIT_ENTITY_TYPES.ANNOUNCEMENT,
-      entityId: announcement.id,
+      entityId: announcementId,
       changes: {
-        before: existingAnnouncement,
-        after: announcement,
+        publishedAt: { before: 'was published', after: null },
       },
     });
 
     announcementsLogger.info({ announcementId }, 'Obavijest uspješno povučena');
 
-    triggerRebuild(`announcement-unpublished:${announcement.id}`);
+    triggerRebuild(`announcement-unpublished:${announcementId}`);
 
     return apiSuccess(announcement);
   } catch (error) {
