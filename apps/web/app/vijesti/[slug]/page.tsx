@@ -121,7 +121,7 @@ export const generateStaticParams = withStaticParams(async () => {
     return [];
   }
 
-  const { posts } = await postsRepository.findPublished({ limit: 100 });
+  const posts = await postsRepository.findPublishedForSitemap();
   return posts.map((post) => ({ slug: post.slug }));
 }, {
   routeName: 'news detail pages',

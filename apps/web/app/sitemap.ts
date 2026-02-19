@@ -1,4 +1,5 @@
 import {
+  announcementsRepository,
   eventsRepository,
   galleriesRepository,
   postsRepository,
@@ -40,6 +41,7 @@ const staticRoutes = [
   '/dokumenti/proracun',
   '/dokumenti/prostorni-planovi',
   '/dokumenti/pravo-na-pristup-informacijama',
+  '/obavijesti',
   '/natjecaji',
   '/odvoz-otpada',
 ];
@@ -54,18 +56,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return staticEntries;
   }
 
-  const [posts, events, galleries] = await Promise.all([
+  const [posts, announcements, events, galleries] = await Promise.all([
     postsRepository.findPublishedForSitemap(),
+    announcementsRepository.findPublishedForSitemap(),
     eventsRepository.findAllForSitemap(),
     galleriesRepository.findAllForSitemap(),
   ]);
+
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
   const postEntries = posts.map((post) => ({
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/vijesti/${post.slug}`),
     lastModified: post.updatedAt ?? post.publishedAt ?? new Date(),
   }));
 
-  const eventEntries = events.map((event) => ({
+  const announcementEntries = announcements.map((announcement) => ({
+    url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/obavijesti/${announcement.slug}`),
+    lastModified: announcement.updatedAt ?? announcement.publishedAt ?? new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.5,
+  }));
+
+  const recentEvents = events.filter((event) => event.eventDate >= twoYearsAgo);
+  const eventEntries = recentEvents.map((event) => ({
     url: buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/dogadanja/${event.id}`),
     lastModified: event.updatedAt ?? event.eventDate,
   }));
@@ -78,6 +92,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticEntries,
     ...postEntries,
+    ...announcementEntries,
     ...eventEntries,
     ...galleryEntries,
   ];

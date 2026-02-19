@@ -128,10 +128,7 @@ export const generateStaticParams = withStaticParams(
       return [];
     }
 
-    const { announcements } = await announcementsRepository.findPublished({
-      limit: 100,
-      activeOnly: false,
-    });
+    const announcements = await announcementsRepository.findPublishedForSitemap();
     return announcements.map((announcement) => ({ slug: announcement.slug }));
   },
   {
