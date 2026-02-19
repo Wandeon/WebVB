@@ -51,7 +51,7 @@ export interface PipelineFailure {
 // Per-Stage Temperature
 // =============================================================================
 
-const STAGE_TEMPERATURE = {
+export const STAGE_TEMPERATURE = {
   generate: 0.3,
   review: 0.15,
   rewrite: 0.2,
@@ -287,6 +287,20 @@ export async function runArticlePipeline(
 
     currentArticle = rewriteResult.article;
 
+    // Post-rewrite banned word check (#101)
+    const postRewriteBanned = findAllBanned(
+      `${currentArticle.title} ${currentArticle.excerpt} ${currentArticle.content}`
+    );
+    if (postRewriteBanned.words.length > 0 || postRewriteBanned.phrases.length > 0) {
+      aiLogger.warn(
+        {
+          words: postRewriteBanned.words,
+          phrases: postRewriteBanned.phrases,
+        },
+        'Rewrite introduced banned words, will be caught by re-review'
+      );
+    }
+
     // Re-review after rewrite
     aiLogger.info('Pipeline stage: REVIEW (post-rewrite)');
     const reReviewResult = await reviewArticle(currentArticle);
@@ -296,6 +310,10 @@ export async function runArticlePipeline(
 
   // Stage 3: POLISH (always run, even if review didn't pass)
   aiLogger.info('Pipeline stage: POLISH');
+
+  // Save pre-polish article for potential revert (#105)
+  const prePolishArticle = currentArticle;
+
   const polishResult = await polishArticle(currentArticle);
 
   // #164: Return PipelineFailure when polish stage fails to parse
@@ -311,6 +329,18 @@ export async function runArticlePipeline(
   }
 
   currentArticle = polishResult.article;
+
+  // Post-polish banned word check (#105) -- revert if polish introduced banned words
+  const postPolishBanned = findAllBanned(
+    `${currentArticle.title} ${currentArticle.excerpt} ${currentArticle.content}`
+  );
+  if (postPolishBanned.words.length > 0 || postPolishBanned.phrases.length > 0) {
+    aiLogger.warn(
+      { words: postPolishBanned.words, phrases: postPolishBanned.phrases },
+      'Polish introduced banned words, reverting to pre-polish version'
+    );
+    currentArticle = prePolishArticle;
+  }
 
   const passed = review.pass;
 

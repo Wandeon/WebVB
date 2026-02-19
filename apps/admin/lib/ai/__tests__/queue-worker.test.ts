@@ -33,9 +33,13 @@ vi.mock('../ollama-cloud', () => ({
   isOllamaCloudConfigured: vi.fn(),
 }));
 
-vi.mock('../pipeline', () => ({
-  runArticlePipeline: vi.fn(),
-}));
+vi.mock('../pipeline', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../pipeline')>();
+  return {
+    ...actual,
+    runArticlePipeline: vi.fn(),
+  };
+});
 
 vi.mock('../../logger', () => ({
   aiLogger: {
@@ -237,6 +241,7 @@ describe('queue-worker', () => {
       expect(mockAiQueueRepository.claimNext).toHaveBeenCalled();
       expect(mockGenerate).toHaveBeenCalledWith('Test prompt', {
         system: 'Be helpful',
+        temperature: 0.3,
       });
       expect(mockAiQueueRepository.markCompleted).toHaveBeenCalledWith(
         'job-123',
@@ -270,7 +275,9 @@ describe('queue-worker', () => {
       const result = await triggerProcessing();
 
       expect(result).toEqual({ processed: true, jobId: 'job-456' });
-      expect(mockGenerate).toHaveBeenCalledWith('Simple prompt', {});
+      expect(mockGenerate).toHaveBeenCalledWith('Simple prompt', {
+        temperature: 0.3,
+      });
     });
 
     it('marks job as failed after max attempts', async () => {

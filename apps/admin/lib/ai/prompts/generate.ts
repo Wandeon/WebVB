@@ -46,7 +46,7 @@ VAŽNO: Ne dodaj nikakav tekst prije ili nakon JSON objekta.`;
 // Few-Shot Examples
 // =============================================================================
 
-const FEW_SHOT_EXAMPLES = [
+export const FEW_SHOT_EXAMPLES = [
   {
     instructions: 'Radovi na cesti kroz Dubovicu, zatvorena od 15. do 22. ožujka',
     category: 'Komunalno',

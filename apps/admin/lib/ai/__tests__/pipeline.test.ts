@@ -198,7 +198,8 @@ vi.mock('../../logger', () => ({
 }));
 
 import { generate } from '../ollama-cloud';
-import { runArticlePipeline } from '../pipeline';
+import { runArticlePipeline, STAGE_TEMPERATURE } from '../pipeline';
+import { FEW_SHOT_EXAMPLES } from '../prompts/generate';
 
 import type { OllamaGenerateResponse } from '../types';
 
@@ -394,6 +395,88 @@ describe('runArticlePipeline', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.article).toEqual(testArticle);
+    }
+  });
+
+  // #105: Post-polish banned word revert
+  it('reverts to pre-polish article when polish introduces banned words (#105)', async () => {
+    // Review passes, then polish introduces "revolucionarno" (banned word)
+    mockGenerate
+      .mockResolvedValueOnce(
+        llmSuccess(JSON.stringify({ pass: true, issues: [] }))
+      )
+      .mockResolvedValueOnce(
+        llmSuccess(
+          JSON.stringify({
+            title: 'Revolucionarno otvaranje ceste',
+            content: '<p>Ovo je revolucionarno za selo.</p>',
+            excerpt: 'Revolucionarno otvaranje.',
+          })
+        )
+      );
+
+    const result = await runArticlePipeline(testArticle);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      // Should revert to original (pre-polish) article
+      expect(result.article).toEqual(testArticle);
+    }
+  });
+
+  // #105: Polish without banned words should keep polished version
+  it('keeps polished article when polish does not introduce banned words (#105)', async () => {
+    const cleanPolished = {
+      title: 'Cesta otvorena za promet',
+      content: '<p>Cesta je otvorena.</p>',
+      excerpt: 'Cesta otvorena.',
+    };
+
+    mockGenerate
+      .mockResolvedValueOnce(
+        llmSuccess(JSON.stringify({ pass: true, issues: [] }))
+      )
+      .mockResolvedValueOnce(llmSuccess(JSON.stringify(cleanPolished)));
+
+    const result = await runArticlePipeline(testArticle);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.article).toEqual(cleanPolished);
+    }
+  });
+});
+
+// =============================================================================
+// STAGE_TEMPERATURE export (#118)
+// =============================================================================
+
+describe('STAGE_TEMPERATURE', () => {
+  it('exports expected temperature values (#118)', () => {
+    expect(STAGE_TEMPERATURE.generate).toBe(0.3);
+    expect(STAGE_TEMPERATURE.review).toBe(0.15);
+    expect(STAGE_TEMPERATURE.rewrite).toBe(0.2);
+    expect(STAGE_TEMPERATURE.polish).toBe(0.15);
+  });
+});
+
+// =============================================================================
+// FEW_SHOT_EXAMPLES export (#125)
+// =============================================================================
+
+describe('FEW_SHOT_EXAMPLES', () => {
+  it('exports non-empty array of examples (#125)', () => {
+    expect(Array.isArray(FEW_SHOT_EXAMPLES)).toBe(true);
+    expect(FEW_SHOT_EXAMPLES.length).toBeGreaterThan(0);
+  });
+
+  it('each example has required structure', () => {
+    for (const example of FEW_SHOT_EXAMPLES) {
+      expect(typeof example.instructions).toBe('string');
+      expect(typeof example.category).toBe('string');
+      expect(typeof example.response.title).toBe('string');
+      expect(typeof example.response.content).toBe('string');
+      expect(typeof example.response.excerpt).toBe('string');
     }
   });
 });

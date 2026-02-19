@@ -18,6 +18,7 @@ import type { NextRequest } from 'next/server';
 const MAX_INSTRUCTIONS_LENGTH = 2000;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_PROMPT_LENGTH = 16000;
+const MAX_DOCUMENT_TEXT_LENGTH = 50_000; // 50K chars -- truncate before sanitization (#151)
 
 // =============================================================================
 // Validation
@@ -125,7 +126,17 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const sanitized = sanitizeDocumentText(parseResult.text);
+      // Truncate before sanitization to prevent regex DoS (#151)
+      let rawDocText = parseResult.text;
+      if (rawDocText.length > MAX_DOCUMENT_TEXT_LENGTH) {
+        aiLogger.warn(
+          { originalLength: rawDocText.length, maxLength: MAX_DOCUMENT_TEXT_LENGTH },
+          'Document text truncated before sanitization'
+        );
+        rawDocText = rawDocText.slice(0, MAX_DOCUMENT_TEXT_LENGTH);
+      }
+
+      const sanitized = sanitizeDocumentText(rawDocText);
       documentText = sanitized.sanitized;
       documentRedactions = sanitized.redactions;
       documentHash = hashText(documentText);

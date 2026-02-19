@@ -12,7 +12,8 @@ import { z } from 'zod';
 
 import { aiLogger } from '../logger';
 import { generate, isOllamaCloudConfigured } from './ollama-cloud';
-import { runArticlePipeline } from './pipeline';
+import { runArticlePipeline, STAGE_TEMPERATURE } from './pipeline';
+import { FEW_SHOT_EXAMPLES } from './prompts/generate';
 import { extractJson, hashText } from './prompt-utils';
 
 import type { AiQueueRecord } from '@repo/database';
@@ -95,6 +96,38 @@ function getWorkerConfig() {
     enabled: env.AI_WORKER_ENABLED !== 'false',
     workerId: env.AI_WORKER_ID ?? FALLBACK_WORKER_ID,
   };
+}
+
+/**
+ * Check if generated content is too similar to any few-shot example (#125).
+ * Prevents the LLM from copying example responses verbatim.
+ */
+function isTooSimilarToExample(content: string): boolean {
+  for (const example of FEW_SHOT_EXAMPLES) {
+    const exampleContent = example.response.content;
+    const exampleSentences = exampleContent
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 20);
+    const contentSentences = content
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 20);
+
+    let matches = 0;
+    for (const cs of contentSentences) {
+      if (
+        exampleSentences.some(
+          (es) => cs.trim().includes(es.trim()) || es.trim().includes(cs.trim())
+        )
+      ) {
+        matches++;
+      }
+    }
+
+    if (contentSentences.length > 0 && matches / contentSentences.length > 0.5) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function validatePostGenerationResult(response: string): {
@@ -214,9 +247,12 @@ async function processJob(
   // Extend lease before AI generation (#94)
   await extendJobLease(job.id, workerId);
 
-  // Call the AI generate function
+  // Call the AI generate function with explicit temperature (#118)
   // Only include system if it's defined (exactOptionalPropertyTypes)
-  const result = await generate(prompt, system ? { system } : {});
+  const result = await generate(prompt, {
+    ...(system ? { system } : {}),
+    temperature: STAGE_TEMPERATURE.generate,
+  });
 
   if (result.success) {
     // Success - mark completed with response data
@@ -257,6 +293,17 @@ async function processJob(
         await aiQueueRepository.markFailed(
           job.id,
           validated.error ?? 'Neispravan AI odgovor',
+          resultData
+        );
+        return;
+      }
+
+      // Check if generated content is too similar to few-shot examples (#125)
+      if (isTooSimilarToExample(validated.result.content)) {
+        aiLogger.warn({ jobId: job.id }, 'Generated content too similar to few-shot example');
+        await aiQueueRepository.markFailed(
+          job.id,
+          'Generirani sadržaj previše sličan primjeru',
           resultData
         );
         return;
