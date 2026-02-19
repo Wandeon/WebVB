@@ -1,4 +1,4 @@
-import { announcementsRepository } from '@repo/database';
+import { announcementsRepository, Prisma } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -96,28 +96,52 @@ export async function POST(request: NextRequest) {
       publishedAt,
     } = validationResult.data;
 
-    // Generate unique slug
+    // Generate unique slug with cap to prevent infinite loops
+    const MAX_SLUG_ATTEMPTS = 10;
     let slug = generateSlug(title);
     let slugSuffix = 1;
 
-    // Check for existing slug and make it unique
     while (await announcementsRepository.slugExists(slug)) {
+      if (slugSuffix > MAX_SLUG_ATTEMPTS) {
+        return apiError(ErrorCodes.INTERNAL_ERROR, 'Ne mogu generirati jedinstveni slug', 500);
+      }
       slug = `${generateSlug(title)}-${slugSuffix}`;
       slugSuffix++;
     }
 
-    // Create announcement
-    const announcement = await announcementsRepository.create({
-      title,
-      slug,
-      content: content ?? null,
-      excerpt: excerpt ?? null,
-      category,
-      validFrom: validFrom ?? null,
-      validUntil: validUntil ?? null,
-      publishedAt: publishedAt ?? null,
-      authorId: authResult.context.userId,
-    });
+    // Create announcement -- handle concurrent slug collision via unique constraint
+    let announcement;
+    try {
+      announcement = await announcementsRepository.create({
+        title,
+        slug,
+        content: content ?? null,
+        excerpt: excerpt ?? null,
+        category,
+        validFrom: validFrom ?? null,
+        validUntil: validUntil ?? null,
+        publishedAt: publishedAt ?? null,
+        authorId: authResult.context.userId,
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Slug collision from concurrent request -- retry with timestamp suffix
+        slug = `${generateSlug(title)}-${Date.now().toString(36).slice(-4)}`;
+        announcement = await announcementsRepository.create({
+          title,
+          slug,
+          content: content ?? null,
+          excerpt: excerpt ?? null,
+          category,
+          validFrom: validFrom ?? null,
+          validUntil: validUntil ?? null,
+          publishedAt: publishedAt ?? null,
+          authorId: authResult.context.userId,
+        });
+      } else {
+        throw error;
+      }
+    }
 
     await createAuditLog({
       request,

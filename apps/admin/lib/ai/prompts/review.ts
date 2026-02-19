@@ -3,8 +3,9 @@
  * Issue-only review: identifies concrete violations, no numeric scores
  */
 
+import { extractJson } from '../prompt-utils';
 import { BANNED_PHRASES, BANNED_WORDS } from './banned-words';
-import { PIPELINE_CONFIG, type ReviewResult } from './types';
+import { PIPELINE_CONFIG, type ReviewIssue, type ReviewResult } from './types';
 
 // =============================================================================
 // System Prompt
@@ -71,33 +72,51 @@ Odgovori u JSON formatu:
 // Response Parser
 // =============================================================================
 
+// Valid issue type values for structural validation (#147)
+const VALID_ISSUE_TYPES = new Set<string>([
+  'slop_word', 'slop_phrase', 'sentence_too_long', 'wall_of_text',
+  'missing_concrete', 'missing_local', 'invented_fact', 'grammar',
+]);
+
+/** Type guard for a single ReviewIssue from LLM output (#147) */
+function isValidIssue(issue: unknown): issue is ReviewIssue {
+  if (!issue || typeof issue !== 'object') return false;
+  const obj = issue as Record<string, unknown>;
+  return (
+    typeof obj.type === 'string' && VALID_ISSUE_TYPES.has(obj.type) &&
+    typeof obj.location === 'string' &&
+    typeof obj.fix === 'string'
+  );
+}
+
+/** Max issues to accept from a single LLM review response */
+const MAX_REVIEW_ISSUES = 20;
+
 export function parseReviewResponse(response: string): ReviewResult | null {
-  try {
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
+  const parsed = extractJson(response);
 
-    const parsed = JSON.parse(jsonMatch[0]) as unknown;
-
-    if (
-      typeof parsed !== 'object' ||
-      parsed === null ||
-      !('pass' in parsed) ||
-      !('issues' in parsed)
-    ) {
-      return null;
-    }
-
-    const result = parsed as { pass: unknown; issues: unknown };
-
-    if (typeof result.pass !== 'boolean' || !Array.isArray(result.issues)) {
-      return null;
-    }
-
-    return {
-      pass: result.pass,
-      issues: result.issues as ReviewResult['issues'],
-    };
-  } catch {
+  if (
+    typeof parsed !== 'object' ||
+    parsed === null ||
+    !('pass' in parsed) ||
+    !('issues' in parsed)
+  ) {
     return null;
   }
+
+  const result = parsed as { pass: unknown; issues: unknown };
+
+  if (typeof result.pass !== 'boolean' || !Array.isArray(result.issues)) {
+    return null;
+  }
+
+  // Validate each issue individually and cap at MAX_REVIEW_ISSUES (#147)
+  const validIssues = (result.issues as unknown[])
+    .filter(isValidIssue)
+    .slice(0, MAX_REVIEW_ISSUES);
+
+  return {
+    pass: result.pass,
+    issues: validIssues,
+  };
 }

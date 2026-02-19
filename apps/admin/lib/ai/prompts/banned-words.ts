@@ -90,18 +90,25 @@ function escapeRegex(str: string): string {
 }
 
 /**
+ * Create a Unicode-aware word boundary regex for Croatian text (#161).
+ * JS `\b` does not treat čćšžđ as word characters, causing false matches.
+ */
+function createWordBoundaryRegex(word: string): RegExp {
+  const boundary = String.raw`(?<![a-zA-ZčćšžđČĆŠŽĐáéíóúàèìòùäëïöüâêîôû0-9])`;
+  const boundaryEnd = String.raw`(?![a-zA-ZčćšžđČĆŠŽĐáéíóúàèìòùäëïöüâêîôû0-9])`;
+  return new RegExp(`${boundary}${escapeRegex(word)}${boundaryEnd}`, 'gi');
+}
+
+/**
  * Find banned words in text
  * Returns array of banned words found
  */
 export function findBannedWords(text: string): string[] {
-  const lowerText = text.toLowerCase();
   const found: string[] = [];
 
   for (const word of BANNED_WORDS) {
-    // Escape special regex characters and use word boundary to match whole words only
-    const escaped = escapeRegex(word.toLowerCase());
-    const regex = new RegExp(`\\b${escaped}\\b`);
-    if (regex.test(lowerText)) {
+    const regex = createWordBoundaryRegex(word);
+    if (regex.test(text)) {
       found.push(word);
     }
   }

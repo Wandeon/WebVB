@@ -99,7 +99,7 @@ export const postsRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
-    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+    const { page: safePage, limit: safeLimit } = normalizePagination({
       page,
       limit,
       defaultLimit: 10,
@@ -126,24 +126,26 @@ export const postsRepository = {
       where.publishedAt = null;
     }
 
-    const [total, posts] = await Promise.all([
-      db.post.count({ where }),
-      db.post.findMany({
-        where,
-        include: { author: { select: authorSelect } },
-        orderBy: { [sortBy]: sortOrder },
-        skip,
-        take: safeLimit,
-      }),
-    ]);
+    const total = await db.post.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = Math.min(safePage, Math.max(totalPages, 1));
+    const skip = (clampedPage - 1) * safeLimit;
+
+    const posts = await db.post.findMany({
+      where,
+      include: { author: { select: authorSelect } },
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: safeLimit,
+    });
 
     return {
       posts,
       pagination: {
-        page: safePage,
+        page: clampedPage,
         limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages,
       },
     };
   },

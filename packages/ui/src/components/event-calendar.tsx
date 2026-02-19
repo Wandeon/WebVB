@@ -23,10 +23,9 @@ export interface EventCalendarProps {
 
 const EVENT_TIME_ZONE = 'Europe/Zagreb';
 
-// Event color mapping for special event types
-const WASTE_COLORS: Record<string, { bg: string; border: string; text: string }> = {};
+interface EventColors { bg: string; border: string; text: string }
 
-function getEventDisplayInfo(title: string): { label: string; colors: typeof WASTE_COLORS[string] | null } {
+function getEventDisplayInfo(title: string): { label: string; colors: EventColors | null } {
   // Check for recycling yard events
   if (title.toLowerCase().includes('reciklažno dvorište') || title.toLowerCase().includes('mobilno reciklažno')) {
     return {

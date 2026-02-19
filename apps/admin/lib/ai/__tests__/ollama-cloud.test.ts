@@ -55,14 +55,16 @@ describe('ollama-cloud', () => {
 
   describe('listModels', () => {
     it('returns models on success', async () => {
+      const modelsPayload = {
+        models: [
+          { name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 },
+        ],
+      };
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          models: [
-            { name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 },
-          ],
-        }),
+        text: () => Promise.resolve(JSON.stringify(modelsPayload)),
+        json: () => Promise.resolve(modelsPayload),
       });
 
       const result = await listModels();
@@ -107,18 +109,20 @@ describe('ollama-cloud', () => {
 
   describe('generate', () => {
     it('returns generated text on success', async () => {
+      const generatePayload = {
+        model: 'deepseek-v3.2',
+        created_at: '2024-01-01T00:00:00Z',
+        response: 'Generated text here',
+        done: true,
+        total_duration: 1000000000,
+        prompt_eval_count: 10,
+        eval_count: 20,
+      };
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          model: 'deepseek-v3.2',
-          created_at: '2024-01-01T00:00:00Z',
-          response: 'Generated text here',
-          done: true,
-          total_duration: 1000000000,
-          prompt_eval_count: 10,
-          eval_count: 20,
-        }),
+        text: () => Promise.resolve(JSON.stringify(generatePayload)),
+        json: () => Promise.resolve(generatePayload),
       });
 
       const result = await generate('Test prompt');
@@ -131,14 +135,16 @@ describe('ollama-cloud', () => {
     });
 
     it('includes system prompt when provided', async () => {
+      const systemPayload = {
+        model: 'deepseek-v3.2',
+        response: 'Generated text',
+        done: true,
+      };
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          model: 'deepseek-v3.2',
-          response: 'Generated text',
-          done: true,
-        }),
+        text: () => Promise.resolve(JSON.stringify(systemPayload)),
+        json: () => Promise.resolve(systemPayload),
       });
 
       await generate('Test prompt', { system: 'You are a helpful assistant' });
@@ -180,12 +186,14 @@ describe('ollama-cloud', () => {
 
   describe('checkHealth', () => {
     it('returns healthy status when connected', async () => {
+      const healthPayload = {
+        models: [{ name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 }],
+      };
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          models: [{ name: 'deepseek-v3.2', modified_at: '2024-01-01', size: 1000 }],
-        }),
+        text: () => Promise.resolve(JSON.stringify(healthPayload)),
+        json: () => Promise.resolve(healthPayload),
       });
 
       const health = await checkHealth();
@@ -206,12 +214,14 @@ describe('ollama-cloud', () => {
     });
 
     it('reports model unavailable when not in list', async () => {
+      const otherModelPayload = {
+        models: [{ name: 'other-model', modified_at: '2024-01-01', size: 1000 }],
+      };
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          models: [{ name: 'other-model', modified_at: '2024-01-01', size: 1000 }],
-        }),
+        text: () => Promise.resolve(JSON.stringify(otherModelPayload)),
+        json: () => Promise.resolve(otherModelPayload),
       });
 
       const health = await checkHealth();

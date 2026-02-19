@@ -14,6 +14,10 @@ const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 const unsubscribeSchema = z
   .object({
     endpoint: z.string().url(),
+    keys: z.object({
+      p256dh: z.string().min(1),
+      auth: z.string().min(1),
+    }),
   })
   .strict();
 
@@ -57,7 +61,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const { endpoint } = result.data;
+    const { endpoint, keys } = result.data;
+
+    // Verify the caller owns this subscription
+    const isOwner = await pushSubscriptionsRepository.verifyOwnership(endpoint, keys.p256dh, keys.auth);
+    if (!isOwner) {
+      return NextResponse.json(
+        { success: false, error: { code: 'FORBIDDEN', message: 'Neovlašteni pristup.' } },
+        { status: 403, headers: corsHeaders }
+      );
+    }
 
     const success = await pushSubscriptionsRepository.deactivateByEndpoint(endpoint);
 

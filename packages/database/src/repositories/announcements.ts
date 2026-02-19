@@ -133,7 +133,7 @@ export const announcementsRepository = {
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = options;
-    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+    const { page: safePage, limit: safeLimit } = normalizePagination({
       page,
       limit,
       defaultLimit: 10,
@@ -177,27 +177,29 @@ export const announcementsRepository = {
       where.validUntil = { lt: now };
     }
 
-    const [total, announcements] = await Promise.all([
-      db.announcement.count({ where }),
-      db.announcement.findMany({
-        where,
-        include: {
-          author: { select: authorSelect },
-          _count: { select: { attachments: true } },
-        },
-        orderBy: { [sortBy]: sortOrder },
-        skip,
-        take: safeLimit,
-      }),
-    ]);
+    const total = await db.announcement.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = Math.min(safePage, Math.max(totalPages, 1));
+    const skip = (clampedPage - 1) * safeLimit;
+
+    const announcements = await db.announcement.findMany({
+      where,
+      include: {
+        author: { select: authorSelect },
+        _count: { select: { attachments: true } },
+      },
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: safeLimit,
+    });
 
     return {
       announcements,
       pagination: {
-        page: safePage,
+        page: clampedPage,
         limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages,
       },
     };
   },

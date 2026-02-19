@@ -3,9 +3,10 @@ import { buildCanonicalUrl, getPublicEnv } from '@repo/shared';
 import { Suspense } from 'react';
 
 import { shouldSkipDatabase } from '@/lib/build-flags';
-import { fetchAllExternalNews } from '../../lib/external-news';
 
 import { NewsPageClient } from './news-page-client';
+import { fetchAllExternalNews } from '../../lib/external-news';
+
 
 import type { ExternalColumn, NewsPageInitialData } from './news-page-client';
 import type { Metadata } from 'next';

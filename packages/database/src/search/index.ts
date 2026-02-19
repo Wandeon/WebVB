@@ -4,6 +4,7 @@ export {
   indexPage,
   indexEvent,
   removeFromIndex,
+  removeEmbeddings,
   stripHtml,
 } from './indexer';
 

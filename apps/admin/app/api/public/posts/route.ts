@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { postsLogger } from '@/lib/logger';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 import type { NextRequest } from 'next/server';
 
@@ -20,6 +21,9 @@ const publicPostsQuerySchema = z
   })
   .strict();
 
+const POSTS_RATE_LIMIT = 60;
+const POSTS_RATE_WINDOW = 60 * 1000; // 1 minute
+
 const mapPost = (post: PostWithAuthor) => ({
   id: post.id,
   title: post.title,
@@ -31,6 +35,13 @@ const mapPost = (post: PostWithAuthor) => ({
 });
 
 export async function GET(request: NextRequest) {
+  // Rate limit check
+  const ip = getClientIp(request);
+  const rateCheck = checkRateLimit(`public-posts:${ip}`, POSTS_RATE_LIMIT, POSTS_RATE_WINDOW);
+  if (!rateCheck.allowed) {
+    return apiError(ErrorCodes.RATE_LIMIT, 'Previše zahtjeva. Pokušajte ponovno.', 429);
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const queryResult = publicPostsQuerySchema.safeParse({

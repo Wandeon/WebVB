@@ -173,6 +173,16 @@ export const pagesRepository = {
     await db.page.delete({ where: { id } });
   },
 
+  /**
+   * Reassign all children of a parent to a new parent (prevents orphaned pages on delete)
+   */
+  async reassignChildren(parentId: string, newParentId: string | null): Promise<void> {
+    await db.page.updateMany({
+      where: { parentId },
+      data: { parentId: newParentId },
+    });
+  },
+
   async exists(id: string): Promise<boolean> {
     const count = await db.page.count({ where: { id } });
     return count > 0;

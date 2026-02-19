@@ -163,6 +163,21 @@ export async function removeFromIndex(
   });
 }
 
+/**
+ * Remove embedding records for a given source
+ */
+export async function removeEmbeddings(
+  sourceType: SourceType,
+  sourceId: string
+): Promise<void> {
+  await db.embedding.deleteMany({
+    where: {
+      sourceType,
+      sourceId,
+    },
+  });
+}
+
 interface UpsertData {
   sourceType: SourceType;
   sourceId: string;

@@ -145,6 +145,7 @@ export async function POST(request: NextRequest) {
       'Događaj uspješno stvoren'
     );
 
+    // Events are always public -- every change triggers rebuild (no draft concept)
     triggerRebuild(`event-created:${event.id}`);
 
     return apiSuccess(event, 201);

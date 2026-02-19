@@ -1,4 +1,4 @@
-import { indexPage, pagesRepository } from '@repo/database';
+import { indexPage, pagesRepository, Prisma } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES, isReservedPageSlug } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -89,7 +89,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate unique slug
+    // Generate unique slug with cap to prevent infinite loops
+    const MAX_SLUG_ATTEMPTS = 10;
     let slug = generateSlug(title);
     let slugSuffix = 1;
 
@@ -102,17 +103,38 @@ export async function POST(request: NextRequest) {
     }
 
     while (await pagesRepository.slugExists(slug)) {
+      if (slugSuffix > MAX_SLUG_ATTEMPTS) {
+        return apiError(ErrorCodes.INTERNAL_ERROR, 'Ne mogu generirati jedinstveni slug', 500);
+      }
       slug = `${generateSlug(title)}-${slugSuffix}`;
       slugSuffix++;
     }
 
-    const page = await pagesRepository.create({
-      title,
-      slug,
-      content,
-      parentId: parentId ?? null,
-      menuOrder: menuOrder ?? 0,
-    });
+    // Create page -- handle concurrent slug collision via unique constraint
+    let page;
+    try {
+      page = await pagesRepository.create({
+        title,
+        slug,
+        content,
+        parentId: parentId ?? null,
+        menuOrder: menuOrder ?? 0,
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Slug collision from concurrent request -- retry with timestamp suffix
+        slug = `${generateSlug(title)}-${Date.now().toString(36).slice(-4)}`;
+        page = await pagesRepository.create({
+          title,
+          slug,
+          content,
+          parentId: parentId ?? null,
+          menuOrder: menuOrder ?? 0,
+        });
+      } else {
+        throw error;
+      }
+    }
 
     await createAuditLog({
       request,

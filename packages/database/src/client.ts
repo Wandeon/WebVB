@@ -28,6 +28,9 @@ const missingDatabaseClient = new Proxy(
   }
 ) as PrismaClient;
 
+// Connection pool is configured via DATABASE_URL query params:
+// ?connection_limit=10&pool_timeout=30
+// Default Prisma pool = 2 * num_cpus + 1 (often only 3-5 on small VPS)
 export const db =
   databaseEnv
     ? globalThis.prisma ??

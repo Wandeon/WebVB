@@ -1,4 +1,4 @@
-import { indexPost, postsRepository, removeFromIndex } from '@repo/database';
+import { indexPost, Prisma, postsRepository, removeEmbeddings, removeFromIndex } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -101,13 +101,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (title !== undefined) {
       updateData.title = title;
 
-      // Regenerate slug if title changed
+      // Regenerate slug if title changed (cap to prevent infinite loops)
       if (title !== existingPost.title) {
+        const MAX_SLUG_ATTEMPTS = 10;
         let slug = generateSlug(title);
         let slugSuffix = 1;
 
-        // Check for existing slug (excluding current post) and make it unique
         while (await postsRepository.slugExists(slug, postId)) {
+          if (slugSuffix > MAX_SLUG_ATTEMPTS) {
+            return apiError(ErrorCodes.INTERNAL_ERROR, 'Ne mogu generirati jedinstveni slug', 500);
+          }
           slug = `${generateSlug(title)}-${slugSuffix}`;
           slugSuffix++;
         }
@@ -122,8 +125,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (publishedAt !== undefined) updateData.publishedAt = publishedAt;
     if (featuredImage !== undefined) updateData.featuredImage = featuredImage;
 
-    // Update post
-    const post = await postsRepository.update(postId, updateData);
+    // Update post -- handle concurrent slug collision via unique constraint
+    let post;
+    try {
+      post = await postsRepository.update(postId, updateData);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Slug collision from concurrent request -- retry with timestamp suffix
+        if (updateData.slug) {
+          updateData.slug = `${updateData.slug}-${Date.now().toString(36).slice(-4)}`;
+        }
+        post = await postsRepository.update(postId, updateData);
+      } else {
+        throw error;
+      }
+    }
 
     await createAuditLog({
       request,
@@ -137,16 +153,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // Update search index (handles publish/unpublish)
-    await indexPost({
-      id: post.id,
-      title: post.title,
-      slug: post.slug,
-      content: post.content,
-      excerpt: post.excerpt,
-      category: post.category,
-      publishedAt: post.publishedAt,
-    });
+    // Update search index (best-effort -- core update must succeed even if indexing fails)
+    try {
+      await indexPost({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        content: post.content,
+        excerpt: post.excerpt,
+        category: post.category,
+        publishedAt: post.publishedAt,
+      });
+    } catch (indexError) {
+      postsLogger.error(
+        { postId: post.id, error: indexError instanceof Error ? indexError.message : 'Unknown error' },
+        'Failed to index post, will retry on next update',
+      );
+    }
 
     postsLogger.info({ postId }, 'Objava uspješno ažurirana');
 
@@ -194,10 +217,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return apiError(ErrorCodes.NOT_FOUND, 'Objava nije pronađena', 404);
     }
 
-    await postsRepository.delete(postId);
+    // Clean search index and embeddings (best-effort -- core delete must succeed even if cleanup fails)
+    try {
+      await removeFromIndex('post', postId);
+      await removeEmbeddings('post', postId);
+    } catch (indexError) {
+      postsLogger.error(
+        { postId, error: indexError instanceof Error ? indexError.message : 'Unknown error' },
+        'Failed to clean search index',
+      );
+    }
 
-    // Remove from search index
-    await removeFromIndex('post', postId);
+    await postsRepository.delete(postId);
 
     await createAuditLog({
       request,

@@ -188,7 +188,11 @@ model Event {
   id          String    @id @default(uuid())
   title       String
   description String?
+  /// PostgreSQL DATE type (no timezone). JS Date conversions may shift
+  /// by 1 day depending on server timezone. Compare using YYYY-MM-DD strings.
   eventDate   DateTime  @map("event_date") @db.Date
+  /// PostgreSQL TIME type. Returns as 1970-01-01T{HH:MM:SS}.000Z.
+  /// Extract hours/minutes manually when combining with eventDate.
   eventTime   DateTime? @map("event_time") @db.Time()
   endDate     DateTime? @map("end_date") @db.Date
   location    String?

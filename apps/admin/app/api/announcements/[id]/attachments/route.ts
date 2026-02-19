@@ -24,10 +24,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return authResult.response;
     }
 
-    // Check if announcement exists
-    const announcementExists = await announcementsRepository.exists(id);
+    // Check if announcement exists (use findById to also get publishedAt for rebuild check)
+    const announcementId = id;
+    const existingAnnouncement = await announcementsRepository.findById(announcementId);
 
-    if (!announcementExists) {
+    if (!existingAnnouncement) {
       return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
     }
 
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { fileName, fileUrl, fileSize, mimeType } = validationResult.data;
 
-    const attachment = await announcementsRepository.addAttachment(id, {
+    const attachment = await announcementsRepository.addAttachment(announcementId, {
       fileName,
       fileUrl,
       fileSize,
@@ -56,18 +57,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       context: authResult.context,
       action: AUDIT_ACTIONS.UPDATE,
       entityType: AUDIT_ENTITY_TYPES.ANNOUNCEMENT,
-      entityId: id,
+      entityId: announcementId,
       changes: {
         addedAttachment: attachment,
       },
     });
 
     announcementsLogger.info(
-      { announcementId: id, attachmentId: attachment.id },
+      { announcementId, attachmentId: attachment.id },
       'Privitak uspješno dodan obavijesti'
     );
 
-    triggerRebuild(`announcement-attachment-added:${id}`);
+    // Only rebuild if the announcement is published (draft changes don't affect the public site)
+    if (existingAnnouncement.publishedAt) {
+      triggerRebuild(`announcement-attachment-added:${announcementId}`);
+    }
 
     return apiSuccess(attachment, 201);
   } catch (error) {
@@ -90,10 +94,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return authResult.response;
     }
 
-    // Check if announcement exists
-    const announcementExists = await announcementsRepository.exists(id);
+    // Check if announcement exists (use findById to also get publishedAt for rebuild check)
+    const announcementId = id;
+    const announcement = await announcementsRepository.findById(announcementId);
 
-    if (!announcementExists) {
+    if (!announcement) {
       return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
     }
 
@@ -110,30 +115,33 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const { attachmentIds } = validationResult.data;
 
-    await announcementsRepository.reorderAttachments(id, attachmentIds);
+    await announcementsRepository.reorderAttachments(announcementId, attachmentIds);
 
     await createAuditLog({
       request,
       context: authResult.context,
       action: AUDIT_ACTIONS.UPDATE,
       entityType: AUDIT_ENTITY_TYPES.ANNOUNCEMENT,
-      entityId: id,
+      entityId: announcementId,
       changes: {
         reorderedAttachments: attachmentIds,
       },
     });
 
     announcementsLogger.info(
-      { announcementId: id },
+      { announcementId },
       'Redoslijed privitaka uspješno ažuriran'
     );
 
-    triggerRebuild(`announcement-attachments-reordered:${id}`);
+    // Only rebuild if the announcement is published (draft changes don't affect the public site)
+    if (announcement.publishedAt) {
+      triggerRebuild(`announcement-attachments-reordered:${announcementId}`);
+    }
 
     // Return updated announcement with attachments
-    const announcement = await announcementsRepository.findById(id);
+    const updatedAnnouncement = await announcementsRepository.findById(announcementId);
 
-    return apiSuccess(announcement);
+    return apiSuccess(updatedAnnouncement);
   } catch (error) {
     announcementsLogger.error({ error }, 'Greška prilikom preuređivanja privitaka');
     return apiError(

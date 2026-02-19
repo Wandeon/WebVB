@@ -1,5 +1,29 @@
 import { createHash } from 'crypto';
 
+/**
+ * Extract the first balanced JSON object from a string using brace counting.
+ * Avoids the greedy regex problem where `{...}` matches from first `{` to LAST `}`.
+ */
+export function extractJson(text: string): unknown {
+  const start = text.indexOf('{');
+  if (start === -1) return null;
+
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') depth--;
+    if (depth === 0) {
+      try {
+        return JSON.parse(text.slice(start, i + 1)) as unknown;
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  return null; // Unbalanced braces
+}
+
 const INSTRUCTION_PATTERNS = [
   /^\s*(system|assistant|developer|user)\s*:/i,
   /ignore (all|previous|earlier) instructions/i,

@@ -38,58 +38,45 @@ export const newsletterDraftRepository = {
   },
 
   /**
-   * Add an item to the draft
+   * Add an item to the draft (atomic -- no read-modify-write race)
    */
   async addItem(type: NewsletterItemType, itemId: string): Promise<NewsletterDraftRecord> {
-    const draft = await this.get();
+    // Ensure the singleton row exists
+    await this.get();
 
-    // Check if already exists
-    const exists = draft.items.some(item => item.type === type && item.id === itemId);
-    if (exists) {
-      return draft;
-    }
+    const item = { type, id: itemId, addedAt: new Date().toISOString() };
+    const checkPayload = JSON.stringify([{ type, id: itemId }]);
+    const appendPayload = JSON.stringify([item]);
 
-    const newItem: NewsletterDraftItem = {
-      type,
-      id: itemId,
-      addedAt: new Date().toISOString(),
-    };
+    await db.$executeRaw`
+      UPDATE newsletter_drafts
+      SET items = CASE
+        WHEN items @> ${checkPayload}::jsonb THEN items
+        ELSE items || ${appendPayload}::jsonb
+      END,
+      updated_at = NOW()
+      WHERE id = ${DRAFT_ID}
+    `;
 
-    const newItems = [...draft.items, newItem];
-    const updated = await db.newsletterDraft.update({
-      where: { id: DRAFT_ID },
-      data: {
-        items: newItems as unknown as Prisma.InputJsonValue,
-      },
-    });
-
-    return {
-      ...updated,
-      items: updated.items as unknown as NewsletterDraftItem[],
-    };
+    return this.get();
   },
 
   /**
-   * Remove an item from the draft
+   * Remove an item from the draft (atomic -- no read-modify-write race)
    */
   async removeItem(type: NewsletterItemType, itemId: string): Promise<NewsletterDraftRecord> {
-    const draft = await this.get();
+    await db.$executeRaw`
+      UPDATE newsletter_drafts
+      SET items = (
+        SELECT COALESCE(jsonb_agg(elem), '[]'::jsonb)
+        FROM jsonb_array_elements(items) elem
+        WHERE NOT (elem->>'type' = ${type} AND elem->>'id' = ${itemId})
+      ),
+      updated_at = NOW()
+      WHERE id = ${DRAFT_ID}
+    `;
 
-    const filteredItems = draft.items.filter(
-      item => !(item.type === type && item.id === itemId)
-    );
-
-    const updated = await db.newsletterDraft.update({
-      where: { id: DRAFT_ID },
-      data: {
-        items: filteredItems as unknown as Prisma.InputJsonValue,
-      },
-    });
-
-    return {
-      ...updated,
-      items: updated.items as unknown as NewsletterDraftItem[],
-    };
+    return this.get();
   },
 
   /**

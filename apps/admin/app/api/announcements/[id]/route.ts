@@ -1,10 +1,11 @@
-import { announcementsRepository } from '@repo/database';
+import { announcementsRepository, Prisma } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
 import { apiError, apiSuccess, ErrorCodes } from '@/lib/api-response';
 import { createAuditLog } from '@/lib/audit-log';
 import { announcementsLogger } from '@/lib/logger';
+import { deleteFromR2, getR2KeyFromUrl } from '@/lib/r2';
 import { triggerRebuild } from '@/lib/rebuild';
 import { parseUuidParam } from '@/lib/request-validation';
 import { generateSlug } from '@/lib/utils/slug';
@@ -101,13 +102,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (title !== undefined) {
       updateData.title = title;
 
-      // Regenerate slug if title changed
+      // Regenerate slug if title changed (cap to prevent infinite loops)
       if (title !== existingAnnouncement.title) {
+        const MAX_SLUG_ATTEMPTS = 10;
         let slug = generateSlug(title);
         let slugSuffix = 1;
 
-        // Check for existing slug (excluding current announcement) and make it unique
         while (await announcementsRepository.slugExists(slug, announcementId)) {
+          if (slugSuffix > MAX_SLUG_ATTEMPTS) {
+            return apiError(ErrorCodes.INTERNAL_ERROR, 'Ne mogu generirati jedinstveni slug', 500);
+          }
           slug = `${generateSlug(title)}-${slugSuffix}`;
           slugSuffix++;
         }
@@ -122,8 +126,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (validUntil !== undefined) updateData.validUntil = validUntil;
     if (publishedAt !== undefined) updateData.publishedAt = publishedAt;
 
-    // Update announcement
-    const announcement = await announcementsRepository.update(announcementId, updateData);
+    // Update announcement -- handle concurrent slug collision via unique constraint
+    let announcement;
+    try {
+      announcement = await announcementsRepository.update(announcementId, updateData);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Slug collision from concurrent request -- retry with timestamp suffix
+        if (updateData.slug) {
+          updateData.slug = `${updateData.slug}-${Date.now().toString(36).slice(-4)}`;
+        }
+        announcement = await announcementsRepository.update(announcementId, updateData);
+      } else {
+        throw error;
+      }
+    }
 
     await createAuditLog({
       request,
@@ -174,6 +191,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     if (!existingAnnouncement) {
       return apiError(ErrorCodes.NOT_FOUND, 'Obavijest nije pronađena', 404);
+    }
+
+    // Clean up R2 files for attachments (best-effort)
+    if (existingAnnouncement.attachments && existingAnnouncement.attachments.length > 0) {
+      await Promise.allSettled(
+        existingAnnouncement.attachments.map(async (att) => {
+          const key = getR2KeyFromUrl(att.fileUrl);
+          if (key) {
+            await deleteFromR2(key);
+          }
+        })
+      );
     }
 
     await announcementsRepository.delete(announcementId);

@@ -22,14 +22,18 @@ const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 export const dynamicParams = false;
 export const dynamic = 'force-static';
 
-// Required for static export - generate all event pages at build time
+// Required for static export - generate event pages from the last 2 years at build time
 export const generateStaticParams = withStaticParams(async () => {
   if (shouldSkipDatabase()) {
     return [];
   }
 
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
   const events = await eventsRepository.findAllForSitemap();
-  return events.map((event) => ({ id: event.id }));
+  const recentEvents = events.filter((event) => event.eventDate >= twoYearsAgo);
+  return recentEvents.map((event) => ({ id: event.id }));
 }, {
   routeName: 'event detail pages',
   placeholder: { id: '__ci_placeholder__' },

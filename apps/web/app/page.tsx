@@ -23,8 +23,6 @@ import {
   SectionHeader,
 } from '@repo/ui';
 import { ArrowRight, Baby, ExternalLink, FileText, GlassWater, Leaf, Newspaper, Recycle, Trash2, Wrench } from 'lucide-react';
-
-import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 
 import { shouldSkipDatabase } from '@/lib/build-flags';
@@ -34,11 +32,13 @@ import { ExternalServicesSection } from '../components/external-services-section
 import { NewsletterSectionWithApi } from '../components/newsletter-section-with-api';
 import { SmartDashboard } from '../components/smart-dashboard';
 import { VillageHero } from '../components/village-hero';
-import { experienceItems } from '../lib/experience-items';
-import { externalServices } from '../lib/external-services';
-import { fetchAllExternalNews, type ExternalNewsItem } from '../lib/external-news';
 import { obrti, getTotalCompanies, getTotalEmployees } from '../lib/business-directory';
+import { experienceItems } from '../lib/experience-items';
+import { fetchAllExternalNews, type ExternalNewsItem } from '../lib/external-news';
+import { externalServices } from '../lib/external-services';
 import { quickLinks } from '../lib/quick-links';
+
+import type { LucideIcon } from 'lucide-react';
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
 

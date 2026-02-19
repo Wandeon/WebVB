@@ -16,6 +16,9 @@ import type {
   OllamaModelsResponse,
 } from './types';
 
+// Maximum allowed response size (100KB) to guard against runaway LLM output (#112)
+const MAX_RESPONSE_SIZE = 100_000;
+
 // =============================================================================
 // Configuration
 // =============================================================================
@@ -102,16 +105,26 @@ async function withRetry<T>(
       return result;
     }
 
-    // Calculate exponential backoff delay
-    const delay = config.retryDelayMs * Math.pow(2, attempt - 1);
-
-    aiLogger.warn(
-      { attempt, maxRetries: config.maxRetries, delay, context, code: result.error.code },
-      `Retrying after ${delay}ms (attempt ${attempt}/${config.maxRetries})`
-    );
-
-    if (attempt < config.maxRetries) {
-      await sleep(delay);
+    // Use Retry-After header when available, otherwise exponential backoff (#129)
+    if (result.error.retryAfter) {
+      const waitMs = Math.min(result.error.retryAfter * 1000, 120_000); // Cap at 2 minutes
+      aiLogger.warn(
+        { attempt, retryAfter: result.error.retryAfter, waitMs, context, code: result.error.code },
+        `Using Retry-After header for backoff (attempt ${attempt}/${config.maxRetries})`
+      );
+      if (attempt < config.maxRetries) {
+        await sleep(waitMs);
+      }
+    } else {
+      // Calculate exponential backoff delay
+      const delay = config.retryDelayMs * Math.pow(2, attempt - 1);
+      aiLogger.warn(
+        { attempt, maxRetries: config.maxRetries, delay, context, code: result.error.code },
+        `Retrying after ${delay}ms (attempt ${attempt}/${config.maxRetries})`
+      );
+      if (attempt < config.maxRetries) {
+        await sleep(delay);
+      }
     }
   }
 
@@ -183,7 +196,19 @@ export async function listModels(): Promise<AiResponse<OllamaModelsResponse>> {
       };
     }
 
-    const data = await response.json() as OllamaModelsResponse;
+    // Read response as text first to validate size (#112)
+    const responseText = await response.text();
+    if (responseText.length > MAX_RESPONSE_SIZE) {
+      return {
+        success: false,
+        error: {
+          code: 'UNKNOWN',
+          message: `Response too large: ${responseText.length} bytes (max ${MAX_RESPONSE_SIZE})`,
+        },
+      };
+    }
+
+    const data = JSON.parse(responseText) as OllamaModelsResponse;
     return { success: true, data };
   } catch (error) {
     aiLogger.error({ error }, 'Failed to list models');
@@ -271,7 +296,19 @@ export async function generate(
         };
       }
 
-      const data = await response.json() as OllamaGenerateResponse;
+      // Read response as text first to validate size (#112)
+      const responseText = await response.text();
+      if (responseText.length > MAX_RESPONSE_SIZE) {
+        return {
+          success: false,
+          error: {
+            code: 'UNKNOWN' as const,
+            message: `Response too large: ${responseText.length} bytes (max ${MAX_RESPONSE_SIZE})`,
+          },
+        };
+      }
+
+      const data = JSON.parse(responseText) as OllamaGenerateResponse;
 
       aiLogger.info(
         {

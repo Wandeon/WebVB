@@ -1,4 +1,4 @@
-import { galleriesRepository } from '@repo/database';
+import { galleriesRepository, Prisma } from '@repo/database';
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@repo/shared';
 
 import { requireAuth } from '@/lib/api-auth';
@@ -84,22 +84,44 @@ export async function POST(request: NextRequest) {
 
     const { name, description, eventDate, coverImage } = validationResult.data;
 
-    // Generate unique slug
+    // Generate unique slug with cap to prevent infinite loops
+    const MAX_SLUG_ATTEMPTS = 10;
     let slug = generateSlug(name);
     let slugSuffix = 1;
 
     while (await galleriesRepository.slugExists(slug)) {
+      if (slugSuffix > MAX_SLUG_ATTEMPTS) {
+        return apiError(ErrorCodes.INTERNAL_ERROR, 'Ne mogu generirati jedinstveni slug', 500);
+      }
       slug = `${generateSlug(name)}-${slugSuffix}`;
       slugSuffix++;
     }
 
-    const gallery = await galleriesRepository.create({
-      name,
-      slug,
-      description,
-      eventDate: eventDate ? new Date(eventDate) : null,
-      coverImage,
-    });
+    // Create gallery -- handle concurrent slug collision via unique constraint
+    let gallery;
+    try {
+      gallery = await galleriesRepository.create({
+        name,
+        slug,
+        description,
+        eventDate: eventDate ? new Date(eventDate) : null,
+        coverImage,
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Slug collision from concurrent request -- retry with timestamp suffix
+        slug = `${generateSlug(name)}-${Date.now().toString(36).slice(-4)}`;
+        gallery = await galleriesRepository.create({
+          name,
+          slug,
+          description,
+          eventDate: eventDate ? new Date(eventDate) : null,
+          coverImage,
+        });
+      } else {
+        throw error;
+      }
+    }
 
     await createAuditLog({
       request,

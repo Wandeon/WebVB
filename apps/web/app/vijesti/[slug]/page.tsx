@@ -37,8 +37,11 @@ const META_DESCRIPTION_MAX_LENGTH = 160;
 async function fetchPostBySlug(slug: string): Promise<PostWithAuthor | null> {
   try {
     return await postsRepository.findBySlug(slug);
-  } catch {
-    throw new Error('Ne možemo trenutno učitati vijest. Pokušajte ponovno.');
+  } catch (error) {
+    // Log the real error for debugging (build-time only, acceptable for static export)
+    console.error('Database error fetching post:', error);
+    // Re-throw with context but include original
+    throw new Error(`Failed to fetch post "${slug}"`, { cause: error });
   }
 }
 
@@ -121,7 +124,7 @@ export const generateStaticParams = withStaticParams(async () => {
     return [];
   }
 
-  const { posts } = await postsRepository.findPublished({ limit: 100 });
+  const posts = await postsRepository.findPublishedForSitemap();
   return posts.map((post) => ({ slug: post.slug }));
 }, {
   routeName: 'news detail pages',

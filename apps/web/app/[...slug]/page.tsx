@@ -4,6 +4,8 @@ import {
   getPublicEnv,
   isReservedPageSlug,
   isValidPageSlug,
+  stripHtmlTags,
+  truncateText,
   withStaticParams,
 } from '@repo/shared';
 import { ArticleContent, FadeIn, PageAccordion, PageSidebar } from '@repo/ui';
@@ -18,6 +20,8 @@ interface StaticPageProps {
 }
 
 const { NEXT_PUBLIC_SITE_URL } = getPublicEnv();
+
+const META_DESCRIPTION_MAX_LENGTH = 160;
 
 function getSectionTitle(slug: string): string {
   const sectionMap: Record<string, string> = {
@@ -85,14 +89,19 @@ export async function generateMetadata({
   }
 
   const canonicalUrl = buildCanonicalUrl(NEXT_PUBLIC_SITE_URL, `/${slugPath}`);
+  const description = page.content
+    ? truncateText(stripHtmlTags(page.content), META_DESCRIPTION_MAX_LENGTH)
+    : `${page.title} - Općina Veliki Bukovec`;
 
   return {
     title: page.title,
+    description,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       title: page.title,
+      description,
       type: 'website',
       url: canonicalUrl,
     },

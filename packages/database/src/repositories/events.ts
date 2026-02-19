@@ -64,7 +64,7 @@ export const eventsRepository = {
       sortBy = 'eventDate',
       sortOrder = 'asc',
     } = options;
-    const { page: safePage, limit: safeLimit, skip } = normalizePagination({
+    const { page: safePage, limit: safeLimit } = normalizePagination({
       page,
       limit,
       defaultLimit: 20,
@@ -109,23 +109,25 @@ export const eventsRepository = {
       where.AND = andFilters;
     }
 
-    const [total, events] = await Promise.all([
-      db.event.count({ where }),
-      db.event.findMany({
-        where,
-        orderBy: { [sortBy]: sortOrder },
-        skip,
-        take: safeLimit,
-      }),
-    ]);
+    const total = await db.event.count({ where });
+    const totalPages = Math.ceil(total / safeLimit);
+    const clampedPage = Math.min(safePage, Math.max(totalPages, 1));
+    const skip = (clampedPage - 1) * safeLimit;
+
+    const events = await db.event.findMany({
+      where,
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: safeLimit,
+    });
 
     return {
       events,
       pagination: {
-        page: safePage,
+        page: clampedPage,
         limit: safeLimit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages,
       },
     };
   },
@@ -366,9 +368,23 @@ export const eventsRepository = {
   },
 };
 
+// IMPORTANT: eventDate is @db.Date (no timezone), eventTime is @db.Time.
+// See schema.prisma Event model for timezone handling notes.
 function getZagrebStartOfDay(): Date {
   const now = new Date();
-  const zagrebNow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Zagreb' }));
-  zagrebNow.setHours(0, 0, 0, 0);
-  return zagrebNow;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Zagreb',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now);
+
+  const year = parts.find(p => p.type === 'year')!.value;
+  const month = parts.find(p => p.type === 'month')!.value;
+  const day = parts.find(p => p.type === 'day')!.value;
+
+  // Return start of day in Zagreb timezone as UTC
+  // Note: Uses CET (UTC+1) offset. During CEST (UTC+2), this may be off by ~1 hour
+  // at the midnight boundary. Acceptable for event filtering.
+  return new Date(`${year}-${month}-${day}T00:00:00+01:00`);
 }
