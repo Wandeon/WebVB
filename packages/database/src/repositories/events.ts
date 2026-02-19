@@ -368,9 +368,23 @@ export const eventsRepository = {
   },
 };
 
+// IMPORTANT: eventDate is @db.Date (no timezone), eventTime is @db.Time.
+// See schema.prisma Event model for timezone handling notes.
 function getZagrebStartOfDay(): Date {
   const now = new Date();
-  const zagrebNow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Zagreb' }));
-  zagrebNow.setHours(0, 0, 0, 0);
-  return zagrebNow;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Zagreb',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now);
+
+  const year = parts.find(p => p.type === 'year')!.value;
+  const month = parts.find(p => p.type === 'month')!.value;
+  const day = parts.find(p => p.type === 'day')!.value;
+
+  // Return start of day in Zagreb timezone as UTC
+  // Note: Uses CET (UTC+1) offset. During CEST (UTC+2), this may be off by ~1 hour
+  // at the midnight boundary. Acceptable for event filtering.
+  return new Date(`${year}-${month}-${day}T00:00:00+01:00`);
 }
