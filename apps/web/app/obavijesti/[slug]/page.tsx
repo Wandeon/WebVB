@@ -34,8 +34,11 @@ async function fetchAnnouncementBySlug(
 ): Promise<AnnouncementWithAuthor | null> {
   try {
     return await announcementsRepository.findBySlug(slug);
-  } catch {
-    throw new Error('Ne možemo trenutno učitati obavijest. Pokušajte ponovno.');
+  } catch (error) {
+    // Log the real error for debugging (build-time only, acceptable for static export)
+    console.error('Database error fetching announcement:', error);
+    // Re-throw with context but include original
+    throw new Error(`Failed to fetch announcement "${slug}"`, { cause: error });
   }
 }
 
