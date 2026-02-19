@@ -102,7 +102,7 @@ async function fetchRssFeed(
 ): Promise<ExternalNewsItem[]> {
   try {
     const res = await fetch(feedUrl, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(3000),
       headers: { 'User-Agent': 'VelikiBukovecWeb/1.0' },
     });
     if (!res.ok) {
@@ -177,7 +177,7 @@ async function fetchKindergartenNews(
     const res = await fetch(
       'https://www.vrtic-krijesnica.hr/index.php/novosti',
       {
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(3000),
         headers: { 'User-Agent': 'VelikiBukovecWeb/1.0' },
       },
     );
