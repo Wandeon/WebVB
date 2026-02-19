@@ -6,6 +6,7 @@
 
 import { aiLogger } from '../logger';
 import { generate } from './ollama-cloud';
+import { extractJson } from './prompt-utils';
 import {
   buildPolishUserPrompt,
   buildReviewUserPrompt,
@@ -164,46 +165,29 @@ async function rewriteArticle(
     return { article };
   }
 
-  try {
-    const jsonMatch = result.data.response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      const rawSample = result.data.response.slice(0, 200);
-      return {
-        article,
-        parseError: `Rewrite JSON extraction failed. Raw: ${rawSample}`,
-      };
-    }
+  const parsed = extractJson(result.data.response);
 
-    const parsed = JSON.parse(jsonMatch[0]) as unknown;
-
-    if (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      'title' in parsed &&
-      'content' in parsed &&
-      'excerpt' in parsed &&
-      typeof (parsed as Article).title === 'string' &&
-      typeof (parsed as Article).content === 'string' &&
-      typeof (parsed as Article).excerpt === 'string'
-    ) {
-      return { article: parsed as Article };
-    }
-
-    return {
-      article,
-      parseError: `Rewrite response missing required fields`,
-    };
-  } catch (error) {
+  if (!parsed || typeof parsed !== 'object') {
     const rawSample = result.data.response.slice(0, 200);
-    aiLogger.warn(
-      { error: error instanceof Error ? error.message : String(error) },
-      'Failed to parse rewrite response'
-    );
     return {
       article,
-      parseError: `Rewrite JSON parse error: ${error instanceof Error ? error.message : 'unknown'}. Raw: ${rawSample}`,
+      parseError: `Rewrite JSON extraction failed. Raw: ${rawSample}`,
     };
   }
+
+  const obj = parsed as Record<string, unknown>;
+  if (
+    typeof obj.title === 'string' &&
+    typeof obj.content === 'string' &&
+    typeof obj.excerpt === 'string'
+  ) {
+    return { article: obj as unknown as Article };
+  }
+
+  return {
+    article,
+    parseError: `Rewrite response missing required fields`,
+  };
 }
 
 /**
@@ -223,46 +207,29 @@ async function polishArticle(
     return { article };
   }
 
-  try {
-    const jsonMatch = result.data.response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      const rawSample = result.data.response.slice(0, 200);
-      return {
-        article,
-        parseError: `Polish JSON extraction failed. Raw: ${rawSample}`,
-      };
-    }
+  const parsed = extractJson(result.data.response);
 
-    const parsed = JSON.parse(jsonMatch[0]) as unknown;
-
-    if (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      'title' in parsed &&
-      'content' in parsed &&
-      'excerpt' in parsed &&
-      typeof (parsed as Article).title === 'string' &&
-      typeof (parsed as Article).content === 'string' &&
-      typeof (parsed as Article).excerpt === 'string'
-    ) {
-      return { article: parsed as Article };
-    }
-
-    return {
-      article,
-      parseError: `Polish response missing required fields`,
-    };
-  } catch (error) {
+  if (!parsed || typeof parsed !== 'object') {
     const rawSample = result.data.response.slice(0, 200);
-    aiLogger.warn(
-      { error: error instanceof Error ? error.message : String(error) },
-      'Failed to parse polish response'
-    );
     return {
       article,
-      parseError: `Polish JSON parse error: ${error instanceof Error ? error.message : 'unknown'}. Raw: ${rawSample}`,
+      parseError: `Polish JSON extraction failed. Raw: ${rawSample}`,
     };
   }
+
+  const obj = parsed as Record<string, unknown>;
+  if (
+    typeof obj.title === 'string' &&
+    typeof obj.content === 'string' &&
+    typeof obj.excerpt === 'string'
+  ) {
+    return { article: obj as unknown as Article };
+  }
+
+  return {
+    article,
+    parseError: `Polish response missing required fields`,
+  };
 }
 
 // =============================================================================
@@ -304,12 +271,21 @@ export async function runArticlePipeline(
     );
 
     const rewriteResult = await rewriteArticle(currentArticle, review.issues);
-    currentArticle = rewriteResult.article;
     rewriteCount++;
 
+    // #164: Return PipelineFailure when rewrite stage fails to parse
     if (rewriteResult.parseError) {
       aiLogger.warn({ parseError: rewriteResult.parseError }, 'Rewrite parse issue');
+      return {
+        success: false,
+        stage: 'rewrite',
+        reason: rewriteResult.parseError,
+        rawSample: rewriteResult.parseError.slice(0, 500),
+        article: currentArticle,
+      } satisfies PipelineFailure;
     }
+
+    currentArticle = rewriteResult.article;
 
     // Re-review after rewrite
     aiLogger.info('Pipeline stage: REVIEW (post-rewrite)');
@@ -321,11 +297,20 @@ export async function runArticlePipeline(
   // Stage 3: POLISH (always run, even if review didn't pass)
   aiLogger.info('Pipeline stage: POLISH');
   const polishResult = await polishArticle(currentArticle);
-  currentArticle = polishResult.article;
 
+  // #164: Return PipelineFailure when polish stage fails to parse
   if (polishResult.parseError) {
     aiLogger.warn({ parseError: polishResult.parseError }, 'Polish parse issue');
+    return {
+      success: false,
+      stage: 'polish',
+      reason: polishResult.parseError,
+      rawSample: polishResult.parseError.slice(0, 500),
+      article: currentArticle,
+    } satisfies PipelineFailure;
   }
+
+  currentArticle = polishResult.article;
 
   const passed = review.pass;
 

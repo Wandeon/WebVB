@@ -13,7 +13,7 @@ import { z } from 'zod';
 import { aiLogger } from '../logger';
 import { generate, isOllamaCloudConfigured } from './ollama-cloud';
 import { runArticlePipeline } from './pipeline';
-import { hashText } from './prompt-utils';
+import { extractJson, hashText } from './prompt-utils';
 
 import type { AiQueueRecord } from '@repo/database';
 
@@ -68,16 +68,7 @@ const postGenerationSchema = z
 
 const ALLOWED_HTML_TAGS = new Set(['p', 'h2', 'h3', 'ul', 'li', 'strong', 'em', 'a', 'br']);
 
-function extractJson(response: string): unknown {
-  const jsonMatch = response.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) return null;
-
-  try {
-    return JSON.parse(jsonMatch[0]) as unknown;
-  } catch {
-    return null;
-  }
-}
+// extractJson is imported from prompt-utils (balanced-brace parser, #92)
 
 function containsUnsafeMarkup(value: string): boolean {
   return /<\s*script\b|javascript:|on\w+\s*=|<\s*iframe\b/i.test(value);
