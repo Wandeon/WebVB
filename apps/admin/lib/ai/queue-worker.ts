@@ -1,6 +1,7 @@
 /**
  * AI Queue Worker
- * Background worker that polls for pending AI jobs and processes them
+ * Background worker that polls for pending AI jobs and processes them.
+ * Features: lease renewal (#94), circuit breaker (#141), graceful shutdown (#154).
  */
 
 import { randomUUID } from 'crypto';
@@ -35,14 +36,23 @@ const FALLBACK_WORKER_ID = randomUUID();
 const LEASE_DURATION_MS = 5 * 60 * 1000;
 const MAX_CONTENT_LENGTH = 20000;
 
+// Circuit breaker configuration (#141)
+const MAX_CONSECUTIVE_FAILURES = 5;
+const BACKOFF_BASE_MS = 30_000; // 30 seconds
+const BACKOFF_MAX_MS = 300_000; // 5 minutes
+
 // =============================================================================
 // State
 // =============================================================================
 
-let workerInterval: ReturnType<typeof setInterval> | null = null;
+let workerActive = false;
+let pollTimeout: ReturnType<typeof setTimeout> | null = null;
 let isProcessing = false;
 let processingPromise: Promise<void> | null = null;
 let shutdownRequested = false;
+
+// Circuit breaker state (#141)
+let consecutiveFailures = 0;
 
 // =============================================================================
 // Helper Functions
@@ -128,18 +138,54 @@ function validatePostGenerationResult(response: string): {
 }
 
 // =============================================================================
+// Circuit Breaker (#141)
+// =============================================================================
+
+/**
+ * Calculate exponential backoff delay based on consecutive failure count.
+ * Returns 0 when under the failure threshold (no backoff needed).
+ */
+function getBackoffDelay(): number {
+  if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+    const exponent = consecutiveFailures - MAX_CONSECUTIVE_FAILURES;
+    return Math.min(BACKOFF_BASE_MS * Math.pow(2, exponent), BACKOFF_MAX_MS);
+  }
+  return 0;
+}
+
+// =============================================================================
+// Lease Renewal (#94)
+// =============================================================================
+
+/**
+ * Extend the lease for a job before a long-running pipeline stage.
+ * Logs a warning if the lease could not be extended (job may have been stolen).
+ */
+async function extendJobLease(jobId: string, workerId: string): Promise<void> {
+  const extended = await aiQueueRepository.extendLease(jobId, workerId, LEASE_DURATION_MS);
+  if (!extended) {
+    aiLogger.warn({ jobId, workerId }, 'Failed to extend lease — job may have been reassigned');
+  }
+}
+
+// =============================================================================
 // Job Processing
 // =============================================================================
 
 /**
  * Process a single AI queue job
  * 1. Log start
- * 2. Mark as processing
+ * 2. Extend lease before each major stage
  * 3. Call generate() with job input data
  * 4. If success: mark completed with response data
  * 5. If failure: retry if attempts < maxAttempts, otherwise mark failed
+ * 6. Check shutdownRequested before each stage (#154)
  */
-async function processJob(job: AiQueueRecord): Promise<void> {
+async function processJob(
+  job: AiQueueRecord,
+  workerId: string,
+  checkShutdown = true
+): Promise<void> {
   aiLogger.info(
     { jobId: job.id, requestType: job.requestType, attempt: job.attempts },
     'Processing AI queue job'
@@ -167,6 +213,16 @@ async function processJob(job: AiQueueRecord): Promise<void> {
     return;
   }
 
+  // Shutdown check before AI generation (#154)
+  if (checkShutdown && shutdownRequested) {
+    aiLogger.info({ jobId: job.id }, 'Shutdown requested, aborting job processing');
+    await aiQueueRepository.resetToPending(job.id);
+    return;
+  }
+
+  // Extend lease before AI generation (#94)
+  await extendJobLease(job.id, workerId);
+
   // Call the AI generate function
   // Only include system if it's defined (exactOptionalPropertyTypes)
   const result = await generate(prompt, system ? { system } : {});
@@ -193,6 +249,13 @@ async function processJob(job: AiQueueRecord): Promise<void> {
 
     // For post_generation jobs, parse the response and run through pipeline
     if (job.requestType === 'post_generation') {
+      // Shutdown check before validation (#154)
+      if (checkShutdown && shutdownRequested) {
+        aiLogger.info({ jobId: job.id }, 'Shutdown requested, aborting job processing');
+        await aiQueueRepository.resetToPending(job.id);
+        return;
+      }
+
       const validated = validatePostGenerationResult(result.data.response);
 
       if (!validated.result) {
@@ -207,6 +270,16 @@ async function processJob(job: AiQueueRecord): Promise<void> {
         );
         return;
       }
+
+      // Shutdown check before pipeline (#154)
+      if (checkShutdown && shutdownRequested) {
+        aiLogger.info({ jobId: job.id }, 'Shutdown requested, aborting job processing');
+        await aiQueueRepository.resetToPending(job.id);
+        return;
+      }
+
+      // Extend lease before pipeline run (#94)
+      await extendJobLease(job.id, workerId);
 
       aiLogger.info({ jobId: job.id }, 'Running article through quality pipeline');
 
@@ -315,21 +388,39 @@ async function processJob(job: AiQueueRecord): Promise<void> {
 }
 
 // =============================================================================
-// Polling
+// Polling (#141 -- dynamic setTimeout chain instead of setInterval)
 // =============================================================================
 
 /**
- * Poll for pending jobs and process one if found
- * Skips if already processing or not configured
+ * Schedule the next poll cycle using setTimeout.
+ * Applies backoff delay when circuit breaker is active.
+ */
+function scheduleNextPoll(): void {
+  if (shutdownRequested) return;
+
+  const backoff = getBackoffDelay();
+  const delay = POLL_INTERVAL_MS + backoff;
+
+  pollTimeout = setTimeout(() => {
+    void pollAndProcess();
+  }, delay);
+}
+
+/**
+ * Poll for pending jobs and process one if found.
+ * Skips if already processing or not configured.
+ * Updates circuit breaker state on success/failure.
  */
 async function pollAndProcess(): Promise<void> {
   // Skip if already processing
   if (isProcessing || shutdownRequested) {
+    scheduleNextPoll();
     return;
   }
 
   // Skip if Ollama Cloud is not configured
   if (!isOllamaCloudConfigured()) {
+    scheduleNextPoll();
     return;
   }
 
@@ -346,13 +437,30 @@ async function pollAndProcess(): Promise<void> {
 
       if (job) {
         try {
-          await processJob(job);
+          await processJob(job, workerId);
+          // Reset circuit breaker on success (#141)
+          if (consecutiveFailures > 0) {
+            aiLogger.info(
+              { previousFailures: consecutiveFailures },
+              'Circuit breaker reset after successful job'
+            );
+            consecutiveFailures = 0;
+          }
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           aiLogger.error(
             { jobId: job.id, error: errorMessage },
             'Unhandled error while processing AI job'
           );
+
+          // Increment circuit breaker (#141)
+          consecutiveFailures++;
+          if (consecutiveFailures === MAX_CONSECUTIVE_FAILURES) {
+            aiLogger.warn(
+              { consecutiveFailures, backoffMs: BACKOFF_BASE_MS },
+              'Circuit breaker threshold reached, entering backoff'
+            );
+          }
 
           try {
             await aiQueueRepository.markFailed(
@@ -375,9 +483,20 @@ async function pollAndProcess(): Promise<void> {
         { error: error instanceof Error ? error.message : 'Unknown error' },
         'Error during poll and process'
       );
+
+      // Increment circuit breaker on poll errors (#141)
+      consecutiveFailures++;
+      if (consecutiveFailures === MAX_CONSECUTIVE_FAILURES) {
+        aiLogger.warn(
+          { consecutiveFailures, backoffMs: BACKOFF_BASE_MS },
+          'Circuit breaker threshold reached, entering backoff'
+        );
+      }
     } finally {
       isProcessing = false;
       processingPromise = null;
+      // Schedule next poll dynamically (#141)
+      scheduleNextPoll();
     }
   })();
 
@@ -393,7 +512,7 @@ async function pollAndProcess(): Promise<void> {
  * - Checks if worker is enabled via environment variable
  * - Skips if already running
  * - Performs initial poll immediately
- * - Starts interval for subsequent polls
+ * - Uses dynamic setTimeout chain for subsequent polls (#141)
  */
 export function startQueueWorker(): void {
   const { enabled, workerId } = getWorkerConfig();
@@ -405,12 +524,14 @@ export function startQueueWorker(): void {
   }
 
   // Skip if already running
-  if (workerInterval !== null) {
+  if (workerActive) {
     aiLogger.warn('AI queue worker is already running');
     return;
   }
 
   shutdownRequested = false;
+  consecutiveFailures = 0;
+  workerActive = true;
 
   aiLogger.info(
     { pollIntervalMs: POLL_INTERVAL_MS, workerId, leaseMs: LEASE_DURATION_MS },
@@ -419,32 +540,31 @@ export function startQueueWorker(): void {
 
   // Initial poll immediately
   void pollAndProcess();
-
-  // Start interval for subsequent polls
-  workerInterval = setInterval(() => {
-    void pollAndProcess();
-  }, POLL_INTERVAL_MS);
 }
 
 /**
  * Stop the queue worker
- * - Clears the interval
- * - Sets interval to null
+ * - Clears the poll timeout
+ * - Sets timeout to null
  * - Logs stop
  */
 export function stopQueueWorker(): void {
-  shutdownRequested = true;
-  if (workerInterval !== null) {
-    clearInterval(workerInterval);
-    workerInterval = null;
+  if (workerActive) {
+    shutdownRequested = true;
+    workerActive = false;
+    if (pollTimeout !== null) {
+      clearTimeout(pollTimeout);
+      pollTimeout = null;
+    }
     aiLogger.info('AI queue worker stopped');
   }
 }
 
 /**
  * Gracefully stop the worker and wait for in-flight work to finish.
+ * Default timeout increased to 120s for long pipeline jobs (#154).
  */
-export async function shutdownQueueWorker(timeoutMs = 10_000): Promise<void> {
+export async function shutdownQueueWorker(timeoutMs = 120_000): Promise<void> {
   shutdownRequested = true;
   stopQueueWorker();
 
@@ -478,12 +598,12 @@ export async function shutdownQueueWorker(timeoutMs = 10_000): Promise<void> {
  * Check if the worker is currently running
  */
 export function isWorkerRunning(): boolean {
-  return workerInterval !== null;
+  return workerActive;
 }
 
 /**
- * Manually trigger processing of one job
- * For use from admin interface
+ * Manually trigger processing of one job.
+ * For use from admin interface. Does not affect circuit breaker state.
  */
 export async function triggerProcessing(): Promise<{
   processed: boolean;
@@ -512,8 +632,8 @@ export async function triggerProcessing(): Promise<{
     }
 
     try {
-      // Process the job
-      await processJob(job);
+      // Process the job (manual trigger ignores shutdown flag)
+      await processJob(job, workerId, false);
       return { processed: true, jobId: job.id };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

@@ -24,6 +24,7 @@ vi.mock('@repo/database', () => ({
     markCompleted: vi.fn(),
     markFailed: vi.fn(),
     resetToPending: vi.fn(),
+    extendLease: vi.fn(),
   },
 }));
 
@@ -110,6 +111,7 @@ describe('queue-worker', () => {
 
     // Default mock implementations
     mockIsOllamaCloudConfigured.mockReturnValue(true);
+    mockAiQueueRepository.extendLease.mockResolvedValue(true);
   });
 
   afterEach(() => {
